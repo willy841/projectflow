@@ -67,13 +67,13 @@ export default function Home() {
           <div className="flex flex-wrap gap-3">
             <Link
               href="/projects/new"
-              className="rounded-2xl bg-slate-950 px-5 py-3 text-sm font-medium text-white"
+              className="rounded-2xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-300"
             >
               + 新增專案
             </Link>
             <Link
               href="/projects"
-              className="rounded-2xl border border-slate-300 bg-white px-5 py-3 text-sm font-medium text-slate-700"
+              className="rounded-2xl border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-800 shadow-sm transition hover:border-slate-400 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-200"
             >
               查看專案列表
             </Link>
