@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AppShell } from "@/components/app-shell";
+import { ExecutionTree } from "@/components/execution-tree";
 import { getProjectById, getStatusClass } from "@/components/project-data";
 
 export default async function ProjectDetailPage({
@@ -113,58 +114,17 @@ export default async function ProjectDetailPage({
         <div className="mb-5 flex items-center justify-between">
           <div>
             <h3 className="text-xl font-semibold">專案執行項目</h3>
-            <p className="mt-1 text-sm text-slate-500">從討論項目展開執行，並由每個項目發起設計交辦或備品交辦。</p>
+            <p className="mt-1 text-sm text-slate-500">改成樹狀子項目操作，可直接展開、收合，並在項目底下新增子項目。</p>
           </div>
           <Link
             href={`/projects/${project.id}/execution-items/new`}
             className="rounded-2xl border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
           >
-            + 新增項目
+            + 新增主項目
           </Link>
         </div>
 
-        <div className="space-y-4">
-          {project.executionItems.map((item) => (
-            <div key={item.id} className="rounded-3xl border border-slate-200 p-5">
-              <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
-                <div className="space-y-3">
-                  <div className="flex flex-wrap items-center gap-3">
-                    <p className="text-xs font-semibold text-blue-600">{item.category}</p>
-                    <span className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ring-1 ${getStatusClass(item.status)}`}>
-                      {item.status}
-                    </span>
-                  </div>
-
-                  <div>
-                    <h4 className="text-lg font-semibold text-slate-900">{item.title}</h4>
-                    <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">{item.detail}</p>
-                  </div>
-
-                  <div className="flex flex-wrap gap-3 text-xs text-slate-500">
-                    {item.referenceExample ? <span>參考範例：{item.referenceExample}</span> : null}
-                    <span>設計交辦：{item.designTaskCount ?? 0}</span>
-                    <span>備品交辦：{item.procurementTaskCount ?? 0}</span>
-                  </div>
-                </div>
-
-                <div className="grid w-full gap-2 sm:w-auto">
-                  <button className="rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm font-semibold text-slate-800 transition hover:bg-slate-50">
-                    交辦
-                  </button>
-                  <Link
-                    href={`/design-tasks/new?projectId=${project.id}&itemId=${item.id}&itemTitle=${encodeURIComponent(item.title)}`}
-                    className="inline-flex items-center justify-center rounded-2xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700"
-                  >
-                    設計交辦
-                  </Link>
-                  <button className="rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm font-semibold text-slate-800 transition hover:bg-slate-50">
-                    備品交辦
-                  </button>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
+        <ExecutionTree projectId={project.id} items={project.executionItems} />
       </section>
 
       <section className="grid gap-6 xl:grid-cols-2">

@@ -1,5 +1,13 @@
 export type ProjectStatus = "執行中" | "待發包" | "採購中" | "已結案";
 
+export type ProjectExecutionSubItem = {
+  id: string;
+  title: string;
+  status: string;
+  assignee?: string;
+  category: string;
+};
+
 export type ProjectExecutionItem = {
   id: string;
   title: string;
@@ -9,6 +17,7 @@ export type ProjectExecutionItem = {
   referenceExample?: string;
   designTaskCount?: number;
   procurementTaskCount?: number;
+  children?: ProjectExecutionSubItem[];
 };
 
 export type Project = {
@@ -83,6 +92,10 @@ export const projects: Project[] = [
         referenceExample: "春季視覺範例 A",
         designTaskCount: 1,
         procurementTaskCount: 0,
+        children: [
+          { id: "spring-item-1-1", title: "主背板輸出完稿", status: "進行中", assignee: "Aster", category: "設計" },
+          { id: "spring-item-1-2", title: "入口燈箱視覺延伸", status: "待確認", assignee: "Mika", category: "設計" },
+        ],
       },
       {
         id: "spring-item-2",
@@ -93,6 +106,9 @@ export const projects: Project[] = [
         referenceExample: "門市陳列範例 B",
         designTaskCount: 1,
         procurementTaskCount: 1,
+        children: [
+          { id: "spring-item-2-1", title: "品牌立牌版型整理", status: "待交辦", assignee: "未指派", category: "設計" },
+        ],
       },
       {
         id: "spring-item-3",
@@ -103,6 +119,10 @@ export const projects: Project[] = [
         referenceExample: "活動贈品範例 C",
         designTaskCount: 0,
         procurementTaskCount: 1,
+        children: [
+          { id: "spring-item-3-1", title: "吊卡與包裝貼紙", status: "待交辦", assignee: "未指派", category: "設計" },
+          { id: "spring-item-3-2", title: "動線立牌內容整理", status: "待拆解", assignee: "未指派", category: "專案" },
+        ],
       },
     ],
     designTasks: [
@@ -146,6 +166,9 @@ export const projects: Project[] = [
         referenceExample: "舞台動畫提案 01",
         designTaskCount: 1,
         procurementTaskCount: 0,
+        children: [
+          { id: "obsidian-item-1-1", title: "主 KV 延伸版位", status: "進行中", assignee: "Nora", category: "設計" },
+        ],
       },
       {
         id: "obsidian-item-2",
@@ -156,6 +179,9 @@ export const projects: Project[] = [
         referenceExample: "背牆木作範例",
         designTaskCount: 1,
         procurementTaskCount: 0,
+        children: [
+          { id: "obsidian-item-2-1", title: "木作結構圖整理", status: "待確認", assignee: "Jay", category: "設計" },
+        ],
       },
     ],
     designTasks: [
@@ -198,6 +224,9 @@ export const projects: Project[] = [
         referenceExample: "百貨 POP 範例",
         designTaskCount: 1,
         procurementTaskCount: 0,
+        children: [
+          { id: "dept-item-1-1", title: "價卡尺寸整理", status: "待確認", assignee: "Dora", category: "設計" },
+        ],
       },
       {
         id: "dept-item-2",
@@ -208,6 +237,9 @@ export const projects: Project[] = [
         referenceExample: "展示架拆裝範例",
         designTaskCount: 0,
         procurementTaskCount: 1,
+        children: [
+          { id: "dept-item-2-1", title: "五金包裝清單", status: "採購中", assignee: "Momo", category: "備品" },
+        ],
       },
     ],
     designTasks: [

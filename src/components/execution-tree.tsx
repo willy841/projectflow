@@ -1,0 +1,170 @@
+"use client";
+
+import Link from "next/link";
+import { useState } from "react";
+import { ProjectExecutionItem, getStatusClass } from "@/components/project-data";
+
+export function ExecutionTree({
+  projectId,
+  items,
+}: {
+  projectId: string;
+  items: ProjectExecutionItem[];
+}) {
+  const [expanded, setExpanded] = useState<Record<string, boolean>>(
+    Object.fromEntries(items.map((item) => [item.id, true]))
+  );
+  const [drafts, setDrafts] = useState<Record<string, string>>({});
+  const [localItems, setLocalItems] = useState(items);
+
+  function toggleItem(itemId: string) {
+    setExpanded((prev) => ({ ...prev, [itemId]: !prev[itemId] }));
+  }
+
+  function updateDraft(itemId: string, value: string) {
+    setDrafts((prev) => ({ ...prev, [itemId]: value }));
+  }
+
+  function addChild(itemId: string) {
+    const draft = drafts[itemId]?.trim();
+    if (!draft) return;
+
+    setLocalItems((prev) =>
+      prev.map((item) => {
+        if (item.id !== itemId) return item;
+        const nextIndex = (item.children?.length ?? 0) + 1;
+        return {
+          ...item,
+          children: [
+            ...(item.children ?? []),
+            {
+              id: `${item.id}-new-${nextIndex}`,
+              title: draft,
+              status: "待交辦",
+              assignee: "未指派",
+              category: item.category,
+            },
+          ],
+        };
+      })
+    );
+
+    setDrafts((prev) => ({ ...prev, [itemId]: "" }));
+    setExpanded((prev) => ({ ...prev, [itemId]: true }));
+  }
+
+  return (
+    <div className="space-y-4">
+      {localItems.map((item) => {
+        const isOpen = expanded[item.id];
+        return (
+          <div key={item.id} className="rounded-3xl border border-slate-200 bg-white p-5">
+            <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
+              <div className="flex-1 space-y-3">
+                <div className="flex flex-wrap items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() => toggleItem(item.id)}
+                    className="inline-flex h-8 w-8 items-center justify-center rounded-xl border border-slate-300 bg-white text-sm text-slate-700 transition hover:bg-slate-50"
+                  >
+                    {isOpen ? "−" : "+"}
+                  </button>
+                  <p className="text-xs font-semibold text-blue-600">{item.category}</p>
+                  <span className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ring-1 ${getStatusClass(item.status)}`}>
+                    {item.status}
+                  </span>
+                </div>
+
+                <div>
+                  <h4 className="text-lg font-semibold text-slate-900">{item.title}</h4>
+                  <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">{item.detail}</p>
+                </div>
+
+                <div className="flex flex-wrap gap-3 text-xs text-slate-500">
+                  {item.referenceExample ? <span>參考範例：{item.referenceExample}</span> : null}
+                  <span>設計交辦：{item.designTaskCount ?? 0}</span>
+                  <span>備品交辦：{item.procurementTaskCount ?? 0}</span>
+                  <span>子項目：{item.children?.length ?? 0}</span>
+                </div>
+              </div>
+
+              <div className="grid w-full gap-2 sm:w-auto">
+                <button className="rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm font-semibold text-slate-800 transition hover:bg-slate-50">
+                  交辦
+                </button>
+                <Link
+                  href={`/design-tasks/new?projectId=${projectId}&itemId=${item.id}&itemTitle=${encodeURIComponent(item.title)}`}
+                  className="inline-flex items-center justify-center rounded-2xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700"
+                >
+                  設計交辦
+                </Link>
+                <button className="rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm font-semibold text-slate-800 transition hover:bg-slate-50">
+                  備品交辦
+                </button>
+              </div>
+            </div>
+
+            {isOpen ? (
+              <div className="mt-5 border-t border-slate-200 pt-4">
+                <div className="space-y-3 pl-3 md:pl-6">
+                  {(item.children ?? []).map((child) => (
+                    <div
+                      key={child.id}
+                      className="rounded-2xl border border-slate-200 bg-slate-50/70 p-4"
+                    >
+                      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                        <div>
+                          <div className="flex flex-wrap items-center gap-3">
+                            <span className="text-xs font-semibold text-slate-500">子項目</span>
+                            <span className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ring-1 ${getStatusClass(child.status)}`}>
+                              {child.status}
+                            </span>
+                          </div>
+                          <h5 className="mt-2 font-semibold text-slate-900">{child.title}</h5>
+                          <p className="mt-1 text-sm text-slate-500">
+                            類型：{child.category} {child.assignee ? `・負責：${child.assignee}` : ""}
+                          </p>
+                        </div>
+
+                        <div className="flex flex-wrap gap-2">
+                          <Link
+                            href={`/design-tasks/new?projectId=${projectId}&itemId=${item.id}&itemTitle=${encodeURIComponent(child.title)}`}
+                            className="rounded-xl bg-blue-600 px-3 py-2 text-xs font-semibold text-white transition hover:bg-blue-700"
+                          >
+                            設計交辦
+                          </Link>
+                          <button className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-100">
+                            備品交辦
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+
+                  <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-4">
+                    <p className="text-sm font-medium text-slate-700">+ 新增子項目</p>
+                    <div className="mt-3 flex flex-col gap-3 sm:flex-row">
+                      <input
+                        value={drafts[item.id] ?? ""}
+                        onChange={(event) => updateDraft(item.id, event.target.value)}
+                        placeholder="輸入子項目名稱，例如：主背板燈箱版型"
+                        className="h-11 flex-1 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => addChild(item.id)}
+                        className="rounded-2xl bg-slate-950 px-4 py-3 text-sm font-semibold text-white transition hover:bg-slate-800"
+                      >
+                        新增
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : null}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
