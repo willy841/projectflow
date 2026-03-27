@@ -30,6 +30,7 @@ type DisplayItem = {
   title: string;
   badge: string;
   badgeClass: string;
+  summary: string[];
   fields: Array<{ label: string; value: string }>;
   replies: AssignmentReply[];
 };
@@ -49,6 +50,8 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
   const [vendorAssignments, setVendorAssignments] = useState<VendorAssignmentItem[]>([]);
   const [openCategory, setOpenCategory] = useState<OpenCategory>("design");
   const [activeReplyBoxId, setActiveReplyBoxId] = useState<string | null>(null);
+  const [expandedDetailId, setExpandedDetailId] = useState<string | null>(null);
+  const [expandedReplyListId, setExpandedReplyListId] = useState<string | null>(null);
   const [replyForms, setReplyForms] = useState<Record<string, ReplyForm>>({});
 
   function updateReplyForm(targetId: string, key: keyof ReplyForm, value: string) {
@@ -139,6 +142,7 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
 
     setReplyForms((prev) => ({ ...prev, [targetId]: defaultReplyForm }));
     setActiveReplyBoxId(null);
+    setExpandedReplyListId(targetId);
   }
 
   const designList = useMemo<DisplayItem[]>(
@@ -148,6 +152,11 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
         title: assignment.title,
         badge: assignment.data.status,
         badgeClass: getStatusClass(assignment.data.status),
+        summary: [
+          assignment.data.size ? `尺寸：${assignment.data.size}` : null,
+          assignment.data.material ? `材質：${assignment.data.material}` : null,
+          assignment.data.quantity ? `數量：${assignment.data.quantity}` : null,
+        ].filter((value): value is string => Boolean(value)),
         fields: [
           { label: "尺寸", value: assignment.data.size || "—" },
           { label: "材質", value: assignment.data.material || "—" },
@@ -163,6 +172,7 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
         title: task.title,
         badge: task.status,
         badgeClass: getStatusClass(task.status),
+        summary: [`負責人：${task.assignee}`, `期限：${task.due}`],
         fields: [
           { label: "負責人", value: task.assignee },
           { label: "期限", value: task.due },
@@ -180,6 +190,11 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
         title: assignment.title,
         badge: assignment.data.status,
         badgeClass: getStatusClass(assignment.data.status),
+        summary: [
+          assignment.data.item ? `項目：${assignment.data.item}` : null,
+          assignment.data.quantity ? `數量：${assignment.data.quantity}` : null,
+          assignment.data.budget ? `預算：${assignment.data.budget}` : null,
+        ].filter((value): value is string => Boolean(value)),
         fields: [
           { label: "項目", value: assignment.data.item || "—" },
           { label: "數量", value: assignment.data.quantity || "—" },
@@ -193,6 +208,7 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
         title: task.title,
         badge: task.status,
         badgeClass: getStatusClass(task.status),
+        summary: [`採購：${task.buyer}`, `預算：${task.budget}`],
         fields: [
           { label: "採購", value: task.buyer },
           { label: "預算", value: task.budget },
@@ -210,6 +226,11 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
         title: assignment.title,
         badge: assignment.data.status,
         badgeClass: getStatusClass(assignment.data.status),
+        summary: [
+          assignment.data.title ? `交辦名稱：${assignment.data.title}` : null,
+          assignment.data.vendorName ? `廠商名稱：${assignment.data.vendorName}` : null,
+          assignment.data.budget ? `預算 / 報價：${assignment.data.budget}` : null,
+        ].filter((value): value is string => Boolean(value)),
         fields: [
           { label: "交辦名稱", value: assignment.data.title || "—" },
           { label: "廠商名稱", value: assignment.data.vendorName || "—" },
@@ -316,102 +337,110 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
               currentList.map((item) => {
                 const replyForm = replyForms[item.id] ?? defaultReplyForm;
                 const isReplyOpen = activeReplyBoxId === item.id;
+                const isDetailOpen = expandedDetailId === item.id;
+                const isReplyListOpen = expandedReplyListId === item.id;
 
                 return (
                   <div key={item.id} className="rounded-2xl border border-slate-200 bg-white p-4">
-                    <div className="flex flex-col gap-4">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <h5 className="font-semibold text-slate-900">{item.title}</h5>
-                        <span className={`inline-flex items-center justify-center rounded-full px-3 py-1 text-xs font-medium ${item.badgeClass}`}>
-                          {item.badge}
-                        </span>
-                      </div>
-
-                      <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-                        {item.fields.map((field) => (
-                          <div key={`${item.id}-${field.label}`} className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
-                            <p className="text-xs font-medium text-slate-500">{field.label}</p>
-                            <p className="mt-2 text-sm font-medium break-words text-slate-900">{field.value}</p>
+                    <div className="flex flex-col gap-3">
+                      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                        <div className="min-w-0">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <h5 className="font-semibold text-slate-900">{item.title}</h5>
+                            <span className={`inline-flex items-center justify-center rounded-full px-3 py-1 text-xs font-medium ${item.badgeClass}`}>
+                              {item.badge}
+                            </span>
                           </div>
-                        ))}
-                      </div>
+                          <div className="mt-2 flex flex-wrap gap-3 text-sm text-slate-500">
+                            {item.summary.map((line) => (
+                              <span key={`${item.id}-${line}`}>{line}</span>
+                            ))}
+                            <span>回覆 {item.replies.length} 則</span>
+                          </div>
+                        </div>
 
-                      <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                        <div className="flex flex-wrap items-center justify-between gap-3">
-                          <p className="text-sm font-semibold text-slate-800">任務回覆</p>
+                        <div className="flex flex-wrap gap-2">
+                          <button
+                            type="button"
+                            onClick={() => setExpandedDetailId((prev) => (prev === item.id ? null : item.id))}
+                            className="inline-flex items-center justify-center rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-50"
+                          >
+                            {isDetailOpen ? "收合內容" : "查看內容"}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setExpandedReplyListId((prev) => (prev === item.id ? null : item.id))}
+                            className="inline-flex items-center justify-center rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-50"
+                          >
+                            {isReplyListOpen ? "收合回覆" : `查看回覆（${item.replies.length}）`}
+                          </button>
                           <button
                             type="button"
                             onClick={() => setActiveReplyBoxId((prev) => (prev === item.id ? null : item.id))}
-                            className="inline-flex items-center justify-center rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-50"
+                            className="inline-flex items-center justify-center rounded-xl bg-slate-900 px-3 py-2 text-xs font-semibold text-white transition hover:bg-slate-800"
                           >
-                            {isReplyOpen ? "收合回覆" : "新增回覆"}
+                            {isReplyOpen ? "取消回覆" : "新增回覆"}
                           </button>
                         </div>
+                      </div>
 
-                        <div className="mt-3 space-y-2">
-                          {item.replies.length ? (
-                            item.replies.map((reply) => (
-                              <div key={reply.id} className="rounded-2xl bg-white px-3 py-2 text-sm text-slate-600 ring-1 ring-slate-200">
-                                <p>{reply.message}</p>
-                                <p className="mt-1 text-xs text-slate-400">{reply.createdAt}</p>
-                              </div>
-                            ))
-                          ) : (
-                            <p className="text-sm text-slate-400">目前尚無回覆。</p>
-                          )}
+                      {isDetailOpen ? (
+                        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+                          {item.fields.map((field) => (
+                            <div key={`${item.id}-${field.label}`} className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
+                              <p className="text-xs font-medium text-slate-500">{field.label}</p>
+                              <p className="mt-2 break-words text-sm font-medium text-slate-900">{field.value}</p>
+                            </div>
+                          ))}
                         </div>
+                      ) : null}
 
-                        {isReplyOpen ? (
+                      {isReplyListOpen ? (
+                        <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                          <p className="text-sm font-semibold text-slate-800">任務回覆</p>
+                          <div className="mt-3 space-y-2">
+                            {item.replies.length ? (
+                              item.replies.map((reply) => (
+                                <div key={reply.id} className="rounded-2xl bg-white px-3 py-2 text-sm text-slate-600 ring-1 ring-slate-200">
+                                  <p>{reply.message}</p>
+                                  <p className="mt-1 text-xs text-slate-400">{reply.createdAt}</p>
+                                </div>
+                              ))
+                            ) : (
+                              <p className="text-sm text-slate-400">目前尚無回覆。</p>
+                            )}
+                          </div>
+                        </div>
+                      ) : null}
+
+                      {isReplyOpen ? (
+                        <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                          <p className="text-sm font-semibold text-slate-800">新增回覆</p>
                           <div className="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
                             <label className="flex flex-col gap-2">
                               <span className="text-sm font-medium text-slate-700">項目</span>
-                              <input
-                                value={replyForm.item}
-                                onChange={(event) => updateReplyForm(item.id, "item", event.target.value)}
-                                className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400"
-                              />
+                              <input value={replyForm.item} onChange={(event) => updateReplyForm(item.id, "item", event.target.value)} className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400" />
                             </label>
                             <label className="flex flex-col gap-2">
                               <span className="text-sm font-medium text-slate-700">數量</span>
-                              <input
-                                value={replyForm.quantity}
-                                onChange={(event) => updateReplyForm(item.id, "quantity", event.target.value)}
-                                className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400"
-                              />
+                              <input value={replyForm.quantity} onChange={(event) => updateReplyForm(item.id, "quantity", event.target.value)} className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400" />
                             </label>
                             <label className="flex flex-col gap-2">
                               <span className="text-sm font-medium text-slate-700">尺寸</span>
-                              <input
-                                value={replyForm.size}
-                                onChange={(event) => updateReplyForm(item.id, "size", event.target.value)}
-                                className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400"
-                              />
+                              <input value={replyForm.size} onChange={(event) => updateReplyForm(item.id, "size", event.target.value)} className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400" />
                             </label>
                             <label className="flex flex-col gap-2">
                               <span className="text-sm font-medium text-slate-700">材質</span>
-                              <input
-                                value={replyForm.material}
-                                onChange={(event) => updateReplyForm(item.id, "material", event.target.value)}
-                                className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400"
-                              />
+                              <input value={replyForm.material} onChange={(event) => updateReplyForm(item.id, "material", event.target.value)} className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400" />
                             </label>
                             <label className="flex flex-col gap-2 md:col-span-2 xl:col-span-1">
                               <span className="text-sm font-medium text-slate-700">預覽圖 URL</span>
-                              <input
-                                value={replyForm.previewUrl}
-                                onChange={(event) => updateReplyForm(item.id, "previewUrl", event.target.value)}
-                                className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400"
-                              />
+                              <input value={replyForm.previewUrl} onChange={(event) => updateReplyForm(item.id, "previewUrl", event.target.value)} className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400" />
                             </label>
                             <label className="flex flex-col gap-2">
                               <span className="text-sm font-medium text-slate-700">成本</span>
-                              <input
-                                value={replyForm.cost}
-                                onChange={(event) => updateReplyForm(item.id, "cost", event.target.value)}
-                                className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400"
-                              />
+                              <input value={replyForm.cost} onChange={(event) => updateReplyForm(item.id, "cost", event.target.value)} className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400" />
                             </label>
-
                             <div className="md:col-span-2 xl:col-span-3 flex flex-wrap gap-2">
                               <button
                                 type="button"
@@ -429,8 +458,8 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
                               </button>
                             </div>
                           </div>
-                        ) : null}
-                      </div>
+                        </div>
+                      ) : null}
                     </div>
                   </div>
                 );
