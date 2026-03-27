@@ -53,6 +53,8 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
   const [expandedDetailId, setExpandedDetailId] = useState<string | null>(null);
   const [expandedReplyListId, setExpandedReplyListId] = useState<string | null>(null);
   const [replyForms, setReplyForms] = useState<Record<string, ReplyForm>>({});
+  const [editingReplyId, setEditingReplyId] = useState<string | null>(null);
+  const [editingReplyMessage, setEditingReplyMessage] = useState("");
 
   function updateReplyForm(targetId: string, key: keyof ReplyForm, value: string) {
     setReplyForms((prev) => ({
@@ -85,13 +87,11 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
     };
   }
 
-  function submitReply(targetId: string, type: OpenCategory) {
-    const form = replyForms[targetId] ?? defaultReplyForm;
-    const message = buildReplyMessage(form);
-    if (!message) return;
-
-    const reply = createReply(form);
-
+  function updateReplies(
+    targetId: string,
+    type: OpenCategory,
+    updater: (replies: AssignmentReply[]) => AssignmentReply[]
+  ) {
     if (type === "design") {
       setDesignAssignments((prev) =>
         prev.map((assignment) =>
@@ -101,7 +101,7 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
                 ...assignment,
                 data: {
                   ...assignment.data,
-                  replies: [...(assignment.data.replies ?? []), reply],
+                  replies: updater(assignment.data.replies ?? []),
                 },
               }
         )
@@ -117,7 +117,7 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
                 ...assignment,
                 data: {
                   ...assignment.data,
-                  replies: [...(assignment.data.replies ?? []), reply],
+                  replies: updater(assignment.data.replies ?? []),
                 },
               }
         )
@@ -133,16 +133,62 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
                 ...assignment,
                 data: {
                   ...assignment.data,
-                  replies: [...(assignment.data.replies ?? []), reply],
+                  replies: updater(assignment.data.replies ?? []),
                 },
               }
         )
       );
     }
+  }
+
+  function submitReply(targetId: string, type: OpenCategory) {
+    const form = replyForms[targetId] ?? defaultReplyForm;
+    const message = buildReplyMessage(form);
+    if (!message) return;
+
+    const reply = createReply(form);
+    updateReplies(targetId, type, (replies) => [...replies, reply]);
 
     setReplyForms((prev) => ({ ...prev, [targetId]: defaultReplyForm }));
     setActiveReplyBoxId(null);
     setExpandedReplyListId(targetId);
+  }
+
+  function startEditReply(reply: AssignmentReply) {
+    setEditingReplyId(reply.id);
+    setEditingReplyMessage(reply.message);
+  }
+
+  function saveEditedReply(targetId: string, type: OpenCategory, replyId: string) {
+    const nextMessage = editingReplyMessage.trim();
+    if (!nextMessage) return;
+
+    updateReplies(targetId, type, (replies) =>
+      replies.map((reply) =>
+        reply.id === replyId
+          ? {
+              ...reply,
+              message: nextMessage,
+              createdAt: `${reply.createdAt}（已修改）`,
+            }
+          : reply
+      )
+    );
+
+    setEditingReplyId(null);
+    setEditingReplyMessage("");
+  }
+
+  function removeReply(targetId: string, type: OpenCategory, replyId: string) {
+    const confirmed = window.confirm("確定要刪除這則回覆嗎？");
+    if (!confirmed) return;
+
+    updateReplies(targetId, type, (replies) => replies.filter((reply) => reply.id !== replyId));
+
+    if (editingReplyId === replyId) {
+      setEditingReplyId(null);
+      setEditingReplyMessage("");
+    }
   }
 
   const designList = useMemo<DisplayItem[]>(
@@ -402,8 +448,55 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
                             {item.replies.length ? (
                               item.replies.map((reply) => (
                                 <div key={reply.id} className="rounded-2xl bg-white px-3 py-2 text-sm text-slate-600 ring-1 ring-slate-200">
-                                  <p>{reply.message}</p>
-                                  <p className="mt-1 text-xs text-slate-400">{reply.createdAt}</p>
+                                  {editingReplyId === reply.id ? (
+                                    <>
+                                      <textarea
+                                        value={editingReplyMessage}
+                                        onChange={(event) => setEditingReplyMessage(event.target.value)}
+                                        className="min-h-24 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-slate-400"
+                                      />
+                                      <div className="mt-3 flex flex-wrap gap-2">
+                                        <button
+                                          type="button"
+                                          onClick={() => saveEditedReply(item.id, openCategory, reply.id)}
+                                          className="inline-flex items-center justify-center rounded-xl bg-slate-900 px-3 py-2 text-xs font-semibold text-white transition hover:bg-slate-800"
+                                        >
+                                          儲存修改
+                                        </button>
+                                        <button
+                                          type="button"
+                                          onClick={() => {
+                                            setEditingReplyId(null);
+                                            setEditingReplyMessage("");
+                                          }}
+                                          className="inline-flex items-center justify-center rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-50"
+                                        >
+                                          取消
+                                        </button>
+                                      </div>
+                                    </>
+                                  ) : (
+                                    <>
+                                      <p>{reply.message}</p>
+                                      <p className="mt-1 text-xs text-slate-400">{reply.createdAt}</p>
+                                      <div className="mt-3 flex flex-wrap gap-2">
+                                        <button
+                                          type="button"
+                                          onClick={() => startEditReply(reply)}
+                                          className="inline-flex items-center justify-center rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-50"
+                                        >
+                                          修改
+                                        </button>
+                                        <button
+                                          type="button"
+                                          onClick={() => removeReply(item.id, openCategory, reply.id)}
+                                          className="inline-flex items-center justify-center rounded-xl border border-rose-200 bg-white px-3 py-2 text-xs font-semibold text-rose-600 transition hover:bg-rose-50"
+                                        >
+                                          刪除
+                                        </button>
+                                      </div>
+                                    </>
+                                  )}
                                 </div>
                               ))
                             ) : (
