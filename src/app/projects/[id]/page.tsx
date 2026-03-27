@@ -125,8 +125,8 @@ export default async function ProjectDetailPage({
         <article className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
           <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div className="min-w-0">
-              <h3 className="text-xl font-semibold">現有設計交辦</h3>
-              <p className="mt-1 text-sm leading-6 text-slate-500">目前已建立的設計任務清單。</p>
+              <h3 className="text-xl font-semibold">專案設計</h3>
+              <p className="mt-1 text-sm leading-6 text-slate-500">顯示此專案目前已建立的設計任務。</p>
             </div>
             <Link href="/design-tasks" className="text-sm font-medium text-slate-700 hover:text-blue-600">查看全部</Link>
           </div>
@@ -152,8 +152,8 @@ export default async function ProjectDetailPage({
         <article className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
           <div className="mb-5 flex items-center justify-between">
             <div>
-              <h3 className="text-xl font-semibold">備品採購</h3>
-              <p className="mt-1 text-sm text-slate-500">後續可延伸為備品採購與驗收流程。</p>
+              <h3 className="text-xl font-semibold">專案備品</h3>
+              <p className="mt-1 text-sm text-slate-500">顯示此專案目前已建立的備品交辦與採購項目。</p>
             </div>
             <button className="text-sm font-medium text-slate-700">+ 新增備品項目</button>
           </div>
