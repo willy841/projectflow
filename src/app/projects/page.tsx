@@ -88,25 +88,25 @@ export default function ProjectsPage() {
             </thead>
             <tbody className="divide-y divide-slate-100 bg-white">
               {projects.map((project) => (
-                <tr key={project.id}>
-                  <td className="px-4 py-4">
+                <tr key={project.id} className="align-middle">
+                  <td className="px-4 py-4 align-middle">
                     <Link href={`/projects/${project.id}`} className="font-medium text-slate-900 underline-offset-4 hover:underline">
                       {project.name}
                     </Link>
                     <p className="mt-1 text-xs text-slate-500">{project.code}</p>
                   </td>
-                  <td className="px-4 py-4 text-slate-600">{project.client}</td>
-                  <td className="px-4 py-4 text-slate-600">{project.eventDate}</td>
-                  <td className="px-4 py-4 text-slate-600">{project.location}</td>
-                  <td className="px-4 py-4 align-top">
+                  <td className="px-4 py-4 align-middle text-slate-600">{project.client}</td>
+                  <td className="px-4 py-4 align-middle text-slate-600">{project.eventDate}</td>
+                  <td className="px-4 py-4 align-middle text-slate-600">{project.location}</td>
+                  <td className="px-4 py-4 align-middle">
                     <span className={`inline-flex min-w-[72px] items-center justify-center whitespace-nowrap rounded-full px-3 py-1 text-xs font-medium ring-1 ${getStatusClass(project.status)}`}>
                       {project.status}
                     </span>
                   </td>
-                  <td className="px-4 py-4 text-slate-600">{project.budget}</td>
-                  <td className="px-4 py-4 text-slate-600">{project.cost}</td>
-                  <td className="px-4 py-4 text-slate-600">{project.owner}</td>
-                  <td className="px-4 py-4">
+                  <td className="px-4 py-4 align-middle text-slate-600">{project.budget}</td>
+                  <td className="px-4 py-4 align-middle text-slate-600">{project.cost}</td>
+                  <td className="px-4 py-4 align-middle text-slate-600">{project.owner}</td>
+                  <td className="px-4 py-4 align-middle">
                     <div className="w-28 rounded-full bg-slate-100">
                       <div className="h-2 rounded-full bg-slate-900" style={{ width: `${project.progress}%` }} />
                     </div>
