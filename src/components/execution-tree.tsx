@@ -17,6 +17,7 @@ export function ExecutionTree({
   const [drafts, setDrafts] = useState<Record<string, string>>({});
   const [localItems, setLocalItems] = useState(items);
   const [editingChildId, setEditingChildId] = useState<string | null>(null);
+  const [editingMainId, setEditingMainId] = useState<string | null>(null);
   const [editingValue, setEditingValue] = useState("");
   const [activeAssignMenu, setActiveAssignMenu] = useState<string | null>(null);
   const [showMainItemCreator, setShowMainItemCreator] = useState(false);
@@ -85,12 +86,31 @@ export function ExecutionTree({
     setExpanded((prev) => ({ ...prev, [itemId]: true }));
   }
 
-  function startEditing(childId: string, currentTitle: string) {
-    setEditingChildId(childId);
+  function startEditingMain(itemId: string, currentTitle: string) {
+    setEditingMainId(itemId);
+    setEditingChildId(null);
     setEditingValue(currentTitle);
   }
 
-  function saveEditing(childId: string) {
+  function startEditingChild(childId: string, currentTitle: string) {
+    setEditingChildId(childId);
+    setEditingMainId(null);
+    setEditingValue(currentTitle);
+  }
+
+  function saveEditingMain(itemId: string) {
+    const nextTitle = editingValue.trim();
+    if (!nextTitle) return;
+
+    setLocalItems((prev) =>
+      prev.map((item) => (item.id === itemId ? { ...item, title: nextTitle } : item))
+    );
+
+    setEditingMainId(null);
+    setEditingValue("");
+  }
+
+  function saveEditingChild(childId: string) {
     const nextTitle = editingValue.trim();
     if (!nextTitle) return;
 
@@ -105,6 +125,19 @@ export function ExecutionTree({
 
     setEditingChildId(null);
     setEditingValue("");
+  }
+
+  function removeMain(itemId: string) {
+    setLocalItems((prev) => prev.filter((item) => item.id !== itemId));
+    setExpanded((prev) => {
+      const next = { ...prev };
+      delete next[itemId];
+      return next;
+    });
+    if (editingMainId === itemId) {
+      setEditingMainId(null);
+      setEditingValue("");
+    }
   }
 
   function removeChild(parentId: string, childId: string) {
@@ -122,6 +155,12 @@ export function ExecutionTree({
       setEditingChildId(null);
       setEditingValue("");
     }
+  }
+
+  function cancelEditing() {
+    setEditingMainId(null);
+    setEditingChildId(null);
+    setEditingValue("");
   }
 
   function toggleAssignMenu(targetId: string) {
@@ -211,8 +250,9 @@ export function ExecutionTree({
 
       {localItems.map((item) => {
         const isOpen = expanded[item.id];
+        const isEditingMain = editingMainId === item.id;
         return (
-          <div key={item.id} className="rounded-3xl border border-slate-200 bg-white p-5">
+          <div key={item.id} className="rounded-3xl border border-slate-200 bg-white p-5 transition hover:border-slate-300">
             <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
               <div className="flex min-w-0 flex-1 items-center gap-4">
                 <button
@@ -225,26 +265,68 @@ export function ExecutionTree({
                 </button>
 
                 <div className="min-w-0 flex-1">
-                  <div className="flex flex-wrap items-center gap-3">
-                    <h4 className="text-lg font-semibold text-slate-900">{item.title}</h4>
-                    <span className={`inline-flex items-center justify-center whitespace-nowrap rounded-full px-3 py-1 text-xs font-medium ring-1 ${getStatusClass(item.status)}`}>
-                      {item.status}
-                    </span>
-                    <span className="text-xs text-slate-500">
-                      {item.children?.length ?? 0} 個次項目
-                    </span>
-                  </div>
-                  <div className="mt-2 flex flex-wrap gap-3 text-xs text-slate-500">
-                    <span>{item.category}</span>
-                    {item.referenceExample ? <span>參考範例：{item.referenceExample}</span> : null}
-                    <span>設計交辦：{item.designTaskCount ?? 0}</span>
-                    <span>備品交辦：{item.procurementTaskCount ?? 0}</span>
-                  </div>
+                  {isEditingMain ? (
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+                      <input
+                        value={editingValue}
+                        onChange={(event) => setEditingValue(event.target.value)}
+                        className="h-11 flex-1 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400"
+                      />
+                      <div className="flex gap-2">
+                        <button
+                          type="button"
+                          onClick={() => saveEditingMain(item.id)}
+                          className="inline-flex items-center justify-center rounded-2xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700"
+                        >
+                          儲存
+                        </button>
+                        <button
+                          type="button"
+                          onClick={cancelEditing}
+                          className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 shadow-sm transition hover:border-slate-400 hover:bg-slate-50"
+                        >
+                          取消
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      <div className="flex flex-wrap items-center gap-3">
+                        <h4 className="text-lg font-semibold text-slate-900">{item.title}</h4>
+                        <span className={`inline-flex items-center justify-center whitespace-nowrap rounded-full px-3 py-1 text-xs font-medium ring-1 ${getStatusClass(item.status)}`}>
+                          {item.status}
+                        </span>
+                        <span className="text-xs text-slate-500">
+                          {item.children?.length ?? 0} 個次項目
+                        </span>
+                      </div>
+                      <div className="mt-2 flex flex-wrap gap-3 text-xs text-slate-500">
+                        <span>{item.category}</span>
+                        {item.referenceExample ? <span>參考範例：{item.referenceExample}</span> : null}
+                        <span>設計交辦：{item.designTaskCount ?? 0}</span>
+                        <span>備品交辦：{item.procurementTaskCount ?? 0}</span>
+                      </div>
+                    </>
+                  )}
                 </div>
               </div>
 
-              <div className="grid w-full gap-2 sm:w-auto">
+              <div className="flex w-full flex-wrap gap-2 sm:w-auto">
                 <AssignmentMenu targetId={item.id} title={item.title} />
+                <button
+                  type="button"
+                  onClick={() => startEditingMain(item.id, item.title)}
+                  className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm font-semibold text-slate-800 transition hover:bg-slate-50"
+                >
+                  編輯
+                </button>
+                <button
+                  type="button"
+                  onClick={() => removeMain(item.id)}
+                  className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-rose-200 bg-white px-4 py-3 text-sm font-semibold text-rose-600 transition hover:bg-rose-50"
+                >
+                  刪除
+                </button>
               </div>
             </div>
 
@@ -254,7 +336,7 @@ export function ExecutionTree({
 
                 <div className="space-y-3 border-l border-slate-200 pl-4 md:pl-6">
                   {(item.children ?? []).map((child) => {
-                    const isEditing = editingChildId === child.id;
+                    const isEditingChild = editingChildId === child.id;
                     return (
                       <div
                         key={child.id}
@@ -262,7 +344,7 @@ export function ExecutionTree({
                       >
                         <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
                           <div className="flex-1">
-                            {isEditing ? (
+                            {isEditingChild ? (
                               <div className="mt-1 flex flex-col gap-3 sm:flex-row">
                                 <input
                                   value={editingValue}
@@ -272,17 +354,14 @@ export function ExecutionTree({
                                 <div className="flex gap-2">
                                   <button
                                     type="button"
-                                    onClick={() => saveEditing(child.id)}
+                                    onClick={() => saveEditingChild(child.id)}
                                     className="inline-flex items-center justify-center rounded-2xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700"
                                   >
                                     儲存
                                   </button>
                                   <button
                                     type="button"
-                                    onClick={() => {
-                                      setEditingChildId(null);
-                                      setEditingValue("");
-                                    }}
+                                    onClick={cancelEditing}
                                     className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 shadow-sm transition hover:border-slate-400 hover:bg-slate-50"
                                   >
                                     取消
@@ -308,7 +387,7 @@ export function ExecutionTree({
                             <AssignmentMenu targetId={child.id} title={child.title} />
                             <button
                               type="button"
-                              onClick={() => startEditing(child.id, child.title)}
+                              onClick={() => startEditingChild(child.id, child.title)}
                               className="inline-flex min-h-9 items-center justify-center rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-100"
                             >
                               編輯
