@@ -53,7 +53,7 @@ export function ProcurementTaskForm({
   const selectedProject = projects.find((project) => project.id === form.projectId);
 
   return (
-    <div className="grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
+    <div className="grid gap-6 xl:grid-cols-[minmax(0,1.15fr)_minmax(300px,0.85fr)]">
       <form onSubmit={handleSubmit} className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
         <div className="mb-6">
           <p className="text-sm text-slate-500">建立備品交辦</p>
