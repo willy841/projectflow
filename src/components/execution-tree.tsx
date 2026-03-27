@@ -646,14 +646,6 @@ export function ExecutionTree({
             </div>
             {saved.referenceUrl ? <p className="mt-2 text-sm text-slate-600">參考連結：{saved.referenceUrl}</p> : null}
             {saved.note ? <p className="mt-2 text-sm text-slate-600">備註：{saved.note}</p> : null}
-            <div className="mt-4 border-t border-slate-200 pt-4">
-              <p className="text-sm font-semibold text-slate-800">回覆內容</p>
-              <div className="mt-3 space-y-2">{(saved.replies ?? []).map((reply) => <div key={reply.id} className="rounded-2xl bg-slate-50 px-3 py-2 text-sm text-slate-600"><p>{reply.message}</p><p className="mt-1 text-xs text-slate-400">{reply.createdAt}</p></div>)}</div>
-              <div className="mt-3 flex flex-col gap-3 sm:flex-row">
-                <textarea value={replyDrafts[targetId] ?? ""} onChange={(e) => setReplyDrafts((prev) => ({ ...prev, [targetId]: e.target.value }))} placeholder="輸入這筆交辦的回覆內容" className="min-h-24 flex-1 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-slate-400" />
-                <button type="button" onClick={() => addReply(targetId, "design")} className="inline-flex items-center justify-center rounded-2xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800">送出回覆</button>
-              </div>
-            </div>
           </div>
         ) : (
           <>
@@ -703,14 +695,6 @@ export function ExecutionTree({
               {saved.budget ? <span>預算：{saved.budget}</span> : null}<span>狀態：{saved.status}</span>
             </div>
             {saved.styleUrl ? <p className="mt-2 text-sm text-slate-600">樣式 URL：{saved.styleUrl}</p> : null}
-            <div className="mt-4 border-t border-slate-200 pt-4">
-              <p className="text-sm font-semibold text-slate-800">回覆內容</p>
-              <div className="mt-3 space-y-2">{(saved.replies ?? []).map((reply) => <div key={reply.id} className="rounded-2xl bg-slate-50 px-3 py-2 text-sm text-slate-600"><p>{reply.message}</p><p className="mt-1 text-xs text-slate-400">{reply.createdAt}</p></div>)}</div>
-              <div className="mt-3 flex flex-col gap-3 sm:flex-row">
-                <textarea value={replyDrafts[targetId] ?? ""} onChange={(e) => setReplyDrafts((prev) => ({ ...prev, [targetId]: e.target.value }))} placeholder="輸入這筆交辦的回覆內容" className="min-h-24 flex-1 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-slate-400" />
-                <button type="button" onClick={() => addReply(targetId, "procurement")} className="inline-flex items-center justify-center rounded-2xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800">送出回覆</button>
-              </div>
-            </div>
           </div>
         ) : (
           <>
@@ -759,14 +743,6 @@ export function ExecutionTree({
             </div>
             {saved.referenceUrl ? <p className="mt-2 text-sm text-slate-600">參考連結：{saved.referenceUrl}</p> : null}
             {saved.note ? <p className="mt-2 text-sm text-slate-600">需求 / 備註：{saved.note}</p> : null}
-            <div className="mt-4 border-t border-slate-200 pt-4">
-              <p className="text-sm font-semibold text-slate-800">回覆內容</p>
-              <div className="mt-3 space-y-2">{(saved.replies ?? []).map((reply) => <div key={reply.id} className="rounded-2xl bg-slate-50 px-3 py-2 text-sm text-slate-600"><p>{reply.message}</p><p className="mt-1 text-xs text-slate-400">{reply.createdAt}</p></div>)}</div>
-              <div className="mt-3 flex flex-col gap-3 sm:flex-row">
-                <textarea value={replyDrafts[targetId] ?? ""} onChange={(e) => setReplyDrafts((prev) => ({ ...prev, [targetId]: e.target.value }))} placeholder="輸入這筆交辦的回覆內容" className="min-h-24 flex-1 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-slate-400" />
-                <button type="button" onClick={() => addReply(targetId, "vendor")} className="inline-flex items-center justify-center rounded-2xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800">送出回覆</button>
-              </div>
-            </div>
           </div>
         ) : (
           <>
