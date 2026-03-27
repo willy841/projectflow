@@ -114,6 +114,13 @@ export function ExecutionTree({
                   <span className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ring-1 ${getStatusClass(item.status)}`}>
                     {item.status}
                   </span>
+                  <button
+                    type="button"
+                    onClick={() => setExpanded((prev) => ({ ...prev, [item.id]: true }))}
+                    className="rounded-xl border border-dashed border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-slate-50"
+                  >
+                    + 新增次項目
+                  </button>
                 </div>
 
                 <div>
@@ -232,7 +239,7 @@ export function ExecutionTree({
                   })}
 
                   <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-4">
-                    <p className="text-sm font-medium text-slate-700">+ 新增子項目</p>
+                    <p className="text-sm font-medium text-slate-700">+ 新增次項目</p>
                     <div className="mt-3 flex flex-col gap-3 sm:flex-row">
                       <input
                         value={drafts[item.id] ?? ""}
