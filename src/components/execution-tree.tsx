@@ -1,8 +1,113 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useRef, useState } from "react";
+import * as XLSX from "xlsx";
 import { ProjectExecutionItem, getStatusClass } from "@/components/project-data";
+
+type ImportedChild = {
+  id: string;
+  title: string;
+  status: string;
+  assignee?: string;
+  category: string;
+  quantity?: string;
+  unit?: string;
+  amount?: string;
+  note?: string;
+};
+
+type ImportedItem = ProjectExecutionItem & {
+  quantity?: string;
+  unit?: string;
+  amount?: string;
+  note?: string;
+  children?: ImportedChild[];
+};
+
+function normalizeCell(value: unknown) {
+  if (value === null || value === undefined) return "";
+  return String(value).trim();
+}
+
+function parseImportedRows(rows: string[][]): ImportedItem[] {
+  const result: ImportedItem[] = [];
+  let currentMain: ImportedItem | null = null;
+
+  rows.forEach((row, rowIndex) => {
+    const codeRaw = normalizeCell(row[0]);
+    const titleRaw = normalizeCell(row[1] || row[0]);
+    const quantity = normalizeCell(row[2]);
+    const unit = normalizeCell(row[3]);
+    const amount = normalizeCell(row[4]);
+    const note = normalizeCell(row[5]);
+
+    if (!codeRaw && !titleRaw) return;
+
+    const mainMatch = codeRaw.match(/^(\d+)\.?\s*(.*)$/);
+    const childMatch = codeRaw.match(/^(\d+)-(\d+)\s*(.*)$/);
+
+    if (childMatch && currentMain) {
+      const title = titleRaw || childMatch[3] || codeRaw;
+      currentMain.children = [
+        ...(currentMain.children ?? []),
+        {
+          id: `${currentMain.id}-child-${childMatch[1]}-${childMatch[2]}-${rowIndex}`,
+          title,
+          status: "待交辦",
+          category: currentMain.category,
+          assignee: "未指派",
+          quantity,
+          unit,
+          amount,
+          note,
+        },
+      ];
+      return;
+    }
+
+    if (mainMatch) {
+      const title = titleRaw || mainMatch[2] || codeRaw;
+      currentMain = {
+        id: `import-main-${mainMatch[1]}-${rowIndex}`,
+        title,
+        status: "待交辦",
+        category: "專案",
+        detail: note || "匯入自 Excel 的主項目",
+        referenceExample: "",
+        designTaskCount: 0,
+        procurementTaskCount: 0,
+        quantity,
+        unit,
+        amount,
+        note,
+        children: [],
+      };
+      result.push(currentMain);
+      return;
+    }
+
+    // 如果沒有符合規則，當成主項目補進去
+    currentMain = {
+      id: `import-main-generic-${rowIndex}`,
+      title: titleRaw || codeRaw,
+      status: "待交辦",
+      category: "專案",
+      detail: note || "匯入自 Excel 的主項目",
+      referenceExample: "",
+      designTaskCount: 0,
+      procurementTaskCount: 0,
+      quantity,
+      unit,
+      amount,
+      note,
+      children: [],
+    };
+    result.push(currentMain);
+  });
+
+  return result;
+}
 
 export function ExecutionTree({
   projectId,
@@ -15,13 +120,14 @@ export function ExecutionTree({
     Object.fromEntries(items.map((item) => [item.id, false]))
   );
   const [drafts, setDrafts] = useState<Record<string, string>>({});
-  const [localItems, setLocalItems] = useState(items);
+  const [localItems, setLocalItems] = useState<ImportedItem[]>(items as ImportedItem[]);
   const [editingChildId, setEditingChildId] = useState<string | null>(null);
   const [editingMainId, setEditingMainId] = useState<string | null>(null);
   const [editingValue, setEditingValue] = useState("");
   const [activeAssignMenu, setActiveAssignMenu] = useState<string | null>(null);
   const [showMainItemCreator, setShowMainItemCreator] = useState(false);
   const [mainItemDraft, setMainItemDraft] = useState("");
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   function toggleItem(itemId: string) {
     setExpanded((prev) => ({ ...prev, [itemId]: !prev[itemId] }));
@@ -56,6 +162,25 @@ export function ExecutionTree({
     setExpanded((prev) => ({ ...prev, [newId]: false }));
     setMainItemDraft("");
     setShowMainItemCreator(false);
+  }
+
+  async function handleImport(file: File) {
+    const buffer = await file.arrayBuffer();
+    const workbook = XLSX.read(buffer, { type: "array" });
+    const firstSheetName = workbook.SheetNames[0];
+    if (!firstSheetName) return;
+
+    const worksheet = workbook.Sheets[firstSheetName];
+    const rows = XLSX.utils.sheet_to_json<string[]>(worksheet, {
+      header: 1,
+      blankrows: false,
+    }) as string[][];
+
+    const imported = parseImportedRows(rows.slice(1));
+    if (!imported.length) return;
+
+    setLocalItems(imported);
+    setExpanded(Object.fromEntries(imported.map((item) => [item.id, false])));
   }
 
   function addChild(itemId: string) {
@@ -186,14 +311,20 @@ export function ExecutionTree({
               href={`/design-tasks/new?projectId=${projectId}&itemId=${targetId}&itemTitle=${encodeURIComponent(title)}`}
               className="block rounded-xl px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 hover:text-blue-600"
             >
-              交辦給設計
+              設計
             </Link>
             <Link
               href={`/procurement-tasks/new?projectId=${projectId}&itemId=${targetId}&itemTitle=${encodeURIComponent(title)}`}
               className="block rounded-xl px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 hover:text-slate-900"
             >
-              交辦給備品
+              備品
             </Link>
+            <button
+              type="button"
+              className="block w-full rounded-xl px-3 py-2 text-left text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+            >
+              廠商
+            </button>
           </div>
         ) : null}
       </div>
@@ -203,18 +334,44 @@ export function ExecutionTree({
   return (
     <div className="space-y-4">
       <div className="rounded-3xl border border-dashed border-slate-300 bg-slate-50 p-4">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
           <div>
             <p className="text-sm font-medium text-slate-800">新增主項目</p>
-            <p className="mt-1 text-sm text-slate-500">直接在這裡建立第一層主項目，不再換頁。</p>
+            <p className="mt-1 text-sm text-slate-500">直接在這裡建立第一層主項目，或匯入 Excel 自動展開樹狀結構。</p>
           </div>
-          <button
-            type="button"
-            onClick={() => setShowMainItemCreator((prev) => !prev)}
-            className="inline-flex shrink-0 items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 shadow-sm transition hover:border-slate-400 hover:bg-slate-50"
-          >
-            + 新增主項目
-          </button>
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={() => setShowMainItemCreator((prev) => !prev)}
+              className="inline-flex shrink-0 items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 shadow-sm transition hover:border-slate-400 hover:bg-slate-50"
+            >
+              + 新增主項目
+            </button>
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              className="inline-flex shrink-0 items-center justify-center rounded-2xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700"
+            >
+              匯入 Excel
+            </button>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".xlsx,.xls,.csv"
+              className="hidden"
+              onChange={(event) => {
+                const file = event.target.files?.[0];
+                if (file) {
+                  void handleImport(file);
+                }
+                event.currentTarget.value = "";
+              }}
+            />
+          </div>
+        </div>
+
+        <div className="mt-3 rounded-2xl bg-white p-3 text-xs leading-6 text-slate-500 ring-1 ring-slate-200">
+          匯入規則：第一欄若為 <span className="font-semibold text-slate-700">1.</span>、<span className="font-semibold text-slate-700">2.</span> 會建立主項目；若為 <span className="font-semibold text-slate-700">1-1</span>、<span className="font-semibold text-slate-700">2-2</span> 會自動掛到對應主項目底下。其餘欄位會依序帶入數量、單位、金額、備註。
         </div>
 
         {showMainItemCreator ? (
@@ -305,6 +462,9 @@ export function ExecutionTree({
                         {item.referenceExample ? <span>參考範例：{item.referenceExample}</span> : null}
                         <span>設計交辦：{item.designTaskCount ?? 0}</span>
                         <span>備品交辦：{item.procurementTaskCount ?? 0}</span>
+                        {item.quantity ? <span>數量：{item.quantity}</span> : null}
+                        {item.unit ? <span>單位：{item.unit}</span> : null}
+                        {item.amount ? <span>金額：{item.amount}</span> : null}
                       </div>
                     </>
                   )}
@@ -333,6 +493,7 @@ export function ExecutionTree({
             {isOpen ? (
               <div className="mt-5 border-t border-slate-200 pt-4">
                 <p className="mb-4 max-w-3xl text-sm leading-6 text-slate-600">{item.detail}</p>
+                {item.note ? <p className="mb-3 text-sm text-slate-500">備註：{item.note}</p> : null}
 
                 <div className="space-y-3 border-l border-slate-200 pl-4 md:pl-6">
                   {(item.children ?? []).map((child) => {
@@ -376,9 +537,14 @@ export function ExecutionTree({
                                     {child.status}
                                   </span>
                                 </div>
-                                <p className="mt-1 text-sm text-slate-500">
-                                  類型：{child.category} {child.assignee ? `・負責：${child.assignee}` : ""}
-                                </p>
+                                <div className="mt-1 flex flex-wrap gap-3 text-sm text-slate-500">
+                                  <span>類型：{child.category}</span>
+                                  {child.assignee ? <span>負責：{child.assignee}</span> : null}
+                                  {child.quantity ? <span>數量：{child.quantity}</span> : null}
+                                  {child.unit ? <span>單位：{child.unit}</span> : null}
+                                  {child.amount ? <span>金額：{child.amount}</span> : null}
+                                </div>
+                                {child.note ? <p className="mt-1 text-sm text-slate-500">備註：{child.note}</p> : null}
                               </>
                             )}
                           </div>
