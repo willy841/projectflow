@@ -94,18 +94,18 @@ export function RequirementsPanel({
 
       {(showCreate || isEditing) ? (
         <div className="mb-4 rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-4">
-          <div className="grid gap-3 md:grid-cols-[160px_1fr]">
+          <div className="grid gap-3 md:grid-cols-[160px_1fr] md:items-start">
             <input
               type="date"
               value={form.date}
               onChange={(event) => setForm((prev) => ({ ...prev, date: event.target.value }))}
               className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400"
             />
-            <input
+            <textarea
               value={form.title}
               onChange={(event) => setForm((prev) => ({ ...prev, title: event.target.value }))}
               placeholder="輸入需求溝通內容，例如：入口主背板需搭配春季主題色與產品燈箱"
-              className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400"
+              className="min-h-28 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm leading-6 outline-none transition focus:border-slate-400"
             />
           </div>
 
