@@ -15,7 +15,7 @@ export default function NewProjectPage() {
             </p>
           </div>
 
-          <Link href="/projects" className="rounded-2xl border border-slate-300 bg-white px-5 py-3 text-sm font-medium text-slate-700">
+          <Link href="/projects" className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-800 shadow-sm transition hover:border-slate-400 hover:bg-slate-50">
             返回專案列表
           </Link>
         </div>

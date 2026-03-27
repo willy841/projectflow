@@ -16,12 +16,12 @@ export default function ProjectsPage() {
           </div>
 
           <div className="flex flex-wrap gap-3">
-            <button className="rounded-2xl border border-slate-300 bg-white px-5 py-3 text-sm font-medium text-slate-700">
+            <button className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-800 shadow-sm transition hover:border-slate-400 hover:bg-slate-50">
               篩選條件
             </button>
             <Link
               href="/projects/new"
-              className="rounded-2xl bg-slate-950 px-5 py-3 text-sm font-medium text-white"
+              className="inline-flex items-center justify-center rounded-2xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700"
             >
               + 新增專案
             </Link>
@@ -65,7 +65,7 @@ export default function ProjectsPage() {
               placeholder="搜尋專案 / 客戶 / 地點"
               className="h-11 w-full min-w-0 rounded-2xl border border-slate-200 px-4 text-sm outline-none focus:border-slate-400 sm:w-80 xl:w-72"
             />
-            <button className="shrink-0 rounded-2xl border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700">
+            <button className="inline-flex shrink-0 items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 shadow-sm transition hover:border-slate-400 hover:bg-slate-50">
               依日期排序
             </button>
           </div>

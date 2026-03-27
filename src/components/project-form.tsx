@@ -89,10 +89,10 @@ export function ProjectForm() {
         </div>
 
         <div className="mt-6 flex flex-wrap gap-3">
-          <button type="submit" className="rounded-2xl bg-slate-950 px-5 py-3 text-sm font-medium text-white">
+          <button type="submit" className="inline-flex items-center justify-center rounded-2xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700">
             儲存專案
           </button>
-          <button type="button" className="rounded-2xl border border-slate-300 bg-white px-5 py-3 text-sm font-medium text-slate-700">
+          <button type="button" className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-800 shadow-sm transition hover:border-slate-400 hover:bg-slate-50">
             清空表單
           </button>
         </div>

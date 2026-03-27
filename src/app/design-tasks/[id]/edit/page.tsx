@@ -31,7 +31,7 @@ export default async function EditDesignTaskPage({
           <div className="flex flex-wrap gap-3">
             <Link
               href={`/design-tasks/${task.id}`}
-              className="rounded-2xl border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-800 shadow-sm transition hover:bg-slate-50"
+              className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-800 shadow-sm transition hover:border-slate-400 hover:bg-slate-50"
             >
               返回交辦詳細頁
             </Link>

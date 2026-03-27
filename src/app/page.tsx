@@ -112,7 +112,7 @@ export default function Home() {
             </div>
             <Link
               href="/projects"
-              className="rounded-xl px-3 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
+              className="inline-flex items-center justify-center rounded-xl px-3 py-2 text-sm font-semibold text-slate-800 transition hover:bg-slate-100"
             >
               查看全部
             </Link>
@@ -194,7 +194,7 @@ export default function Home() {
               <h3 className="text-xl font-semibold text-slate-900">待辦交辦</h3>
               <p className="mt-1 text-sm leading-6 text-slate-500">整合設計、備品、帳務任務，作為首頁工作入口。</p>
             </div>
-            <button className="rounded-xl px-3 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-100">
+            <button className="inline-flex items-center justify-center rounded-xl px-3 py-2 text-sm font-semibold text-slate-800 transition hover:bg-slate-100">
               建立交辦
             </button>
           </div>
@@ -229,7 +229,7 @@ export default function Home() {
               <h3 className="text-xl font-semibold text-slate-900">合作廠商與帳款</h3>
               <p className="mt-1 text-sm leading-6 text-slate-500">後續可延伸成完整廠商主檔、匯款資訊與發包歷史。</p>
             </div>
-            <button className="rounded-xl px-3 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-100">
+            <button className="inline-flex items-center justify-center rounded-xl px-3 py-2 text-sm font-semibold text-slate-800 transition hover:bg-slate-100">
               管理廠商
             </button>
           </div>

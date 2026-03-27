@@ -32,10 +32,10 @@ export default async function ProjectDetailPage({
           </div>
 
           <div className="flex flex-wrap gap-3">
-            <Link href="/projects" className="rounded-2xl border border-slate-300 bg-white px-5 py-3 text-sm font-medium text-slate-700">
+            <Link href="/projects" className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-800 shadow-sm transition hover:border-slate-400 hover:bg-slate-50">
               返回列表
             </Link>
-            <button className="rounded-2xl bg-slate-950 px-5 py-3 text-sm font-medium text-white">
+            <button className="inline-flex items-center justify-center rounded-2xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700">
               編輯專案
             </button>
           </div>
