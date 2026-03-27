@@ -12,164 +12,211 @@ import { Project, getStatusClass } from "@/components/project-data";
 
 type OpenCategory = "design" | "procurement" | "vendor";
 
+type ReplyForm = {
+  item: string;
+  quantity: string;
+  size: string;
+  material: string;
+  previewUrl: string;
+  cost: string;
+};
+
 type DesignAssignmentItem = { targetId: string; title: string; data: DesignAssignmentDraft };
 type ProcurementAssignmentItem = { targetId: string; title: string; data: ProcurementAssignmentDraft };
 type VendorAssignmentItem = { targetId: string; title: string; data: VendorAssignmentDraft };
+
+type DisplayItem = {
+  id: string;
+  title: string;
+  badge: string;
+  badgeClass: string;
+  fields: Array<{ label: string; value: string }>;
+  replies: AssignmentReply[];
+};
+
+const defaultReplyForm: ReplyForm = {
+  item: "",
+  quantity: "",
+  size: "",
+  material: "",
+  previewUrl: "",
+  cost: "",
+};
 
 export function ExecutionTreeSection({ project }: { project: Project }) {
   const [designAssignments, setDesignAssignments] = useState<DesignAssignmentItem[]>([]);
   const [procurementAssignments, setProcurementAssignments] = useState<ProcurementAssignmentItem[]>([]);
   const [vendorAssignments, setVendorAssignments] = useState<VendorAssignmentItem[]>([]);
   const [openCategory, setOpenCategory] = useState<OpenCategory>("design");
-  const [replyDrafts, setReplyDrafts] = useState<Record<string, string>>({});
+  const [activeReplyBoxId, setActiveReplyBoxId] = useState<string | null>(null);
+  const [replyForms, setReplyForms] = useState<Record<string, ReplyForm>>({});
 
-  function createReply(message: string): AssignmentReply {
+  function updateReplyForm(targetId: string, key: keyof ReplyForm, value: string) {
+    setReplyForms((prev) => ({
+      ...prev,
+      [targetId]: {
+        ...(prev[targetId] ?? defaultReplyForm),
+        [key]: value,
+      },
+    }));
+  }
+
+  function buildReplyMessage(form: ReplyForm) {
+    return [
+      form.item ? `項目：${form.item}` : null,
+      form.quantity ? `數量：${form.quantity}` : null,
+      form.size ? `尺寸：${form.size}` : null,
+      form.material ? `材質：${form.material}` : null,
+      form.previewUrl ? `預覽圖 URL：${form.previewUrl}` : null,
+      form.cost ? `成本：${form.cost}` : null,
+    ]
+      .filter(Boolean)
+      .join("｜");
+  }
+
+  function createReply(form: ReplyForm): AssignmentReply {
     return {
       id: `reply-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-      message,
+      message: buildReplyMessage(form),
       createdAt: new Date().toLocaleString("zh-TW"),
     };
   }
 
-  function addDesignReply(targetId: string) {
-    const message = (replyDrafts[targetId] ?? "").trim();
+  function submitReply(targetId: string, type: OpenCategory) {
+    const form = replyForms[targetId] ?? defaultReplyForm;
+    const message = buildReplyMessage(form);
     if (!message) return;
 
-    setDesignAssignments((prev) =>
-      prev.map((assignment) =>
-        assignment.targetId !== targetId
-          ? assignment
-          : {
-              ...assignment,
-              data: {
-                ...assignment.data,
-                replies: [...(assignment.data.replies ?? []), createReply(message)],
-              },
-            }
-      )
-    );
+    const reply = createReply(form);
 
-    setReplyDrafts((prev) => ({ ...prev, [targetId]: "" }));
+    if (type === "design") {
+      setDesignAssignments((prev) =>
+        prev.map((assignment) =>
+          assignment.targetId !== targetId
+            ? assignment
+            : {
+                ...assignment,
+                data: {
+                  ...assignment.data,
+                  replies: [...(assignment.data.replies ?? []), reply],
+                },
+              }
+        )
+      );
+    }
+
+    if (type === "procurement") {
+      setProcurementAssignments((prev) =>
+        prev.map((assignment) =>
+          assignment.targetId !== targetId
+            ? assignment
+            : {
+                ...assignment,
+                data: {
+                  ...assignment.data,
+                  replies: [...(assignment.data.replies ?? []), reply],
+                },
+              }
+        )
+      );
+    }
+
+    if (type === "vendor") {
+      setVendorAssignments((prev) =>
+        prev.map((assignment) =>
+          assignment.targetId !== targetId
+            ? assignment
+            : {
+                ...assignment,
+                data: {
+                  ...assignment.data,
+                  replies: [...(assignment.data.replies ?? []), reply],
+                },
+              }
+        )
+      );
+    }
+
+    setReplyForms((prev) => ({ ...prev, [targetId]: defaultReplyForm }));
+    setActiveReplyBoxId(null);
   }
 
-  function addProcurementReply(targetId: string) {
-    const message = (replyDrafts[targetId] ?? "").trim();
-    if (!message) return;
-
-    setProcurementAssignments((prev) =>
-      prev.map((assignment) =>
-        assignment.targetId !== targetId
-          ? assignment
-          : {
-              ...assignment,
-              data: {
-                ...assignment.data,
-                replies: [...(assignment.data.replies ?? []), createReply(message)],
-              },
-            }
-      )
-    );
-
-    setReplyDrafts((prev) => ({ ...prev, [targetId]: "" }));
-  }
-
-  function addVendorReply(targetId: string) {
-    const message = (replyDrafts[targetId] ?? "").trim();
-    if (!message) return;
-
-    setVendorAssignments((prev) =>
-      prev.map((assignment) =>
-        assignment.targetId !== targetId
-          ? assignment
-          : {
-              ...assignment,
-              data: {
-                ...assignment.data,
-                replies: [...(assignment.data.replies ?? []), createReply(message)],
-              },
-            }
-      )
-    );
-
-    setReplyDrafts((prev) => ({ ...prev, [targetId]: "" }));
-  }
-
-  const designList = useMemo(
+  const designList = useMemo<DisplayItem[]>(
     () => [
       ...designAssignments.map((assignment) => ({
         id: assignment.targetId,
         title: assignment.title,
-        summary: [
-          assignment.data.size ? `尺寸：${assignment.data.size}` : null,
-          assignment.data.material ? `材質：${assignment.data.material}` : null,
-          assignment.data.quantity ? `數量：${assignment.data.quantity}` : null,
-          `結構圖：${assignment.data.structureRequired}`,
-        ].filter(Boolean),
-        extra: [
-          assignment.data.referenceUrl ? `參考連結：${assignment.data.referenceUrl}` : null,
-          assignment.data.note ? `備註：${assignment.data.note}` : null,
-        ].filter(Boolean),
         badge: assignment.data.status,
         badgeClass: getStatusClass(assignment.data.status),
+        fields: [
+          { label: "尺寸", value: assignment.data.size || "—" },
+          { label: "材質", value: assignment.data.material || "—" },
+          { label: "數量", value: assignment.data.quantity || "—" },
+          { label: "結構圖", value: assignment.data.structureRequired || "—" },
+          { label: "參考連結", value: assignment.data.referenceUrl || "—" },
+          { label: "備註", value: assignment.data.note || "—" },
+        ],
         replies: assignment.data.replies ?? [],
       })),
       ...project.designTasks.map((task) => ({
         id: task.title,
         title: task.title,
-        summary: [`負責人：${task.assignee}`, `期限：${task.due}`],
-        extra: [],
         badge: task.status,
         badgeClass: getStatusClass(task.status),
-        replies: [] as AssignmentReply[],
+        fields: [
+          { label: "負責人", value: task.assignee },
+          { label: "期限", value: task.due },
+        ],
+        replies: [],
       })),
     ],
     [designAssignments, project.designTasks]
   );
 
-  const procurementList = useMemo(
+  const procurementList = useMemo<DisplayItem[]>(
     () => [
       ...procurementAssignments.map((assignment) => ({
         id: assignment.targetId,
         title: assignment.title,
-        summary: [
-          assignment.data.item ? `項目：${assignment.data.item}` : null,
-          assignment.data.quantity ? `數量：${assignment.data.quantity}` : null,
-          assignment.data.budget ? `預算：${assignment.data.budget}` : null,
-        ].filter(Boolean),
-        extra: [assignment.data.styleUrl ? `樣式 URL：${assignment.data.styleUrl}` : null].filter(Boolean),
         badge: assignment.data.status,
         badgeClass: getStatusClass(assignment.data.status),
+        fields: [
+          { label: "項目", value: assignment.data.item || "—" },
+          { label: "數量", value: assignment.data.quantity || "—" },
+          { label: "預算", value: assignment.data.budget || "—" },
+          { label: "樣式 URL", value: assignment.data.styleUrl || "—" },
+        ],
         replies: assignment.data.replies ?? [],
       })),
       ...project.procurementTasks.map((task) => ({
         id: task.title,
         title: task.title,
-        summary: [`採購：${task.buyer}`, `預算：${task.budget}`],
-        extra: [],
         badge: task.status,
         badgeClass: getStatusClass(task.status),
-        replies: [] as AssignmentReply[],
+        fields: [
+          { label: "採購", value: task.buyer },
+          { label: "預算", value: task.budget },
+        ],
+        replies: [],
       })),
     ],
     [procurementAssignments, project.procurementTasks]
   );
 
-  const vendorList = useMemo(
+  const vendorList = useMemo<DisplayItem[]>(
     () =>
       vendorAssignments.map((assignment) => ({
         id: assignment.targetId,
         title: assignment.title,
-        summary: [
-          assignment.data.title ? `交辦名稱：${assignment.data.title}` : null,
-          assignment.data.vendorName ? `廠商名稱：${assignment.data.vendorName}` : null,
-          assignment.data.budget ? `預算 / 報價：${assignment.data.budget}` : null,
-        ].filter(Boolean),
-        extra: [
-          assignment.data.referenceUrl ? `參考連結：${assignment.data.referenceUrl}` : null,
-          assignment.data.note ? `需求 / 備註：${assignment.data.note}` : null,
-        ].filter(Boolean),
         badge: assignment.data.status,
         badgeClass: getStatusClass(assignment.data.status),
+        fields: [
+          { label: "交辦名稱", value: assignment.data.title || "—" },
+          { label: "廠商名稱", value: assignment.data.vendorName || "—" },
+          { label: "預算 / 報價", value: assignment.data.budget || "—" },
+          { label: "參考連結", value: assignment.data.referenceUrl || "—" },
+          { label: "需求 / 備註", value: assignment.data.note || "—" },
+        ],
         replies: assignment.data.replies ?? [],
       })),
     [vendorAssignments]
@@ -266,103 +313,128 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
 
           <div className="space-y-3">
             {currentList.length ? (
-              currentList.map((item) => (
-                <div key={item.id} className="rounded-2xl border border-slate-200 bg-white p-4">
-                  <div className="flex flex-col gap-3">
-                    <div className="min-w-0">
+              currentList.map((item) => {
+                const replyForm = replyForms[item.id] ?? defaultReplyForm;
+                const isReplyOpen = activeReplyBoxId === item.id;
+
+                return (
+                  <div key={item.id} className="rounded-2xl border border-slate-200 bg-white p-4">
+                    <div className="flex flex-col gap-4">
                       <div className="flex flex-wrap items-center gap-2">
                         <h5 className="font-semibold text-slate-900">{item.title}</h5>
                         <span className={`inline-flex items-center justify-center rounded-full px-3 py-1 text-xs font-medium ${item.badgeClass}`}>
                           {item.badge}
                         </span>
                       </div>
-                      <div className="mt-2 flex flex-wrap gap-3 text-sm text-slate-500">
-                        {item.summary.map((line) => (
-                          <span key={line}>{line}</span>
+
+                      <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+                        {item.fields.map((field) => (
+                          <div key={`${item.id}-${field.label}`} className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
+                            <p className="text-xs font-medium text-slate-500">{field.label}</p>
+                            <p className="mt-2 text-sm font-medium break-words text-slate-900">{field.value}</p>
+                          </div>
                         ))}
                       </div>
-                      {item.extra.length ? (
-                        <div className="mt-2 space-y-1 text-sm text-slate-500">
-                          {item.extra.map((line) => (
-                            <p key={line}>{line}</p>
-                          ))}
+
+                      <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                        <div className="flex flex-wrap items-center justify-between gap-3">
+                          <p className="text-sm font-semibold text-slate-800">任務回覆</p>
+                          <button
+                            type="button"
+                            onClick={() => setActiveReplyBoxId((prev) => (prev === item.id ? null : item.id))}
+                            className="inline-flex items-center justify-center rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-50"
+                          >
+                            {isReplyOpen ? "收合回覆" : "新增回覆"}
+                          </button>
                         </div>
-                      ) : null}
-                    </div>
 
-                    <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                      <p className="text-sm font-semibold text-slate-800">任務回覆</p>
+                        <div className="mt-3 space-y-2">
+                          {item.replies.length ? (
+                            item.replies.map((reply) => (
+                              <div key={reply.id} className="rounded-2xl bg-white px-3 py-2 text-sm text-slate-600 ring-1 ring-slate-200">
+                                <p>{reply.message}</p>
+                                <p className="mt-1 text-xs text-slate-400">{reply.createdAt}</p>
+                              </div>
+                            ))
+                          ) : (
+                            <p className="text-sm text-slate-400">目前尚無回覆。</p>
+                          )}
+                        </div>
 
-                      <div className="mt-3 space-y-2">
-                        {item.replies.length ? (
-                          item.replies.map((reply) => (
-                            <div key={reply.id} className="rounded-2xl bg-white px-3 py-2 text-sm text-slate-600 ring-1 ring-slate-200">
-                              <p>{reply.message}</p>
-                              <p className="mt-1 text-xs text-slate-400">{reply.createdAt}</p>
+                        {isReplyOpen ? (
+                          <div className="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+                            <label className="flex flex-col gap-2">
+                              <span className="text-sm font-medium text-slate-700">項目</span>
+                              <input
+                                value={replyForm.item}
+                                onChange={(event) => updateReplyForm(item.id, "item", event.target.value)}
+                                className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400"
+                              />
+                            </label>
+                            <label className="flex flex-col gap-2">
+                              <span className="text-sm font-medium text-slate-700">數量</span>
+                              <input
+                                value={replyForm.quantity}
+                                onChange={(event) => updateReplyForm(item.id, "quantity", event.target.value)}
+                                className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400"
+                              />
+                            </label>
+                            <label className="flex flex-col gap-2">
+                              <span className="text-sm font-medium text-slate-700">尺寸</span>
+                              <input
+                                value={replyForm.size}
+                                onChange={(event) => updateReplyForm(item.id, "size", event.target.value)}
+                                className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400"
+                              />
+                            </label>
+                            <label className="flex flex-col gap-2">
+                              <span className="text-sm font-medium text-slate-700">材質</span>
+                              <input
+                                value={replyForm.material}
+                                onChange={(event) => updateReplyForm(item.id, "material", event.target.value)}
+                                className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400"
+                              />
+                            </label>
+                            <label className="flex flex-col gap-2 md:col-span-2 xl:col-span-1">
+                              <span className="text-sm font-medium text-slate-700">預覽圖 URL</span>
+                              <input
+                                value={replyForm.previewUrl}
+                                onChange={(event) => updateReplyForm(item.id, "previewUrl", event.target.value)}
+                                className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400"
+                              />
+                            </label>
+                            <label className="flex flex-col gap-2">
+                              <span className="text-sm font-medium text-slate-700">成本</span>
+                              <input
+                                value={replyForm.cost}
+                                onChange={(event) => updateReplyForm(item.id, "cost", event.target.value)}
+                                className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400"
+                              />
+                            </label>
+
+                            <div className="md:col-span-2 xl:col-span-3 flex flex-wrap gap-2">
+                              <button
+                                type="button"
+                                onClick={() => submitReply(item.id, openCategory)}
+                                className="inline-flex items-center justify-center rounded-2xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800"
+                              >
+                                送出回覆
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => setActiveReplyBoxId(null)}
+                                className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 transition hover:bg-slate-50"
+                              >
+                                取消
+                              </button>
                             </div>
-                          ))
-                        ) : (
-                          <p className="text-sm text-slate-400">目前尚無回覆。</p>
-                        )}
+                          </div>
+                        ) : null}
                       </div>
-
-                      {openCategory === "design" ? (
-                        <div className="mt-3 flex flex-col gap-3 sm:flex-row">
-                          <textarea
-                            value={replyDrafts[item.id] ?? ""}
-                            onChange={(event) => setReplyDrafts((prev) => ({ ...prev, [item.id]: event.target.value }))}
-                            placeholder="輸入這筆設計任務的回覆內容"
-                            className="min-h-24 flex-1 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-slate-400"
-                          />
-                          <button
-                            type="button"
-                            onClick={() => addDesignReply(item.id)}
-                            className="inline-flex items-center justify-center rounded-2xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800"
-                          >
-                            送出回覆
-                          </button>
-                        </div>
-                      ) : null}
-
-                      {openCategory === "procurement" ? (
-                        <div className="mt-3 flex flex-col gap-3 sm:flex-row">
-                          <textarea
-                            value={replyDrafts[item.id] ?? ""}
-                            onChange={(event) => setReplyDrafts((prev) => ({ ...prev, [item.id]: event.target.value }))}
-                            placeholder="輸入這筆備品任務的回覆內容"
-                            className="min-h-24 flex-1 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-slate-400"
-                          />
-                          <button
-                            type="button"
-                            onClick={() => addProcurementReply(item.id)}
-                            className="inline-flex items-center justify-center rounded-2xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800"
-                          >
-                            送出回覆
-                          </button>
-                        </div>
-                      ) : null}
-
-                      {openCategory === "vendor" ? (
-                        <div className="mt-3 flex flex-col gap-3 sm:flex-row">
-                          <textarea
-                            value={replyDrafts[item.id] ?? ""}
-                            onChange={(event) => setReplyDrafts((prev) => ({ ...prev, [item.id]: event.target.value }))}
-                            placeholder="輸入這筆廠商任務的回覆內容"
-                            className="min-h-24 flex-1 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-slate-400"
-                          />
-                          <button
-                            type="button"
-                            onClick={() => addVendorReply(item.id)}
-                            className="inline-flex items-center justify-center rounded-2xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800"
-                          >
-                            送出回覆
-                          </button>
-                        </div>
-                      ) : null}
                     </div>
                   </div>
-                </div>
-              ))
+                );
+              })
             ) : (
               <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-5 text-sm text-slate-500">
                 目前此分類尚未建立資料。
