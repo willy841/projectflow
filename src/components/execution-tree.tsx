@@ -2,28 +2,48 @@
 
 import Link from "next/link";
 import { useRef, useState } from "react";
-import * as XLSX from "xlsx";
 import { ProjectExecutionItem, getStatusClass } from "@/components/project-data";
 
-type ImportedChild = {
-  id: string;
-  title: string;
-  status: string;
-  assignee?: string;
-  category: string;
-  quantity?: string;
-  unit?: string;
-  amount?: string;
-  note?: string;
-};
+type ImportedItem = ProjectExecutionItem;
 
-type ImportedItem = ProjectExecutionItem & {
-  quantity?: string;
-  unit?: string;
-  amount?: string;
-  note?: string;
-  children?: ImportedChild[];
-};
+function parseCsvLine(line: string) {
+  const result: string[] = [];
+  let current = "";
+  let inQuotes = false;
+
+  for (let i = 0; i < line.length; i += 1) {
+    const char = line[i];
+
+    if (char === '"') {
+      if (inQuotes && line[i + 1] === '"') {
+        current += '"';
+        i += 1;
+      } else {
+        inQuotes = !inQuotes;
+      }
+      continue;
+    }
+
+    if (char === "," && !inQuotes) {
+      result.push(current.trim());
+      current = "";
+      continue;
+    }
+
+    current += char;
+  }
+
+  result.push(current.trim());
+  return result;
+}
+
+function parseCsvText(text: string): string[][] {
+  return text
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .map(parseCsvLine);
+}
 
 function normalizeCell(value: unknown) {
   if (value === null || value === undefined) return "";
@@ -73,7 +93,7 @@ function parseImportedRows(rows: string[][]): ImportedItem[] {
         title,
         status: "待交辦",
         category: "專案",
-        detail: note || "匯入自 Excel 的主項目",
+        detail: note || "匯入自 CSV 的主項目",
         referenceExample: "",
         designTaskCount: 0,
         procurementTaskCount: 0,
@@ -87,13 +107,12 @@ function parseImportedRows(rows: string[][]): ImportedItem[] {
       return;
     }
 
-    // 如果沒有符合規則，當成主項目補進去
     currentMain = {
       id: `import-main-generic-${rowIndex}`,
       title: titleRaw || codeRaw,
       status: "待交辦",
       category: "專案",
-      detail: note || "匯入自 Excel 的主項目",
+      detail: note || "匯入自 CSV 的主項目",
       referenceExample: "",
       designTaskCount: 0,
       procurementTaskCount: 0,
@@ -165,16 +184,9 @@ export function ExecutionTree({
   }
 
   async function handleImport(file: File) {
-    const buffer = await file.arrayBuffer();
-    const workbook = XLSX.read(buffer, { type: "array" });
-    const firstSheetName = workbook.SheetNames[0];
-    if (!firstSheetName) return;
-
-    const worksheet = workbook.Sheets[firstSheetName];
-    const rows = XLSX.utils.sheet_to_json<string[]>(worksheet, {
-      header: 1,
-      blankrows: false,
-    }) as string[][];
+    const text = await file.text();
+    const rows = parseCsvText(text);
+    if (!rows.length) return;
 
     const imported = parseImportedRows(rows.slice(1));
     if (!imported.length) return;
@@ -337,7 +349,7 @@ export function ExecutionTree({
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
           <div>
             <p className="text-sm font-medium text-slate-800">新增主項目</p>
-            <p className="mt-1 text-sm text-slate-500">直接在這裡建立第一層主項目，或匯入 Excel 自動展開樹狀結構。</p>
+            <p className="mt-1 text-sm text-slate-500">直接在這裡建立第一層主項目，或匯入 CSV 自動展開樹狀結構。</p>
           </div>
           <div className="flex flex-wrap gap-2">
             <button
@@ -352,12 +364,12 @@ export function ExecutionTree({
               onClick={() => fileInputRef.current?.click()}
               className="inline-flex shrink-0 items-center justify-center rounded-2xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700"
             >
-              匯入 Excel
+              匯入 CSV
             </button>
             <input
               ref={fileInputRef}
               type="file"
-              accept=".xlsx,.xls,.csv"
+              accept=".csv,text/csv"
               className="hidden"
               onChange={(event) => {
                 const file = event.target.files?.[0];
@@ -371,7 +383,7 @@ export function ExecutionTree({
         </div>
 
         <div className="mt-3 rounded-2xl bg-white p-3 text-xs leading-6 text-slate-500 ring-1 ring-slate-200">
-          匯入規則：第一欄若為 <span className="font-semibold text-slate-700">1.</span>、<span className="font-semibold text-slate-700">2.</span> 會建立主項目；若為 <span className="font-semibold text-slate-700">1-1</span>、<span className="font-semibold text-slate-700">2-2</span> 會自動掛到對應主項目底下。其餘欄位會依序帶入數量、單位、金額、備註。
+          匯入規則：第一欄若為 <span className="font-semibold text-slate-700">1.</span>、<span className="font-semibold text-slate-700">2.</span> 會建立主項目；若為 <span className="font-semibold text-slate-700">1-1</span>、<span className="font-semibold text-slate-700">2-2</span> 會自動掛到對應主項目底下。其餘欄位會依序帶入名稱、數量、單位、金額、備註。
         </div>
 
         {showMainItemCreator ? (
