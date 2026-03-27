@@ -433,6 +433,13 @@ export function ExecutionTree({
   }
 
   function removeMain(itemId: string) {
+    const target = localItems.find((item) => item.id === itemId);
+    const confirmed = window.confirm(
+      `確定要刪除主項目「${target?.title ?? "未命名項目"}」嗎？\n刪除後其底下次項目與交辦資料也會一起移除。`
+    );
+
+    if (!confirmed) return;
+
     setLocalItems((prev) => prev.filter((item) => item.id !== itemId));
     setExpanded((prev) => {
       const next = { ...prev };
@@ -457,6 +464,14 @@ export function ExecutionTree({
   }
 
   function removeChild(parentId: string, childId: string) {
+    const parent = localItems.find((item) => item.id === parentId);
+    const target = parent?.children?.find((child) => child.id === childId);
+    const confirmed = window.confirm(
+      `確定要刪除次項目「${target?.title ?? "未命名次項目"}」嗎？`
+    );
+
+    if (!confirmed) return;
+
     setLocalItems((prev) =>
       prev.map((item) =>
         item.id !== parentId ? item : { ...item, children: (item.children ?? []).filter((child) => child.id !== childId) }
