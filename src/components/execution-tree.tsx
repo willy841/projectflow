@@ -176,18 +176,6 @@ export function ExecutionTree({
 
               <div className="grid w-full gap-2 sm:w-auto">
                 <AssignmentMenu targetId={item.id} title={item.title} />
-                <Link
-                  href={`/design-tasks/new?projectId=${projectId}&itemId=${item.id}&itemTitle=${encodeURIComponent(item.title)}`}
-                  className="inline-flex items-center justify-center rounded-2xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700"
-                >
-                  設計交辦
-                </Link>
-                <Link
-                  href={`/procurement-tasks/new?projectId=${projectId}&itemId=${item.id}&itemTitle=${encodeURIComponent(item.title)}`}
-                  className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm font-semibold text-slate-800 transition hover:bg-slate-50"
-                >
-                  備品交辦
-                </Link>
               </div>
             </div>
 
@@ -249,18 +237,6 @@ export function ExecutionTree({
 
                           <div className="flex flex-wrap gap-2">
                             <AssignmentMenu targetId={child.id} title={child.title} />
-                            <Link
-                              href={`/design-tasks/new?projectId=${projectId}&itemId=${item.id}&itemTitle=${encodeURIComponent(child.title)}`}
-                              className="rounded-xl bg-blue-600 px-3 py-2 text-xs font-semibold text-white transition hover:bg-blue-700"
-                            >
-                              設計交辦
-                            </Link>
-                            <Link
-                              href={`/procurement-tasks/new?projectId=${projectId}&itemId=${item.id}&itemTitle=${encodeURIComponent(child.title)}`}
-                              className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-100"
-                            >
-                              備品交辦
-                            </Link>
                             <button
                               type="button"
                               onClick={() => startEditing(child.id, child.title)}
