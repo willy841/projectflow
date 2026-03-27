@@ -4,9 +4,8 @@ import { ReactNode } from "react";
 const navItems = [
   { label: "首頁總覽", href: "/" },
   { label: "專案管理", href: "/projects" },
-  { label: "需求溝通", href: "#" },
-  { label: "設計交辦", href: "/design-tasks" },
-  { label: "備品採購", href: "#" },
+  { label: "設計任務版", href: "/design-tasks" },
+  { label: "備品採購版", href: "/procurement-tasks/new" },
   { label: "廠商資料", href: "#" },
   { label: "成本與報價", href: "#" },
   { label: "帳務中心", href: "#" },
