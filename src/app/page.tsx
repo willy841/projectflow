@@ -54,7 +54,7 @@ export default function Home() {
     <AppShell activePath="/">
       <header className="relative overflow-hidden rounded-[32px] bg-slate-950 p-7 text-white shadow-lg ring-1 ring-slate-900/80 lg:p-8">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(59,130,246,0.28),transparent_30%),radial-gradient(circle_at_bottom_left,rgba(14,165,233,0.18),transparent_35%)]" />
-        <div className="relative flex flex-col gap-8 xl:flex-row xl:items-center xl:justify-between">
+        <div className="relative flex flex-col gap-8 2xl:flex-row 2xl:items-center 2xl:justify-between">
           <div className="max-w-3xl">
             <div className="inline-flex rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs font-medium text-blue-100 backdrop-blur">
               ProjectFlow MVP Dashboard
@@ -90,7 +90,7 @@ export default function Home() {
         </div>
       </header>
 
-      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+      <section className="grid gap-4 md:grid-cols-2 2xl:grid-cols-4">
         {stats.map((stat) => (
           <article
             key={stat.label}
@@ -103,7 +103,7 @@ export default function Home() {
         ))}
       </section>
 
-      <section className="grid gap-6 xl:grid-cols-[minmax(0,1.65fr)_minmax(320px,0.95fr)]">
+      <section className="grid gap-6 2xl:grid-cols-[minmax(0,1.65fr)_minmax(340px,0.95fr)]">
         <article className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
           <div className="mb-5 flex items-center justify-between">
             <div>
