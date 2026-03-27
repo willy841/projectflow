@@ -69,6 +69,9 @@ export function RequirementsPanel({
   }
 
   function handleDelete(index: number) {
+    const confirmed = window.confirm("確定要刪除這筆需求溝通紀錄嗎？");
+    if (!confirmed) return;
+
     setItems((prev) => prev.filter((_, itemIndex) => itemIndex !== index));
     if (editingIndex === index) {
       setEditingIndex(null);
