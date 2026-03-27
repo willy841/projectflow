@@ -116,7 +116,7 @@ export default async function ProjectDetailPage({
               <h3 className="text-xl font-semibold">設計交辦</h3>
               <p className="mt-1 text-sm text-slate-500">後續可延伸為完整設計任務 CRUD。</p>
             </div>
-            <button className="text-sm font-medium text-slate-700">+ 新增設計交辦</button>
+            <Link href="/design-tasks" className="text-sm font-medium text-slate-700 hover:text-blue-600">+ 前往設計交辦</Link>
           </div>
 
           <div className="space-y-3">

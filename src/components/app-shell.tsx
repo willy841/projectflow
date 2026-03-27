@@ -5,7 +5,7 @@ const navItems = [
   { label: "首頁總覽", href: "/" },
   { label: "專案管理", href: "/projects" },
   { label: "需求溝通", href: "#" },
-  { label: "設計交辦", href: "#" },
+  { label: "設計交辦", href: "/design-tasks" },
   { label: "備品採購", href: "#" },
   { label: "廠商資料", href: "#" },
   { label: "成本與報價", href: "#" },
