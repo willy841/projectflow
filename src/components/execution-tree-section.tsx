@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useMemo, useState } from "react";
 import {
   DesignAssignmentDraft,
@@ -38,6 +37,7 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
         extra: [
           assignment.data.referenceUrl ? `參考連結：${assignment.data.referenceUrl}` : null,
           assignment.data.note ? `備註：${assignment.data.note}` : null,
+          ...((assignment.data.replies ?? []).map((reply) => `回覆：${reply.message}（${reply.createdAt}）`)),
         ].filter(Boolean),
         badge: assignment.data.status,
         badgeClass: getStatusClass(assignment.data.status),
@@ -64,7 +64,7 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
           assignment.data.quantity ? `數量：${assignment.data.quantity}` : null,
           assignment.data.budget ? `預算：${assignment.data.budget}` : null,
         ].filter(Boolean),
-        extra: [assignment.data.styleUrl ? `樣式 URL：${assignment.data.styleUrl}` : null].filter(Boolean),
+        extra: [assignment.data.styleUrl ? `樣式 URL：${assignment.data.styleUrl}` : null, ...((assignment.data.replies ?? []).map((reply) => `回覆：${reply.message}（${reply.createdAt}）`))].filter(Boolean),
         badge: assignment.data.status,
         badgeClass: getStatusClass(assignment.data.status),
       })),
@@ -93,6 +93,7 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
         extra: [
           assignment.data.referenceUrl ? `參考連結：${assignment.data.referenceUrl}` : null,
           assignment.data.note ? `需求 / 備註：${assignment.data.note}` : null,
+          ...((assignment.data.replies ?? []).map((reply) => `回覆：${reply.message}（${reply.createdAt}）`)),
         ].filter(Boolean),
         badge: assignment.data.status,
         badgeClass: getStatusClass(assignment.data.status),
@@ -189,11 +190,6 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
               <h4 className="text-lg font-semibold text-slate-900">{categoryMeta[openCategory].title}</h4>
               <p className="mt-1 text-sm text-slate-500">共 {currentList.length} 筆，已依同類別集中條列於下方。</p>
             </div>
-            {openCategory === "design" ? (
-              <Link href="/design-tasks" className="text-sm font-medium text-slate-700 hover:text-blue-600">
-                查看全部
-              </Link>
-            ) : null}
           </div>
 
           <div className="space-y-3">
