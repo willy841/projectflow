@@ -27,6 +27,7 @@ export type Project = {
   client: string;
   eventDate: string;
   location: string;
+  loadInTime: string;
   eventType: string;
   contactName: string;
   contactPhone: string;
@@ -66,6 +67,7 @@ export const projects: Project[] = [
     client: "森野生活",
     eventDate: "2026-04-12",
     location: "松山文創園區",
+    loadInTime: "08:00",
     eventType: "品牌快閃",
     contactName: "林雅晴",
     contactPhone: "0912-345-678",
@@ -141,6 +143,7 @@ export const projects: Project[] = [
     client: "曜石科技",
     eventDate: "2026-04-20",
     location: "南港展覽館",
+    loadInTime: "07:30",
     eventType: "新品發表會",
     contactName: "陳柏宇",
     contactPhone: "0987-654-321",
@@ -199,6 +202,7 @@ export const projects: Project[] = [
     client: "青禾百貨",
     eventDate: "2026-04-25",
     location: "台中新光三越",
+    loadInTime: "09:00",
     eventType: "百貨檔期",
     contactName: "葉思妤",
     contactPhone: "0933-222-111",

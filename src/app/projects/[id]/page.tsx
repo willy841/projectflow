@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AppShell } from "@/components/app-shell";
+import { CopyEventInfoButton } from "@/components/copy-event-info-button";
 import { ExecutionTree } from "@/components/execution-tree";
 import { getProjectById, getStatusClass } from "@/components/project-data";
 
@@ -32,6 +33,12 @@ export default async function ProjectDetailPage({
           </div>
 
           <div className="flex flex-wrap gap-3">
+            <CopyEventInfoButton
+              projectName={project.name}
+              eventDate={project.eventDate}
+              location={project.location}
+              loadInTime={project.loadInTime}
+            />
             <Link href="/projects" className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-800 shadow-sm transition hover:border-slate-400 hover:bg-slate-50">
               返回列表
             </Link>
@@ -42,10 +49,11 @@ export default async function ProjectDetailPage({
         </div>
       </header>
 
-      <section className="grid gap-4 md:grid-cols-2 2xl:grid-cols-4">
+      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-5">
         {[
           { label: "活動日期", value: project.eventDate },
           { label: "活動地點", value: project.location },
+          { label: "進場時間", value: project.loadInTime },
           { label: "專案預算", value: project.budget },
           { label: "目前成本", value: project.cost },
         ].map((item) => (
