@@ -5,6 +5,11 @@ import { CopyEventInfoButton } from "@/components/copy-event-info-button";
 import { ExecutionTreeSection } from "@/components/execution-tree-section";
 import { getProjectById, getStatusClass } from "@/components/project-data";
 import { RequirementsPanel } from "@/components/requirements-panel";
+import { projects } from "@/components/project-data";
+
+export function generateStaticParams() {
+  return projects.map((project) => ({ id: project.id }));
+}
 
 export default async function ProjectDetailPage({
   params,
