@@ -116,12 +116,6 @@ export default async function ProjectDetailPage({
             <h3 className="text-xl font-semibold">專案執行項目</h3>
             <p className="mt-1 text-sm leading-6 text-slate-500">改成樹狀子項目操作，可直接展開、收合，並在項目底下新增子項目。</p>
           </div>
-          <Link
-            href={`/projects/${project.id}/execution-items/new`}
-            className="inline-flex shrink-0 items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
-          >
-            + 新增主項目
-          </Link>
         </div>
 
         <ExecutionTree projectId={project.id} items={project.executionItems} />

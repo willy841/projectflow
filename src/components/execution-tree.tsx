@@ -19,6 +19,8 @@ export function ExecutionTree({
   const [editingChildId, setEditingChildId] = useState<string | null>(null);
   const [editingValue, setEditingValue] = useState("");
   const [activeAssignMenu, setActiveAssignMenu] = useState<string | null>(null);
+  const [showMainItemCreator, setShowMainItemCreator] = useState(false);
+  const [mainItemDraft, setMainItemDraft] = useState("");
 
   function toggleItem(itemId: string) {
     setExpanded((prev) => ({ ...prev, [itemId]: !prev[itemId] }));
@@ -26,6 +28,33 @@ export function ExecutionTree({
 
   function updateDraft(itemId: string, value: string) {
     setDrafts((prev) => ({ ...prev, [itemId]: value }));
+  }
+
+  function addMainItem() {
+    const draft = mainItemDraft.trim();
+    if (!draft) return;
+
+    const nextIndex = localItems.length + 1;
+    const newId = `main-item-${nextIndex}`;
+
+    setLocalItems((prev) => [
+      ...prev,
+      {
+        id: newId,
+        title: draft,
+        status: "待交辦",
+        category: "專案",
+        detail: "請補充此主項目的需求說明與執行方向。",
+        referenceExample: "",
+        designTaskCount: 0,
+        procurementTaskCount: 0,
+        children: [],
+      },
+    ]);
+
+    setExpanded((prev) => ({ ...prev, [newId]: true }));
+    setMainItemDraft("");
+    setShowMainItemCreator(false);
   }
 
   function addChild(itemId: string) {
@@ -134,6 +163,52 @@ export function ExecutionTree({
 
   return (
     <div className="space-y-4">
+      <div className="rounded-3xl border border-dashed border-slate-300 bg-slate-50 p-4">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p className="text-sm font-medium text-slate-800">新增主項目</p>
+            <p className="mt-1 text-sm text-slate-500">直接在這裡建立第一層主項目，不再換頁。</p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setShowMainItemCreator((prev) => !prev)}
+            className="inline-flex shrink-0 items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 shadow-sm transition hover:border-slate-400 hover:bg-slate-50"
+          >
+            + 新增主項目
+          </button>
+        </div>
+
+        {showMainItemCreator ? (
+          <div className="mt-4 flex flex-col gap-3 sm:flex-row">
+            <input
+              value={mainItemDraft}
+              onChange={(event) => setMainItemDraft(event.target.value)}
+              placeholder="輸入主項目名稱，例如：入口主背板"
+              className="h-11 flex-1 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400"
+            />
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={addMainItem}
+                className="inline-flex items-center justify-center rounded-2xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700"
+              >
+                建立
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowMainItemCreator(false);
+                  setMainItemDraft("");
+                }}
+                className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 shadow-sm transition hover:border-slate-400 hover:bg-slate-50"
+              >
+                取消
+              </button>
+            </div>
+          </div>
+        ) : null}
+      </div>
+
       {localItems.map((item) => {
         const isOpen = expanded[item.id];
         return (
@@ -202,7 +277,7 @@ export function ExecutionTree({
                                   <button
                                     type="button"
                                     onClick={() => saveEditing(child.id)}
-                                    className="rounded-2xl bg-slate-950 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800"
+                                    className="inline-flex items-center justify-center rounded-2xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700"
                                   >
                                     儲存
                                   </button>
@@ -212,7 +287,7 @@ export function ExecutionTree({
                                       setEditingChildId(null);
                                       setEditingValue("");
                                     }}
-                                    className="rounded-2xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
+                                    className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 shadow-sm transition hover:border-slate-400 hover:bg-slate-50"
                                   >
                                     取消
                                   </button>
@@ -267,7 +342,7 @@ export function ExecutionTree({
                       <button
                         type="button"
                         onClick={() => addChild(item.id)}
-                        className="rounded-2xl bg-slate-950 px-4 py-3 text-sm font-semibold text-white transition hover:bg-slate-800"
+                        className="inline-flex items-center justify-center rounded-2xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700"
                       >
                         新增
                       </button>
