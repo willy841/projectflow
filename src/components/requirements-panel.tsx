@@ -1,33 +1,36 @@
 "use client";
 
 import { useState } from "react";
-import { getStatusClass } from "@/components/project-data";
 
 type RequirementItem = {
   title: string;
-  status: string;
-  category: string;
+  date: string;
 };
 
 export function RequirementsPanel({
   initialItems,
 }: {
-  initialItems: RequirementItem[];
+  initialItems: { title: string }[];
 }) {
-  const [items, setItems] = useState(initialItems);
+  const today = new Date().toISOString().slice(0, 10);
+
+  const [items, setItems] = useState<RequirementItem[]>(
+    initialItems.map((item, index) => ({
+      title: item.title,
+      date: index === 0 ? today : today,
+    }))
+  );
   const [showCreate, setShowCreate] = useState(false);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [form, setForm] = useState<RequirementItem>({
     title: "",
-    status: "待確認",
-    category: "專案",
+    date: today,
   });
 
   function resetForm() {
     setForm({
       title: "",
-      status: "待確認",
-      category: "專案",
+      date: today,
     });
   }
 
@@ -74,7 +77,7 @@ export function RequirementsPanel({
       <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">
           <h3 className="text-xl font-semibold">需求溝通</h3>
-          <p className="mt-1 text-sm leading-6 text-slate-500">在專案內直接整理、補充與編輯需求溝通內容。</p>
+          <p className="mt-1 text-sm leading-6 text-slate-500">在專案內直接記錄需求溝通內容與此次溝通日期。</p>
         </div>
         <button
           type="button"
@@ -85,39 +88,25 @@ export function RequirementsPanel({
           }}
           className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 shadow-sm transition hover:border-slate-400 hover:bg-slate-50"
         >
-          + 新增需求
+          + 新增紀錄
         </button>
       </div>
 
       {(showCreate || isEditing) ? (
         <div className="mb-4 rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-4">
-          <div className="grid gap-3 md:grid-cols-[1fr_140px_140px]">
+          <div className="grid gap-3 md:grid-cols-[160px_1fr]">
+            <input
+              type="date"
+              value={form.date}
+              onChange={(event) => setForm((prev) => ({ ...prev, date: event.target.value }))}
+              className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400"
+            />
             <input
               value={form.title}
               onChange={(event) => setForm((prev) => ({ ...prev, title: event.target.value }))}
-              placeholder="輸入需求內容，例如：入口主背板需搭配春季主題色與產品燈箱"
+              placeholder="輸入需求溝通內容，例如：入口主背板需搭配春季主題色與產品燈箱"
               className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400"
             />
-            <select
-              value={form.category}
-              onChange={(event) => setForm((prev) => ({ ...prev, category: event.target.value }))}
-              className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400"
-            >
-              <option value="專案">專案</option>
-              <option value="設計">設計</option>
-              <option value="備品">備品</option>
-              <option value="廠商">廠商</option>
-            </select>
-            <select
-              value={form.status}
-              onChange={(event) => setForm((prev) => ({ ...prev, status: event.target.value }))}
-              className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400"
-            >
-              <option value="待確認">待確認</option>
-              <option value="已確認">已確認</option>
-              <option value="執行中">執行中</option>
-              <option value="待拆解">待拆解</option>
-            </select>
           </div>
 
           <div className="mt-3 flex flex-wrap gap-2">
@@ -126,7 +115,7 @@ export function RequirementsPanel({
               onClick={isEditing ? handleSaveEdit : handleCreate}
               className="inline-flex items-center justify-center rounded-2xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700"
             >
-              {isEditing ? "儲存修改" : "建立需求"}
+              {isEditing ? "儲存修改" : "建立紀錄"}
             </button>
             <button
               type="button"
@@ -144,12 +133,7 @@ export function RequirementsPanel({
           <div key={`${item.title}-${index}`} className="rounded-2xl border border-slate-200 p-4">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div className="min-w-0">
-                <div className="flex flex-wrap items-center gap-3">
-                  <p className="text-xs font-medium text-slate-500">{item.category}</p>
-                  <span className={`inline-flex shrink-0 items-center justify-center whitespace-nowrap rounded-full px-3 py-1 text-xs font-medium ring-1 ${getStatusClass(item.status)}`}>
-                    {item.status}
-                  </span>
-                </div>
+                <p className="text-xs font-medium text-slate-500">{item.date}</p>
                 <h4 className="mt-2 font-semibold text-slate-900">{item.title}</h4>
               </div>
               <button
