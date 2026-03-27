@@ -115,9 +115,12 @@ export default async function ProjectDetailPage({
             <h3 className="text-xl font-semibold">專案執行項目</h3>
             <p className="mt-1 text-sm text-slate-500">從討論項目展開執行，並由每個項目發起設計交辦或備品交辦。</p>
           </div>
-          <button className="rounded-2xl border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700">
+          <Link
+            href={`/projects/${project.id}/execution-items/new`}
+            className="rounded-2xl border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+          >
             + 新增項目
-          </button>
+          </Link>
         </div>
 
         <div className="space-y-4">
