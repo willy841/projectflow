@@ -23,7 +23,7 @@ export default async function ProjectDetailPage({
           <div>
             <div className="flex flex-wrap items-center gap-3">
               <p className="text-sm text-slate-500">{project.code}</p>
-              <span className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ring-1 ${getStatusClass(project.status)}`}>
+              <span className={`inline-flex items-center justify-center whitespace-nowrap rounded-full px-3 py-1 text-xs font-medium ring-1 ${getStatusClass(project.status)}`}>
                 {project.status}
               </span>
             </div>
@@ -100,7 +100,7 @@ export default async function ProjectDetailPage({
                     <p className="text-xs font-medium text-slate-500">{item.category}</p>
                     <h4 className="mt-1 font-semibold text-slate-900">{item.title}</h4>
                   </div>
-                  <span className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ring-1 ${getStatusClass(item.status)}`}>
+                  <span className={`inline-flex items-center justify-center whitespace-nowrap rounded-full px-3 py-1 text-xs font-medium ring-1 ${getStatusClass(item.status)}`}>
                     {item.status}
                   </span>
                 </div>
@@ -146,7 +146,7 @@ export default async function ProjectDetailPage({
                     <p className="mt-2 text-sm text-slate-500">負責人：{task.assignee}</p>
                     <p className="mt-1 text-sm text-slate-500">期限：{task.due}</p>
                   </div>
-                  <span className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ring-1 ${getStatusClass(task.status)}`}>
+                  <span className={`inline-flex items-center justify-center whitespace-nowrap rounded-full px-3 py-1 text-xs font-medium ring-1 ${getStatusClass(task.status)}`}>
                     {task.status}
                   </span>
                 </div>
@@ -173,7 +173,7 @@ export default async function ProjectDetailPage({
                     <p className="mt-2 text-sm text-slate-500">採購：{task.buyer}</p>
                     <p className="mt-1 text-sm text-slate-500">預算：{task.budget}</p>
                   </div>
-                  <span className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ring-1 ${getStatusClass(task.status)}`}>
+                  <span className={`inline-flex items-center justify-center whitespace-nowrap rounded-full px-3 py-1 text-xs font-medium ring-1 ${getStatusClass(task.status)}`}>
                     {task.status}
                   </span>
                 </div>

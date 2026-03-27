@@ -23,7 +23,7 @@ export default async function DesignTaskDetailPage({
           <div>
             <div className="flex flex-wrap items-center gap-3">
               <p className="text-sm text-slate-500">{task.projectCode}</p>
-              <span className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ring-1 ${getStatusClass(task.status)}`}>
+              <span className={`inline-flex items-center justify-center whitespace-nowrap rounded-full px-3 py-1 text-xs font-medium ring-1 ${getStatusClass(task.status)}`}>
                 {task.status}
               </span>
             </div>

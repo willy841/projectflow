@@ -149,7 +149,7 @@ export function ExecutionTree({
                     {isOpen ? "−" : "+"}
                   </button>
                   <p className="text-xs font-semibold text-blue-600">{item.category}</p>
-                  <span className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ring-1 ${getStatusClass(item.status)}`}>
+                  <span className={`inline-flex items-center justify-center whitespace-nowrap rounded-full px-3 py-1 text-xs font-medium ring-1 ${getStatusClass(item.status)}`}>
                     {item.status}
                   </span>
                   <button
@@ -222,7 +222,7 @@ export function ExecutionTree({
                               <>
                                 <div className="flex flex-wrap items-center gap-3">
                                   <h5 className="font-medium text-slate-900">{child.title}</h5>
-                                  <span className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ring-1 ${getStatusClass(child.status)}`}>
+                                  <span className={`inline-flex items-center justify-center whitespace-nowrap rounded-full px-3 py-1 text-xs font-medium ring-1 ${getStatusClass(child.status)}`}>
                                     {child.status}
                                   </span>
                                 </div>

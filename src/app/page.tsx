@@ -209,7 +209,7 @@ export default function Home() {
                     <p className="mt-2 text-sm text-slate-600">{task.project}</p>
                   </div>
                   <span
-                    className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ring-1 ${getStatusClass(task.status)}`}
+                    className={`inline-flex items-center justify-center whitespace-nowrap rounded-full px-3 py-1 text-xs font-medium ring-1 ${getStatusClass(task.status)}`}
                   >
                     {task.status}
                   </span>
@@ -243,7 +243,7 @@ export default function Home() {
                     <p className="mt-1 text-sm text-slate-500">{vendor.category}</p>
                   </div>
                   <span
-                    className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ring-1 ${getStatusClass(vendor.status)}`}
+                    className={`inline-flex items-center justify-center whitespace-nowrap rounded-full px-3 py-1 text-xs font-medium ring-1 ${getStatusClass(vendor.status)}`}
                   >
                     {vendor.status}
                   </span>

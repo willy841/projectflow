@@ -110,7 +110,7 @@ export default function DesignTasksPage() {
                   </div>
 
                   <div className="w-full max-w-xs space-y-3 lg:w-72">
-                    <span className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ring-1 ${getStatusClass(task.status)}`}>
+                    <span className={`inline-flex items-center justify-center whitespace-nowrap rounded-full px-3 py-1 text-xs font-medium ring-1 ${getStatusClass(task.status)}`}>
                       {task.status}
                     </span>
 
