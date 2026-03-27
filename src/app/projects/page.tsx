@@ -98,8 +98,8 @@ export default function ProjectsPage() {
                   <td className="px-4 py-4 text-slate-600">{project.client}</td>
                   <td className="px-4 py-4 text-slate-600">{project.eventDate}</td>
                   <td className="px-4 py-4 text-slate-600">{project.location}</td>
-                  <td className="px-4 py-4">
-                    <span className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ring-1 ${getStatusClass(project.status)}`}>
+                  <td className="px-4 py-4 align-top">
+                    <span className={`inline-flex min-w-[72px] items-center justify-center whitespace-nowrap rounded-full px-3 py-1 text-xs font-medium ring-1 ${getStatusClass(project.status)}`}>
                       {project.status}
                     </span>
                   </td>
