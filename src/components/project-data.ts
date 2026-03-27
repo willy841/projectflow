@@ -1,5 +1,16 @@
 export type ProjectStatus = "執行中" | "待發包" | "採購中" | "已結案";
 
+export type ProjectExecutionItem = {
+  id: string;
+  title: string;
+  status: string;
+  category: string;
+  detail: string;
+  referenceExample?: string;
+  designTaskCount?: number;
+  procurementTaskCount?: number;
+};
+
 export type Project = {
   id: string;
   code: string;
@@ -23,6 +34,7 @@ export type Project = {
     status: string;
     category: string;
   }>;
+  executionItems: ProjectExecutionItem[];
   designTasks: Array<{
     title: string;
     assignee: string;
@@ -61,6 +73,38 @@ export const projects: Project[] = [
       { title: "現場需要 3 組陳列桌與品牌立牌", status: "執行中", category: "備品" },
       { title: "贈品包裝與動線指示需同時整合", status: "待拆解", category: "專案" },
     ],
+    executionItems: [
+      {
+        id: "spring-item-1",
+        title: "入口主背板",
+        status: "進行中",
+        category: "設計",
+        detail: "根據春季主題色延伸入口主背板，需與產品燈箱與導視動線一致。",
+        referenceExample: "春季視覺範例 A",
+        designTaskCount: 1,
+        procurementTaskCount: 0,
+      },
+      {
+        id: "spring-item-2",
+        title: "陳列桌與品牌立牌",
+        status: "待交辦",
+        category: "備品",
+        detail: "現場需 3 組陳列桌與品牌立牌，需同步考量施工與輸出規格。",
+        referenceExample: "門市陳列範例 B",
+        designTaskCount: 1,
+        procurementTaskCount: 1,
+      },
+      {
+        id: "spring-item-3",
+        title: "贈品包裝與動線指示",
+        status: "待拆解",
+        category: "專案",
+        detail: "需同時處理贈品包裝視覺、吊卡與現場動線指示延伸。",
+        referenceExample: "活動贈品範例 C",
+        designTaskCount: 0,
+        procurementTaskCount: 1,
+      },
+    ],
     designTasks: [
       { title: "主背板輸出完稿", assignee: "Aster", due: "2026-03-27", status: "進行中" },
       { title: "導視系統版型整理", assignee: "Mika", due: "2026-03-29", status: "待確認" },
@@ -92,6 +136,28 @@ export const projects: Project[] = [
       { title: "主舞台 LED 動畫需配合新品亮點切換", status: "已確認", category: "設計" },
       { title: "接待區背牆木作需重新估價", status: "待發包", category: "廠商" },
     ],
+    executionItems: [
+      {
+        id: "obsidian-item-1",
+        title: "主舞台 LED 動畫",
+        status: "進行中",
+        category: "設計",
+        detail: "舞台螢幕主視覺與 LED 動畫需跟新品亮點同步切換。",
+        referenceExample: "舞台動畫提案 01",
+        designTaskCount: 1,
+        procurementTaskCount: 0,
+      },
+      {
+        id: "obsidian-item-2",
+        title: "接待區背牆木作",
+        status: "待發包",
+        category: "廠商",
+        detail: "接待區背牆尺寸與木作結構需重新估價並確認施工方式。",
+        referenceExample: "背牆木作範例",
+        designTaskCount: 1,
+        procurementTaskCount: 0,
+      },
+    ],
     designTasks: [
       { title: "主 KV 延伸版位", assignee: "Nora", due: "2026-03-30", status: "進行中" },
       { title: "場地提案簡報更新", assignee: "Jay", due: "2026-03-28", status: "待確認" },
@@ -122,6 +188,28 @@ export const projects: Project[] = [
       { title: "檔期主視覺需同步套用至吊牌與 POP", status: "執行中", category: "設計" },
       { title: "展示架需可重複使用並可拆裝", status: "比價中", category: "備品" },
     ],
+    executionItems: [
+      {
+        id: "dept-item-1",
+        title: "POP 與價卡完稿",
+        status: "待確認",
+        category: "設計",
+        detail: "百貨檔期 POP、價卡與吊牌需套用統一檔期主視覺。",
+        referenceExample: "百貨 POP 範例",
+        designTaskCount: 1,
+        procurementTaskCount: 0,
+      },
+      {
+        id: "dept-item-2",
+        title: "展示架五金與配件",
+        status: "採購中",
+        category: "備品",
+        detail: "展示架須可重複使用並具拆裝結構，需搭配五金與運輸包材。",
+        referenceExample: "展示架拆裝範例",
+        designTaskCount: 0,
+        procurementTaskCount: 1,
+      },
+    ],
     designTasks: [
       { title: "POP 與價卡完稿", assignee: "Dora", due: "2026-03-31", status: "待確認" },
     ],
@@ -141,7 +229,7 @@ export function getStatusClass(status: string) {
     return "bg-emerald-50 text-emerald-700 ring-emerald-200";
   }
 
-  if (["待發包", "待下單", "待處理", "待確認", "待拆解"].includes(status)) {
+  if (["待發包", "待下單", "待處理", "待確認", "待拆解", "待交辦"].includes(status)) {
     return "bg-amber-50 text-amber-700 ring-amber-200";
   }
 

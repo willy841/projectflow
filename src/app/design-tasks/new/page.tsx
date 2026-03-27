@@ -1,8 +1,18 @@
 import Link from "next/link";
 import { AppShell } from "@/components/app-shell";
 import { DesignTaskForm } from "@/components/design-task-form";
+import { getProjectById } from "@/components/project-data";
 
-export default function NewDesignTaskPage() {
+export default async function NewDesignTaskPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ projectId?: string; itemId?: string; itemTitle?: string }>;
+}) {
+  const params = await searchParams;
+  const project = params.projectId ? getProjectById(params.projectId) : undefined;
+  const matchedItem = project?.executionItems.find((item) => item.id === params.itemId);
+  const itemTitle = params.itemTitle || matchedItem?.title || "";
+
   return (
     <AppShell activePath="/design-tasks">
       <header className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
@@ -11,20 +21,28 @@ export default function NewDesignTaskPage() {
             <p className="text-sm text-slate-500">New Design Task</p>
             <h2 className="mt-1 text-3xl font-semibold tracking-tight text-slate-900">新增設計交辦</h2>
             <p className="mt-3 text-sm leading-6 text-slate-600">
-              建立單筆設計交辦，後續可掛回專案詳細頁，並延伸成完整設計交辦管理流程。
+              這一版已改成從專案執行項目發起交辦。{project ? `目前來源專案為：${project.name}` : "你也可以手動選擇所屬專案。"}
             </p>
           </div>
 
           <Link
-            href="/design-tasks"
+            href={project ? `/projects/${project.id}` : "/projects"}
             className="rounded-2xl border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-800 shadow-sm transition hover:bg-slate-50"
           >
-            返回設計交辦中心
+            {project ? "返回專案詳細頁" : "返回專案列表"}
           </Link>
         </div>
       </header>
 
-      <DesignTaskForm />
+      <DesignTaskForm
+        initialValues={{
+          projectId: project?.id || "",
+          executionItemId: matchedItem?.id || params.itemId || "",
+          executionItemTitle: itemTitle,
+          title: itemTitle ? `${itemTitle} - 設計交辦` : "",
+          note: matchedItem?.detail || "",
+        }}
+      />
     </AppShell>
   );
 }

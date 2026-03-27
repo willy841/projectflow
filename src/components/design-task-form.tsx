@@ -5,6 +5,8 @@ import { projects } from "@/components/project-data";
 
 type DesignTaskFormValues = {
   projectId: string;
+  executionItemId?: string;
+  executionItemTitle?: string;
   title: string;
   assignee: string;
   due: string;
@@ -20,6 +22,8 @@ type DesignTaskFormValues = {
 
 const defaultForm: DesignTaskFormValues = {
   projectId: projects[0]?.id ?? "",
+  executionItemId: "",
+  executionItemTitle: "",
   title: "",
   assignee: "",
   due: "",
@@ -61,6 +65,7 @@ export function DesignTaskForm({
   }
 
   const isEdit = mode === "edit";
+  const selectedProject = projects.find((project) => project.id === form.projectId);
 
   return (
     <div className="grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
@@ -73,7 +78,7 @@ export function DesignTaskForm({
           <p className="mt-2 text-sm leading-6 text-slate-600">
             {isEdit
               ? "這一版先做前端編輯流程，讓你確認欄位與修改體驗；之後接資料庫就能真正更新資料。"
-              : "這一版先做前端可操作表單，讓你確認欄位是否符合實際交辦流程；之後接資料庫就能直接儲存。"}
+              : "這一版改成從專案執行項目發起設計交辦，先確認操作邏輯與欄位是否符合實際流程。"}
           </p>
         </div>
 
@@ -93,8 +98,24 @@ export function DesignTaskForm({
             </select>
           </label>
 
+          <label className="flex flex-col gap-2 md:col-span-2">
+            <span className="text-sm font-medium text-slate-700">來源討論項目</span>
+            <input
+              type="text"
+              value={form.executionItemTitle || ""}
+              onChange={(event) => updateField("executionItemTitle", event.target.value)}
+              placeholder="例如：入口主背板"
+              className="h-12 rounded-2xl border border-slate-200 bg-slate-50 px-4 text-sm outline-none transition focus:border-slate-400"
+            />
+            {selectedProject?.executionItems?.length ? (
+              <p className="text-xs text-slate-500">
+                可對應的專案執行項目：{selectedProject.executionItems.map((item) => item.title).join("、")}
+              </p>
+            ) : null}
+          </label>
+
           {[
-            ["title", "項目名稱", "例如：主背板輸出完稿"],
+            ["title", "交辦名稱", "例如：主背板輸出完稿"],
             ["assignee", "負責設計", "例如：Aster"],
             ["due", "交期", "2026-03-31"],
             ["size", "尺寸", "例如：W240 x H300 cm"],
@@ -108,7 +129,7 @@ export function DesignTaskForm({
               <span className="text-sm font-medium text-slate-700">{label}</span>
               <input
                 type="text"
-                value={form[key as keyof DesignTaskFormValues]}
+                value={form[key as keyof DesignTaskFormValues] || ""}
                 onChange={(event) => updateField(key as keyof DesignTaskFormValues, event.target.value)}
                 placeholder={placeholder}
                 className="h-12 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400"
@@ -141,7 +162,7 @@ export function DesignTaskForm({
 
         <div className="mt-6 flex flex-wrap gap-3">
           <button type="submit" className="rounded-2xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700">
-            {isEdit ? "儲存修改" : "儲存設計交辦"}
+            {isEdit ? "儲存修改" : "建立設計交辦"}
           </button>
           <button type="button" className="rounded-2xl border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-800 transition hover:bg-slate-50">
             清空表單
@@ -151,12 +172,12 @@ export function DesignTaskForm({
 
       <aside className="space-y-6">
         <div className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
-          <h3 className="text-lg font-semibold text-slate-900">欄位建議</h3>
+          <h3 className="text-lg font-semibold text-slate-900">流程說明</h3>
           <ul className="mt-4 space-y-3 text-sm leading-6 text-slate-600">
-            <li>• 交辦名稱盡量明確，避免只寫「海報」這種太模糊的名稱。</li>
-            <li>• 尺寸、材質、數量先寫完整，發包與製作才不容易出錯。</li>
-            <li>• 參考連結可放 Figma、雲端圖片或範例頁。</li>
-            <li>• 需求備註建議寫清楚修改方向與交付標準。</li>
+            <li>• 現在的設計交辦邏輯改為從專案執行項目發起。</li>
+            <li>• 每一筆設計交辦都應該對應到一個討論 / 執行項目。</li>
+            <li>• 交辦名稱可再細化成該項目底下的實際工作內容。</li>
+            <li>• 後續再接資料庫後，就能完整追蹤項目與交辦的關聯。</li>
           </ul>
         </div>
 
@@ -165,12 +186,12 @@ export function DesignTaskForm({
           {submitted ? (
             <div className="mt-3 space-y-3 text-sm leading-6 text-slate-200">
               <p>{isEdit ? "已完成前端修改流程，下一階段接 API 後可真正更新資料。" : "已完成前端送出流程，下一階段接 API 後可真正建立資料。"}</p>
+              <p>來源項目：{form.executionItemTitle || "尚未填寫"}</p>
               <p>設計交辦名稱：{form.title || "尚未填寫"}</p>
-              <p>負責設計：{form.assignee || "尚未填寫"}</p>
             </div>
           ) : (
             <p className="mt-3 text-sm leading-6 text-slate-300">
-              {isEdit ? "尚未送出。這一版先讓你確認編輯流程與欄位修改體驗。" : "尚未送出。這一版先讓你確認新增交辦的欄位與操作流是否順手。"}
+              {isEdit ? "尚未送出。這一版先讓你確認編輯流程與欄位修改體驗。" : "尚未送出。這一版先讓你確認從專案項目發起交辦的操作流是否正確。"}
             </p>
           )}
         </div>
