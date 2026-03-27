@@ -22,8 +22,8 @@ export function AppShell({
 }) {
   return (
     <main className="min-h-screen bg-[#f4f7fb] text-slate-900">
-      <div className="mx-auto flex min-h-screen max-w-7xl gap-6 px-4 py-6 lg:px-6">
-        <aside className="hidden w-64 shrink-0 rounded-3xl bg-slate-950 p-6 text-white lg:block">
+      <div className="mx-auto flex min-h-screen w-full max-w-[1600px] gap-5 px-4 py-6 lg:px-6 xl:px-8">
+        <aside className="hidden w-56 shrink-0 rounded-3xl bg-slate-950 p-6 text-white lg:block xl:w-60">
           <div className="mb-8">
             <p className="text-sm text-slate-400">Project OS</p>
             <h1 className="mt-2 text-2xl font-semibold">專案營運管理系統</h1>

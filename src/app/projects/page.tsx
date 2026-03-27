@@ -5,8 +5,8 @@ import { getStatusClass, projects } from "@/components/project-data";
 export default function ProjectsPage() {
   return (
     <AppShell activePath="/projects">
-      <header className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
-        <div className="flex flex-col gap-5 xl:flex-row xl:items-center xl:justify-between">
+      <header className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200 xl:p-7">
+        <div className="flex flex-col gap-5 2xl:flex-row 2xl:items-center 2xl:justify-between">
           <div>
             <p className="text-sm text-slate-500">Project List</p>
             <h2 className="mt-1 text-3xl font-semibold tracking-tight">專案列表</h2>
@@ -29,7 +29,7 @@ export default function ProjectsPage() {
         </div>
       </header>
 
-      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+      <section className="grid gap-4 md:grid-cols-2 2xl:grid-cols-4">
         <article className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
           <p className="text-sm text-slate-500">專案總數</p>
           <p className="mt-3 text-3xl font-semibold tracking-tight">{projects.length}</p>
@@ -60,10 +60,10 @@ export default function ProjectsPage() {
             <h3 className="text-xl font-semibold">全部專案</h3>
             <p className="mt-1 text-sm leading-6 text-slate-500">點選專案名稱可進入詳細頁。</p>
           </div>
-          <div className="flex w-full flex-col gap-3 sm:flex-row lg:w-auto">
+          <div className="flex w-full flex-col gap-3 sm:flex-row xl:w-auto">
             <input
               placeholder="搜尋專案 / 客戶 / 地點"
-              className="h-11 w-full min-w-0 rounded-2xl border border-slate-200 px-4 text-sm outline-none focus:border-slate-400 sm:w-72"
+              className="h-11 w-full min-w-0 rounded-2xl border border-slate-200 px-4 text-sm outline-none focus:border-slate-400 sm:w-80 xl:w-72"
             />
             <button className="shrink-0 rounded-2xl border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700">
               依日期排序
@@ -72,7 +72,7 @@ export default function ProjectsPage() {
         </div>
 
         <div className="overflow-x-auto rounded-2xl border border-slate-200">
-          <table className="min-w-[1100px] divide-y divide-slate-200 text-left text-sm">
+          <table className="min-w-[1180px] divide-y divide-slate-200 text-left text-sm xl:min-w-full">
             <thead className="bg-slate-50 text-slate-500">
               <tr>
                 <th className="px-4 py-3 font-medium">專案名稱</th>
