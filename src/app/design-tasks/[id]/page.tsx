@@ -38,9 +38,12 @@ export default async function DesignTaskDetailPage({
             >
               返回交辦列表
             </Link>
-            <button className="rounded-2xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700">
+            <Link
+              href={`/design-tasks/${task.id}/edit`}
+              className="rounded-2xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700"
+            >
               編輯交辦
-            </button>
+            </Link>
           </div>
         </div>
       </header>
