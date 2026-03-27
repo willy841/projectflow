@@ -107,7 +107,7 @@ export function ExecutionTree({
         <button
           type="button"
           onClick={() => toggleAssignMenu(targetId)}
-          className="rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm font-semibold text-slate-800 transition hover:bg-slate-50"
+          className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm font-semibold text-slate-800 transition hover:bg-slate-50"
         >
           交辦
         </button>
@@ -155,7 +155,7 @@ export function ExecutionTree({
                   <button
                     type="button"
                     onClick={() => setExpanded((prev) => ({ ...prev, [item.id]: true }))}
-                    className="rounded-xl border border-dashed border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-slate-50"
+                    className="inline-flex min-h-9 items-center justify-center rounded-xl border border-dashed border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-slate-50"
                   >
                     + 新增次項目
                   </button>
@@ -238,14 +238,14 @@ export function ExecutionTree({
                             <button
                               type="button"
                               onClick={() => startEditing(child.id, child.title)}
-                              className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-100"
+                              className="inline-flex min-h-9 items-center justify-center rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-100"
                             >
                               編輯
                             </button>
                             <button
                               type="button"
                               onClick={() => removeChild(item.id, child.id)}
-                              className="rounded-xl border border-rose-200 bg-white px-3 py-2 text-xs font-semibold text-rose-600 transition hover:bg-rose-50"
+                              className="inline-flex min-h-9 items-center justify-center rounded-xl border border-rose-200 bg-white px-3 py-2 text-xs font-semibold text-rose-600 transition hover:bg-rose-50"
                             >
                               刪除
                             </button>

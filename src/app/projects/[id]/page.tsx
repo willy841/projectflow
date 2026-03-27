@@ -58,12 +58,12 @@ export default async function ProjectDetailPage({
 
       <section className="grid gap-6 xl:grid-cols-[minmax(0,1.08fr)_minmax(320px,0.92fr)]">
         <article className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
-          <div className="mb-5 flex items-center justify-between">
-            <div>
+          <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+            <div className="min-w-0">
               <h3 className="text-xl font-semibold">專案基本資訊</h3>
-              <p className="mt-1 text-sm text-slate-500">專案主檔與客戶聯繫窗口。</p>
+              <p className="mt-1 text-sm leading-6 text-slate-500">專案主檔與客戶聯繫窗口。</p>
             </div>
-            <div className="text-right text-sm text-slate-500">
+            <div className="text-left text-sm text-slate-500 sm:text-right">
               <p>負責人：{project.owner}</p>
               <p className="mt-1">進度：{project.progress}%</p>
             </div>
@@ -111,14 +111,14 @@ export default async function ProjectDetailPage({
       </section>
 
       <section className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
-        <div className="mb-5 flex items-center justify-between">
-          <div>
+        <div className="mb-5 flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+          <div className="min-w-0">
             <h3 className="text-xl font-semibold">專案執行項目</h3>
-            <p className="mt-1 text-sm text-slate-500">改成樹狀子項目操作，可直接展開、收合，並在項目底下新增子項目。</p>
+            <p className="mt-1 text-sm leading-6 text-slate-500">改成樹狀子項目操作，可直接展開、收合，並在項目底下新增子項目。</p>
           </div>
           <Link
             href={`/projects/${project.id}/execution-items/new`}
-            className="rounded-2xl border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+            className="inline-flex shrink-0 items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
           >
             + 新增主項目
           </Link>

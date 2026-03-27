@@ -62,7 +62,7 @@ export default async function DesignTaskDetailPage({
         ))}
       </section>
 
-      <section className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
+      <section className="grid gap-6 xl:grid-cols-[minmax(0,1.2fr)_minmax(300px,0.8fr)]">
         <article className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
           <div className="mb-5">
             <h3 className="text-xl font-semibold text-slate-900">交辦規格</h3>
