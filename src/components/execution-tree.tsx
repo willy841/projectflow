@@ -18,6 +18,7 @@ export function ExecutionTree({
   const [localItems, setLocalItems] = useState(items);
   const [editingChildId, setEditingChildId] = useState<string | null>(null);
   const [editingValue, setEditingValue] = useState("");
+  const [activeAssignMenu, setActiveAssignMenu] = useState<string | null>(null);
 
   function toggleItem(itemId: string) {
     setExpanded((prev) => ({ ...prev, [itemId]: !prev[itemId] }));
@@ -94,6 +95,49 @@ export function ExecutionTree({
     }
   }
 
+  function toggleAssignMenu(targetId: string) {
+    setActiveAssignMenu((prev) => (prev === targetId ? null : targetId));
+  }
+
+  function AssignmentMenu({ targetId, title }: { targetId: string; title: string }) {
+    const isActive = activeAssignMenu === targetId;
+
+    return (
+      <div className="relative">
+        <button
+          type="button"
+          onClick={() => toggleAssignMenu(targetId)}
+          className="rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm font-semibold text-slate-800 transition hover:bg-slate-50"
+        >
+          交辦
+        </button>
+
+        {isActive ? (
+          <div className="absolute right-0 z-10 mt-2 w-44 rounded-2xl border border-slate-200 bg-white p-2 shadow-lg">
+            <Link
+              href={`/design-tasks/new?projectId=${projectId}&itemId=${targetId}&itemTitle=${encodeURIComponent(title)}`}
+              className="block rounded-xl px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 hover:text-blue-600"
+            >
+              交辦給設計
+            </Link>
+            <button
+              type="button"
+              className="block w-full rounded-xl px-3 py-2 text-left text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+            >
+              交辦給備品
+            </button>
+            <button
+              type="button"
+              className="block w-full rounded-xl px-3 py-2 text-left text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+            >
+              交辦給人員
+            </button>
+          </div>
+        ) : null}
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-4">
       {localItems.map((item) => {
@@ -132,14 +176,12 @@ export function ExecutionTree({
                   {item.referenceExample ? <span>參考範例：{item.referenceExample}</span> : null}
                   <span>設計交辦：{item.designTaskCount ?? 0}</span>
                   <span>備品交辦：{item.procurementTaskCount ?? 0}</span>
-                  <span>子項目：{item.children?.length ?? 0}</span>
+                  <span>次項目：{item.children?.length ?? 0}</span>
                 </div>
               </div>
 
               <div className="grid w-full gap-2 sm:w-auto">
-                <button className="rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm font-semibold text-slate-800 transition hover:bg-slate-50">
-                  交辦
-                </button>
+                <AssignmentMenu targetId={item.id} title={item.title} />
                 <Link
                   href={`/design-tasks/new?projectId=${projectId}&itemId=${item.id}&itemTitle=${encodeURIComponent(item.title)}`}
                   className="inline-flex items-center justify-center rounded-2xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700"
@@ -165,7 +207,7 @@ export function ExecutionTree({
                         <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                           <div className="flex-1">
                             <div className="flex flex-wrap items-center gap-3">
-                              <span className="text-xs font-semibold text-slate-500">子項目</span>
+                              <span className="text-xs font-semibold text-slate-500">次項目</span>
                               <span className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ring-1 ${getStatusClass(child.status)}`}>
                                 {child.status}
                               </span>
@@ -209,6 +251,7 @@ export function ExecutionTree({
                           </div>
 
                           <div className="flex flex-wrap gap-2">
+                            <AssignmentMenu targetId={child.id} title={child.title} />
                             <Link
                               href={`/design-tasks/new?projectId=${projectId}&itemId=${item.id}&itemTitle=${encodeURIComponent(child.title)}`}
                               className="rounded-xl bg-blue-600 px-3 py-2 text-xs font-semibold text-white transition hover:bg-blue-700"
@@ -244,7 +287,7 @@ export function ExecutionTree({
                       <input
                         value={drafts[item.id] ?? ""}
                         onChange={(event) => updateDraft(item.id, event.target.value)}
-                        placeholder="輸入子項目名稱，例如：主背板燈箱版型"
+                        placeholder="輸入次項目名稱，例如：主背板燈箱版型"
                         className="h-11 flex-1 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400"
                       />
                       <button
