@@ -13,6 +13,13 @@ export type DesignAssignmentDraft = {
   note: string;
 };
 
+export type ProcurementAssignmentDraft = {
+  item: string;
+  quantity: string;
+  budget: string;
+  styleUrl: string;
+};
+
 type ImportedItem = ProjectExecutionItem;
 
 const defaultDesignAssignmentDraft: DesignAssignmentDraft = {
@@ -22,6 +29,13 @@ const defaultDesignAssignmentDraft: DesignAssignmentDraft = {
   referenceUrl: "",
   structureRequired: "需要",
   note: "",
+};
+
+const defaultProcurementAssignmentDraft: ProcurementAssignmentDraft = {
+  item: "",
+  quantity: "",
+  budget: "",
+  styleUrl: "",
 };
 
 function parseCsvLine(line: string) {
@@ -150,10 +164,12 @@ export function ExecutionTree({
   projectId,
   items,
   onDesignAssignmentsChange,
+  onProcurementAssignmentsChange,
 }: {
   projectId: string;
   items: ProjectExecutionItem[];
   onDesignAssignmentsChange?: (payload: Array<{ targetId: string; title: string; data: DesignAssignmentDraft }>) => void;
+  onProcurementAssignmentsChange?: (payload: Array<{ targetId: string; title: string; data: ProcurementAssignmentDraft }>) => void;
 }) {
   const [expanded, setExpanded] = useState<Record<string, boolean>>(
     Object.fromEntries(items.map((item) => [item.id, false]))
@@ -167,8 +183,11 @@ export function ExecutionTree({
   const [showMainItemCreator, setShowMainItemCreator] = useState(false);
   const [mainItemDraft, setMainItemDraft] = useState("");
   const [activeDesignFormId, setActiveDesignFormId] = useState<string | null>(null);
+  const [activeProcurementFormId, setActiveProcurementFormId] = useState<string | null>(null);
   const [designAssignmentDrafts, setDesignAssignmentDrafts] = useState<Record<string, DesignAssignmentDraft>>({});
   const [savedDesignAssignments, setSavedDesignAssignments] = useState<Record<string, DesignAssignmentDraft>>({});
+  const [procurementAssignmentDrafts, setProcurementAssignmentDrafts] = useState<Record<string, ProcurementAssignmentDraft>>({});
+  const [savedProcurementAssignments, setSavedProcurementAssignments] = useState<Record<string, ProcurementAssignmentDraft>>({});
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
@@ -190,6 +209,26 @@ export function ExecutionTree({
 
     onDesignAssignmentsChange(payload);
   }, [localItems, onDesignAssignmentsChange, savedDesignAssignments]);
+
+  useEffect(() => {
+    if (!onProcurementAssignmentsChange) return;
+
+    const titleMap = new Map<string, string>();
+    localItems.forEach((item) => {
+      titleMap.set(item.id, item.title);
+      (item.children ?? []).forEach((child) => {
+        titleMap.set(child.id, child.title);
+      });
+    });
+
+    const payload = Object.entries(savedProcurementAssignments).map(([targetId, data]) => ({
+      targetId,
+      title: titleMap.get(targetId) ?? targetId,
+      data,
+    }));
+
+    onProcurementAssignmentsChange(payload);
+  }, [localItems, onProcurementAssignmentsChange, savedProcurementAssignments]);
 
   function toggleItem(itemId: string) {
     setExpanded((prev) => ({ ...prev, [itemId]: !prev[itemId] }));
@@ -213,8 +252,23 @@ export function ExecutionTree({
     }));
   }
 
+  function updateProcurementAssignmentDraft(
+    targetId: string,
+    key: keyof ProcurementAssignmentDraft,
+    value: string
+  ) {
+    setProcurementAssignmentDrafts((prev) => ({
+      ...prev,
+      [targetId]: {
+        ...(prev[targetId] ?? defaultProcurementAssignmentDraft),
+        [key]: value,
+      },
+    }));
+  }
+
   function openDesignForm(targetId: string) {
     setActiveDesignFormId(targetId);
+    setActiveProcurementFormId(null);
     setActiveAssignMenu(null);
     setDesignAssignmentDrafts((prev) => ({
       ...prev,
@@ -222,10 +276,26 @@ export function ExecutionTree({
     }));
   }
 
+  function openProcurementForm(targetId: string) {
+    setActiveProcurementFormId(targetId);
+    setActiveDesignFormId(null);
+    setActiveAssignMenu(null);
+    setProcurementAssignmentDrafts((prev) => ({
+      ...prev,
+      [targetId]: prev[targetId] ?? savedProcurementAssignments[targetId] ?? defaultProcurementAssignmentDraft,
+    }));
+  }
+
   function saveDesignAssignment(targetId: string) {
     const draft = designAssignmentDrafts[targetId] ?? defaultDesignAssignmentDraft;
     setSavedDesignAssignments((prev) => ({ ...prev, [targetId]: draft }));
     setActiveDesignFormId(null);
+  }
+
+  function saveProcurementAssignment(targetId: string) {
+    const draft = procurementAssignmentDrafts[targetId] ?? defaultProcurementAssignmentDraft;
+    setSavedProcurementAssignments((prev) => ({ ...prev, [targetId]: draft }));
+    setActiveProcurementFormId(null);
   }
 
   function addMainItem() {
@@ -348,6 +418,11 @@ export function ExecutionTree({
       delete next[itemId];
       return next;
     });
+    setSavedProcurementAssignments((prev) => {
+      const next = { ...prev };
+      delete next[itemId];
+      return next;
+    });
     if (editingMainId === itemId) {
       setEditingMainId(null);
       setEditingValue("");
@@ -366,6 +441,12 @@ export function ExecutionTree({
     );
 
     setSavedDesignAssignments((prev) => {
+      const next = { ...prev };
+      delete next[childId];
+      return next;
+    });
+
+    setSavedProcurementAssignments((prev) => {
       const next = { ...prev };
       delete next[childId];
       return next;
@@ -518,9 +599,117 @@ export function ExecutionTree({
     );
   }
 
+  function InlineProcurementForm({ targetId, title }: { targetId: string; title: string }) {
+    const draft = procurementAssignmentDrafts[targetId] ?? defaultProcurementAssignmentDraft;
+    const saved = savedProcurementAssignments[targetId];
+    const isEditing = activeProcurementFormId === targetId;
+
+    return (
+      <div className="mt-4 rounded-3xl border border-amber-200 bg-amber-50/70 p-4 sm:p-5">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+          <div>
+            <div className="flex flex-wrap items-center gap-2">
+              <p className="text-sm font-semibold text-amber-700">備品交辦</p>
+              {saved ? (
+                <span className="inline-flex items-center justify-center rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700 ring-1 ring-emerald-200">
+                  已建立
+                </span>
+              ) : null}
+            </div>
+            <p className="mt-1 text-sm text-slate-600">來源項目：{title}</p>
+          </div>
+          <div className="text-xs text-slate-500">同頁輸入，不跳轉頁面</div>
+        </div>
+
+        {saved && !isEditing ? (
+          <div className="mt-4 rounded-2xl bg-white p-4 ring-1 ring-amber-100">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <p className="text-sm font-semibold text-slate-800">已儲存的備品交辦內容</p>
+              <button
+                type="button"
+                onClick={() => openProcurementForm(targetId)}
+                className="inline-flex items-center justify-center rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-50"
+              >
+                編輯備品交辦
+              </button>
+            </div>
+            <div className="mt-3 flex flex-wrap gap-3 text-sm text-slate-600">
+              {saved.item ? <span>項目：{saved.item}</span> : null}
+              {saved.quantity ? <span>數量：{saved.quantity}</span> : null}
+              {saved.budget ? <span>預算：{saved.budget}</span> : null}
+            </div>
+            {saved.styleUrl ? <p className="mt-2 text-sm text-slate-600">樣式 URL：{saved.styleUrl}</p> : null}
+          </div>
+        ) : (
+          <>
+            <div className="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+              <label className="flex flex-col gap-2">
+                <span className="text-sm font-medium text-slate-700">項目</span>
+                <input
+                  value={draft.item}
+                  onChange={(event) => updateProcurementAssignmentDraft(targetId, "item", event.target.value)}
+                  placeholder="例如：壓克力桌牌"
+                  className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-amber-400"
+                />
+              </label>
+
+              <label className="flex flex-col gap-2">
+                <span className="text-sm font-medium text-slate-700">數量</span>
+                <input
+                  value={draft.quantity}
+                  onChange={(event) => updateProcurementAssignmentDraft(targetId, "quantity", event.target.value)}
+                  placeholder="例如：3 組"
+                  className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-amber-400"
+                />
+              </label>
+
+              <label className="flex flex-col gap-2">
+                <span className="text-sm font-medium text-slate-700">預算</span>
+                <input
+                  value={draft.budget}
+                  onChange={(event) => updateProcurementAssignmentDraft(targetId, "budget", event.target.value)}
+                  placeholder="例如：NT$ 18,000"
+                  className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-amber-400"
+                />
+              </label>
+
+              <label className="flex flex-col gap-2 md:col-span-2 xl:col-span-1">
+                <span className="text-sm font-medium text-slate-700">樣式 URL</span>
+                <input
+                  value={draft.styleUrl}
+                  onChange={(event) => updateProcurementAssignmentDraft(targetId, "styleUrl", event.target.value)}
+                  placeholder="https://..."
+                  className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-amber-400"
+                />
+              </label>
+            </div>
+
+            <div className="mt-4 flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => saveProcurementAssignment(targetId)}
+                className="inline-flex items-center justify-center rounded-2xl bg-amber-500 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-amber-600"
+              >
+                儲存備品交辦
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveProcurementFormId(null)}
+                className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 transition hover:bg-slate-50"
+              >
+                取消
+              </button>
+            </div>
+          </>
+        )}
+      </div>
+    );
+  }
+
   function AssignmentMenu({ targetId, title }: { targetId: string; title: string }) {
     const isActive = activeAssignMenu === targetId;
     const hasSavedDesignAssignment = Boolean(savedDesignAssignments[targetId]);
+    const hasSavedProcurementAssignment = Boolean(savedProcurementAssignments[targetId]);
 
     return (
       <div className="relative">
@@ -541,12 +730,13 @@ export function ExecutionTree({
             >
               {hasSavedDesignAssignment ? "編輯設計" : "設計"}
             </button>
-            <Link
-              href={`/procurement-tasks/new?projectId=${projectId}&itemId=${targetId}&itemTitle=${encodeURIComponent(title)}`}
-              className="block rounded-xl px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 hover:text-slate-900"
+            <button
+              type="button"
+              onClick={() => openProcurementForm(targetId)}
+              className="block w-full rounded-xl px-3 py-2 text-left text-sm font-medium text-slate-700 transition hover:bg-slate-50 hover:text-amber-700"
             >
-              備品
-            </Link>
+              {hasSavedProcurementAssignment ? "編輯備品" : "備品"}
+            </button>
             <Link
               href={`/vendor-tasks/new?projectId=${projectId}&itemId=${targetId}&itemTitle=${encodeURIComponent(title)}`}
               className="block rounded-xl px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 hover:text-slate-900"
@@ -637,7 +827,9 @@ export function ExecutionTree({
         const isOpen = expanded[item.id];
         const isEditingMain = editingMainId === item.id;
         const showMainDesignForm = activeDesignFormId === item.id || Boolean(savedDesignAssignments[item.id]);
+        const showMainProcurementForm = activeProcurementFormId === item.id || Boolean(savedProcurementAssignments[item.id]);
         const hasMainDesignAssignment = Boolean(savedDesignAssignments[item.id]);
+        const hasMainProcurementAssignment = Boolean(savedProcurementAssignments[item.id]);
 
         return (
           <div key={item.id} className="rounded-3xl border border-slate-200 bg-white p-5 transition hover:border-slate-300">
@@ -692,6 +884,11 @@ export function ExecutionTree({
                             已建立設計交辦
                           </span>
                         ) : null}
+                        {hasMainProcurementAssignment ? (
+                          <span className="inline-flex items-center justify-center rounded-full bg-amber-50 px-3 py-1 text-xs font-medium text-amber-700 ring-1 ring-amber-200">
+                            已建立備品交辦
+                          </span>
+                        ) : null}
                       </div>
                       <div className="mt-2 flex flex-wrap gap-3 text-xs text-slate-500">
                         <span>{item.category}</span>
@@ -727,6 +924,7 @@ export function ExecutionTree({
             </div>
 
             {showMainDesignForm ? <InlineDesignForm targetId={item.id} title={item.title} /> : null}
+            {showMainProcurementForm ? <InlineProcurementForm targetId={item.id} title={item.title} /> : null}
 
             {isOpen ? (
               <div className="mt-5 border-t border-slate-200 pt-4">
@@ -737,7 +935,9 @@ export function ExecutionTree({
                   {(item.children ?? []).map((child) => {
                     const isEditingChild = editingChildId === child.id;
                     const showChildDesignForm = activeDesignFormId === child.id || Boolean(savedDesignAssignments[child.id]);
+                    const showChildProcurementForm = activeProcurementFormId === child.id || Boolean(savedProcurementAssignments[child.id]);
                     const hasChildDesignAssignment = Boolean(savedDesignAssignments[child.id]);
+                    const hasChildProcurementAssignment = Boolean(savedProcurementAssignments[child.id]);
 
                     return (
                       <div
@@ -782,6 +982,11 @@ export function ExecutionTree({
                                       已建立設計交辦
                                     </span>
                                   ) : null}
+                                  {hasChildProcurementAssignment ? (
+                                    <span className="inline-flex items-center justify-center rounded-full bg-amber-50 px-3 py-1 text-xs font-medium text-amber-700 ring-1 ring-amber-200">
+                                      已建立備品交辦
+                                    </span>
+                                  ) : null}
                                 </div>
                                 <div className="mt-1 flex flex-wrap gap-3 text-sm text-slate-500">
                                   <span>類型：{child.category}</span>
@@ -815,6 +1020,7 @@ export function ExecutionTree({
                         </div>
 
                         {showChildDesignForm ? <InlineDesignForm targetId={child.id} title={child.title} /> : null}
+                        {showChildProcurementForm ? <InlineProcurementForm targetId={child.id} title={child.title} /> : null}
                       </div>
                     );
                   })}

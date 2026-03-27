@@ -5,7 +5,11 @@ import { notFound } from "next/navigation";
 import { useState } from "react";
 import { AppShell } from "@/components/app-shell";
 import { CopyEventInfoButton } from "@/components/copy-event-info-button";
-import { DesignAssignmentDraft, ExecutionTree } from "@/components/execution-tree";
+import {
+  DesignAssignmentDraft,
+  ExecutionTree,
+  ProcurementAssignmentDraft,
+} from "@/components/execution-tree";
 import { getProjectById, getStatusClass } from "@/components/project-data";
 import { RequirementsPanel } from "@/components/requirements-panel";
 
@@ -17,6 +21,9 @@ export default function ProjectDetailPage({
   const project = getProjectById(params.id);
   const [designAssignments, setDesignAssignments] = useState<
     Array<{ targetId: string; title: string; data: DesignAssignmentDraft }>
+  >([]);
+  const [procurementAssignments, setProcurementAssignments] = useState<
+    Array<{ targetId: string; title: string; data: ProcurementAssignmentDraft }>
   >([]);
 
   if (!project) {
@@ -115,6 +122,7 @@ export default function ProjectDetailPage({
           projectId={project.id}
           items={project.executionItems}
           onDesignAssignmentsChange={setDesignAssignments}
+          onProcurementAssignmentsChange={setProcurementAssignments}
         />
       </section>
 
@@ -188,6 +196,30 @@ export default function ProjectDetailPage({
           </div>
 
           <div className="space-y-3">
+            {procurementAssignments.map((assignment) => (
+              <div key={assignment.targetId} className="rounded-2xl border border-amber-200 bg-amber-50/40 p-4">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                  <div className="min-w-0">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <h4 className="font-semibold text-slate-900">{assignment.title}</h4>
+                      <span className="inline-flex items-center justify-center rounded-full bg-amber-100 px-3 py-1 text-xs font-medium text-amber-700">
+                        新備品交辦
+                      </span>
+                    </div>
+                    <div className="mt-2 flex flex-wrap gap-3 text-sm text-slate-500">
+                      {assignment.data.item ? <span>項目：{assignment.data.item}</span> : null}
+                      {assignment.data.quantity ? <span>數量：{assignment.data.quantity}</span> : null}
+                      {assignment.data.budget ? <span>預算：{assignment.data.budget}</span> : null}
+                    </div>
+                    {assignment.data.styleUrl ? <p className="mt-2 text-sm text-slate-500">樣式 URL：{assignment.data.styleUrl}</p> : null}
+                  </div>
+                  <span className="inline-flex shrink-0 items-center justify-center whitespace-nowrap rounded-full px-3 py-1 text-xs font-medium ring-1 bg-emerald-50 text-emerald-700 ring-emerald-200">
+                    已建立
+                  </span>
+                </div>
+              </div>
+            ))}
+
             {project.procurementTasks.map((task) => (
               <div key={task.title} className="rounded-2xl border border-slate-200 p-4">
                 <div className="flex items-center justify-between gap-3">
@@ -202,6 +234,12 @@ export default function ProjectDetailPage({
                 </div>
               </div>
             ))}
+
+            {!procurementAssignments.length && !project.procurementTasks.length ? (
+              <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-5 text-sm text-slate-500">
+                目前尚未建立備品交辦。
+              </div>
+            ) : null}
           </div>
         </article>
       </section>
