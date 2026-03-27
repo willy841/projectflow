@@ -12,7 +12,7 @@ export function ExecutionTree({
   items: ProjectExecutionItem[];
 }) {
   const [expanded, setExpanded] = useState<Record<string, boolean>>(
-    Object.fromEntries(items.map((item) => [item.id, true]))
+    Object.fromEntries(items.map((item) => [item.id, false]))
   );
   const [drafts, setDrafts] = useState<Record<string, string>>({});
   const [localItems, setLocalItems] = useState(items);
@@ -52,7 +52,7 @@ export function ExecutionTree({
       },
     ]);
 
-    setExpanded((prev) => ({ ...prev, [newId]: true }));
+    setExpanded((prev) => ({ ...prev, [newId]: false }));
     setMainItemDraft("");
     setShowMainItemCreator(false);
   }
@@ -213,39 +213,33 @@ export function ExecutionTree({
         const isOpen = expanded[item.id];
         return (
           <div key={item.id} className="rounded-3xl border border-slate-200 bg-white p-5">
-            <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
-              <div className="flex-1 space-y-3">
-                <div className="flex flex-wrap items-center gap-3">
-                  <button
-                    type="button"
-                    onClick={() => toggleItem(item.id)}
-                    className="inline-flex h-8 w-8 items-center justify-center rounded-xl border border-slate-300 bg-white text-sm text-slate-700 transition hover:bg-slate-50"
-                  >
-                    {isOpen ? "−" : "+"}
-                  </button>
-                  <p className="text-xs font-semibold text-blue-600">{item.category}</p>
-                  <span className={`inline-flex items-center justify-center whitespace-nowrap rounded-full px-3 py-1 text-xs font-medium ring-1 ${getStatusClass(item.status)}`}>
-                    {item.status}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => setExpanded((prev) => ({ ...prev, [item.id]: true }))}
-                    className="inline-flex min-h-9 items-center justify-center rounded-xl border border-dashed border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-slate-50"
-                  >
-                    + 新增次項目
-                  </button>
-                </div>
+            <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
+              <div className="flex min-w-0 flex-1 items-center gap-4">
+                <button
+                  type="button"
+                  onClick={() => toggleItem(item.id)}
+                  className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-slate-300 bg-white text-base text-slate-700 transition hover:bg-slate-50"
+                  aria-label={isOpen ? "收合主項目" : "展開主項目"}
+                >
+                  {isOpen ? "⌄" : "›"}
+                </button>
 
-                <div>
-                  <h4 className="text-lg font-semibold text-slate-900">{item.title}</h4>
-                  <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">{item.detail}</p>
-                </div>
-
-                <div className="flex flex-wrap gap-3 text-xs text-slate-500">
-                  {item.referenceExample ? <span>參考範例：{item.referenceExample}</span> : null}
-                  <span>設計交辦：{item.designTaskCount ?? 0}</span>
-                  <span>備品交辦：{item.procurementTaskCount ?? 0}</span>
-                  <span>次項目：{item.children?.length ?? 0}</span>
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap items-center gap-3">
+                    <h4 className="text-lg font-semibold text-slate-900">{item.title}</h4>
+                    <span className={`inline-flex items-center justify-center whitespace-nowrap rounded-full px-3 py-1 text-xs font-medium ring-1 ${getStatusClass(item.status)}`}>
+                      {item.status}
+                    </span>
+                    <span className="text-xs text-slate-500">
+                      {item.children?.length ?? 0} 個次項目
+                    </span>
+                  </div>
+                  <div className="mt-2 flex flex-wrap gap-3 text-xs text-slate-500">
+                    <span>{item.category}</span>
+                    {item.referenceExample ? <span>參考範例：{item.referenceExample}</span> : null}
+                    <span>設計交辦：{item.designTaskCount ?? 0}</span>
+                    <span>備品交辦：{item.procurementTaskCount ?? 0}</span>
+                  </div>
                 </div>
               </div>
 
@@ -256,6 +250,8 @@ export function ExecutionTree({
 
             {isOpen ? (
               <div className="mt-5 border-t border-slate-200 pt-4">
+                <p className="mb-4 max-w-3xl text-sm leading-6 text-slate-600">{item.detail}</p>
+
                 <div className="space-y-3 border-l border-slate-200 pl-4 md:pl-6">
                   {(item.children ?? []).map((child) => {
                     const isEditing = editingChildId === child.id;
