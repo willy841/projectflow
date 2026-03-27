@@ -16,7 +16,7 @@ export default async function NewProcurementTaskPage({
   return (
     <AppShell activePath="/projects">
       <header className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
-        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
           <div>
             <p className="text-sm text-slate-500">New Procurement Task</p>
             <h2 className="mt-1 text-3xl font-semibold tracking-tight text-slate-900">新增備品交辦</h2>

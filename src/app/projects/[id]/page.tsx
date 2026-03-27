@@ -56,7 +56,7 @@ export default async function ProjectDetailPage({
         ))}
       </section>
 
-      <section className="grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
+      <section className="grid gap-6 xl:grid-cols-[minmax(0,1.08fr)_minmax(320px,0.92fr)]">
         <article className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
           <div className="mb-5 flex items-center justify-between">
             <div>

@@ -56,17 +56,17 @@ export default function DesignTasksPage() {
         </article>
       </section>
 
-      <section className="grid gap-6 xl:grid-cols-[1.35fr_0.65fr]">
+      <section className="grid gap-6 xl:grid-cols-[minmax(0,1.35fr)_minmax(300px,0.65fr)]">
         <article className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
-          <div className="mb-5 flex items-center justify-between">
-            <div>
+          <div className="mb-5 flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+            <div className="min-w-0">
               <h3 className="text-xl font-semibold text-slate-900">設計交辦列表</h3>
-              <p className="mt-1 text-sm text-slate-500">依專案集中顯示目前的設計任務與狀態。</p>
+              <p className="mt-1 text-sm leading-6 text-slate-500">依專案集中顯示目前的設計任務與狀態。</p>
             </div>
-            <div className="flex gap-3">
+            <div className="flex w-full lg:w-auto">
               <input
                 placeholder="搜尋專案 / 設計項目"
-                className="h-11 w-64 rounded-2xl border border-slate-200 px-4 text-sm outline-none focus:border-slate-400"
+                className="h-11 w-full min-w-0 rounded-2xl border border-slate-200 px-4 text-sm outline-none focus:border-slate-400 lg:w-64"
               />
             </div>
           </div>
