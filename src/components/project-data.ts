@@ -6,6 +6,10 @@ export type ProjectExecutionSubItem = {
   status: string;
   assignee?: string;
   category: string;
+  quantity?: string;
+  unit?: string;
+  amount?: string;
+  note?: string;
 };
 
 export type ProjectExecutionItem = {
@@ -17,6 +21,10 @@ export type ProjectExecutionItem = {
   referenceExample?: string;
   designTaskCount?: number;
   procurementTaskCount?: number;
+  quantity?: string;
+  unit?: string;
+  amount?: string;
+  note?: string;
   children?: ProjectExecutionSubItem[];
 };
 
