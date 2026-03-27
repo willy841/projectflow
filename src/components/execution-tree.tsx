@@ -3,6 +3,8 @@
 import { useEffect, useRef, useState } from "react";
 import { ProjectExecutionItem, getStatusClass } from "@/components/project-data";
 
+export type AssignmentStatus = "待處理" | "進行中" | "已完成";
+
 export type DesignAssignmentDraft = {
   size: string;
   material: string;
@@ -10,6 +12,7 @@ export type DesignAssignmentDraft = {
   referenceUrl: string;
   structureRequired: string;
   note: string;
+  status: AssignmentStatus;
 };
 
 export type ProcurementAssignmentDraft = {
@@ -17,6 +20,7 @@ export type ProcurementAssignmentDraft = {
   quantity: string;
   budget: string;
   styleUrl: string;
+  status: AssignmentStatus;
 };
 
 export type VendorAssignmentDraft = {
@@ -25,6 +29,7 @@ export type VendorAssignmentDraft = {
   budget: string;
   referenceUrl: string;
   note: string;
+  status: AssignmentStatus;
 };
 
 type ImportedItem = ProjectExecutionItem;
@@ -36,6 +41,7 @@ const defaultDesignAssignmentDraft: DesignAssignmentDraft = {
   referenceUrl: "",
   structureRequired: "需要",
   note: "",
+  status: "待處理",
 };
 
 const defaultProcurementAssignmentDraft: ProcurementAssignmentDraft = {
@@ -43,6 +49,7 @@ const defaultProcurementAssignmentDraft: ProcurementAssignmentDraft = {
   quantity: "",
   budget: "",
   styleUrl: "",
+  status: "待處理",
 };
 
 const defaultVendorAssignmentDraft: VendorAssignmentDraft = {
@@ -51,6 +58,7 @@ const defaultVendorAssignmentDraft: VendorAssignmentDraft = {
   budget: "",
   referenceUrl: "",
   note: "",
+  status: "待處理",
 };
 
 function parseCsvLine(line: string) {
@@ -581,7 +589,7 @@ export function ExecutionTree({
               {saved.size ? <span>尺寸：{saved.size}</span> : null}
               {saved.material ? <span>材質：{saved.material}</span> : null}
               {saved.quantity ? <span>數量：{saved.quantity}</span> : null}
-              <span>結構圖：{saved.structureRequired}</span>
+              <span>狀態：{saved.status}</span><span>結構圖：{saved.structureRequired}</span>
             </div>
             {saved.referenceUrl ? <p className="mt-2 text-sm text-slate-600">參考連結：{saved.referenceUrl}</p> : null}
             {saved.note ? <p className="mt-2 text-sm text-slate-600">備註：{saved.note}</p> : null}
@@ -594,7 +602,7 @@ export function ExecutionTree({
               <label className="flex flex-col gap-2"><span className="text-sm font-medium text-slate-700">數量</span><input value={draft.quantity} onChange={(e) => updateDesignAssignmentDraft(targetId, "quantity", e.target.value)} placeholder="例如：1 式" className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400" /></label>
               <label className="flex flex-col gap-2 md:col-span-2 xl:col-span-2"><span className="text-sm font-medium text-slate-700">參考連結</span><input value={draft.referenceUrl} onChange={(e) => updateDesignAssignmentDraft(targetId, "referenceUrl", e.target.value)} placeholder="https://..." className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400" /></label>
               <label className="flex flex-col gap-2"><span className="text-sm font-medium text-slate-700">是否需結構圖</span><select value={draft.structureRequired} onChange={(e) => updateDesignAssignmentDraft(targetId, "structureRequired", e.target.value)} className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400"><option value="需要">需要</option><option value="不需要">不需要</option></select></label>
-              <label className="flex flex-col gap-2 md:col-span-2 xl:col-span-3"><span className="text-sm font-medium text-slate-700">備註</span><textarea value={draft.note} onChange={(e) => updateDesignAssignmentDraft(targetId, "note", e.target.value)} placeholder="補充設計需求、印刷提醒或其他說明" className="min-h-28 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-slate-400" /></label>
+              <label className="flex flex-col gap-2"><span className="text-sm font-medium text-slate-700">狀態</span><select value={draft.status} onChange={(e) => updateDesignAssignmentDraft(targetId, "status", e.target.value as AssignmentStatus)} className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400"><option value="待處理">待處理</option><option value="進行中">進行中</option><option value="已完成">已完成</option></select></label><label className="flex flex-col gap-2 md:col-span-2 xl:col-span-2"><span className="text-sm font-medium text-slate-700">備註</span><textarea value={draft.note} onChange={(e) => updateDesignAssignmentDraft(targetId, "note", e.target.value)} placeholder="補充設計需求、印刷提醒或其他說明" className="min-h-28 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-slate-400" /></label>
             </div>
             <div className="mt-4 flex flex-wrap gap-2"><button type="button" onClick={() => saveDesignAssignment(targetId)} className="inline-flex items-center justify-center rounded-2xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700">儲存設計交辦</button><button type="button" onClick={() => setActiveDesignFormId(null)} className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 transition hover:bg-slate-50">取消</button></div>
           </>
@@ -631,17 +639,17 @@ export function ExecutionTree({
             <div className="mt-3 flex flex-wrap gap-3 text-sm text-slate-600">
               {saved.item ? <span>項目：{saved.item}</span> : null}
               {saved.quantity ? <span>數量：{saved.quantity}</span> : null}
-              {saved.budget ? <span>預算：{saved.budget}</span> : null}
+              {saved.budget ? <span>預算：{saved.budget}</span> : null}<span>狀態：{saved.status}</span>
             </div>
             {saved.styleUrl ? <p className="mt-2 text-sm text-slate-600">樣式 URL：{saved.styleUrl}</p> : null}
           </div>
         ) : (
           <>
-            <div className="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+            <div className="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-5">
               <label className="flex flex-col gap-2"><span className="text-sm font-medium text-slate-700">項目</span><input value={draft.item} onChange={(e) => updateProcurementAssignmentDraft(targetId, "item", e.target.value)} placeholder="例如：壓克力桌牌" className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400" /></label>
               <label className="flex flex-col gap-2"><span className="text-sm font-medium text-slate-700">數量</span><input value={draft.quantity} onChange={(e) => updateProcurementAssignmentDraft(targetId, "quantity", e.target.value)} placeholder="例如：3 組" className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400" /></label>
               <label className="flex flex-col gap-2"><span className="text-sm font-medium text-slate-700">預算</span><input value={draft.budget} onChange={(e) => updateProcurementAssignmentDraft(targetId, "budget", e.target.value)} placeholder="例如：NT$ 18,000" className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400" /></label>
-              <label className="flex flex-col gap-2 md:col-span-2 xl:col-span-1"><span className="text-sm font-medium text-slate-700">樣式 URL</span><input value={draft.styleUrl} onChange={(e) => updateProcurementAssignmentDraft(targetId, "styleUrl", e.target.value)} placeholder="https://..." className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400" /></label>
+              <label className="flex flex-col gap-2"><span className="text-sm font-medium text-slate-700">狀態</span><select value={draft.status} onChange={(e) => updateProcurementAssignmentDraft(targetId, "status", e.target.value as AssignmentStatus)} className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400"><option value="待處理">待處理</option><option value="進行中">進行中</option><option value="已完成">已完成</option></select></label><label className="flex flex-col gap-2 md:col-span-2 xl:col-span-1"><span className="text-sm font-medium text-slate-700">樣式 URL</span><input value={draft.styleUrl} onChange={(e) => updateProcurementAssignmentDraft(targetId, "styleUrl", e.target.value)} placeholder="https://..." className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400" /></label>
             </div>
             <div className="mt-4 flex flex-wrap gap-2"><button type="button" onClick={() => saveProcurementAssignment(targetId)} className="inline-flex items-center justify-center rounded-2xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800">儲存備品交辦</button><button type="button" onClick={() => setActiveProcurementFormId(null)} className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 transition hover:bg-slate-50">取消</button></div>
           </>
@@ -678,7 +686,7 @@ export function ExecutionTree({
             <div className="mt-3 flex flex-wrap gap-3 text-sm text-slate-600">
               {saved.title ? <span>交辦名稱：{saved.title}</span> : null}
               {saved.vendorName ? <span>廠商名稱：{saved.vendorName}</span> : null}
-              {saved.budget ? <span>預算 / 報價：{saved.budget}</span> : null}
+              {saved.budget ? <span>預算 / 報價：{saved.budget}</span> : null}<span>狀態：{saved.status}</span>
             </div>
             {saved.referenceUrl ? <p className="mt-2 text-sm text-slate-600">參考連結：{saved.referenceUrl}</p> : null}
             {saved.note ? <p className="mt-2 text-sm text-slate-600">需求 / 備註：{saved.note}</p> : null}
@@ -690,7 +698,7 @@ export function ExecutionTree({
               <label className="flex flex-col gap-2"><span className="text-sm font-medium text-slate-700">廠商名稱</span><input value={draft.vendorName} onChange={(e) => updateVendorAssignmentDraft(targetId, "vendorName", e.target.value)} placeholder="例如：木與光工坊" className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400" /></label>
               <label className="flex flex-col gap-2"><span className="text-sm font-medium text-slate-700">預算 / 報價</span><input value={draft.budget} onChange={(e) => updateVendorAssignmentDraft(targetId, "budget", e.target.value)} placeholder="例如：NT$ 120,000" className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400" /></label>
               <label className="flex flex-col gap-2 md:col-span-2 xl:col-span-2"><span className="text-sm font-medium text-slate-700">參考連結</span><input value={draft.referenceUrl} onChange={(e) => updateVendorAssignmentDraft(targetId, "referenceUrl", e.target.value)} placeholder="https://..." className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400" /></label>
-              <label className="flex flex-col gap-2 md:col-span-2 xl:col-span-3"><span className="text-sm font-medium text-slate-700">需求 / 備註</span><textarea value={draft.note} onChange={(e) => updateVendorAssignmentDraft(targetId, "note", e.target.value)} placeholder="例如：需確認尺寸、結構與施工方式，並回覆報價與時程" className="min-h-28 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-slate-400" /></label>
+              <label className="flex flex-col gap-2"><span className="text-sm font-medium text-slate-700">狀態</span><select value={draft.status} onChange={(e) => updateVendorAssignmentDraft(targetId, "status", e.target.value as AssignmentStatus)} className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400"><option value="待處理">待處理</option><option value="進行中">進行中</option><option value="已完成">已完成</option></select></label><label className="flex flex-col gap-2 md:col-span-2 xl:col-span-2"><span className="text-sm font-medium text-slate-700">需求 / 備註</span><textarea value={draft.note} onChange={(e) => updateVendorAssignmentDraft(targetId, "note", e.target.value)} placeholder="例如：需確認尺寸、結構與施工方式，並回覆報價與時程" className="min-h-28 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-slate-400" /></label>
             </div>
             <div className="mt-4 flex flex-wrap gap-2"><button type="button" onClick={() => saveVendorAssignment(targetId)} className="inline-flex items-center justify-center rounded-2xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800">儲存廠商交辦</button><button type="button" onClick={() => setActiveVendorFormId(null)} className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 transition hover:bg-slate-50">取消</button></div>
           </>

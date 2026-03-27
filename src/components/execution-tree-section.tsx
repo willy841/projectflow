@@ -39,8 +39,8 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
           assignment.data.referenceUrl ? `參考連結：${assignment.data.referenceUrl}` : null,
           assignment.data.note ? `備註：${assignment.data.note}` : null,
         ].filter(Boolean),
-        badge: "新設計交辦",
-        badgeClass: "bg-blue-100 text-blue-700",
+        badge: assignment.data.status,
+        badgeClass: getStatusClass(assignment.data.status),
       })),
       ...project.designTasks.map((task) => ({
         id: task.title,
@@ -65,8 +65,8 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
           assignment.data.budget ? `預算：${assignment.data.budget}` : null,
         ].filter(Boolean),
         extra: [assignment.data.styleUrl ? `樣式 URL：${assignment.data.styleUrl}` : null].filter(Boolean),
-        badge: "新備品交辦",
-        badgeClass: "bg-amber-100 text-amber-700",
+        badge: assignment.data.status,
+        badgeClass: getStatusClass(assignment.data.status),
       })),
       ...project.procurementTasks.map((task) => ({
         id: task.title,
@@ -94,8 +94,8 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
           assignment.data.referenceUrl ? `參考連結：${assignment.data.referenceUrl}` : null,
           assignment.data.note ? `需求 / 備註：${assignment.data.note}` : null,
         ].filter(Boolean),
-        badge: "新廠商交辦",
-        badgeClass: "bg-violet-100 text-violet-700",
+        badge: assignment.data.status,
+        badgeClass: getStatusClass(assignment.data.status),
       })),
     [vendorAssignments]
   );
