@@ -98,14 +98,14 @@ export function RequirementsPanel({
 
       {(showCreate || isEditing) ? (
         <div className="mb-4 rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-4">
-          <div className="space-y-3">
+          <div className="space-y-3 text-left">
             <textarea
               value={formTitle}
               onChange={(event) => setFormTitle(event.target.value)}
               placeholder="輸入需求溝通內容，例如：入口主背板需搭配春季主題色與產品燈箱"
-              className="min-h-32 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm leading-6 outline-none transition focus:border-slate-400"
+              className="min-h-48 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm leading-7 outline-none transition focus:border-slate-400"
             />
-            <p className="text-xs text-slate-500">儲存時會自動記錄當下日期與時間</p>
+            <p className="text-left text-xs text-slate-500">儲存時會自動記錄當下日期與時間</p>
           </div>
 
           <div className="mt-3 flex flex-wrap gap-2">
