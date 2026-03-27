@@ -95,12 +95,12 @@ export default async function ProjectDetailPage({
           <div className="space-y-3">
             {project.requirements.map((item) => (
               <div key={item.title} className="rounded-2xl border border-slate-200 p-4">
-                <div className="flex items-start justify-between gap-3">
-                  <div>
+                <div className="flex items-center justify-between gap-3">
+                  <div className="min-w-0">
                     <p className="text-xs font-medium text-slate-500">{item.category}</p>
                     <h4 className="mt-1 font-semibold text-slate-900">{item.title}</h4>
                   </div>
-                  <span className={`inline-flex items-center justify-center whitespace-nowrap rounded-full px-3 py-1 text-xs font-medium ring-1 ${getStatusClass(item.status)}`}>
+                  <span className={`inline-flex shrink-0 items-center justify-center whitespace-nowrap rounded-full px-3 py-1 text-xs font-medium ring-1 ${getStatusClass(item.status)}`}>
                     {item.status}
                   </span>
                 </div>
@@ -140,13 +140,13 @@ export default async function ProjectDetailPage({
           <div className="space-y-3">
             {project.designTasks.map((task) => (
               <div key={task.title} className="rounded-2xl border border-slate-200 p-4">
-                <div className="flex items-start justify-between gap-3">
-                  <div>
+                <div className="flex items-center justify-between gap-3">
+                  <div className="min-w-0">
                     <h4 className="font-semibold text-slate-900">{task.title}</h4>
                     <p className="mt-2 text-sm text-slate-500">負責人：{task.assignee}</p>
                     <p className="mt-1 text-sm text-slate-500">期限：{task.due}</p>
                   </div>
-                  <span className={`inline-flex items-center justify-center whitespace-nowrap rounded-full px-3 py-1 text-xs font-medium ring-1 ${getStatusClass(task.status)}`}>
+                  <span className={`inline-flex shrink-0 items-center justify-center whitespace-nowrap rounded-full px-3 py-1 text-xs font-medium ring-1 ${getStatusClass(task.status)}`}>
                     {task.status}
                   </span>
                 </div>
