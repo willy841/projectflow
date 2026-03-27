@@ -1,12 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ProjectExecutionItem, getStatusClass } from "@/components/project-data";
 
-type ImportedItem = ProjectExecutionItem;
-
-type DesignAssignmentDraft = {
+export type DesignAssignmentDraft = {
   size: string;
   material: string;
   quantity: string;
@@ -14,6 +12,8 @@ type DesignAssignmentDraft = {
   structureRequired: string;
   note: string;
 };
+
+type ImportedItem = ProjectExecutionItem;
 
 const defaultDesignAssignmentDraft: DesignAssignmentDraft = {
   size: "",
@@ -149,9 +149,11 @@ function parseImportedRows(rows: string[][]): ImportedItem[] {
 export function ExecutionTree({
   projectId,
   items,
+  onDesignAssignmentsChange,
 }: {
   projectId: string;
   items: ProjectExecutionItem[];
+  onDesignAssignmentsChange?: (payload: Array<{ targetId: string; title: string; data: DesignAssignmentDraft }>) => void;
 }) {
   const [expanded, setExpanded] = useState<Record<string, boolean>>(
     Object.fromEntries(items.map((item) => [item.id, false]))
@@ -168,6 +170,26 @@ export function ExecutionTree({
   const [designAssignmentDrafts, setDesignAssignmentDrafts] = useState<Record<string, DesignAssignmentDraft>>({});
   const [savedDesignAssignments, setSavedDesignAssignments] = useState<Record<string, DesignAssignmentDraft>>({});
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  useEffect(() => {
+    if (!onDesignAssignmentsChange) return;
+
+    const titleMap = new Map<string, string>();
+    localItems.forEach((item) => {
+      titleMap.set(item.id, item.title);
+      (item.children ?? []).forEach((child) => {
+        titleMap.set(child.id, child.title);
+      });
+    });
+
+    const payload = Object.entries(savedDesignAssignments).map(([targetId, data]) => ({
+      targetId,
+      title: titleMap.get(targetId) ?? targetId,
+      data,
+    }));
+
+    onDesignAssignmentsChange(payload);
+  }, [localItems, onDesignAssignmentsChange, savedDesignAssignments]);
 
   function toggleItem(itemId: string) {
     setExpanded((prev) => ({ ...prev, [itemId]: !prev[itemId] }));
@@ -321,6 +343,11 @@ export function ExecutionTree({
       delete next[itemId];
       return next;
     });
+    setSavedDesignAssignments((prev) => {
+      const next = { ...prev };
+      delete next[itemId];
+      return next;
+    });
     if (editingMainId === itemId) {
       setEditingMainId(null);
       setEditingValue("");
@@ -337,6 +364,12 @@ export function ExecutionTree({
         };
       })
     );
+
+    setSavedDesignAssignments((prev) => {
+      const next = { ...prev };
+      delete next[childId];
+      return next;
+    });
 
     if (editingChildId === childId) {
       setEditingChildId(null);
@@ -357,101 +390,37 @@ export function ExecutionTree({
   function InlineDesignForm({ targetId, title }: { targetId: string; title: string }) {
     const draft = designAssignmentDrafts[targetId] ?? defaultDesignAssignmentDraft;
     const saved = savedDesignAssignments[targetId];
+    const isEditing = activeDesignFormId === targetId;
 
     return (
       <div className="mt-4 rounded-3xl border border-blue-200 bg-blue-50/60 p-4 sm:p-5">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
           <div>
-            <p className="text-sm font-semibold text-blue-700">設計交辦</p>
+            <div className="flex flex-wrap items-center gap-2">
+              <p className="text-sm font-semibold text-blue-700">設計交辦</p>
+              {saved ? (
+                <span className="inline-flex items-center justify-center rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700 ring-1 ring-emerald-200">
+                  已建立
+                </span>
+              ) : null}
+            </div>
             <p className="mt-1 text-sm text-slate-600">項目：{title}</p>
           </div>
           <div className="text-xs text-slate-500">同頁輸入，不跳轉頁面</div>
         </div>
 
-        <div className="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          <label className="flex flex-col gap-2">
-            <span className="text-sm font-medium text-slate-700">尺寸</span>
-            <input
-              value={draft.size}
-              onChange={(event) => updateDesignAssignmentDraft(targetId, "size", event.target.value)}
-              placeholder="例如：W240 x H300 cm"
-              className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-blue-400"
-            />
-          </label>
-
-          <label className="flex flex-col gap-2">
-            <span className="text-sm font-medium text-slate-700">材質</span>
-            <input
-              value={draft.material}
-              onChange={(event) => updateDesignAssignmentDraft(targetId, "material", event.target.value)}
-              placeholder="例如：珍珠板＋輸出"
-              className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-blue-400"
-            />
-          </label>
-
-          <label className="flex flex-col gap-2">
-            <span className="text-sm font-medium text-slate-700">數量</span>
-            <input
-              value={draft.quantity}
-              onChange={(event) => updateDesignAssignmentDraft(targetId, "quantity", event.target.value)}
-              placeholder="例如：1 式"
-              className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-blue-400"
-            />
-          </label>
-
-          <label className="flex flex-col gap-2 md:col-span-2 xl:col-span-2">
-            <span className="text-sm font-medium text-slate-700">參考連結</span>
-            <input
-              value={draft.referenceUrl}
-              onChange={(event) => updateDesignAssignmentDraft(targetId, "referenceUrl", event.target.value)}
-              placeholder="https://..."
-              className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-blue-400"
-            />
-          </label>
-
-          <label className="flex flex-col gap-2">
-            <span className="text-sm font-medium text-slate-700">是否需結構圖</span>
-            <select
-              value={draft.structureRequired}
-              onChange={(event) => updateDesignAssignmentDraft(targetId, "structureRequired", event.target.value)}
-              className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-blue-400"
-            >
-              <option value="需要">需要</option>
-              <option value="不需要">不需要</option>
-            </select>
-          </label>
-
-          <label className="flex flex-col gap-2 md:col-span-2 xl:col-span-3">
-            <span className="text-sm font-medium text-slate-700">備註</span>
-            <textarea
-              value={draft.note}
-              onChange={(event) => updateDesignAssignmentDraft(targetId, "note", event.target.value)}
-              placeholder="補充設計需求、印刷提醒或其他說明"
-              className="min-h-28 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-blue-400"
-            />
-          </label>
-        </div>
-
-        <div className="mt-4 flex flex-wrap gap-2">
-          <button
-            type="button"
-            onClick={() => saveDesignAssignment(targetId)}
-            className="inline-flex items-center justify-center rounded-2xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700"
-          >
-            儲存設計交辦
-          </button>
-          <button
-            type="button"
-            onClick={() => setActiveDesignFormId(null)}
-            className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 transition hover:bg-slate-50"
-          >
-            取消
-          </button>
-        </div>
-
-        {saved ? (
+        {saved && !isEditing ? (
           <div className="mt-4 rounded-2xl bg-white p-4 ring-1 ring-blue-100">
-            <p className="text-sm font-semibold text-slate-800">已儲存的設計交辦內容</p>
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <p className="text-sm font-semibold text-slate-800">已儲存的設計交辦內容</p>
+              <button
+                type="button"
+                onClick={() => openDesignForm(targetId)}
+                className="inline-flex items-center justify-center rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-50"
+              >
+                編輯設計交辦
+              </button>
+            </div>
             <div className="mt-3 flex flex-wrap gap-3 text-sm text-slate-600">
               {saved.size ? <span>尺寸：{saved.size}</span> : null}
               {saved.material ? <span>材質：{saved.material}</span> : null}
@@ -461,13 +430,97 @@ export function ExecutionTree({
             {saved.referenceUrl ? <p className="mt-2 text-sm text-slate-600">參考連結：{saved.referenceUrl}</p> : null}
             {saved.note ? <p className="mt-2 text-sm text-slate-600">備註：{saved.note}</p> : null}
           </div>
-        ) : null}
+        ) : (
+          <>
+            <div className="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+              <label className="flex flex-col gap-2">
+                <span className="text-sm font-medium text-slate-700">尺寸</span>
+                <input
+                  value={draft.size}
+                  onChange={(event) => updateDesignAssignmentDraft(targetId, "size", event.target.value)}
+                  placeholder="例如：W240 x H300 cm"
+                  className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-blue-400"
+                />
+              </label>
+
+              <label className="flex flex-col gap-2">
+                <span className="text-sm font-medium text-slate-700">材質</span>
+                <input
+                  value={draft.material}
+                  onChange={(event) => updateDesignAssignmentDraft(targetId, "material", event.target.value)}
+                  placeholder="例如：珍珠板＋輸出"
+                  className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-blue-400"
+                />
+              </label>
+
+              <label className="flex flex-col gap-2">
+                <span className="text-sm font-medium text-slate-700">數量</span>
+                <input
+                  value={draft.quantity}
+                  onChange={(event) => updateDesignAssignmentDraft(targetId, "quantity", event.target.value)}
+                  placeholder="例如：1 式"
+                  className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-blue-400"
+                />
+              </label>
+
+              <label className="flex flex-col gap-2 md:col-span-2 xl:col-span-2">
+                <span className="text-sm font-medium text-slate-700">參考連結</span>
+                <input
+                  value={draft.referenceUrl}
+                  onChange={(event) => updateDesignAssignmentDraft(targetId, "referenceUrl", event.target.value)}
+                  placeholder="https://..."
+                  className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-blue-400"
+                />
+              </label>
+
+              <label className="flex flex-col gap-2">
+                <span className="text-sm font-medium text-slate-700">是否需結構圖</span>
+                <select
+                  value={draft.structureRequired}
+                  onChange={(event) => updateDesignAssignmentDraft(targetId, "structureRequired", event.target.value)}
+                  className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-blue-400"
+                >
+                  <option value="需要">需要</option>
+                  <option value="不需要">不需要</option>
+                </select>
+              </label>
+
+              <label className="flex flex-col gap-2 md:col-span-2 xl:col-span-3">
+                <span className="text-sm font-medium text-slate-700">備註</span>
+                <textarea
+                  value={draft.note}
+                  onChange={(event) => updateDesignAssignmentDraft(targetId, "note", event.target.value)}
+                  placeholder="補充設計需求、印刷提醒或其他說明"
+                  className="min-h-28 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-blue-400"
+                />
+              </label>
+            </div>
+
+            <div className="mt-4 flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => saveDesignAssignment(targetId)}
+                className="inline-flex items-center justify-center rounded-2xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700"
+              >
+                儲存設計交辦
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveDesignFormId(null)}
+                className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 transition hover:bg-slate-50"
+              >
+                取消
+              </button>
+            </div>
+          </>
+        )}
       </div>
     );
   }
 
   function AssignmentMenu({ targetId, title }: { targetId: string; title: string }) {
     const isActive = activeAssignMenu === targetId;
+    const hasSavedDesignAssignment = Boolean(savedDesignAssignments[targetId]);
 
     return (
       <div className="relative">
@@ -486,7 +539,7 @@ export function ExecutionTree({
               onClick={() => openDesignForm(targetId)}
               className="block w-full rounded-xl px-3 py-2 text-left text-sm font-medium text-slate-700 transition hover:bg-slate-50 hover:text-blue-600"
             >
-              設計
+              {hasSavedDesignAssignment ? "編輯設計" : "設計"}
             </button>
             <Link
               href={`/procurement-tasks/new?projectId=${projectId}&itemId=${targetId}&itemTitle=${encodeURIComponent(title)}`}
@@ -584,6 +637,7 @@ export function ExecutionTree({
         const isOpen = expanded[item.id];
         const isEditingMain = editingMainId === item.id;
         const showMainDesignForm = activeDesignFormId === item.id || Boolean(savedDesignAssignments[item.id]);
+        const hasMainDesignAssignment = Boolean(savedDesignAssignments[item.id]);
 
         return (
           <div key={item.id} className="rounded-3xl border border-slate-200 bg-white p-5 transition hover:border-slate-300">
@@ -633,6 +687,11 @@ export function ExecutionTree({
                         <span className="text-xs text-slate-500">
                           {item.children?.length ?? 0} 個次項目
                         </span>
+                        {hasMainDesignAssignment ? (
+                          <span className="inline-flex items-center justify-center rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700 ring-1 ring-blue-200">
+                            已建立設計交辦
+                          </span>
+                        ) : null}
                       </div>
                       <div className="mt-2 flex flex-wrap gap-3 text-xs text-slate-500">
                         <span>{item.category}</span>
@@ -678,6 +737,7 @@ export function ExecutionTree({
                   {(item.children ?? []).map((child) => {
                     const isEditingChild = editingChildId === child.id;
                     const showChildDesignForm = activeDesignFormId === child.id || Boolean(savedDesignAssignments[child.id]);
+                    const hasChildDesignAssignment = Boolean(savedDesignAssignments[child.id]);
 
                     return (
                       <div
@@ -717,6 +777,11 @@ export function ExecutionTree({
                                   <span className={`inline-flex items-center justify-center whitespace-nowrap rounded-full px-3 py-1 text-xs font-medium ring-1 ${getStatusClass(child.status)}`}>
                                     {child.status}
                                   </span>
+                                  {hasChildDesignAssignment ? (
+                                    <span className="inline-flex items-center justify-center rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700 ring-1 ring-blue-200">
+                                      已建立設計交辦
+                                    </span>
+                                  ) : null}
                                 </div>
                                 <div className="mt-1 flex flex-wrap gap-3 text-sm text-slate-500">
                                   <span>類型：{child.category}</span>

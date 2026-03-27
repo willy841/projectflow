@@ -1,18 +1,23 @@
+"use client";
+
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { useState } from "react";
 import { AppShell } from "@/components/app-shell";
 import { CopyEventInfoButton } from "@/components/copy-event-info-button";
-import { ExecutionTree } from "@/components/execution-tree";
+import { DesignAssignmentDraft, ExecutionTree } from "@/components/execution-tree";
 import { getProjectById, getStatusClass } from "@/components/project-data";
 import { RequirementsPanel } from "@/components/requirements-panel";
 
-export default async function ProjectDetailPage({
+export default function ProjectDetailPage({
   params,
 }: {
-  params: Promise<{ id: string }>;
+  params: { id: string };
 }) {
-  const { id } = await params;
-  const project = getProjectById(id);
+  const project = getProjectById(params.id);
+  const [designAssignments, setDesignAssignments] = useState<
+    Array<{ targetId: string; title: string; data: DesignAssignmentDraft }>
+  >([]);
 
   if (!project) {
     notFound();
@@ -106,7 +111,11 @@ export default async function ProjectDetailPage({
           </div>
         </div>
 
-        <ExecutionTree projectId={project.id} items={project.executionItems} />
+        <ExecutionTree
+          projectId={project.id}
+          items={project.executionItems}
+          onDesignAssignmentsChange={setDesignAssignments}
+        />
       </section>
 
       <section className="grid gap-6 xl:grid-cols-2">
@@ -114,12 +123,38 @@ export default async function ProjectDetailPage({
           <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div className="min-w-0">
               <h3 className="text-xl font-semibold">專案設計</h3>
-              <p className="mt-1 text-sm leading-6 text-slate-500">顯示此專案目前已建立的設計任務。</p>
+              <p className="mt-1 text-sm leading-6 text-slate-500">顯示此專案目前已建立的設計交辦與既有設計任務。</p>
             </div>
             <Link href="/design-tasks" className="text-sm font-medium text-slate-700 hover:text-blue-600">查看全部</Link>
           </div>
 
           <div className="space-y-3">
+            {designAssignments.map((assignment) => (
+              <div key={assignment.targetId} className="rounded-2xl border border-blue-200 bg-blue-50/40 p-4">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                  <div className="min-w-0">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <h4 className="font-semibold text-slate-900">{assignment.title}</h4>
+                      <span className="inline-flex items-center justify-center rounded-full bg-blue-100 px-3 py-1 text-xs font-medium text-blue-700">
+                        新設計交辦
+                      </span>
+                    </div>
+                    <div className="mt-2 flex flex-wrap gap-3 text-sm text-slate-500">
+                      {assignment.data.size ? <span>尺寸：{assignment.data.size}</span> : null}
+                      {assignment.data.material ? <span>材質：{assignment.data.material}</span> : null}
+                      {assignment.data.quantity ? <span>數量：{assignment.data.quantity}</span> : null}
+                      <span>結構圖：{assignment.data.structureRequired}</span>
+                    </div>
+                    {assignment.data.referenceUrl ? <p className="mt-2 text-sm text-slate-500">參考連結：{assignment.data.referenceUrl}</p> : null}
+                    {assignment.data.note ? <p className="mt-1 text-sm text-slate-500">備註：{assignment.data.note}</p> : null}
+                  </div>
+                  <span className="inline-flex shrink-0 items-center justify-center whitespace-nowrap rounded-full px-3 py-1 text-xs font-medium ring-1 bg-emerald-50 text-emerald-700 ring-emerald-200">
+                    已建立
+                  </span>
+                </div>
+              </div>
+            ))}
+
             {project.designTasks.map((task) => (
               <div key={task.title} className="rounded-2xl border border-slate-200 p-4">
                 <div className="flex items-center justify-between gap-3">
@@ -134,6 +169,12 @@ export default async function ProjectDetailPage({
                 </div>
               </div>
             ))}
+
+            {!designAssignments.length && !project.designTasks.length ? (
+              <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-5 text-sm text-slate-500">
+                目前尚未建立設計交辦。
+              </div>
+            ) : null}
           </div>
         </article>
 
