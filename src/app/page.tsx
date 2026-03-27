@@ -103,7 +103,7 @@ export default function Home() {
         ))}
       </section>
 
-      <section className="grid gap-6 xl:grid-cols-[1.6fr_1fr]">
+      <section className="grid gap-6 xl:grid-cols-[minmax(0,1.65fr)_minmax(320px,0.95fr)]">
         <article className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
           <div className="mb-5 flex items-center justify-between">
             <div>
@@ -118,32 +118,32 @@ export default function Home() {
             </Link>
           </div>
 
-          <div className="overflow-hidden rounded-2xl border border-slate-200">
-            <table className="min-w-full divide-y divide-slate-200 text-left text-sm">
+          <div className="overflow-x-auto rounded-2xl border border-slate-200">
+            <table className="min-w-full table-fixed divide-y divide-slate-200 text-left text-sm">
               <thead className="bg-slate-50/80 text-slate-500">
                 <tr>
-                  <th className="px-4 py-3 font-medium">專案</th>
-                  <th className="px-4 py-3 font-medium">客戶</th>
-                  <th className="px-4 py-3 font-medium">日期</th>
-                  <th className="px-4 py-3 font-medium">狀態</th>
-                  <th className="px-4 py-3 font-medium">進度</th>
-                  <th className="px-4 py-3 font-medium">負責人</th>
+                  <th className="w-[32%] px-4 py-3 font-medium">專案</th>
+                  <th className="w-[12%] px-4 py-3 font-medium">客戶</th>
+                  <th className="w-[14%] px-4 py-3 font-medium">日期</th>
+                  <th className="w-[14%] px-4 py-3 font-medium">狀態</th>
+                  <th className="w-[18%] px-4 py-3 font-medium">進度</th>
+                  <th className="w-[10%] px-4 py-3 font-medium">負責人</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 bg-white">
                 {projects.map((project) => (
                   <tr key={project.code} className="align-top transition hover:bg-slate-50/70">
-                    <td className="px-4 py-4">
+                    <td className="px-4 py-4 align-top">
                       <Link
                         href={`/projects/${project.id}`}
-                        className="font-semibold text-slate-900 underline-offset-4 hover:text-blue-600 hover:underline"
+                        className="line-clamp-2 font-semibold leading-6 text-slate-900 underline-offset-4 hover:text-blue-600 hover:underline"
                       >
                         {project.name}
                       </Link>
-                      <p className="mt-1 text-xs text-slate-500">{project.code}</p>
+                      <p className="mt-1 break-all text-xs text-slate-500">{project.code}</p>
                     </td>
-                    <td className="px-4 py-4 text-slate-600">{project.client}</td>
-                    <td className="px-4 py-4 text-slate-600">{project.eventDate}</td>
+                    <td className="break-words px-4 py-4 align-top text-slate-600">{project.client}</td>
+                    <td className="px-4 py-4 align-top text-slate-600 break-words">{project.eventDate}</td>
                     <td className="px-4 py-4">
                       <span
                         className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ring-1 ${getStatusClass(project.status)}`}
@@ -166,12 +166,12 @@ export default function Home() {
         </article>
 
         <article className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
-          <div className="mb-5 flex items-center justify-between">
-            <div>
+          <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+            <div className="min-w-0">
               <h3 className="text-xl font-semibold text-slate-900">本月財務摘要</h3>
-              <p className="mt-1 text-sm text-slate-500">提供管理層快速查看現金流壓力與毛利概況。</p>
+              <p className="mt-1 text-sm leading-6 text-slate-500">提供管理層快速查看現金流壓力與毛利概況。</p>
             </div>
-            <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700 ring-1 ring-emerald-200">
+            <span className="inline-flex shrink-0 self-start whitespace-nowrap rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700 ring-1 ring-emerald-200">
               更新中
             </span>
           </div>
