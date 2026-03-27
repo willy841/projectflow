@@ -12,13 +12,18 @@ import { Project, getStatusClass } from "@/components/project-data";
 
 type OpenCategory = "design" | "procurement" | "vendor";
 
-type ReplyForm = {
+type ReplyLine = {
+  id: string;
   item: string;
   quantity: string;
   size: string;
   material: string;
   previewUrl: string;
   cost: string;
+};
+
+type ReplyForm = {
+  lines: ReplyLine[];
 };
 
 type DesignAssignmentItem = { targetId: string; title: string; data: DesignAssignmentDraft };
@@ -35,13 +40,18 @@ type DisplayItem = {
   replies: AssignmentReply[];
 };
 
-const defaultReplyForm: ReplyForm = {
+const createEmptyReplyLine = (): ReplyLine => ({
+  id: `line-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
   item: "",
   quantity: "",
   size: "",
   material: "",
   previewUrl: "",
   cost: "",
+});
+
+const defaultReplyForm: ReplyForm = {
+  lines: [createEmptyReplyLine()],
 };
 
 export function ExecutionTreeSection({ project }: { project: Project }) {
@@ -56,27 +66,56 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
   const [editingReplyId, setEditingReplyId] = useState<string | null>(null);
   const [editingReplyMessage, setEditingReplyMessage] = useState("");
 
-  function updateReplyForm(targetId: string, key: keyof ReplyForm, value: string) {
+  function updateReplyLine(targetId: string, lineId: string, key: keyof ReplyLine, value: string) {
     setReplyForms((prev) => ({
       ...prev,
       [targetId]: {
-        ...(prev[targetId] ?? defaultReplyForm),
-        [key]: value,
+        lines: (prev[targetId]?.lines ?? [createEmptyReplyLine()]).map((line) =>
+          line.id === lineId ? { ...line, [key]: value } : line
+        ),
       },
     }));
   }
 
+  function addReplyLine(targetId: string) {
+    setReplyForms((prev) => ({
+      ...prev,
+      [targetId]: {
+        lines: [...(prev[targetId]?.lines ?? [createEmptyReplyLine()]), createEmptyReplyLine()],
+      },
+    }));
+  }
+
+  function removeReplyLine(targetId: string, lineId: string) {
+    setReplyForms((prev) => {
+      const current = prev[targetId]?.lines ?? [createEmptyReplyLine()];
+      const nextLines = current.filter((line) => line.id !== lineId);
+      return {
+        ...prev,
+        [targetId]: {
+          lines: nextLines.length ? nextLines : [createEmptyReplyLine()],
+        },
+      };
+    });
+  }
+
   function buildReplyMessage(form: ReplyForm) {
-    return [
-      form.item ? `項目：${form.item}` : null,
-      form.quantity ? `數量：${form.quantity}` : null,
-      form.size ? `尺寸：${form.size}` : null,
-      form.material ? `材質：${form.material}` : null,
-      form.previewUrl ? `預覽圖 URL：${form.previewUrl}` : null,
-      form.cost ? `成本：${form.cost}` : null,
-    ]
-      .filter(Boolean)
-      .join("｜");
+    return form.lines
+      .map((line, index) =>
+        [
+          `第 ${index + 1} 項`,
+          line.item ? `項目：${line.item}` : null,
+          line.quantity ? `數量：${line.quantity}` : null,
+          line.size ? `尺寸：${line.size}` : null,
+          line.material ? `材質：${line.material}` : null,
+          line.previewUrl ? `預覽圖 URL：${line.previewUrl}` : null,
+          line.cost ? `成本：${line.cost}` : null,
+        ]
+          .filter(Boolean)
+          .join("｜")
+      )
+      .filter((line) => line.replace(/^第 \d+ 項$/u, "").trim() !== "")
+      .join("\n");
   }
 
   function createReply(form: ReplyForm): AssignmentReply {
@@ -508,48 +547,75 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
 
                       {isReplyOpen ? (
                         <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                          <p className="text-sm font-semibold text-slate-800">新增回覆</p>
-                          <div className="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-                            <label className="flex flex-col gap-2">
-                              <span className="text-sm font-medium text-slate-700">項目</span>
-                              <input value={replyForm.item} onChange={(event) => updateReplyForm(item.id, "item", event.target.value)} className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400" />
-                            </label>
-                            <label className="flex flex-col gap-2">
-                              <span className="text-sm font-medium text-slate-700">數量</span>
-                              <input value={replyForm.quantity} onChange={(event) => updateReplyForm(item.id, "quantity", event.target.value)} className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400" />
-                            </label>
-                            <label className="flex flex-col gap-2">
-                              <span className="text-sm font-medium text-slate-700">尺寸</span>
-                              <input value={replyForm.size} onChange={(event) => updateReplyForm(item.id, "size", event.target.value)} className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400" />
-                            </label>
-                            <label className="flex flex-col gap-2">
-                              <span className="text-sm font-medium text-slate-700">材質</span>
-                              <input value={replyForm.material} onChange={(event) => updateReplyForm(item.id, "material", event.target.value)} className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400" />
-                            </label>
-                            <label className="flex flex-col gap-2 md:col-span-2 xl:col-span-1">
-                              <span className="text-sm font-medium text-slate-700">預覽圖 URL</span>
-                              <input value={replyForm.previewUrl} onChange={(event) => updateReplyForm(item.id, "previewUrl", event.target.value)} className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400" />
-                            </label>
-                            <label className="flex flex-col gap-2">
-                              <span className="text-sm font-medium text-slate-700">成本</span>
-                              <input value={replyForm.cost} onChange={(event) => updateReplyForm(item.id, "cost", event.target.value)} className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400" />
-                            </label>
-                            <div className="md:col-span-2 xl:col-span-3 flex flex-wrap gap-2">
-                              <button
-                                type="button"
-                                onClick={() => submitReply(item.id, openCategory)}
-                                className="inline-flex items-center justify-center rounded-2xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800"
-                              >
-                                送出回覆
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => setActiveReplyBoxId(null)}
-                                className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 transition hover:bg-slate-50"
-                              >
-                                取消
-                              </button>
-                            </div>
+                          <div className="flex flex-wrap items-center justify-between gap-3">
+                            <p className="text-sm font-semibold text-slate-800">新增回覆</p>
+                            <button
+                              type="button"
+                              onClick={() => addReplyLine(item.id)}
+                              className="inline-flex items-center justify-center rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-50"
+                            >
+                              ＋ 新增一列
+                            </button>
+                          </div>
+
+                          <div className="mt-4 space-y-4">
+                            {replyForm.lines.map((line, index) => (
+                              <div key={line.id} className="rounded-2xl border border-slate-200 bg-white p-4">
+                                <div className="mb-3 flex items-center justify-between gap-3">
+                                  <p className="text-sm font-semibold text-slate-800">第 {index + 1} 項</p>
+                                  <button
+                                    type="button"
+                                    onClick={() => removeReplyLine(item.id, line.id)}
+                                    className="inline-flex items-center justify-center rounded-xl border border-rose-200 bg-white px-3 py-2 text-xs font-semibold text-rose-600 transition hover:bg-rose-50"
+                                  >
+                                    刪除此列
+                                  </button>
+                                </div>
+                                <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+                                  <label className="flex flex-col gap-2">
+                                    <span className="text-sm font-medium text-slate-700">項目</span>
+                                    <input value={line.item} onChange={(event) => updateReplyLine(item.id, line.id, "item", event.target.value)} className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400" />
+                                  </label>
+                                  <label className="flex flex-col gap-2">
+                                    <span className="text-sm font-medium text-slate-700">數量</span>
+                                    <input value={line.quantity} onChange={(event) => updateReplyLine(item.id, line.id, "quantity", event.target.value)} className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400" />
+                                  </label>
+                                  <label className="flex flex-col gap-2">
+                                    <span className="text-sm font-medium text-slate-700">尺寸</span>
+                                    <input value={line.size} onChange={(event) => updateReplyLine(item.id, line.id, "size", event.target.value)} className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400" />
+                                  </label>
+                                  <label className="flex flex-col gap-2">
+                                    <span className="text-sm font-medium text-slate-700">材質</span>
+                                    <input value={line.material} onChange={(event) => updateReplyLine(item.id, line.id, "material", event.target.value)} className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400" />
+                                  </label>
+                                  <label className="flex flex-col gap-2 md:col-span-2 xl:col-span-1">
+                                    <span className="text-sm font-medium text-slate-700">預覽圖 URL</span>
+                                    <input value={line.previewUrl} onChange={(event) => updateReplyLine(item.id, line.id, "previewUrl", event.target.value)} className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400" />
+                                  </label>
+                                  <label className="flex flex-col gap-2">
+                                    <span className="text-sm font-medium text-slate-700">成本</span>
+                                    <input value={line.cost} onChange={(event) => updateReplyLine(item.id, line.id, "cost", event.target.value)} className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400" />
+                                  </label>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+
+                          <div className="mt-4 flex flex-wrap gap-2">
+                            <button
+                              type="button"
+                              onClick={() => submitReply(item.id, openCategory)}
+                              className="inline-flex items-center justify-center rounded-2xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800"
+                            >
+                              送出回覆
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setActiveReplyBoxId(null)}
+                              className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 transition hover:bg-slate-50"
+                            >
+                              取消
+                            </button>
                           </div>
                         </div>
                       ) : null}
