@@ -129,10 +129,10 @@ export default async function ProjectDetailPage({
 
       <section className="grid gap-6 xl:grid-cols-2">
         <article className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
-          <div className="mb-5 flex items-center justify-between">
-            <div>
+          <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+            <div className="min-w-0">
               <h3 className="text-xl font-semibold">現有設計交辦</h3>
-              <p className="mt-1 text-sm text-slate-500">目前已建立的設計任務清單。</p>
+              <p className="mt-1 text-sm leading-6 text-slate-500">目前已建立的設計任務清單。</p>
             </div>
             <Link href="/design-tasks" className="text-sm font-medium text-slate-700 hover:text-blue-600">查看全部</Link>
           </div>
@@ -167,13 +167,13 @@ export default async function ProjectDetailPage({
           <div className="space-y-3">
             {project.procurementTasks.map((task) => (
               <div key={task.title} className="rounded-2xl border border-slate-200 p-4">
-                <div className="flex items-start justify-between gap-3">
-                  <div>
+                <div className="flex items-center justify-between gap-3">
+                  <div className="min-w-0">
                     <h4 className="font-semibold text-slate-900">{task.title}</h4>
                     <p className="mt-2 text-sm text-slate-500">採購：{task.buyer}</p>
                     <p className="mt-1 text-sm text-slate-500">預算：{task.budget}</p>
                   </div>
-                  <span className={`inline-flex items-center justify-center whitespace-nowrap rounded-full px-3 py-1 text-xs font-medium ring-1 ${getStatusClass(task.status)}`}>
+                  <span className={`inline-flex shrink-0 items-center justify-center whitespace-nowrap rounded-full px-3 py-1 text-xs font-medium ring-1 ${getStatusClass(task.status)}`}>
                     {task.status}
                   </span>
                 </div>
