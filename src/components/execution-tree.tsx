@@ -16,6 +16,8 @@ export function ExecutionTree({
   );
   const [drafts, setDrafts] = useState<Record<string, string>>({});
   const [localItems, setLocalItems] = useState(items);
+  const [editingChildId, setEditingChildId] = useState<string | null>(null);
+  const [editingValue, setEditingValue] = useState("");
 
   function toggleItem(itemId: string) {
     setExpanded((prev) => ({ ...prev, [itemId]: !prev[itemId] }));
@@ -51,6 +53,45 @@ export function ExecutionTree({
 
     setDrafts((prev) => ({ ...prev, [itemId]: "" }));
     setExpanded((prev) => ({ ...prev, [itemId]: true }));
+  }
+
+  function startEditing(childId: string, currentTitle: string) {
+    setEditingChildId(childId);
+    setEditingValue(currentTitle);
+  }
+
+  function saveEditing(childId: string) {
+    const nextTitle = editingValue.trim();
+    if (!nextTitle) return;
+
+    setLocalItems((prev) =>
+      prev.map((item) => ({
+        ...item,
+        children: (item.children ?? []).map((child) =>
+          child.id === childId ? { ...child, title: nextTitle } : child
+        ),
+      }))
+    );
+
+    setEditingChildId(null);
+    setEditingValue("");
+  }
+
+  function removeChild(parentId: string, childId: string) {
+    setLocalItems((prev) =>
+      prev.map((item) => {
+        if (item.id !== parentId) return item;
+        return {
+          ...item,
+          children: (item.children ?? []).filter((child) => child.id !== childId),
+        };
+      })
+    );
+
+    if (editingChildId === childId) {
+      setEditingChildId(null);
+      setEditingValue("");
+    }
   }
 
   return (
@@ -107,39 +148,88 @@ export function ExecutionTree({
             {isOpen ? (
               <div className="mt-5 border-t border-slate-200 pt-4">
                 <div className="space-y-3 pl-3 md:pl-6">
-                  {(item.children ?? []).map((child) => (
-                    <div
-                      key={child.id}
-                      className="rounded-2xl border border-slate-200 bg-slate-50/70 p-4"
-                    >
-                      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-                        <div>
-                          <div className="flex flex-wrap items-center gap-3">
-                            <span className="text-xs font-semibold text-slate-500">子項目</span>
-                            <span className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ring-1 ${getStatusClass(child.status)}`}>
-                              {child.status}
-                            </span>
-                          </div>
-                          <h5 className="mt-2 font-semibold text-slate-900">{child.title}</h5>
-                          <p className="mt-1 text-sm text-slate-500">
-                            類型：{child.category} {child.assignee ? `・負責：${child.assignee}` : ""}
-                          </p>
-                        </div>
+                  {(item.children ?? []).map((child) => {
+                    const isEditing = editingChildId === child.id;
+                    return (
+                      <div
+                        key={child.id}
+                        className="rounded-2xl border border-slate-200 bg-slate-50/70 p-4"
+                      >
+                        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                          <div className="flex-1">
+                            <div className="flex flex-wrap items-center gap-3">
+                              <span className="text-xs font-semibold text-slate-500">子項目</span>
+                              <span className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ring-1 ${getStatusClass(child.status)}`}>
+                                {child.status}
+                              </span>
+                            </div>
 
-                        <div className="flex flex-wrap gap-2">
-                          <Link
-                            href={`/design-tasks/new?projectId=${projectId}&itemId=${item.id}&itemTitle=${encodeURIComponent(child.title)}`}
-                            className="rounded-xl bg-blue-600 px-3 py-2 text-xs font-semibold text-white transition hover:bg-blue-700"
-                          >
-                            設計交辦
-                          </Link>
-                          <button className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-100">
-                            備品交辦
-                          </button>
+                            {isEditing ? (
+                              <div className="mt-3 flex flex-col gap-3 sm:flex-row">
+                                <input
+                                  value={editingValue}
+                                  onChange={(event) => setEditingValue(event.target.value)}
+                                  className="h-11 flex-1 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400"
+                                />
+                                <div className="flex gap-2">
+                                  <button
+                                    type="button"
+                                    onClick={() => saveEditing(child.id)}
+                                    className="rounded-2xl bg-slate-950 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800"
+                                  >
+                                    儲存
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      setEditingChildId(null);
+                                      setEditingValue("");
+                                    }}
+                                    className="rounded-2xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
+                                  >
+                                    取消
+                                  </button>
+                                </div>
+                              </div>
+                            ) : (
+                              <>
+                                <h5 className="mt-2 font-semibold text-slate-900">{child.title}</h5>
+                                <p className="mt-1 text-sm text-slate-500">
+                                  類型：{child.category} {child.assignee ? `・負責：${child.assignee}` : ""}
+                                </p>
+                              </>
+                            )}
+                          </div>
+
+                          <div className="flex flex-wrap gap-2">
+                            <Link
+                              href={`/design-tasks/new?projectId=${projectId}&itemId=${item.id}&itemTitle=${encodeURIComponent(child.title)}`}
+                              className="rounded-xl bg-blue-600 px-3 py-2 text-xs font-semibold text-white transition hover:bg-blue-700"
+                            >
+                              設計交辦
+                            </Link>
+                            <button className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-100">
+                              備品交辦
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => startEditing(child.id, child.title)}
+                              className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-100"
+                            >
+                              編輯
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => removeChild(item.id, child.id)}
+                              className="rounded-xl border border-rose-200 bg-white px-3 py-2 text-xs font-semibold text-rose-600 transition hover:bg-rose-50"
+                            >
+                              刪除
+                            </button>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
 
                   <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-4">
                     <p className="text-sm font-medium text-slate-700">+ 新增子項目</p>
