@@ -181,15 +181,15 @@ export function ExecutionTree({
 
             {isOpen ? (
               <div className="mt-5 border-t border-slate-200 pt-4">
-                <div className="space-y-3 pl-3 md:pl-6">
+                <div className="space-y-3 border-l border-slate-200 pl-4 md:pl-6">
                   {(item.children ?? []).map((child) => {
                     const isEditing = editingChildId === child.id;
                     return (
                       <div
                         key={child.id}
-                        className="rounded-2xl border border-slate-200 bg-slate-50/70 p-4"
+                        className="rounded-2xl border border-slate-200 bg-slate-50/80 px-4 py-3"
                       >
-                        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                        <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
                           <div className="flex-1">
                             {isEditing ? (
                               <div className="mt-1 flex flex-col gap-3 sm:flex-row">
@@ -221,12 +221,12 @@ export function ExecutionTree({
                             ) : (
                               <>
                                 <div className="flex flex-wrap items-center gap-3">
-                                  <h5 className="font-semibold text-slate-900">{child.title}</h5>
+                                  <h5 className="font-medium text-slate-900">{child.title}</h5>
                                   <span className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ring-1 ${getStatusClass(child.status)}`}>
                                     {child.status}
                                   </span>
                                 </div>
-                                <p className="mt-2 text-sm text-slate-500">
+                                <p className="mt-1 text-sm text-slate-500">
                                   類型：{child.category} {child.assignee ? `・負責：${child.assignee}` : ""}
                                 </p>
                               </>
