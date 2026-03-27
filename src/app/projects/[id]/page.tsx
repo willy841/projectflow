@@ -4,6 +4,7 @@ import { AppShell } from "@/components/app-shell";
 import { CopyEventInfoButton } from "@/components/copy-event-info-button";
 import { ExecutionTree } from "@/components/execution-tree";
 import { getProjectById, getStatusClass } from "@/components/project-data";
+import { RequirementsPanel } from "@/components/requirements-panel";
 
 export default async function ProjectDetailPage({
   params,
@@ -94,28 +95,7 @@ export default async function ProjectDetailPage({
           </div>
         </article>
 
-        <article className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
-          <div className="mb-5">
-            <h3 className="text-xl font-semibold">需求摘要</h3>
-            <p className="mt-1 text-sm text-slate-500">從溝通需求拆解出的重點項目。</p>
-          </div>
-
-          <div className="space-y-3">
-            {project.requirements.map((item) => (
-              <div key={item.title} className="rounded-2xl border border-slate-200 p-4">
-                <div className="flex items-center justify-between gap-3">
-                  <div className="min-w-0">
-                    <p className="text-xs font-medium text-slate-500">{item.category}</p>
-                    <h4 className="mt-1 font-semibold text-slate-900">{item.title}</h4>
-                  </div>
-                  <span className={`inline-flex shrink-0 items-center justify-center whitespace-nowrap rounded-full px-3 py-1 text-xs font-medium ring-1 ${getStatusClass(item.status)}`}>
-                    {item.status}
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </article>
+        <RequirementsPanel initialItems={project.requirements} />
       </section>
 
       <section className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
