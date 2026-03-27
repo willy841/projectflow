@@ -339,6 +339,54 @@ export function ExecutionTree({
     setActiveVendorFormId(null);
   }
 
+  function removeDesignAssignment(targetId: string) {
+    const confirmed = window.confirm("確定要刪除這筆設計交辦嗎？");
+    if (!confirmed) return;
+    setSavedDesignAssignments((prev) => {
+      const next = { ...prev };
+      delete next[targetId];
+      return next;
+    });
+    setDesignAssignmentDrafts((prev) => {
+      const next = { ...prev };
+      delete next[targetId];
+      return next;
+    });
+    if (activeDesignFormId === targetId) setActiveDesignFormId(null);
+  }
+
+  function removeProcurementAssignment(targetId: string) {
+    const confirmed = window.confirm("確定要刪除這筆備品交辦嗎？");
+    if (!confirmed) return;
+    setSavedProcurementAssignments((prev) => {
+      const next = { ...prev };
+      delete next[targetId];
+      return next;
+    });
+    setProcurementAssignmentDrafts((prev) => {
+      const next = { ...prev };
+      delete next[targetId];
+      return next;
+    });
+    if (activeProcurementFormId === targetId) setActiveProcurementFormId(null);
+  }
+
+  function removeVendorAssignment(targetId: string) {
+    const confirmed = window.confirm("確定要刪除這筆廠商交辦嗎？");
+    if (!confirmed) return;
+    setSavedVendorAssignments((prev) => {
+      const next = { ...prev };
+      delete next[targetId];
+      return next;
+    });
+    setVendorAssignmentDrafts((prev) => {
+      const next = { ...prev };
+      delete next[targetId];
+      return next;
+    });
+    if (activeVendorFormId === targetId) setActiveVendorFormId(null);
+  }
+
   function addMainItem() {
     const draft = mainItemDraft.trim();
     if (!draft) return;
@@ -524,7 +572,10 @@ export function ExecutionTree({
           <div className="mt-4 rounded-2xl bg-white p-4 ring-1 ring-blue-100">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <p className="text-sm font-semibold text-slate-800">已儲存的設計交辦內容</p>
-              <button type="button" onClick={() => openDesignForm(targetId)} className="inline-flex items-center justify-center rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-50">編輯設計交辦</button>
+              <div className="flex gap-2">
+                <button type="button" onClick={() => openDesignForm(targetId)} className="inline-flex items-center justify-center rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-50">編輯設計交辦</button>
+                <button type="button" onClick={() => removeDesignAssignment(targetId)} className="inline-flex items-center justify-center rounded-xl border border-rose-200 bg-white px-3 py-2 text-xs font-semibold text-rose-600 transition hover:bg-rose-50">刪除</button>
+              </div>
             </div>
             <div className="mt-3 flex flex-wrap gap-3 text-sm text-slate-600">
               {saved.size ? <span>尺寸：{saved.size}</span> : null}
@@ -572,7 +623,10 @@ export function ExecutionTree({
           <div className="mt-4 rounded-2xl bg-white p-4 ring-1 ring-amber-100">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <p className="text-sm font-semibold text-slate-800">已儲存的備品交辦內容</p>
-              <button type="button" onClick={() => openProcurementForm(targetId)} className="inline-flex items-center justify-center rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-50">編輯備品交辦</button>
+              <div className="flex gap-2">
+                <button type="button" onClick={() => openProcurementForm(targetId)} className="inline-flex items-center justify-center rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-50">編輯備品交辦</button>
+                <button type="button" onClick={() => removeProcurementAssignment(targetId)} className="inline-flex items-center justify-center rounded-xl border border-rose-200 bg-white px-3 py-2 text-xs font-semibold text-rose-600 transition hover:bg-rose-50">刪除</button>
+              </div>
             </div>
             <div className="mt-3 flex flex-wrap gap-3 text-sm text-slate-600">
               {saved.item ? <span>項目：{saved.item}</span> : null}
@@ -616,7 +670,10 @@ export function ExecutionTree({
           <div className="mt-4 rounded-2xl bg-white p-4 ring-1 ring-violet-100">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <p className="text-sm font-semibold text-slate-800">已儲存的廠商交辦內容</p>
-              <button type="button" onClick={() => openVendorForm(targetId, title)} className="inline-flex items-center justify-center rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-50">編輯廠商交辦</button>
+              <div className="flex gap-2">
+                <button type="button" onClick={() => openVendorForm(targetId, title)} className="inline-flex items-center justify-center rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-50">編輯廠商交辦</button>
+                <button type="button" onClick={() => removeVendorAssignment(targetId)} className="inline-flex items-center justify-center rounded-xl border border-rose-200 bg-white px-3 py-2 text-xs font-semibold text-rose-600 transition hover:bg-rose-50">刪除</button>
+              </div>
             </div>
             <div className="mt-3 flex flex-wrap gap-3 text-sm text-slate-600">
               {saved.title ? <span>交辦名稱：{saved.title}</span> : null}
