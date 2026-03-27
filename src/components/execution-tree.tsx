@@ -6,6 +6,24 @@ import { ProjectExecutionItem, getStatusClass } from "@/components/project-data"
 
 type ImportedItem = ProjectExecutionItem;
 
+type DesignAssignmentDraft = {
+  size: string;
+  material: string;
+  quantity: string;
+  referenceUrl: string;
+  structureRequired: string;
+  note: string;
+};
+
+const defaultDesignAssignmentDraft: DesignAssignmentDraft = {
+  size: "",
+  material: "",
+  quantity: "",
+  referenceUrl: "",
+  structureRequired: "需要",
+  note: "",
+};
+
 function parseCsvLine(line: string) {
   const result: string[] = [];
   let current = "";
@@ -146,6 +164,9 @@ export function ExecutionTree({
   const [activeAssignMenu, setActiveAssignMenu] = useState<string | null>(null);
   const [showMainItemCreator, setShowMainItemCreator] = useState(false);
   const [mainItemDraft, setMainItemDraft] = useState("");
+  const [activeDesignFormId, setActiveDesignFormId] = useState<string | null>(null);
+  const [designAssignmentDrafts, setDesignAssignmentDrafts] = useState<Record<string, DesignAssignmentDraft>>({});
+  const [savedDesignAssignments, setSavedDesignAssignments] = useState<Record<string, DesignAssignmentDraft>>({});
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   function toggleItem(itemId: string) {
@@ -154,6 +175,35 @@ export function ExecutionTree({
 
   function updateDraft(itemId: string, value: string) {
     setDrafts((prev) => ({ ...prev, [itemId]: value }));
+  }
+
+  function updateDesignAssignmentDraft(
+    targetId: string,
+    key: keyof DesignAssignmentDraft,
+    value: string
+  ) {
+    setDesignAssignmentDrafts((prev) => ({
+      ...prev,
+      [targetId]: {
+        ...(prev[targetId] ?? defaultDesignAssignmentDraft),
+        [key]: value,
+      },
+    }));
+  }
+
+  function openDesignForm(targetId: string) {
+    setActiveDesignFormId(targetId);
+    setActiveAssignMenu(null);
+    setDesignAssignmentDrafts((prev) => ({
+      ...prev,
+      [targetId]: prev[targetId] ?? savedDesignAssignments[targetId] ?? defaultDesignAssignmentDraft,
+    }));
+  }
+
+  function saveDesignAssignment(targetId: string) {
+    const draft = designAssignmentDrafts[targetId] ?? defaultDesignAssignmentDraft;
+    setSavedDesignAssignments((prev) => ({ ...prev, [targetId]: draft }));
+    setActiveDesignFormId(null);
   }
 
   function addMainItem() {
@@ -304,6 +354,118 @@ export function ExecutionTree({
     setActiveAssignMenu((prev) => (prev === targetId ? null : targetId));
   }
 
+  function InlineDesignForm({ targetId, title }: { targetId: string; title: string }) {
+    const draft = designAssignmentDrafts[targetId] ?? defaultDesignAssignmentDraft;
+    const saved = savedDesignAssignments[targetId];
+
+    return (
+      <div className="mt-4 rounded-3xl border border-blue-200 bg-blue-50/60 p-4 sm:p-5">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+          <div>
+            <p className="text-sm font-semibold text-blue-700">設計交辦</p>
+            <p className="mt-1 text-sm text-slate-600">項目：{title}</p>
+          </div>
+          <div className="text-xs text-slate-500">同頁輸入，不跳轉頁面</div>
+        </div>
+
+        <div className="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          <label className="flex flex-col gap-2">
+            <span className="text-sm font-medium text-slate-700">尺寸</span>
+            <input
+              value={draft.size}
+              onChange={(event) => updateDesignAssignmentDraft(targetId, "size", event.target.value)}
+              placeholder="例如：W240 x H300 cm"
+              className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-blue-400"
+            />
+          </label>
+
+          <label className="flex flex-col gap-2">
+            <span className="text-sm font-medium text-slate-700">材質</span>
+            <input
+              value={draft.material}
+              onChange={(event) => updateDesignAssignmentDraft(targetId, "material", event.target.value)}
+              placeholder="例如：珍珠板＋輸出"
+              className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-blue-400"
+            />
+          </label>
+
+          <label className="flex flex-col gap-2">
+            <span className="text-sm font-medium text-slate-700">數量</span>
+            <input
+              value={draft.quantity}
+              onChange={(event) => updateDesignAssignmentDraft(targetId, "quantity", event.target.value)}
+              placeholder="例如：1 式"
+              className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-blue-400"
+            />
+          </label>
+
+          <label className="flex flex-col gap-2 md:col-span-2 xl:col-span-2">
+            <span className="text-sm font-medium text-slate-700">參考連結</span>
+            <input
+              value={draft.referenceUrl}
+              onChange={(event) => updateDesignAssignmentDraft(targetId, "referenceUrl", event.target.value)}
+              placeholder="https://..."
+              className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-blue-400"
+            />
+          </label>
+
+          <label className="flex flex-col gap-2">
+            <span className="text-sm font-medium text-slate-700">是否需結構圖</span>
+            <select
+              value={draft.structureRequired}
+              onChange={(event) => updateDesignAssignmentDraft(targetId, "structureRequired", event.target.value)}
+              className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-blue-400"
+            >
+              <option value="需要">需要</option>
+              <option value="不需要">不需要</option>
+            </select>
+          </label>
+
+          <label className="flex flex-col gap-2 md:col-span-2 xl:col-span-3">
+            <span className="text-sm font-medium text-slate-700">備註</span>
+            <textarea
+              value={draft.note}
+              onChange={(event) => updateDesignAssignmentDraft(targetId, "note", event.target.value)}
+              placeholder="補充設計需求、印刷提醒或其他說明"
+              className="min-h-28 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-blue-400"
+            />
+          </label>
+        </div>
+
+        <div className="mt-4 flex flex-wrap gap-2">
+          <button
+            type="button"
+            onClick={() => saveDesignAssignment(targetId)}
+            className="inline-flex items-center justify-center rounded-2xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700"
+          >
+            儲存設計交辦
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveDesignFormId(null)}
+            className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 transition hover:bg-slate-50"
+          >
+            取消
+          </button>
+        </div>
+
+        {saved ? (
+          <div className="mt-4 rounded-2xl bg-white p-4 ring-1 ring-blue-100">
+            <p className="text-sm font-semibold text-slate-800">已儲存的設計交辦內容</p>
+            <div className="mt-3 flex flex-wrap gap-3 text-sm text-slate-600">
+              {saved.size ? <span>尺寸：{saved.size}</span> : null}
+              {saved.material ? <span>材質：{saved.material}</span> : null}
+              {saved.quantity ? <span>數量：{saved.quantity}</span> : null}
+              <span>結構圖：{saved.structureRequired}</span>
+            </div>
+            {saved.referenceUrl ? <p className="mt-2 text-sm text-slate-600">參考連結：{saved.referenceUrl}</p> : null}
+            {saved.note ? <p className="mt-2 text-sm text-slate-600">備註：{saved.note}</p> : null}
+          </div>
+        ) : null}
+      </div>
+    );
+  }
+
   function AssignmentMenu({ targetId, title }: { targetId: string; title: string }) {
     const isActive = activeAssignMenu === targetId;
 
@@ -319,12 +481,13 @@ export function ExecutionTree({
 
         {isActive ? (
           <div className="absolute right-0 z-10 mt-2 w-44 rounded-2xl border border-slate-200 bg-white p-2 shadow-lg">
-            <Link
-              href={`/design-tasks/new?projectId=${projectId}&itemId=${targetId}&itemTitle=${encodeURIComponent(title)}`}
-              className="block rounded-xl px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 hover:text-blue-600"
+            <button
+              type="button"
+              onClick={() => openDesignForm(targetId)}
+              className="block w-full rounded-xl px-3 py-2 text-left text-sm font-medium text-slate-700 transition hover:bg-slate-50 hover:text-blue-600"
             >
               設計
-            </Link>
+            </button>
             <Link
               href={`/procurement-tasks/new?projectId=${projectId}&itemId=${targetId}&itemTitle=${encodeURIComponent(title)}`}
               className="block rounded-xl px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 hover:text-slate-900"
@@ -420,6 +583,8 @@ export function ExecutionTree({
       {localItems.map((item) => {
         const isOpen = expanded[item.id];
         const isEditingMain = editingMainId === item.id;
+        const showMainDesignForm = activeDesignFormId === item.id || Boolean(savedDesignAssignments[item.id]);
+
         return (
           <div key={item.id} className="rounded-3xl border border-slate-200 bg-white p-5 transition hover:border-slate-300">
             <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
@@ -502,6 +667,8 @@ export function ExecutionTree({
               </div>
             </div>
 
+            {showMainDesignForm ? <InlineDesignForm targetId={item.id} title={item.title} /> : null}
+
             {isOpen ? (
               <div className="mt-5 border-t border-slate-200 pt-4">
                 <p className="mb-4 max-w-3xl text-sm leading-6 text-slate-600">{item.detail}</p>
@@ -510,6 +677,8 @@ export function ExecutionTree({
                 <div className="space-y-3 border-l border-slate-200 pl-4 md:pl-6">
                   {(item.children ?? []).map((child) => {
                     const isEditingChild = editingChildId === child.id;
+                    const showChildDesignForm = activeDesignFormId === child.id || Boolean(savedDesignAssignments[child.id]);
+
                     return (
                       <div
                         key={child.id}
@@ -579,6 +748,8 @@ export function ExecutionTree({
                             </button>
                           </div>
                         </div>
+
+                        {showChildDesignForm ? <InlineDesignForm targetId={child.id} title={child.title} /> : null}
                       </div>
                     );
                   })}
