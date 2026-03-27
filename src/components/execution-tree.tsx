@@ -120,18 +120,12 @@ export function ExecutionTree({
             >
               交辦給設計
             </Link>
-            <button
-              type="button"
-              className="block w-full rounded-xl px-3 py-2 text-left text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+            <Link
+              href={`/procurement-tasks/new?projectId=${projectId}&itemId=${targetId}&itemTitle=${encodeURIComponent(title)}`}
+              className="block rounded-xl px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 hover:text-slate-900"
             >
               交辦給備品
-            </button>
-            <button
-              type="button"
-              className="block w-full rounded-xl px-3 py-2 text-left text-sm font-medium text-slate-700 transition hover:bg-slate-50"
-            >
-              交辦給人員
-            </button>
+            </Link>
           </div>
         ) : null}
       </div>
@@ -188,9 +182,12 @@ export function ExecutionTree({
                 >
                   設計交辦
                 </Link>
-                <button className="rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm font-semibold text-slate-800 transition hover:bg-slate-50">
+                <Link
+                  href={`/procurement-tasks/new?projectId=${projectId}&itemId=${item.id}&itemTitle=${encodeURIComponent(item.title)}`}
+                  className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm font-semibold text-slate-800 transition hover:bg-slate-50"
+                >
                   備品交辦
-                </button>
+                </Link>
               </div>
             </div>
 
@@ -258,9 +255,12 @@ export function ExecutionTree({
                             >
                               設計交辦
                             </Link>
-                            <button className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-100">
+                            <Link
+                              href={`/procurement-tasks/new?projectId=${projectId}&itemId=${item.id}&itemTitle=${encodeURIComponent(child.title)}`}
+                              className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-100"
+                            >
                               備品交辦
-                            </button>
+                            </Link>
                             <button
                               type="button"
                               onClick={() => startEditing(child.id, child.title)}
