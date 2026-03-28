@@ -299,7 +299,7 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
       { label: "廠商名稱", value: assignment.data.vendorName || "—" },
       { label: "預算 / 報價", value: assignment.data.budget || "—" },
       { label: "參考連結", value: assignment.data.referenceUrl || "—" },
-      { label: "需求 / 備註", value: assignment.data.note || "—" },
+      { label: "需求內容", value: assignment.data.requirement || "—" },
     ],
     replies: assignment.data.replies ?? [],
   })), [vendorAssignments]);
