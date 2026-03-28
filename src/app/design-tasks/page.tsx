@@ -70,6 +70,7 @@ export default function DesignTasksPage() {
   const [editDraft, setEditDraft] = useState<EditableTask | null>(null);
   const [replyForms, setReplyForms] = useState<Record<string, ReplyForm>>({});
   const [expandedReplies, setExpandedReplies] = useState<Record<string, boolean>>({});
+  const [activeReplyBoxId, setActiveReplyBoxId] = useState<string | null>(null);
   const [expandedReplyParents, setExpandedReplyParents] = useState<Record<string, boolean>>({});
 
   const stats = useMemo(
@@ -348,6 +349,7 @@ export default function DesignTasksPage() {
                               <p className="text-sm text-slate-400">目前尚無回覆。</p>
                             )}
 
+                            {activeReplyBoxId === task.id ? (
                             <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
                               <div className="flex flex-wrap items-center justify-between gap-3">
                                 <p className="text-sm font-semibold text-slate-800">新增回覆</p>
@@ -447,8 +449,24 @@ export default function DesignTasksPage() {
                                 >
                                   送出回覆
                                 </button>
+                                <button
+                                  type="button"
+                                  onClick={() => setActiveReplyBoxId(null)}
+                                  className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 transition hover:bg-slate-50"
+                                >
+                                  取消
+                                </button>
                               </div>
                             </div>
+                            ) : null}
+
+                            <button
+                              type="button"
+                              onClick={() => setActiveReplyBoxId((prev) => (prev === task.id ? null : task.id))}
+                              className="inline-flex items-center justify-center rounded-xl bg-slate-900 px-3 py-2 text-xs font-semibold text-white transition hover:bg-slate-800"
+                            >
+                              {activeReplyBoxId === task.id ? "收合新增回覆" : "新增回覆"}
+                            </button>
                           </div>
                         ) : null}
                       </div>
