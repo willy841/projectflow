@@ -365,11 +365,69 @@ CTO 下一步應直接開始落地以下內容：
 
 ---
 
-## M. 下一步
+## M. CTO 第一版實作進度更新（已完成）
 
-本份 MD8 已可作為 CTO 開始執行的依據。
+CTO 已依本份 MD8 落地第一版可驗收骨架，重點如下：
+
+### 1. 已完成的實作內容
+- Package Page 已從展示頁重構為 **對外發包文件編輯台**
+- 已支援 **專案資訊（對外文件用）編輯 / 覆寫**
+- 已支援 **最終發包項目明細列**：
+  - 新增
+  - 編輯
+  - 刪除
+  - 排序
+- 已支援 **文件整體備註** 編輯
+- 已加入明確的 **儲存 Package** 操作
+- 已建立 **Final Outgoing Document 區**
+- 已支援：
+  - 生成發包文件
+  - 重新生成前確認覆蓋
+  - 文件預覽
+  - 複製文件內容
+  - 匯出 txt
+- 若已有文件，儲存 package 後會標示文件已不是最新內容，需重新生成
+- Assignment 區已被弱化為 **來源參考區**
+
+### 2. 本次實作影響檔案
+- `project-mgmt/src/components/vendor-data.ts`
+  - 補 package 可編輯欄位與 document snapshot 結構
+- `project-mgmt/src/components/project-data.ts`
+  - 補 package 文件所需的 project 預設資料
+- `project-mgmt/src/components/vendor-package-detail.tsx`
+  - 重寫為 Package 編輯前台主體
+
+### 3. 已知限制（目前仍屬第一版骨架）
+- 目前仍是 **前端 mock data**，重新整理不會真正持久化
+- 文件生成時間 / 生成人仍是 demo 值
+- 匯出目前僅為 txt，不是正式 PDF / DOC
+- 查看文件目前以頁內預覽為主，尚未拆獨立 document route
+- 文件是否過期目前以儲存後標記 outdated 模擬，尚未接正式版本比對機制
+
+### 4. 驗收建議路徑
+1. 開 `vendor-packages/vp-spring-xingcheng-001`
+2. 修改專案資訊或明細列
+3. 按 **儲存 Package**
+4. 確認出現文件過期提醒
+5. 按 **重新生成發包文件**
+6. 確認有覆蓋提示
+7. 確認文件預覽更新
+8. 測試複製 / 匯出
+
+### 5. 目前判斷
+本份 MD8 對應的 **第一版可驗收實作已完成**，但仍屬 mock-based prototype，後續仍需：
+- 正式資料持久化
+- 更完整匯出格式
+- document route / 真實後端行為
+
+---
+
+## N. 下一步
+
+本份 MD8 已不只是 CTO 開始執行的依據，也已完成第一版骨架落地。
 若後續要接續討論，最合理的下一題是：
 
 1. 實際資料模型 / schema 設計
 2. package page 更細的 UI 排版與元件層級
 3. assignment 歸包後在 project detail / vendor flow 中的呈現方式
+4. 針對第一版實作做驗收 review 與修正清單
