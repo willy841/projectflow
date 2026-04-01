@@ -2,71 +2,116 @@
 
 ## 1. 專案名稱
 - 專案系統建置
+- 當前主線：Vendor Flow
 
 ## 2. 專案目標
 - 建立一套可長期運作的專案系統建置工作模式
 - 讓需求討論、產品釐清、工程實作、前端設計與跨 chat 銜接都有明確治理規則
 - 讓團隊可在長 context 下持續運作，不因切換 chat / session 而失憶或重工
+- 目前聚焦於 Vendor Flow 的產品語意、前端骨架、正式發包入口與導流 UX
 
 ## 3. 目前階段
-- 團隊治理與協作基礎設施建立階段
+- Vendor Flow 前端骨架與導流 UX 收斂階段
 
 ## 4. 本輪 scope
-### 本輪要做什麼
-- 定義酷亞大總管的身份與工作方式
-- 定義 CPO / CTO / 前端設計 Agent 的協作邏輯
-- 建立批准後派工（post approval distribution）規則
-- 建立 memory search 作為查證規則
-- 建立專案系統建置團隊章程
-- 建立新 chat 銜接 SOP 與 handoff 模板
-- 建立第一份 current handoff
+### 本輪已做
+- 定義酷亞大總管 / CPO / CTO / 前端設計 Agent 的協作方式
+- 建立 project system team charter 與 handoff SOP
+- 建立 current handoff
+- 確認 Vendor Flow 實際工作樹為 `project-mgmt`
+- 找到並閱讀 Vendor Flow 相關 md 文件：
+  - `Vendor-Flow-Spec-v1-2026-03-31.md`
+  - `MD5-vendor-flow-context-handoff-2026-03-31.md`
+  - `MD6-vendor-flow-v1-cto-delivery-2026-04-01.md`
+- 將 Vendor Flow 核心 detail pages 整合進真正的 GitHub 主線 repo `projectflow`
+- 補齊 GitHub 主線工作樹依賴並確認 build 可通過
+- 完成 Vendor Flow Assignment → Package 導流第一刀
+- 完成 Vendor Flow 第二刀：將 Assignment 頁導流收斂成 `PackageRoutingPanel`
+- 完成 execution tree / assignment list 層級的收合與 package 導流收斂
 
-### 本輪不做什麼
-- 尚未開始實際的專案系統產品功能開發
-- 尚未下達新的工程實作任務
-- 尚未進行新的 UI/UX 專案交付
+### 本輪不做
+- 不做後端
+- 不做 shared state / 持久化
+- 不做真正 package creation flow / package picker flow
+- 不做正式資料流更新
 
 ## 5. 已完成事項
 - 已定義主身份為「酷亞大總管」
-- 已定義定位為「管理策略夥伴」
-- 已加入 CPO（Chief Product Officer）角色
-- 已定義說話風格為：冷靜、準、少廢話、尊敬
-- 已定義不可變成：推卸責任、瞎掰、亂說話的人
-- 已把上述身份與原則寫入 `IDENTITY.md` 與 `SOUL.md`
-- 已在 `AGENTS.md` 寫入 CPO / CTO / 前端設計 Agent 的 projectflow 協作規則
-- 已補入 post approval distribution 規則
-- 已補入 memory search 規則
-- 已確認 CTO Agent 與前端設計 Agent 為常駐團隊成員，不是臨時派遣 agent
-- 已完成 CTO Agent 常駐身份重設與待命
-- 已完成前端設計 Agent 常駐身份重設與待命
+- 已定義定位為「管理策略夥伴 + CPO」
+- 已定義 post approval distribution
+- 已定義必須主動使用 memory search
+- 已建立常駐團隊成員：CTO Agent、前端設計 Agent
 - 已建立 `teams/project-system-team.md`
 - 已建立 `templates/project-handoff-template.md`
-- 已寫入規則：長 context 對話結束前，酷亞大總管應主動產出或更新 handoff md 檔
+- 已建立並持續更新本 handoff
+- 已補入規則：對話 context 接近 80% 或高風險長上下文時，必須主動更新 md handoff
+
+### Vendor Flow 已完成
+- Vendor Flow 核心語意已定：
+  - Assignment = 內部逐項管理
+  - Package = 同專案 + 同廠商的對外整包發包主體
+  - 正式發包只在 Package Detail
+  - Reply 採 flat list
+- Vendor Flow core detail pages 已進 GitHub 主線
+- GitHub 主線可 build
+- 已推上 GitHub 主線的重要 commits：
+  - `5be47e1` — `feat: add vendor flow detail pages`
+  - `f4031d5` — `feat: refine assignment package routing states`
+
+### Vendor Flow 在 `project-mgmt` 工作樹已完成但尚未同步主線的 commits
+- `3677a5f` — `feat: refine vendor flow package hierarchy`
+- `bebb554` — `feat: add assignment to package handoff states`
+- `00aaa20` — `refactor: tighten assignment package routing panel`
+- `1e4c613` — `feat: refine assignment list package routing`
+
+### 已確認完成的 UX 收斂
+1. Assignment → Package 導流第一刀
+- 有 package 時可清楚導到 Package 頁
+- 沒 package 時不再流程斷掉，會提示下一步
+
+2. Assignment 頁第二刀
+- 導流已收斂成固定 `PackageRoutingPanel`
+- 更清楚表達：
+  - 這裡不是正式發包頁
+  - 正式發包只在 Package Detail
+  - 使用者此刻唯一正確下一步是什麼
+
+3. Assignment list / execution tree 層收斂
+- assignment list 改成摘要 + 展開模式
+- 列表層有 package / 無 package 都有清楚下一步提示
+- mock action 後自動收合回摘要狀態
+- 列表層仍不出現正式發包按鈕
 
 ## 6. 進行中事項
-- 建立第一份 current handoff（本文件）
+- 將 `project-mgmt` 工作樹中尚未同步的 Vendor Flow 收斂成果，持續評估是否整合進 GitHub 主線
+- 準備 Vendor Flow 第三刀方向
 
 ## 7. 待批准事項
-- 尚未收到新的具體專案系統開發需求
-- 尚未收到新的正式派工批准
+- 是否進入 Vendor Flow 第三刀
+- 第三刀要先做哪一種真正可操作 flow：
+  1. package creation flow
+  2. package selection / package picker flow
+  3. shared mock source / shared state
 
 ## 8. 阻塞與風險
 ### 阻塞
-- 目前沒有具體產品功能需求進入定義與開發階段
+- `project-mgmt` 工作樹本身沒有 configured remote，因此子 agent 在該工作樹可 build / commit，但不能直接自行 push
+- 部分成果需由主線整合流程帶回真正的 GitHub repo
 
 ### 風險
-- 若未持續維護 handoff，長 context 專案仍可能在新 chat 中失去脈絡
-- 若未嚴格區分討論中 / 待批准 / 已批准執行中，團隊角色可能再次混亂
-- 目前常駐成員是透過既有 session 重設為團隊成員，不是新建 thread-bound persistent session；治理上可運作，但日後若平台能力改變，可再升級架構
+- `project-mgmt` 與真正 GitHub 主線 repo 並非同一工作樹，容易造成「已做但未同步主線」的認知落差
+- 目前 Vendor Flow 仍是 mock-driven，未來若進 shared state / 後端，需避免重寫語意
+- 若不持續更新 handoff，長 context 很容易在新 chat 中斷線
 
 ## 9. 最新重要決策
-- 決定主身份為「酷亞大總管」
-- 決定定位為「管理策略夥伴 + CPO」
-- 決定嚴格執行 post approval distribution
-- 決定遇到過去決策 / 脈絡 / 偏好 / 待辦時必須主動使用 memory search
-- 決定 CTO 與前端設計 Agent 為常駐 team members
-- 決定專案系統建置需要固定的新 chat 銜接 SOP
-- 決定 handoff md 檔應由酷亞大總管在舊對話結束前主動產出或更新
+- 確認 Vendor Flow 實際工作樹為 `project-mgmt`
+- 確認 GitHub 正式 repo 為 `https://github.com/willy841/projectflow.git`
+- 確認 Vendor Flow 要整合進 GitHub 主線，而不是另開獨立歷史覆蓋遠端
+- 決定目前先不做後端，先做欄位定義與前端語意 / hierarchy 收斂
+- 決定正式發包按鈕只在 Package Detail
+- 決定 Assignment 頁必須導流到 Package 頁
+- 決定 context 接近 80% 時，必須主動更新 md handoff
+- 決定 execution tree / assignment list 層也必須補 package 導流與自動收合
 
 ## 10. 團隊分工狀態
 ### 酷亞大總管 / CPO
@@ -75,18 +120,21 @@
 
 ### CTO Agent
 - 已就位
-- 常駐待命中
-- 等待正式批准後的工程任務
+- 常駐待命，可接續 Vendor Flow 第三刀
+- 在 `project-mgmt` 工作樹持續做 Vendor Flow 收斂
 
 ### 前端設計 Agent
 - 已就位
-- 常駐待命中
-- 等待正式批准後的 UI/UX 任務
+- 常駐待命，可接續 Vendor Flow 第三刀
+- 持續提供 Vendor Flow hierarchy / routing / CTA / 文案收斂建議
 
 ## 11. 下一步
-1. 等待使用者提出第一個具體的專案系統需求
-2. 由酷亞大總管 / CPO 協助收斂成可執行任務
-3. 等待使用者批准後，分派給 CTO Agent / 前端設計 Agent
+1. 若要延續 Vendor Flow，最合理的是進入第三刀
+2. 第三刀應從以下三個方向擇一優先：
+   - package creation flow
+   - package selection / package picker flow
+   - shared mock source / shared state
+3. 若繼續推 execution tree / list 層，可考慮把 `AssignmentPackageRoutingStrip` / package routing strip 再帶回 GitHub 主線
 
 ## 12. 必讀材料
 - `IDENTITY.md`
@@ -95,6 +143,9 @@
 - `teams/project-system-team.md`
 - `templates/project-handoff-template.md`
 - 本檔案 `handoffs/project-system-current.md`
+- `Vendor-Flow-Spec-v1-2026-03-31.md`
+- `MD5-vendor-flow-context-handoff-2026-03-31.md`
+- `MD6-vendor-flow-v1-cto-delivery-2026-04-01.md`
 
 ## 13. 新 Chat 開場檢查清單
 新 chat 開始時，酷亞大總管必須先做：
@@ -104,9 +155,10 @@
 - 讀取 `AGENTS.md`
 - 讀取 `teams/project-system-team.md`
 - 讀取最新 handoff（本檔案）
+- 若要延續 Vendor Flow，也要讀 Vendor Flow 相關 spec / handoff 檔
 - 確認目前階段、scope、待批准事項與下一步
 - 再開始接續討論或派工
 
 ## 14. 備註
-- 這份文件應隨著專案進展持續更新
-- 若未來出現更具體子專案，可再拆分成多份 handoff 檔
+- 本檔案已納入 80% context 主動更新規則的實際維護
+- 若下一輪正式進入 Vendor Flow 第三刀，應在完成收斂後再次更新本檔案
