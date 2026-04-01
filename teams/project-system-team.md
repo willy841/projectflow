@@ -103,6 +103,8 @@
 規則：
 - 每次切換 chat / session 前，需先整理標準化 handoff summary
 - 對於已形成長 context、已累積決策、已產生進度或已進入執行中的專案對話，酷亞大總管應在舊對話結束前主動產出或更新 handoff md 檔
+- 當對話 context 接近 80% 或已進入高風險長上下文狀態時，酷亞大總管必須主動開始更新 md handoff，不得等到 context 即將耗盡才處理
+- 80% 視為實務門檻，不要求死抓精準數字；只要對話已很長、跨多個決策節點、已有多次子 agent 回報，或明顯接近上下文風險，就應提前更新 handoff
 - handoff 檔應作為下一次新 chat / 新 session 的主要接手依據
 - 新 chat 開始時，必須先讀 relevant memory、團隊章程、最新 handoff，再繼續討論、決策與派工
 - 不可在缺少銜接資料的情況下憑印象接續長專案
