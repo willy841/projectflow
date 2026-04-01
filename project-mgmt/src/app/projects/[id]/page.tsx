@@ -2,12 +2,15 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AppShell } from "@/components/app-shell";
 import { getProjectById, getStatusClass } from "@/components/project-data";
-import { VendorAssignmentOverview } from "@/components/vendor-assignment-overview";
 import {
+  getAssignmentIssueStatusClass,
+  getAssignmentIssueStatusLabel,
+  getAssignmentReplyStatusLabel,
+  getAssignmentSelectedVendorLabel,
   getAssignmentsByProjectId,
+  getPackageDocumentStatus,
+  getPackageDocumentStatusClass,
   getPackagesByProjectId,
-  getPackageStatusLabel,
-  getVendorStatusClass,
 } from "@/components/vendor-data";
 
 export default async function ProjectDetailPage({
@@ -175,75 +178,133 @@ export default async function ProjectDetailPage({
         </article>
       </section>
 
-      <section className="grid gap-6 xl:grid-cols-[0.9fr_1.1fr]">
+      <section className="space-y-6">
         <article className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
-          <div className="mb-5 flex items-center justify-between">
+          <div className="mb-5 flex items-center justify-between gap-3">
             <div>
-              <h3 className="text-xl font-semibold">Vendor Assignments</h3>
-              <p className="mt-1 text-sm text-slate-500">補充支線：內部逐項管理單位，掛在 execution item 上，不直接代表正式發包。</p>
+              <p className="text-xs font-semibold tracking-wide text-sky-700">PRE-ISSUE</p>
+              <h3 className="mt-1 text-xl font-semibold text-slate-900">Assignment / Reply</h3>
+              <p className="mt-1 text-sm text-slate-500">處理正式發包前的 assignment、reply、vendor 決策與發包入口。</p>
             </div>
-            <Link href="/vendor-assignments" className="text-sm font-medium text-slate-700 underline-offset-4 hover:underline">查看全部 Assignments</Link>
           </div>
 
-          <VendorAssignmentOverview assignments={vendorAssignments} packages={vendorPackages} />
+          {vendorAssignments.length ? (
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-slate-200 text-sm">
+                <thead>
+                  <tr className="text-left text-slate-500">
+                    <th className="px-4 py-3 font-medium">Assignment 名稱</th>
+                    <th className="px-4 py-3 font-medium">Reply 狀況</th>
+                    <th className="px-4 py-3 font-medium">已選定 Vendor</th>
+                    <th className="px-4 py-3 font-medium">發包狀態</th>
+                    <th className="px-4 py-3 font-medium">操作</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {vendorAssignments.map((assignment) => (
+                    <tr key={assignment.id} className="align-top">
+                      <td className="px-4 py-4">
+                        <div>
+                          <p className="font-semibold text-slate-900">{assignment.title}</p>
+                          <p className="mt-1 text-xs text-slate-500">來源：{assignment.executionItemTitle}</p>
+                        </div>
+                      </td>
+                      <td className="px-4 py-4">
+                        <span className="inline-flex rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700 ring-1 ring-slate-200">
+                          {getAssignmentReplyStatusLabel(assignment)}
+                        </span>
+                      </td>
+                      <td className="px-4 py-4 text-slate-700">{getAssignmentSelectedVendorLabel(assignment)}</td>
+                      <td className="px-4 py-4">
+                        <span className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ring-1 ${getAssignmentIssueStatusClass(assignment)}`}>
+                          {getAssignmentIssueStatusLabel(assignment)}
+                        </span>
+                      </td>
+                      <td className="px-4 py-4">
+                        <div className="flex flex-wrap gap-2">
+                          <Link
+                            href={`/vendor-assignments/${assignment.id}`}
+                            className="inline-flex items-center justify-center rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-700"
+                          >
+                            查看 Reply
+                          </Link>
+                          <Link
+                            href={assignment.packageId ? `/vendor-packages/${assignment.packageId}` : `/vendor-assignments/${assignment.id}`}
+                            className="inline-flex items-center justify-center rounded-xl bg-slate-900 px-3 py-2 text-xs font-semibold text-white"
+                          >
+                            發包
+                          </Link>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-6 text-sm text-slate-500">
+              目前尚無 Assignment / Reply 資料。
+            </div>
+          )}
         </article>
 
         <article className="rounded-3xl border border-blue-200 bg-blue-50/60 p-6 shadow-sm ring-1 ring-blue-100">
-          <div className="mb-5 flex items-center justify-between">
+          <div className="mb-5 flex items-center justify-between gap-3">
             <div>
-              <h3 className="text-xl font-semibold text-slate-900">Vendor Packages</h3>
-              <p className="mt-1 text-sm text-slate-500">主線：同專案 + 同廠商的對外發包彙整單，也是正式發包成立主體。</p>
+              <p className="text-xs font-semibold tracking-wide text-blue-700">POST-ISSUE</p>
+              <h3 className="mt-1 text-xl font-semibold text-slate-900">Issued Packages</h3>
+              <p className="mt-1 text-sm text-slate-500">只承接已正式進入 package 主線的資料；文件查看與生成仍統一在 package page 處理。</p>
             </div>
-            <Link href="/vendor-packages" className="rounded-2xl border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm underline-offset-4 hover:underline">查看全部包單</Link>
           </div>
 
-          <div className="space-y-4">
-            {vendorPackages.length ? (
-              vendorPackages.map((vendorPackage, index) => (
-                <div key={vendorPackage.id} className="rounded-2xl border border-blue-200 bg-white p-5 shadow-sm">
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="inline-flex rounded-full bg-blue-600 px-2.5 py-1 text-[11px] font-semibold text-white">P{index + 1}</span>
-                        <Link href={`/vendor-packages/${vendorPackage.id}`} className="font-semibold text-slate-900 underline-offset-4 hover:underline">
-                          {vendorPackage.title}
-                        </Link>
-                      </div>
-                      <p className="mt-2 text-sm text-slate-500">廠商：{vendorPackage.vendorName}</p>
-                      <p className="mt-1 text-sm text-slate-500">包單狀態：{getPackageStatusLabel(vendorPackage.status)}</p>
-                    </div>
-                    <span className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ring-1 ${getVendorStatusClass(vendorPackage.status)}`}>
-                      {getPackageStatusLabel(vendorPackage.status)}
-                    </span>
-                  </div>
+          {vendorPackages.length ? (
+            <div className="overflow-x-auto rounded-2xl bg-white ring-1 ring-blue-100">
+              <table className="min-w-full divide-y divide-slate-200 text-sm">
+                <thead>
+                  <tr className="text-left text-slate-500">
+                    <th className="px-4 py-3 font-medium">廠商名稱</th>
+                    <th className="px-4 py-3 font-medium">assignment 數</th>
+                    <th className="px-4 py-3 font-medium">文件狀態</th>
+                    <th className="px-4 py-3 font-medium">操作</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {vendorPackages.map((vendorPackage) => {
+                    const documentStatus = getPackageDocumentStatus(vendorPackage);
 
-                  <div className="mt-4 grid gap-3 md:grid-cols-3">
-                    <div className="rounded-2xl bg-blue-50 p-4">
-                      <p className="text-xs font-medium text-slate-500">Package Code</p>
-                      <p className="mt-2 font-semibold text-slate-900">{vendorPackage.code}</p>
-                    </div>
-                    <div className="rounded-2xl bg-blue-50 p-4">
-                      <p className="text-xs font-medium text-slate-500">包內項目</p>
-                      <p className="mt-2 font-semibold text-slate-900">{vendorPackage.assignmentIds.length} 筆</p>
-                    </div>
-                    <div className="rounded-2xl bg-blue-50 p-4">
-                      <p className="text-xs font-medium text-slate-500">整包金額</p>
-                      <p className="mt-2 font-semibold text-slate-900">{vendorPackage.quotedAmount}</p>
-                    </div>
-                  </div>
-
-                  <div className="mt-4 rounded-2xl border border-dashed border-blue-200 bg-blue-50/60 px-4 py-3">
-                    <p className="text-xs font-medium text-slate-500">主線摘要</p>
-                    <p className="mt-2 text-sm leading-6 text-slate-700">{vendorPackage.summary}</p>
-                  </div>
-                </div>
-              ))
-            ) : (
-              <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-6 text-sm text-slate-500">
-                目前尚未建立 Vendor Package。
-              </div>
-            )}
-          </div>
+                    return (
+                      <tr key={vendorPackage.id}>
+                        <td className="px-4 py-4">
+                          <div>
+                            <p className="font-semibold text-slate-900">{vendorPackage.vendorName}</p>
+                            <p className="mt-1 text-xs text-slate-500">{vendorPackage.code}</p>
+                          </div>
+                        </td>
+                        <td className="px-4 py-4 font-medium text-slate-700">{vendorPackage.assignmentIds.length} 筆</td>
+                        <td className="px-4 py-4">
+                          <span className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ring-1 ${getPackageDocumentStatusClass(documentStatus)}`}>
+                            {documentStatus}
+                          </span>
+                        </td>
+                        <td className="px-4 py-4">
+                          <Link
+                            href={`/vendor-packages/${vendorPackage.id}`}
+                            className="inline-flex items-center justify-center rounded-xl bg-blue-600 px-3 py-2 text-xs font-semibold text-white"
+                          >
+                            查看 Package
+                          </Link>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <div className="rounded-2xl border border-dashed border-blue-200 bg-white p-6 text-sm text-slate-500">
+              目前尚未建立 Issued Package。
+            </div>
+          )}
         </article>
       </section>
     </AppShell>

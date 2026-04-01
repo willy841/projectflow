@@ -43,6 +43,48 @@ export type VendorAssignment = {
   updatedAt: string;
 };
 
+export type PackageProjectInfo = {
+  projectNameOverride: string;
+  clientNameOverride: string;
+  eventDateOverride: string;
+  loadInTimeOverride: string;
+  locationOverride: string;
+};
+
+export type PackageLineItem = {
+  id: string;
+  itemName: string;
+  workDetails: string;
+  quantity: string;
+  unit: string;
+  note: string;
+};
+
+export type PackageEditableSnapshot = {
+  projectName: string;
+  clientName: string;
+  eventDate: string;
+  loadInTime: string;
+  location: string;
+  lineItems: PackageLineItem[];
+  overallNote: string;
+};
+
+export type FinalOutgoingDocumentSnapshot = {
+  generatedAt: string;
+  generatedBy: string;
+  packageId: string;
+  packageCode: string;
+  packageSnapshot: PackageEditableSnapshot;
+  projectName: string;
+  clientName: string;
+  eventDate: string;
+  loadInTime: string;
+  location: string;
+  lineItems: PackageLineItem[];
+  overallNote: string;
+};
+
 export type VendorPackage = {
   id: string;
   code: string;
@@ -59,6 +101,11 @@ export type VendorPackage = {
   replies: VendorReply[];
   formallyConfirmedAt: string | null;
   formallyConfirmedBy: string | null;
+  packageProjectInfo: PackageProjectInfo;
+  outgoingLineItems: PackageLineItem[];
+  outgoingOverallNote: string;
+  finalOutgoingDocument: FinalOutgoingDocumentSnapshot | null;
+  documentIsOutdated: boolean;
   createdAt: string;
   updatedAt: string;
 };
@@ -166,6 +213,52 @@ export const vendorAssignments: VendorAssignment[] = [
   },
 ];
 
+const springPackageSnapshot: PackageEditableSnapshot = {
+  projectName: "春季品牌快閃活動",
+  clientName: "森野生活",
+  eventDate: "2026-04-12",
+  loadInTime: "2026-04-10 09:00",
+  location: "松山文創園區 2F 主展區",
+  lineItems: [
+    {
+      id: "doc-line-001",
+      itemName: "入口主背板輸出與安裝",
+      workDetails: "主背板輸出、裱板、現場安裝與收邊，需對齊春季主題色與燈箱尺寸。",
+      quantity: "1",
+      unit: "式",
+      note: "4/10 進場前完成。",
+    },
+    {
+      id: "doc-line-002",
+      itemName: "導視系統與桌牌輸出",
+      workDetails: "A1 指示牌、桌牌與吊牌輸出，桌牌內容依最終校稿版本出件。",
+      quantity: "1",
+      unit: "批",
+      note: "桌牌文案以 4/5 中午前版本為準。",
+    },
+  ],
+  overallNote: "請依專案窗口通知安排進場，若需先行打樣請於活動前 3 日完成確認。",
+};
+
+const obsidianDocumentSnapshot: PackageEditableSnapshot = {
+  projectName: "新品發表會主視覺與會場製作",
+  clientName: "曜石科技",
+  eventDate: "2026-04-20",
+  loadInTime: "2026-04-18 08:00",
+  location: "南港展覽館 4F 展示區",
+  lineItems: [
+    {
+      id: "doc-line-101",
+      itemName: "接待區背牆木作",
+      workDetails: "木作背牆製作、結構補強、面材處理，需預留螢幕開孔與走線。",
+      quantity: "1",
+      unit: "式",
+      note: "尺寸以 3/31 版本估圖為準。",
+    },
+  ],
+  overallNote: "目前仍待 final 尺寸確認，正式發包前請先重新生成。",
+};
+
 export const vendorPackages: VendorPackage[] = [
   {
     id: "vp-spring-xingcheng-001",
@@ -198,6 +291,41 @@ export const vendorPackages: VendorPackage[] = [
     ],
     formallyConfirmedAt: "2026-03-30 18:20",
     formallyConfirmedBy: "Willy",
+    packageProjectInfo: {
+      projectNameOverride: "",
+      clientNameOverride: "",
+      eventDateOverride: "2026-04-12",
+      loadInTimeOverride: "2026-04-10 09:00",
+      locationOverride: "松山文創園區 2F 主展區",
+    },
+    outgoingLineItems: [
+      {
+        id: "line-001",
+        itemName: "入口主背板輸出與安裝",
+        workDetails: "主背板輸出、裱板、現場安裝與收邊，需對齊春季主題色與燈箱尺寸。",
+        quantity: "1",
+        unit: "式",
+        note: "4/10 進場前完成。",
+      },
+      {
+        id: "line-002",
+        itemName: "導視系統與桌牌輸出",
+        workDetails: "A1 指示牌、桌牌與吊牌輸出，桌牌內容依最終校稿版本出件。",
+        quantity: "1",
+        unit: "批",
+        note: "桌牌文案以 4/5 中午前版本為準。",
+      },
+    ],
+    outgoingOverallNote: "請依專案窗口通知安排進場，若需先行打樣請於活動前 3 日完成確認。",
+    finalOutgoingDocument: {
+      generatedAt: "2026-03-30 18:25",
+      generatedBy: "Willy",
+      packageId: "vp-spring-xingcheng-001",
+      packageCode: "VP-2026-031-001",
+      packageSnapshot: springPackageSnapshot,
+      ...springPackageSnapshot,
+    },
+    documentIsOutdated: false,
     createdAt: "2026-03-29 09:00",
     updatedAt: "2026-03-30 18:20",
   },
@@ -225,6 +353,33 @@ export const vendorPackages: VendorPackage[] = [
     ],
     formallyConfirmedAt: null,
     formallyConfirmedBy: null,
+    packageProjectInfo: {
+      projectNameOverride: "",
+      clientNameOverride: "",
+      eventDateOverride: "2026-04-20",
+      loadInTimeOverride: "2026-04-18 08:00",
+      locationOverride: "南港展覽館 4F 展示區",
+    },
+    outgoingLineItems: [
+      {
+        id: "line-101",
+        itemName: "接待區背牆木作",
+        workDetails: "木作背牆製作、結構補強、面材處理，需預留螢幕開孔與走線。",
+        quantity: "1",
+        unit: "式",
+        note: "尺寸以客戶 final 確認版為準。",
+      },
+    ],
+    outgoingOverallNote: "請於正式生成文件前再次核對 final 尺寸與開孔位置。",
+    finalOutgoingDocument: {
+      generatedAt: "2026-04-01 17:30",
+      generatedBy: "Ivy",
+      packageId: "vp-obsidian-woodlight-001",
+      packageCode: "VP-2026-028-001",
+      packageSnapshot: obsidianDocumentSnapshot,
+      ...obsidianDocumentSnapshot,
+    },
+    documentIsOutdated: true,
     createdAt: "2026-03-31 10:00",
     updatedAt: "2026-03-31 16:00",
   },
@@ -248,6 +403,111 @@ export function getPackagesByProjectId(projectId: string) {
 
 export function getAssignmentsForPackage(packageId: string) {
   return vendorAssignments.filter((assignment) => assignment.packageId === packageId);
+}
+
+export function buildPackageEditableSnapshot(input: {
+  projectName: string;
+  clientName: string;
+  eventDate: string;
+  loadInTime: string;
+  location: string;
+  lineItems: PackageLineItem[];
+  overallNote: string;
+}): PackageEditableSnapshot {
+  return {
+    projectName: input.projectName,
+    clientName: input.clientName,
+    eventDate: input.eventDate,
+    loadInTime: input.loadInTime,
+    location: input.location,
+    lineItems: input.lineItems.map((item) => ({ ...item })),
+    overallNote: input.overallNote,
+  };
+}
+
+export function buildFinalOutgoingDocumentSnapshot(input: {
+  packageId: string;
+  packageCode: string;
+  generatedAt: string;
+  generatedBy: string;
+  snapshot: PackageEditableSnapshot;
+}): FinalOutgoingDocumentSnapshot {
+  return {
+    generatedAt: input.generatedAt,
+    generatedBy: input.generatedBy,
+    packageId: input.packageId,
+    packageCode: input.packageCode,
+    packageSnapshot: buildPackageEditableSnapshot(input.snapshot),
+    ...buildPackageEditableSnapshot(input.snapshot),
+  };
+}
+
+export function isPackageDocumentOutdated(snapshot: PackageEditableSnapshot, document: FinalOutgoingDocumentSnapshot | null) {
+  if (!document) {
+    return false;
+  }
+
+  return JSON.stringify(snapshot) !== JSON.stringify(document.packageSnapshot);
+}
+
+export function getPackageDocumentStatus(pkg: VendorPackage) {
+  if (!pkg.finalOutgoingDocument) {
+    return "未處理";
+  }
+
+  const currentSnapshot = buildPackageEditableSnapshot({
+    projectName: pkg.packageProjectInfo.projectNameOverride || pkg.projectName,
+    clientName: pkg.packageProjectInfo.clientNameOverride || "",
+    eventDate: pkg.packageProjectInfo.eventDateOverride,
+    loadInTime: pkg.packageProjectInfo.loadInTimeOverride,
+    location: pkg.packageProjectInfo.locationOverride,
+    lineItems: pkg.outgoingLineItems,
+    overallNote: pkg.outgoingOverallNote,
+  });
+
+  return isPackageDocumentOutdated(currentSnapshot, pkg.finalOutgoingDocument) ? "需更新" : "已處理";
+}
+
+export function getPackageDocumentStatusClass(status: string) {
+  if (status === "已處理") {
+    return "bg-emerald-50 text-emerald-700 ring-emerald-200";
+  }
+
+  if (status === "需更新") {
+    return "bg-amber-50 text-amber-700 ring-amber-200";
+  }
+
+  return "bg-slate-100 text-slate-700 ring-slate-200";
+}
+
+export function getAssignmentReplyStatusLabel(assignment: VendorAssignment) {
+  if (assignment.replies.length === 0) {
+    return "尚無回覆";
+  }
+
+  if (["confirmed_under_package", "done"].includes(assignment.status)) {
+    return "已完成回覆";
+  }
+
+  if (["in_vendor_discussion", "ready_for_packaging", "packaged"].includes(assignment.status)) {
+    return "往返處理中";
+  }
+
+  return "已有回覆";
+}
+
+export function getAssignmentIssueStatusLabel(assignment: VendorAssignment) {
+  return assignment.packageId ? "已發包" : "未發包";
+}
+
+export function getAssignmentIssueStatusClass(assignment: VendorAssignment) {
+  return assignment.packageId
+    ? "bg-emerald-50 text-emerald-700 ring-emerald-200"
+    : "bg-slate-100 text-slate-700 ring-slate-200";
+}
+
+export function getAssignmentSelectedVendorLabel(assignment: VendorAssignment) {
+  return assignment.vendorName || "未選定";
 }
 
 export function getAssignmentStatusLabel(status: VendorAssignmentStatus) {
