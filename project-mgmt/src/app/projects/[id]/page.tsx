@@ -182,7 +182,7 @@ export default async function ProjectDetailPage({
               <h3 className="text-xl font-semibold">Vendor Assignments</h3>
               <p className="mt-1 text-sm text-slate-500">補充支線：內部逐項管理單位，掛在 execution item 上，不直接代表正式發包。</p>
             </div>
-            <button className="text-sm font-medium text-slate-700">+ 新增 Assignment</button>
+            <Link href="/vendor-assignments" className="text-sm font-medium text-slate-700 underline-offset-4 hover:underline">查看全部 Assignments</Link>
           </div>
 
           <VendorAssignmentOverview assignments={vendorAssignments} packages={vendorPackages} />
@@ -194,7 +194,7 @@ export default async function ProjectDetailPage({
               <h3 className="text-xl font-semibold text-slate-900">Vendor Packages</h3>
               <p className="mt-1 text-sm text-slate-500">主線：同專案 + 同廠商的對外發包彙整單，也是正式發包成立主體。</p>
             </div>
-            <button className="rounded-2xl border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm">查看全部包單</button>
+            <Link href="/vendor-packages" className="rounded-2xl border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm underline-offset-4 hover:underline">查看全部包單</Link>
           </div>
 
           <div className="space-y-4">
