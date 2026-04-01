@@ -2,9 +2,9 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AppShell } from "@/components/app-shell";
 import { getProjectById, getStatusClass } from "@/components/project-data";
+import { VendorAssignmentOverview } from "@/components/vendor-assignment-overview";
 import {
   getAssignmentsByProjectId,
-  getAssignmentStatusLabel,
   getPackagesByProjectId,
   getPackageStatusLabel,
   getVendorStatusClass,
@@ -185,42 +185,7 @@ export default async function ProjectDetailPage({
             <button className="text-sm font-medium text-slate-700">+ 新增 Assignment</button>
           </div>
 
-          <div className="space-y-3">
-            {vendorAssignments.length ? (
-              vendorAssignments.map((assignment, index) => (
-                <div key={assignment.id} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="inline-flex rounded-full bg-slate-900 px-2.5 py-1 text-[11px] font-semibold text-white">#{index + 1}</span>
-                        <Link href={`/vendor-assignments/${assignment.id}`} className="font-semibold text-slate-900 underline-offset-4 hover:underline">
-                          {assignment.title}
-                        </Link>
-                      </div>
-                      <p className="mt-2 text-sm text-slate-500">來源：{assignment.executionItemTitle}</p>
-                      <p className="mt-1 text-sm text-slate-500">廠商：{assignment.vendorName}</p>
-                      <p className="mt-1 text-sm text-slate-500">預算：{assignment.budget}</p>
-                    </div>
-                    <span className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ring-1 ${getVendorStatusClass(assignment.status)}`}>
-                      {getAssignmentStatusLabel(assignment.status)}
-                    </span>
-                  </div>
-                  {assignment.packageId ? (
-                    <div className="mt-4 rounded-2xl border border-dashed border-slate-300 bg-white px-4 py-3 text-sm text-slate-600">
-                      已納入 package：
-                      <Link href={`/vendor-packages/${assignment.packageId}`} className="ml-1 font-medium text-slate-900 underline-offset-4 hover:underline">
-                        查看發包包單
-                      </Link>
-                    </div>
-                  ) : null}
-                </div>
-              ))
-            ) : (
-              <div className="rounded-2xl border border-dashed border-slate-300 p-6 text-sm text-slate-500">
-                目前尚未建立 Vendor Assignment。
-              </div>
-            )}
-          </div>
+          <VendorAssignmentOverview assignments={vendorAssignments} packages={vendorPackages} />
         </article>
 
         <article className="rounded-3xl border border-blue-200 bg-blue-50/60 p-6 shadow-sm ring-1 ring-blue-100">
