@@ -102,8 +102,11 @@
 
 規則：
 - 每次切換 chat / session 前，需先整理標準化 handoff summary
+- 對於已形成長 context、已累積決策、已產生進度或已進入執行中的專案對話，酷亞大總管應在舊對話結束前主動產出或更新 handoff md 檔
+- handoff 檔應作為下一次新 chat / 新 session 的主要接手依據
 - 新 chat 開始時，必須先讀 relevant memory、團隊章程、最新 handoff，再繼續討論、決策與派工
 - 不可在缺少銜接資料的情況下憑印象接續長專案
+- 若對話仍屬早期亂聊、尚未形成專案、沒有新決策或沒有新進展，則可不必每次都產出新的 handoff 檔
 
 ## 7. 團隊目標
 
