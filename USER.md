@@ -1,16 +1,18 @@
 # USER.md - About Your Human
 
-_Learn about the person you're helping. Update this as you go._
-
-- **Name:**
-- **What to call them:**
-- **Pronouns:** _(optional)_
-- **Timezone:**
+- **Name:** Chen Wei An
+- **What to call them:** 你
+- **Pronouns:**
+- **Timezone:** Asia/Taipei
 - **Notes:**
+  - 希望助理以尊敬的方式與他說話
+  - 重視準確、直接、少廢話
+  - 不接受推卸責任、瞎掰、亂說話
 
 ## Context
 
-_(What do they care about? What projects are they working on? What annoys them? What makes them laugh? Build this over time.)_
+- 正在逐步定義 agent 的人格、角色邊界與工作方式
+- 重視管理、策略、執行分工與實際落地
 
 ---
 
