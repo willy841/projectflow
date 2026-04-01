@@ -11,10 +11,11 @@ export function VendorAssignmentDetail({ assignment }: { assignment: VendorAssig
 
   return (
     <div className="space-y-6">
-      <header className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+      <header className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm ring-1 ring-slate-200">
         <div className="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
-          <div>
+          <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-3">
+              <span className="inline-flex rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">Assignment</span>
               <p className="text-sm text-slate-500">{assignment.executionItemTitle}</p>
               <span
                 className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ring-1 ${getVendorStatusClass(assignment.status)}`}
@@ -22,7 +23,7 @@ export function VendorAssignmentDetail({ assignment }: { assignment: VendorAssig
                 {getAssignmentStatusLabel(assignment.status)}
               </span>
             </div>
-            <h2 className="mt-3 text-3xl font-semibold tracking-tight">{assignment.title}</h2>
+            <h2 className="mt-3 text-3xl font-semibold tracking-tight text-slate-900">{assignment.title}</h2>
             <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-600">{assignment.summary}</p>
           </div>
 
@@ -30,17 +31,35 @@ export function VendorAssignmentDetail({ assignment }: { assignment: VendorAssig
             {vendorPackage ? (
               <Link
                 href={`/vendor-packages/${vendorPackage.id}`}
-                className="rounded-2xl border border-slate-300 bg-white px-5 py-3 text-sm font-medium text-slate-700"
+                className="rounded-2xl border border-slate-300 bg-white px-5 py-3 text-sm font-medium text-slate-700 shadow-sm"
               >
-                查看所屬發包包單
+                前往所屬 Package
               </Link>
             ) : null}
-            <button className="rounded-2xl bg-slate-950 px-5 py-3 text-sm font-medium text-white">
+            <button className="rounded-2xl bg-slate-900 px-5 py-3 text-sm font-medium text-white shadow-sm">
               編輯 Assignment
             </button>
           </div>
         </div>
       </header>
+
+      {vendorPackage ? (
+        <section className="rounded-3xl border border-amber-200 bg-amber-50/70 p-5 shadow-sm ring-1 ring-amber-100">
+          <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+            <div>
+              <p className="text-xs font-semibold tracking-wide text-amber-700">PACKAGE RELATION</p>
+              <h3 className="mt-1 text-lg font-semibold text-slate-900">這筆 Assignment 已歸屬到正式 Package 主線</h3>
+              <p className="mt-1 text-sm text-slate-600">
+                Package 才是對外發包主體；這裡只做單項補充、規格追蹤與 item-level 管理。
+              </p>
+            </div>
+            <div className="rounded-2xl bg-white px-4 py-3 ring-1 ring-amber-200">
+              <p className="text-xs font-medium text-slate-500">所屬 Package</p>
+              <p className="mt-1 font-semibold text-slate-900">{vendorPackage.code}</p>
+            </div>
+          </div>
+        </section>
+      ) : null}
 
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         {[
@@ -51,28 +70,31 @@ export function VendorAssignmentDetail({ assignment }: { assignment: VendorAssig
         ].map(([label, value]) => (
           <article key={label} className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
             <p className="text-sm text-slate-500">{label}</p>
-            <p className="mt-3 text-2xl font-semibold tracking-tight">{value}</p>
+            <p className="mt-3 text-2xl font-semibold tracking-tight text-slate-900">{value}</p>
           </article>
         ))}
       </section>
 
-      <section className="grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
+      <section className="grid gap-6 xl:grid-cols-[1.05fr_0.95fr]">
         <article className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
-          <div className="mb-5">
-            <h3 className="text-xl font-semibold">單項規格與內部備註</h3>
-            <p className="mt-1 text-sm text-slate-500">這裡是 item-level 管理，不是正式發包主頁。</p>
+          <div className="mb-5 flex items-center justify-between gap-3">
+            <div>
+              <h3 className="text-xl font-semibold text-slate-900">Assignment 內容</h3>
+              <p className="mt-1 text-sm text-slate-500">單項需求、規格與內部補充，維持 item-level 管理責任。</p>
+            </div>
+            <span className="inline-flex rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700">內部逐項頁</span>
           </div>
 
           <div className="grid gap-4">
             <div className="rounded-2xl bg-slate-50 p-4">
               <p className="text-sm text-slate-500">Spec / Deliverables</p>
-              <p className="mt-2 font-medium text-slate-900">{assignment.spec}</p>
+              <p className="mt-2 font-medium leading-7 text-slate-900">{assignment.spec}</p>
             </div>
             <div className="rounded-2xl bg-slate-50 p-4">
               <p className="text-sm text-slate-500">備註</p>
-              <p className="mt-2 font-medium text-slate-900">{assignment.note}</p>
+              <p className="mt-2 font-medium leading-7 text-slate-900">{assignment.note}</p>
             </div>
-            <div className="rounded-2xl bg-slate-50 p-4">
+            <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-4">
               <p className="text-sm text-slate-500">所屬 Package</p>
               {vendorPackage ? (
                 <div className="mt-2 space-y-2">
@@ -88,20 +110,23 @@ export function VendorAssignmentDetail({ assignment }: { assignment: VendorAssig
           </div>
         </article>
 
-        <article className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
-          <div className="mb-5 flex items-center justify-between">
+        <article className="rounded-3xl border border-slate-200 bg-slate-50 p-6 shadow-sm ring-1 ring-slate-200">
+          <div className="mb-5 flex items-center justify-between gap-3">
             <div>
-              <h3 className="text-xl font-semibold">Assignment 回覆</h3>
-              <p className="mt-1 text-sm text-slate-500">僅保留單項補充，不承擔整包主對話。</p>
+              <h3 className="text-xl font-semibold text-slate-900">Assignment Replies</h3>
+              <p className="mt-1 text-sm text-slate-500">補充支線：只保留單項補件、加價或技術限制，不承擔 package 主對話。</p>
             </div>
-            <button className="text-sm font-medium text-slate-700">+ 新增回覆</button>
+            <button className="rounded-2xl border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm">+ 新增回覆</button>
           </div>
 
           <div className="space-y-3">
-            {assignment.replies.map((reply) => (
-              <div key={reply.id} className="rounded-2xl border border-slate-200 p-4">
-                <div className="flex items-center justify-between gap-3">
-                  <p className="font-medium text-slate-900">{reply.author}</p>
+            {assignment.replies.map((reply, index) => (
+              <div key={reply.id} className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex items-center gap-2">
+                    <span className="inline-flex rounded-full bg-slate-900 px-2.5 py-1 text-[11px] font-semibold text-white">R{index + 1}</span>
+                    <p className="font-medium text-slate-900">{reply.author}</p>
+                  </div>
                   <span className="text-xs text-slate-500">{reply.createdAt}</span>
                 </div>
                 {reply.type ? <p className="mt-2 text-xs font-medium text-slate-500">{reply.type}</p> : null}

@@ -45,6 +45,7 @@ export type VendorAssignment = {
 
 export type VendorPackage = {
   id: string;
+  code: string;
   projectId: string;
   projectName: string;
   vendorName: string;
@@ -53,6 +54,8 @@ export type VendorPackage = {
   assignmentIds: string[];
   summary: string;
   notes: string;
+  quotedAmount: string;
+  deliveryWindow: string;
   replies: VendorReply[];
   formallyConfirmedAt: string | null;
   formallyConfirmedBy: string | null;
@@ -141,6 +144,7 @@ export const vendorAssignments: VendorAssignment[] = [
 export const vendorPackages: VendorPackage[] = [
   {
     id: "vp-spring-xingcheng-001",
+    code: "VP-2026-031-001",
     projectId: "spring-popup-2026",
     projectName: "春季品牌快閃活動",
     vendorName: "星澄輸出",
@@ -149,6 +153,8 @@ export const vendorPackages: VendorPackage[] = [
     assignmentIds: ["va-spring-main-backdrop", "va-spring-wayfinding"],
     summary: "整包包含入口主背板、導視系統與桌牌輸出，已確認可執行並排入產線。",
     notes: "正式發包後需於 4/10 前完成所有輸出與安裝前備料。",
+    quotedAmount: "NT$ 92,000",
+    deliveryWindow: "4 個工作天 / 4 月 10 日前完成",
     replies: [
       {
         id: "vpr-001",
@@ -172,6 +178,7 @@ export const vendorPackages: VendorPackage[] = [
   },
   {
     id: "vp-obsidian-woodlight-001",
+    code: "VP-2026-028-001",
     projectId: "obsidian-launch-2026",
     projectName: "新品發表會主視覺與會場製作",
     vendorName: "木與光工坊",
@@ -180,6 +187,8 @@ export const vendorPackages: VendorPackage[] = [
     assignmentIds: ["va-obsidian-reception-wall"],
     summary: "目前針對接待區背牆木作與輸出重估中，待 final 尺寸確認後正式發包。",
     notes: "需同步確認螢幕牆開孔尺寸與走線。",
+    quotedAmount: "NT$ 146,000（暫估）",
+    deliveryWindow: "若 4/2 定尺寸，可保留 4/18 前交場",
     replies: [
       {
         id: "vpr-003",
