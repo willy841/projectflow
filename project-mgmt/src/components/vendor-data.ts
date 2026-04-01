@@ -139,6 +139,31 @@ export const vendorAssignments: VendorAssignment[] = [
     createdAt: "2026-03-30 09:00",
     updatedAt: "2026-03-31 15:10",
   },
+  {
+    id: "va-obsidian-stage-sidewall",
+    projectId: "obsidian-launch-2026",
+    executionItemId: "obsidian-stage-build",
+    executionItemTitle: "舞台側牆包板與收邊",
+    vendorName: "木與光工坊",
+    title: "舞台側牆包板追加估價",
+    summary: "新增舞台側牆包板與邊角收整項目，目前仍在內部整理，尚未納入正式發包包單。",
+    spec: "側牆雙側包板，含黑色烤漆面與邊角收邊處理。",
+    budget: "NT$ 58,000",
+    note: "需先確認是否與主背牆一起發包，或另開新 package。",
+    status: "ready_for_packaging",
+    packageId: null,
+    replies: [
+      {
+        id: "var-004",
+        author: "Jay",
+        message: "尺寸已初步確認，等待客戶確認是否一併納入本次木作包。",
+        createdAt: "2026-04-01 10:20",
+        type: "內部補充",
+      },
+    ],
+    createdAt: "2026-04-01 09:10",
+    updatedAt: "2026-04-01 10:20",
+  },
 ];
 
 export const vendorPackages: VendorPackage[] = [
