@@ -446,7 +446,7 @@ function VendorAssignmentForm({
           summary={[
             saved.vendorName ? `廠商：${saved.vendorName}` : null,
             saved.category ? `工種：${saved.category}` : null,
-            saved.amount ? `發包預算：${saved.amount}` : null,
+            saved.amount ? `廠商報價：${saved.amount}` : null,
             saved.assignee ? `負責人：${saved.assignee}` : null,
           ].filter((item): item is string => Boolean(item))}
           fields={[
@@ -458,7 +458,7 @@ function VendorAssignmentForm({
             { label: "規格 / 尺寸", value: saved.specification || "未填寫" },
             { label: "參考連結 / 參考資料", value: saved.referenceUrl || "未填寫" },
             { label: "備註", value: saved.note || "未填寫" },
-            { label: "發包預算", value: saved.amount || "未填寫" },
+            { label: "廠商報價", value: saved.amount || "未填寫" },
           ]}
           actions={{ onEdit: actions.onEdit, onDelete: actions.onDelete }}
         />
@@ -483,7 +483,7 @@ function VendorAssignmentForm({
               <input value={draft.vendorName} onChange={(e) => onChange("vendorName", e.target.value)} placeholder="例如：木與光工坊" className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400" />
             </label>
             <label className="flex flex-col gap-2">
-              <span className="text-sm font-medium text-slate-700">發包預算</span>
+              <span className="text-sm font-medium text-slate-700">廠商報價</span>
               <input value={draft.amount} onChange={(e) => onChange("amount", e.target.value)} placeholder="例如：NT$ 120,000" className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400" />
             </label>
             <label className="flex flex-col gap-2 md:col-span-2 xl:col-span-1">

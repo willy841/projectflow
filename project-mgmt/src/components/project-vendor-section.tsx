@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import {
   getPackagesByProjectId,
@@ -19,6 +19,30 @@ type ProjectVendorInfo = {
 };
 
 type PackageMap = Record<string, VendorPackage>;
+
+function mapVendorTaskItemToAssignment(projectId: string, item: VendorAssignmentItem): VendorAssignment {
+  return {
+    id: item.targetId,
+    projectId,
+    executionItemId: item.targetId,
+    executionItemTitle: item.title,
+    title: item.data.title || item.title,
+    summary: item.data.requirement || "",
+    budget: item.data.amount || "",
+    tradeLabel: item.data.category || "",
+    selectedVendorName: item.data.vendorName || "",
+    status: item.data.status === "已完成" ? "done" : "draft",
+    packageId: null,
+    replies: (item.data.replies ?? []).map((reply) => ({
+      id: reply.id,
+      author: "執行者",
+      message: reply.message,
+      createdAt: reply.createdAt,
+    })),
+    createdAt: "",
+    updatedAt: "",
+  };
+}
 
 function buildPackageMap(packages: VendorPackage[]): PackageMap {
   return Object.fromEntries(packages.map((pkg) => [pkg.id, pkg]));
@@ -46,28 +70,29 @@ export function ProjectVendorSection({
   const [packages, setPackages] = useState<VendorPackage[]>(() => getPackagesByProjectId(projectId));
   const packageMap = useMemo(() => buildPackageMap(packages), [packages]);
   const [assignments, setAssignments] = useState<VendorAssignment[]>(() =>
-    vendorTaskItems.map((item) => ({
-      id: item.targetId,
-      projectId,
-      executionItemId: item.targetId,
-      executionItemTitle: item.title,
-      title: item.data.title || item.title,
-      summary: item.data.requirement || "",
-      budget: item.data.amount || "",
-      tradeLabel: item.data.category || "",
-      selectedVendorName: item.data.vendorName || "",
-      status: item.data.status === "已完成" ? "done" : "draft",
-      packageId: null,
-      replies: (item.data.replies ?? []).map((reply) => ({
-        id: reply.id,
-        author: "執行者",
-        message: reply.message,
-        createdAt: reply.createdAt,
-      })),
-      createdAt: "",
-      updatedAt: "",
-    }))
+    vendorTaskItems.map((item) => mapVendorTaskItemToAssignment(projectId, item))
   );
+
+  useEffect(() => {
+    setAssignments((current) => {
+      const currentMap = new Map(current.map((assignment) => [assignment.id, assignment]));
+      return vendorTaskItems.map((item) => {
+        const nextAssignment = mapVendorTaskItemToAssignment(projectId, item);
+        const existing = currentMap.get(item.targetId);
+        if (!existing) return nextAssignment;
+        return {
+          ...nextAssignment,
+          title: existing.title,
+          summary: existing.summary,
+          budget: existing.budget,
+          tradeLabel: existing.tradeLabel,
+          selectedVendorName: existing.selectedVendorName,
+          status: existing.status,
+          packageId: existing.packageId,
+        };
+      });
+    });
+  }, [projectId, vendorTaskItems]);
 
   function handleAssignmentChange(id: string, patch: Partial<VendorAssignment>) {
     setAssignments((current) => current.map((assignment) => (assignment.id === id ? { ...assignment, ...patch } : assignment)));
@@ -218,7 +243,7 @@ export function ProjectVendorSection({
                       />
                     </label>
                     <label className="block">
-                      <p className="mb-2 text-sm font-medium text-slate-700">預算（補充）</p>
+                      <p className="mb-2 text-sm font-medium text-slate-700">廠商報價</p>
                       <input
                         value={assignment.budget}
                         onChange={(event) => handleAssignmentChange(assignment.id, { budget: event.target.value })}

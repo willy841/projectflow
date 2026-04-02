@@ -333,7 +333,7 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
     cardSummary: [
       assignment.data.vendorName ? `廠商：${assignment.data.vendorName}` : null,
       assignment.data.category ? `工種：${assignment.data.category}` : null,
-      assignment.data.amount ? `參考金額：${assignment.data.amount}` : null,
+      assignment.data.amount ? `廠商報價：${assignment.data.amount}` : null,
     ].filter((value): value is string => Boolean(value)),
     fields: [
       { label: "所屬專案", value: project.name },
@@ -345,7 +345,7 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
       { label: "規格 / 尺寸", value: assignment.data.specification || "未填寫", tone: assignment.data.specification ? "default" : "muted" },
       { label: "參考連結 / 參考資料", value: assignment.data.referenceUrl || "未填寫", tone: assignment.data.referenceUrl ? "default" : "muted" },
       { label: "備註", value: assignment.data.note || "未填寫", tone: assignment.data.note ? "default" : "muted" },
-      { label: "發包預算", value: assignment.data.amount || "未填寫", tone: assignment.data.amount ? "default" : "muted" },
+      { label: "廠商報價", value: assignment.data.amount || "未填寫", tone: assignment.data.amount ? "default" : "muted" },
     ],
     replies: replyOverrides[assignment.targetId] ?? assignment.data.replies ?? [],
   })), [vendorAssignments, project.name, replyOverrides]);
