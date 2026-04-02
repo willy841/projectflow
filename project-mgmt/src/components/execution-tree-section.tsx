@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { ProjectVendorSection } from "@/components/project-vendor-section";
 import {
   AssignmentReply,
   DesignAssignmentDraft,
@@ -403,9 +404,7 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
 
           <div className="space-y-3">
             {openCategory === "vendor" ? (
-              <div className="rounded-2xl border border-dashed border-violet-300 bg-white p-5 text-sm leading-6 text-slate-600">
-                專案廠商分類已保留為唯一入口；Vendor Flow 主體下一步會正式整合進這一層，目前先移除舊的重複廠商任務工作台，避免與新主線衝突。
-              </div>
+              <ProjectVendorSection projectId={project.id} visible />
             ) : currentList.length ? currentList.map((item, itemIndex) => {
               const replyForm = replyForms[item.id] ?? defaultReplyForm;
               const isReplyOpen = activeReplyBoxId === item.id;

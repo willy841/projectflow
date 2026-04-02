@@ -24,7 +24,7 @@ function groupPackagesByVendor(packages: VendorPackage[]) {
   }, {});
 }
 
-export function ProjectVendorSection({ projectId }: { projectId: string }) {
+export function ProjectVendorSection({ projectId, visible = true }: { projectId: string; visible?: boolean }) {
   const packageMap = useMemo(() => buildPackageMap(), []);
   const initialAssignments = useMemo(() => getAssignmentsByProjectId(projectId), [projectId]);
   const packages = useMemo(() => getPackagesByProjectId(projectId), [projectId]);
@@ -46,10 +46,13 @@ export function ProjectVendorSection({ projectId }: { projectId: string }) {
 
   const vendorPackagesByName = groupPackagesByVendor(packages);
 
+  if (!visible) {
+    return null;
+  }
+
   return (
     <section className="space-y-6">
-      {activeBoard === "vendor" ? (
-        <>
+      <>
           <article className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
             <div className="mb-5 flex items-center justify-between gap-3">
               <div>
@@ -185,8 +188,7 @@ export function ProjectVendorSection({ projectId }: { projectId: string }) {
               <div className="rounded-2xl border border-dashed border-blue-200 bg-white p-6 text-sm text-slate-500">目前尚未建立廠商發包清單。</div>
             )}
           </article>
-        </>
-      ) : null}
+      </>
     </section>
   );
 }
