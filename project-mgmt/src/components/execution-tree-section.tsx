@@ -24,7 +24,7 @@ type ReplyForm = {
 
 type DesignAssignmentItem = { targetId: string; title: string; data: DesignAssignmentDraft };
 type ProcurementAssignmentItem = { targetId: string; title: string; data: ProcurementAssignmentDraft };
-type VendorAssignmentItem = { targetId: string; title: string; data: VendorAssignmentDraft };
+export type VendorAssignmentItem = { targetId: string; title: string; data: VendorAssignmentDraft };
 
 type DisplayField = { label: string; value: string; tone?: string };
 
@@ -404,7 +404,11 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
 
           <div className="space-y-3">
             {openCategory === "vendor" ? (
-              <ProjectVendorSection projectId={project.id} visible />
+              <ProjectVendorSection
+                projectId={project.id}
+                visible
+                vendorTaskItems={vendorAssignments}
+              />
             ) : currentList.length ? currentList.map((item, itemIndex) => {
               const replyForm = replyForms[item.id] ?? defaultReplyForm;
               const isReplyOpen = activeReplyBoxId === item.id;

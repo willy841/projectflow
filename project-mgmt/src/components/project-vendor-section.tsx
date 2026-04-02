@@ -3,12 +3,12 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import {
-  getAssignmentsByProjectId,
   getPackagesByProjectId,
   vendorPackages,
   type VendorAssignment,
   type VendorPackage,
 } from "@/components/vendor-data";
+import type { VendorAssignmentItem } from "@/components/execution-tree-section";
 
 type PackageMap = Record<string, VendorPackage>;
 
@@ -24,12 +24,40 @@ function groupPackagesByVendor(packages: VendorPackage[]) {
   }, {});
 }
 
-export function ProjectVendorSection({ projectId, visible = true }: { projectId: string; visible?: boolean }) {
+export function ProjectVendorSection({
+  projectId,
+  visible = true,
+  vendorTaskItems = [],
+}: {
+  projectId: string;
+  visible?: boolean;
+  vendorTaskItems?: VendorAssignmentItem[];
+}) {
   const packageMap = useMemo(() => buildPackageMap(), []);
-  const initialAssignments = useMemo(() => getAssignmentsByProjectId(projectId), [projectId]);
   const packages = useMemo(() => getPackagesByProjectId(projectId), [projectId]);
-  const [assignments, setAssignments] = useState(initialAssignments);
-  const [activeBoard, setActiveBoard] = useState<"design" | "procurement" | "vendor" | null>(null);
+  const [assignments, setAssignments] = useState<VendorAssignment[]>(() =>
+    vendorTaskItems.map((item) => ({
+      id: item.targetId,
+      projectId,
+      executionItemId: item.targetId,
+      executionItemTitle: item.title,
+      title: item.data.title || item.title,
+      summary: item.data.requirement || item.title,
+      budget: item.data.amount || "",
+      tradeLabel: item.data.category || "",
+      selectedVendorName: item.data.vendorName || "",
+      status: item.data.status === "已完成" ? "done" : "draft",
+      packageId: null,
+      replies: (item.data.replies ?? []).map((reply) => ({
+        id: reply.id,
+        author: "執行者",
+        message: reply.message,
+        createdAt: reply.createdAt,
+      })),
+      createdAt: "",
+      updatedAt: "",
+    }))
+  );
 
   function handleAssignmentChange(id: string, patch: Partial<VendorAssignment>) {
     setAssignments((current) => current.map((assignment) => (assignment.id === id ? { ...assignment, ...patch } : assignment)));
