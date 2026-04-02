@@ -7,6 +7,12 @@ import {
   getVendorDocumentStatusClass,
 } from "@/components/vendor-data";
 
+function getDocumentStatusMessage(status: VendorDocumentStatus) {
+  if (status === "已生成") return "目前文件為最新版本";
+  if (status === "需更新") return "目前文件不是最新內容，請重新生成";
+  return "尚未生成正式文件";
+}
+
 function buildDocumentText(vendorPackage: VendorPackage) {
   const lines = [
     `${vendorPackage.eventDate} ${vendorPackage.projectName}`,
@@ -14,7 +20,9 @@ function buildDocumentText(vendorPackage: VendorPackage) {
     `進場時間 ${vendorPackage.loadInTime}`,
     "",
     "需求內容",
-    ...vendorPackage.items.map((item, index) => `${index + 1}. ${item.itemName}${item.requirementText ? `｜${item.requirementText}` : ""}`),
+    ...vendorPackage.items.map(
+      (item, index) => `${index + 1}. ${item.itemName || "-"}：${item.requirementText || "-"}`,
+    ),
     "",
     "備註",
     vendorPackage.note || "-",
@@ -46,25 +54,26 @@ export function VendorPackageDetail({ vendorPackage }: { vendorPackage: VendorPa
     markDirty();
   }
 
-  function buildCurrentPackage(): VendorPackage {
-    return {
-      ...vendorPackage,
-      projectName,
-      eventDate,
-      location,
-      loadInTime,
-      items,
-      note,
-      documentStatus,
-    };
-  }
+  const currentPackage: VendorPackage = {
+    ...vendorPackage,
+    projectName,
+    eventDate,
+    location,
+    loadInTime,
+    items,
+    note,
+    documentStatus,
+  };
+
+  const documentText = buildDocumentText(currentPackage);
+  const statusMessage = getDocumentStatusMessage(documentStatus);
 
   async function handleCopy() {
-    await navigator.clipboard.writeText(buildDocumentText(buildCurrentPackage()));
+    await navigator.clipboard.writeText(documentText);
   }
 
   function handleExport() {
-    const blob = new Blob([buildDocumentText(buildCurrentPackage())], {
+    const blob = new Blob([documentText], {
       type: "text/plain;charset=utf-8",
     });
     const url = URL.createObjectURL(blob);
@@ -76,8 +85,15 @@ export function VendorPackageDetail({ vendorPackage }: { vendorPackage: VendorPa
   }
 
   function handleGenerate() {
+    if (documentStatus === "需更新") {
+      const confirmed = window.confirm("目前文件不是最新內容，確定要重新生成文件嗎？");
+      if (!confirmed) return;
+    }
+
     setDocumentStatus("已生成");
   }
+
+  const primaryActionLabel = documentStatus === "未生成" ? "生成文件" : documentStatus === "需更新" ? "重新生成文件" : null;
 
   return (
     <div className="space-y-6">
@@ -87,18 +103,25 @@ export function VendorPackageDetail({ vendorPackage }: { vendorPackage: VendorPa
             <p className="text-xs font-semibold tracking-wide text-blue-700">PACKAGE 層</p>
             <h2 className="mt-1 text-3xl font-semibold tracking-tight text-slate-900">{vendorPackage.vendorName}</h2>
             <p className="mt-2 text-sm text-slate-600">package 固定帶入 project detail 主資料副本；可在 package 層調整，但不回寫 project。</p>
+            <p className="mt-3 text-sm font-medium text-slate-700">{statusMessage}</p>
           </div>
           <div className="flex flex-wrap items-center gap-3">
             <span className={`rounded-full px-3 py-1 text-xs font-medium ring-1 ${getVendorDocumentStatusClass(documentStatus)}`}>
               {documentStatus}
             </span>
-            <button
-              type="button"
-              onClick={handleGenerate}
-              className="rounded-2xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700"
-            >
-              {documentStatus === "已生成" ? "重新生成文件" : "生成文件"}
-            </button>
+            {primaryActionLabel ? (
+              <button
+                type="button"
+                onClick={handleGenerate}
+                className="rounded-2xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700"
+              >
+                {primaryActionLabel}
+              </button>
+            ) : (
+              <span className="inline-flex items-center rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-3 text-sm font-semibold text-emerald-700">
+                文件已是最新
+              </span>
+            )}
             <button
               type="button"
               onClick={handleCopy}
@@ -119,8 +142,8 @@ export function VendorPackageDetail({ vendorPackage }: { vendorPackage: VendorPa
 
       <section className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
         <div className="mb-5">
-          <h3 className="text-xl font-semibold text-slate-900">活動背景資料</h3>
-          <p className="mt-1 text-sm text-slate-500">這裡是 package 自己的副本。修改專案名稱、日期、地點、進場時間時，文件狀態會轉成需更新。</p>
+          <h3 className="text-xl font-semibold text-slate-900">文件背景</h3>
+          <p className="mt-1 text-sm text-slate-500">只保留專案名稱、活動日期、地點、進場時間。修改後，若原本文件已生成，狀態會轉成需更新。</p>
         </div>
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
           <label className="block">
@@ -173,7 +196,7 @@ export function VendorPackageDetail({ vendorPackage }: { vendorPackage: VendorPa
       <article className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
         <div className="mb-5">
           <h3 className="text-xl font-semibold text-slate-900">發包項目</h3>
-          <p className="mt-1 text-sm text-slate-500">package item 只承接項目名稱、需求說明。修改任一項目後，文件狀態會轉成需更新。</p>
+          <p className="mt-1 text-sm text-slate-500">每筆只保留項目名稱、需求說明。package 不承擔工種、預算、來源 execution item、客戶聯絡與其他複雜任務管理資訊。</p>
         </div>
 
         <div className="space-y-4">
@@ -209,8 +232,8 @@ export function VendorPackageDetail({ vendorPackage }: { vendorPackage: VendorPa
 
       <article className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
         <div className="mb-4">
-          <h3 className="text-xl font-semibold text-slate-900">備註</h3>
-          <p className="mt-1 text-sm text-slate-500">修改備註後，文件狀態也會轉成需更新。</p>
+          <h3 className="text-xl font-semibold text-slate-900">文件整體備註</h3>
+          <p className="mt-1 text-sm text-slate-500">若無備註內容，最終文件會固定顯示 - 。</p>
         </div>
         <textarea
           value={note}
@@ -226,8 +249,8 @@ export function VendorPackageDetail({ vendorPackage }: { vendorPackage: VendorPa
       <article className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm ring-1 ring-slate-200">
         <div className="mb-4 flex items-center justify-between gap-3">
           <div>
-            <h3 className="text-xl font-semibold text-slate-900">文件預覽</h3>
-            <p className="mt-1 text-sm text-slate-500">條列式最終文件模板。</p>
+            <h3 className="text-xl font-semibold text-slate-900">最終文件預覽</h3>
+            <p className="mt-1 text-sm text-slate-500">條列式文本模板：日期 + 活動名稱、地點、進場時間、需求內容、備註。</p>
           </div>
           <span className={`rounded-full px-3 py-1 text-xs font-medium ring-1 ${getVendorDocumentStatusClass(documentStatus)}`}>
             {documentStatus}
@@ -235,7 +258,7 @@ export function VendorPackageDetail({ vendorPackage }: { vendorPackage: VendorPa
         </div>
 
         <pre className="whitespace-pre-wrap rounded-2xl bg-slate-50 p-5 text-sm leading-7 text-slate-800 ring-1 ring-slate-200">
-{buildDocumentText(buildCurrentPackage())}
+{documentText}
         </pre>
       </article>
     </div>
