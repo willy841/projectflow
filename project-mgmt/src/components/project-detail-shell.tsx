@@ -5,7 +5,6 @@ import { useState } from "react";
 import { CopyEventInfoButton } from "@/components/copy-event-info-button";
 import { ExecutionTreeSection } from "@/components/execution-tree-section";
 import { Project, getStatusClass } from "@/components/project-data";
-import { ProjectVendorSection } from "@/components/project-vendor-section";
 import { RequirementsPanel } from "@/components/requirements-panel";
 
 export function ProjectDetailShell({ project }: { project: Project }) {
@@ -203,7 +202,6 @@ export function ProjectDetailShell({ project }: { project: Project }) {
       </section>
 
       <ExecutionTreeSection project={project} />
-      <ProjectVendorSection projectId={project.id} />
     </>
   );
 }
