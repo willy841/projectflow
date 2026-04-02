@@ -52,28 +52,37 @@ const finance = [
 export default function Home() {
   return (
     <AppShell activePath="/">
-      <header className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
-        <div className="flex flex-col gap-5 xl:flex-row xl:items-center xl:justify-between">
-          <div>
-            <p className="text-sm text-slate-500">MVP Dashboard</p>
-            <h2 className="mt-1 text-3xl font-semibold tracking-tight">
-              專案執行、採購與帳務一站式看板
+      <header className="relative overflow-hidden rounded-[32px] bg-slate-950 p-7 text-white shadow-lg ring-1 ring-slate-900/80 lg:p-8">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(59,130,246,0.28),transparent_30%),radial-gradient(circle_at_bottom_left,rgba(14,165,233,0.18),transparent_35%)]" />
+        <div className="relative flex flex-col gap-8 2xl:flex-row 2xl:items-center 2xl:justify-between">
+          <div className="max-w-3xl">
+            <div className="inline-flex rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs font-medium text-blue-100 backdrop-blur">
+              ProjectFlow MVP Dashboard
+            </div>
+            <h2 className="mt-4 text-3xl font-semibold tracking-tight text-white lg:text-4xl">
+              專案執行、採購與帳務的一站式管理中樞
             </h2>
-            <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-600">
-              這是第一版可用管理介面雛形，先聚焦在專案列表、需求拆解、設計交辦、備品採購、廠商管理與財務摘要。
+            <p className="mt-4 max-w-2xl text-sm leading-7 text-slate-300 lg:text-base">
+              先把專案、交辦、備品、廠商與財務摘要集中在同一個操作入口，讓管理者可以快速掌握進度、成本與待辦風險。
             </p>
+
+            <div className="mt-6 flex flex-wrap items-center gap-3 text-sm text-slate-300">
+              <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">18 個進行中專案</span>
+              <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">27 個待處理交辦</span>
+              <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">本月毛利預估 NT$ 546,000</span>
+            </div>
           </div>
 
-          <div className="flex flex-wrap gap-3">
+          <div className="flex w-full max-w-md flex-col gap-3 xl:items-end">
             <Link
               href="/projects/new"
-              className="rounded-2xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-300"
+              className="inline-flex items-center justify-center rounded-2xl bg-blue-500 px-5 py-3.5 text-sm font-semibold text-white shadow-lg shadow-blue-900/30 transition hover:bg-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-300"
             >
               + 新增專案
             </Link>
             <Link
               href="/projects"
-              className="rounded-2xl border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-800 shadow-sm transition hover:border-slate-400 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-200"
+              className="inline-flex items-center justify-center rounded-2xl border border-white/15 bg-white/8 px-5 py-3.5 text-sm font-semibold text-white backdrop-blur transition hover:bg-white/14 focus:outline-none focus:ring-2 focus:ring-white/20"
             >
               查看專案列表
             </Link>
@@ -81,53 +90,64 @@ export default function Home() {
         </div>
       </header>
 
-      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+      <section className="grid gap-4 md:grid-cols-2 2xl:grid-cols-4">
         {stats.map((stat) => (
-          <article key={stat.label} className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
+          <article
+            key={stat.label}
+            className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200 transition hover:-translate-y-0.5 hover:shadow-md"
+          >
             <p className="text-sm text-slate-500">{stat.label}</p>
-            <p className="mt-3 text-3xl font-semibold tracking-tight">{stat.value}</p>
-            <p className="mt-2 text-sm text-slate-600">{stat.change}</p>
+            <p className="mt-3 text-3xl font-semibold tracking-tight text-slate-900">{stat.value}</p>
+            <p className="mt-2 text-sm font-medium text-blue-600">{stat.change}</p>
           </article>
         ))}
       </section>
 
-      <section className="grid gap-6 xl:grid-cols-[1.5fr_1fr]">
+      <section className="grid gap-6 2xl:grid-cols-[minmax(0,1.65fr)_minmax(340px,0.95fr)]">
         <article className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
           <div className="mb-5 flex items-center justify-between">
             <div>
-              <h3 className="text-xl font-semibold">近期專案</h3>
-              <p className="mt-1 text-sm text-slate-500">依活動日期排序，快速追蹤進度與責任人。</p>
+              <h3 className="text-xl font-semibold text-slate-900">近期專案</h3>
+              <p className="mt-1 text-sm text-slate-500">依活動日期排序，快速追蹤進度、責任人與執行狀態。</p>
             </div>
-            <Link href="/projects" className="text-sm font-medium text-slate-700">
+            <Link
+              href="/projects"
+              className="inline-flex items-center justify-center rounded-xl px-3 py-2 text-sm font-semibold text-slate-800 transition hover:bg-slate-100"
+            >
               查看全部
             </Link>
           </div>
 
-          <div className="overflow-hidden rounded-2xl border border-slate-200">
-            <table className="min-w-full divide-y divide-slate-200 text-left text-sm">
-              <thead className="bg-slate-50 text-slate-500">
+          <div className="overflow-x-auto rounded-2xl border border-slate-200">
+            <table className="min-w-full table-fixed divide-y divide-slate-200 text-left text-sm">
+              <thead className="bg-slate-50/80 text-slate-500">
                 <tr>
-                  <th className="px-4 py-3 font-medium">專案</th>
-                  <th className="px-4 py-3 font-medium">客戶</th>
-                  <th className="px-4 py-3 font-medium">日期</th>
-                  <th className="px-4 py-3 font-medium">狀態</th>
-                  <th className="px-4 py-3 font-medium">進度</th>
-                  <th className="px-4 py-3 font-medium">負責人</th>
+                  <th className="w-[32%] px-4 py-3 font-medium">專案</th>
+                  <th className="w-[12%] px-4 py-3 font-medium">客戶</th>
+                  <th className="w-[14%] px-4 py-3 font-medium">日期</th>
+                  <th className="w-[14%] px-4 py-3 font-medium">狀態</th>
+                  <th className="w-[18%] px-4 py-3 font-medium">進度</th>
+                  <th className="w-[10%] px-4 py-3 font-medium">負責人</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 bg-white">
                 {projects.map((project) => (
-                  <tr key={project.code} className="align-top">
-                    <td className="px-4 py-4">
-                      <Link href={`/projects/${project.id}`} className="font-medium text-slate-900 underline-offset-4 hover:underline">
+                  <tr key={project.code} className="align-top transition hover:bg-slate-50/70">
+                    <td className="px-4 py-4 align-top">
+                      <Link
+                        href={`/projects/${project.id}`}
+                        className="line-clamp-2 font-semibold leading-6 text-slate-900 underline-offset-4 hover:text-blue-600 hover:underline"
+                      >
                         {project.name}
                       </Link>
-                      <p className="mt-1 text-xs text-slate-500">{project.code}</p>
+                      <p className="mt-1 break-all text-xs text-slate-500">{project.code}</p>
                     </td>
-                    <td className="px-4 py-4 text-slate-600">{project.client}</td>
-                    <td className="px-4 py-4 text-slate-600">{project.eventDate}</td>
-                    <td className="px-4 py-4">
-                      <span className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ring-1 ${getStatusClass(project.status)}`}>
+                    <td className="break-words px-4 py-4 align-top text-slate-600">{project.client}</td>
+                    <td className="px-4 py-4 align-top text-slate-600 break-words">{project.eventDate}</td>
+                    <td className="px-4 py-4 align-top">
+                      <span
+                        className={`inline-flex min-w-[72px] items-center justify-center whitespace-nowrap rounded-full px-3 py-1 text-xs font-medium ring-1 ${getStatusClass(project.status)}`}
+                      >
                         {project.status}
                       </span>
                     </td>
@@ -146,16 +166,21 @@ export default function Home() {
         </article>
 
         <article className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
-          <div className="mb-5">
-            <h3 className="text-xl font-semibold">本月財務摘要</h3>
-            <p className="mt-1 text-sm text-slate-500">先提供管理層快速查看帳務壓力與毛利概況。</p>
+          <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+            <div className="min-w-0">
+              <h3 className="text-xl font-semibold text-slate-900">本月財務摘要</h3>
+              <p className="mt-1 text-sm leading-6 text-slate-500">提供管理層快速查看現金流壓力與毛利概況。</p>
+            </div>
+            <span className="inline-flex shrink-0 self-start whitespace-nowrap rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700 ring-1 ring-emerald-200">
+              更新中
+            </span>
           </div>
 
           <div className="space-y-3">
             {finance.map((item) => (
-              <div key={item.label} className="rounded-2xl bg-slate-50 px-4 py-4">
+              <div key={item.label} className="rounded-2xl border border-slate-200 bg-slate-50/80 px-4 py-4">
                 <p className="text-sm text-slate-500">{item.label}</p>
-                <p className="mt-2 text-xl font-semibold">{item.value}</p>
+                <p className="mt-2 text-xl font-semibold text-slate-900">{item.value}</p>
               </div>
             ))}
           </div>
@@ -164,24 +189,28 @@ export default function Home() {
 
       <section className="grid gap-6 xl:grid-cols-2">
         <article className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
-          <div className="mb-5 flex items-center justify-between">
-            <div>
-              <h3 className="text-xl font-semibold">待辦交辦</h3>
-              <p className="mt-1 text-sm text-slate-500">整合設計、備品、帳務任務，作為首頁工作入口。</p>
+          <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+            <div className="min-w-0">
+              <h3 className="text-xl font-semibold text-slate-900">待辦交辦</h3>
+              <p className="mt-1 text-sm leading-6 text-slate-500">整合設計、備品、帳務任務，作為首頁工作入口。</p>
             </div>
-            <button className="text-sm font-medium text-slate-700">建立交辦</button>
+            <button className="inline-flex items-center justify-center rounded-xl px-3 py-2 text-sm font-semibold text-slate-800 transition hover:bg-slate-100">
+              建立交辦
+            </button>
           </div>
 
           <div className="space-y-3">
             {tasks.map((task) => (
-              <div key={task.title} className="rounded-2xl border border-slate-200 p-4">
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <p className="text-xs font-medium text-slate-500">{task.type}</p>
+              <div key={task.title} className="rounded-2xl border border-slate-200 p-4 transition hover:border-slate-300 hover:bg-slate-50/70">
+                <div className="flex items-center justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="text-xs font-semibold text-blue-600">{task.type}</p>
                     <h4 className="mt-1 font-semibold text-slate-900">{task.title}</h4>
                     <p className="mt-2 text-sm text-slate-600">{task.project}</p>
                   </div>
-                  <span className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ring-1 ${getStatusClass(task.status)}`}>
+                  <span
+                    className={`inline-flex shrink-0 items-center justify-center whitespace-nowrap rounded-full px-3 py-1 text-xs font-medium ring-1 ${getStatusClass(task.status)}`}
+                  >
                     {task.status}
                   </span>
                 </div>
@@ -195,29 +224,33 @@ export default function Home() {
         </article>
 
         <article className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
-          <div className="mb-5 flex items-center justify-between">
-            <div>
-              <h3 className="text-xl font-semibold">合作廠商與帳款</h3>
-              <p className="mt-1 text-sm text-slate-500">後續可延伸成完整廠商主檔、匯款資訊與發包歷史。</p>
+          <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+            <div className="min-w-0">
+              <h3 className="text-xl font-semibold text-slate-900">合作廠商與帳款</h3>
+              <p className="mt-1 text-sm leading-6 text-slate-500">後續可延伸成完整廠商主檔、匯款資訊與發包歷史。</p>
             </div>
-            <button className="text-sm font-medium text-slate-700">管理廠商</button>
+            <button className="inline-flex items-center justify-center rounded-xl px-3 py-2 text-sm font-semibold text-slate-800 transition hover:bg-slate-100">
+              管理廠商
+            </button>
           </div>
 
           <div className="space-y-3">
             {vendors.map((vendor) => (
-              <div key={vendor.name} className="rounded-2xl border border-slate-200 p-4">
+              <div key={vendor.name} className="rounded-2xl border border-slate-200 p-4 transition hover:border-slate-300 hover:bg-slate-50/70">
                 <div className="flex items-center justify-between gap-3">
-                  <div>
+                  <div className="min-w-0">
                     <h4 className="font-semibold text-slate-900">{vendor.name}</h4>
                     <p className="mt-1 text-sm text-slate-500">{vendor.category}</p>
                   </div>
-                  <span className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ring-1 ${getStatusClass(vendor.status)}`}>
+                  <span
+                    className={`inline-flex shrink-0 items-center justify-center whitespace-nowrap rounded-full px-3 py-1 text-xs font-medium ring-1 ${getStatusClass(vendor.status)}`}
+                  >
                     {vendor.status}
                   </span>
                 </div>
                 <div className="mt-4 flex items-center justify-between text-sm">
                   <span className="text-slate-500">未結帳款</span>
-                  <span className="font-medium text-slate-900">{vendor.balance}</span>
+                  <span className="font-semibold text-slate-900">{vendor.balance}</span>
                 </div>
               </div>
             ))}
