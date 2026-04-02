@@ -18,7 +18,7 @@ export default function VendorAssignmentsPage() {
               <span className="inline-flex rounded-full bg-slate-900 px-2.5 py-1 text-[11px] font-semibold text-white">#{index + 1}</span>
               <p className="font-semibold text-slate-900">{assignment.title}</p>
               <span className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ring-1 ${assignment.status === "done" ? "bg-emerald-50 text-emerald-700 ring-emerald-200" : "bg-slate-100 text-slate-700 ring-slate-200"}`}>
-                {assignment.status === "done" ? "已處理" : "未處理"}
+                {assignment.status === "done" ? "已送出" : "未送出"}
               </span>
             </div>
             <p className="mt-4 text-sm leading-6 text-slate-600">{assignment.summary}</p>

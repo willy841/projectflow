@@ -1,7 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { VendorPackage } from "@/components/vendor-data";
+import {
+  VendorDocumentStatus,
+  VendorPackage,
+  getVendorDocumentStatusClass,
+} from "@/components/vendor-data";
 
 function buildDocumentText(vendorPackage: VendorPackage) {
   const lines = [
@@ -10,7 +14,7 @@ function buildDocumentText(vendorPackage: VendorPackage) {
     `進場時間 ${vendorPackage.loadInTime}`,
     "",
     "需求內容",
-    ...vendorPackage.items.map((item, index) => `${index + 1}. ${item.requirementText}`),
+    ...vendorPackage.items.map((item, index) => `${index + 1}. ${item.itemName}${item.requirementText ? `｜${item.requirementText}` : ""}`),
     "",
     "備註",
     vendorPackage.note || "-",
@@ -20,20 +24,38 @@ function buildDocumentText(vendorPackage: VendorPackage) {
 }
 
 export function VendorPackageDetail({ vendorPackage }: { vendorPackage: VendorPackage }) {
+  const [projectName, setProjectName] = useState(vendorPackage.projectName);
+  const [eventDate, setEventDate] = useState(vendorPackage.eventDate);
+  const [location, setLocation] = useState(vendorPackage.location);
+  const [loadInTime, setLoadInTime] = useState(vendorPackage.loadInTime);
   const [items, setItems] = useState(vendorPackage.items);
   const [note, setNote] = useState(vendorPackage.note);
-  const [generated, setGenerated] = useState(vendorPackage.documentGenerated);
+  const [documentStatus, setDocumentStatus] = useState<VendorDocumentStatus>(vendorPackage.documentStatus);
+
+  function markDirty() {
+    setDocumentStatus((current) => (current === "已生成" ? "需更新" : current));
+  }
+
+  function updateItemName(id: string, value: string) {
+    setItems((current) => current.map((item) => (item.id === id ? { ...item, itemName: value } : item)));
+    markDirty();
+  }
 
   function updateRequirement(id: string, value: string) {
     setItems((current) => current.map((item) => (item.id === id ? { ...item, requirementText: value } : item)));
+    markDirty();
   }
 
   function buildCurrentPackage(): VendorPackage {
     return {
       ...vendorPackage,
+      projectName,
+      eventDate,
+      location,
+      loadInTime,
       items,
       note,
-      documentGenerated: generated,
+      documentStatus,
     };
   }
 
@@ -53,6 +75,10 @@ export function VendorPackageDetail({ vendorPackage }: { vendorPackage: VendorPa
     URL.revokeObjectURL(url);
   }
 
+  function handleGenerate() {
+    setDocumentStatus("已生成");
+  }
+
   return (
     <div className="space-y-6">
       <header className="rounded-3xl border border-blue-200 bg-blue-50/70 p-6 shadow-sm ring-1 ring-blue-100">
@@ -60,15 +86,18 @@ export function VendorPackageDetail({ vendorPackage }: { vendorPackage: VendorPa
           <div>
             <p className="text-xs font-semibold tracking-wide text-blue-700">PACKAGE 層</p>
             <h2 className="mt-1 text-3xl font-semibold tracking-tight text-slate-900">{vendorPackage.vendorName}</h2>
-            <p className="mt-2 text-sm text-slate-600">這一層只保留活動資訊、項目整理與生成文件，不加入其他過多功能。</p>
+            <p className="mt-2 text-sm text-slate-600">package 固定帶入 project detail 主資料副本；可在 package 層調整，但不回寫 project。</p>
           </div>
-          <div className="flex flex-wrap gap-3">
+          <div className="flex flex-wrap items-center gap-3">
+            <span className={`rounded-full px-3 py-1 text-xs font-medium ring-1 ${getVendorDocumentStatusClass(documentStatus)}`}>
+              {documentStatus}
+            </span>
             <button
               type="button"
-              onClick={() => setGenerated(true)}
+              onClick={handleGenerate}
               className="rounded-2xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700"
             >
-              生成文件
+              {documentStatus === "已生成" ? "重新生成文件" : "生成文件"}
             </button>
             <button
               type="button"
@@ -88,23 +117,63 @@ export function VendorPackageDetail({ vendorPackage }: { vendorPackage: VendorPa
         </div>
       </header>
 
-      <section className="grid gap-4 md:grid-cols-3">
-        {[
-          ["日期", vendorPackage.eventDate],
-          ["地點", vendorPackage.location],
-          ["進場時間", vendorPackage.loadInTime],
-        ].map(([label, value]) => (
-          <article key={String(label)} className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
-            <p className="text-sm text-slate-500">{label}</p>
-            <p className="mt-3 text-xl font-semibold tracking-tight text-slate-900">{value}</p>
-          </article>
-        ))}
+      <section className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+        <div className="mb-5">
+          <h3 className="text-xl font-semibold text-slate-900">活動背景資料</h3>
+          <p className="mt-1 text-sm text-slate-500">這裡是 package 自己的副本。修改專案名稱、日期、地點、進場時間時，文件狀態會轉成需更新。</p>
+        </div>
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          <label className="block">
+            <p className="mb-2 text-sm font-medium text-slate-700">專案名稱</p>
+            <input
+              value={projectName}
+              onChange={(event) => {
+                setProjectName(event.target.value);
+                markDirty();
+              }}
+              className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900"
+            />
+          </label>
+          <label className="block">
+            <p className="mb-2 text-sm font-medium text-slate-700">活動日期</p>
+            <input
+              value={eventDate}
+              onChange={(event) => {
+                setEventDate(event.target.value);
+                markDirty();
+              }}
+              className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900"
+            />
+          </label>
+          <label className="block">
+            <p className="mb-2 text-sm font-medium text-slate-700">地點</p>
+            <input
+              value={location}
+              onChange={(event) => {
+                setLocation(event.target.value);
+                markDirty();
+              }}
+              className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900"
+            />
+          </label>
+          <label className="block">
+            <p className="mb-2 text-sm font-medium text-slate-700">進場時間</p>
+            <input
+              value={loadInTime}
+              onChange={(event) => {
+                setLoadInTime(event.target.value);
+                markDirty();
+              }}
+              className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900"
+            />
+          </label>
+        </div>
       </section>
 
       <article className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
         <div className="mb-5">
           <h3 className="text-xl font-semibold text-slate-900">發包項目</h3>
-          <p className="mt-1 text-sm text-slate-500">在這一層只整理每筆項目的需求說明，整理完直接生成文件。</p>
+          <p className="mt-1 text-sm text-slate-500">package item 只承接項目名稱、需求說明。修改任一項目後，文件狀態會轉成需更新。</p>
         </div>
 
         <div className="space-y-4">
@@ -112,17 +181,27 @@ export function VendorPackageDetail({ vendorPackage }: { vendorPackage: VendorPa
             <div key={item.id} className="rounded-3xl border border-slate-200 bg-slate-50 p-5">
               <div className="flex items-center gap-3">
                 <span className="inline-flex rounded-full bg-slate-900 px-2.5 py-1 text-[11px] font-semibold text-white">#{index + 1}</span>
-                <p className="font-semibold text-slate-900">{item.itemName}</p>
+                <p className="font-semibold text-slate-900">{item.itemName || "未命名項目"}</p>
               </div>
-              <label className="mt-4 block">
-                <p className="mb-2 text-sm font-medium text-slate-700">需求說明（可編輯）</p>
-                <textarea
-                  value={item.requirementText}
-                  onChange={(event) => updateRequirement(item.id, event.target.value)}
-                  rows={4}
-                  className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900"
-                />
-              </label>
+              <div className="mt-4 grid gap-4 xl:grid-cols-2">
+                <label className="block">
+                  <p className="mb-2 text-sm font-medium text-slate-700">項目名稱</p>
+                  <input
+                    value={item.itemName}
+                    onChange={(event) => updateItemName(item.id, event.target.value)}
+                    className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900"
+                  />
+                </label>
+                <label className="block">
+                  <p className="mb-2 text-sm font-medium text-slate-700">需求說明</p>
+                  <textarea
+                    value={item.requirementText}
+                    onChange={(event) => updateRequirement(item.id, event.target.value)}
+                    rows={4}
+                    className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900"
+                  />
+                </label>
+              </div>
             </div>
           ))}
         </div>
@@ -131,11 +210,14 @@ export function VendorPackageDetail({ vendorPackage }: { vendorPackage: VendorPa
       <article className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
         <div className="mb-4">
           <h3 className="text-xl font-semibold text-slate-900">備註</h3>
-          <p className="mt-1 text-sm text-slate-500">保留文件最後的備註區。</p>
+          <p className="mt-1 text-sm text-slate-500">修改備註後，文件狀態也會轉成需更新。</p>
         </div>
         <textarea
           value={note}
-          onChange={(event) => setNote(event.target.value)}
+          onChange={(event) => {
+            setNote(event.target.value);
+            markDirty();
+          }}
           rows={4}
           className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900"
         />
@@ -147,8 +229,8 @@ export function VendorPackageDetail({ vendorPackage }: { vendorPackage: VendorPa
             <h3 className="text-xl font-semibold text-slate-900">文件預覽</h3>
             <p className="mt-1 text-sm text-slate-500">條列式最終文件模板。</p>
           </div>
-          <span className={`rounded-full px-3 py-1 text-xs font-medium ring-1 ${generated ? "bg-emerald-50 text-emerald-700 ring-emerald-200" : "bg-slate-100 text-slate-700 ring-slate-200"}`}>
-            {generated ? "已生成" : "未生成"}
+          <span className={`rounded-full px-3 py-1 text-xs font-medium ring-1 ${getVendorDocumentStatusClass(documentStatus)}`}>
+            {documentStatus}
           </span>
         </div>
 

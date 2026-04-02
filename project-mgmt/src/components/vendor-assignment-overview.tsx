@@ -30,7 +30,7 @@ export function VendorAssignmentOverview({ assignments, packages }: Props) {
                   <p className="mt-1 text-sm text-slate-500">預算：{assignment.budget}</p>
                 </div>
                 <span className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ring-1 ${assignment.status === "done" ? "bg-emerald-50 text-emerald-700 ring-emerald-200" : "bg-slate-100 text-slate-700 ring-slate-200"}`}>
-                  {assignment.status === "done" ? "已處理" : "未處理"}
+                  {assignment.status === "done" ? "已送出" : "未送出"}
                 </span>
               </div>
 

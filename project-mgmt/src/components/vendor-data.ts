@@ -1,4 +1,5 @@
 export type VendorAssignmentStatus = "draft" | "done";
+export type VendorDocumentStatus = "未生成" | "已生成" | "需更新";
 
 export type VendorReply = {
   id: string;
@@ -42,8 +43,14 @@ export type VendorPackage = {
   loadInTime: string;
   items: VendorPackageItem[];
   note: string;
-  documentGenerated: boolean;
+  documentStatus: VendorDocumentStatus;
 };
+
+export function getVendorDocumentStatusClass(status: VendorDocumentStatus) {
+  if (status === "已生成") return "bg-emerald-50 text-emerald-700 ring-emerald-200";
+  if (status === "需更新") return "bg-amber-50 text-amber-700 ring-amber-200";
+  return "bg-slate-100 text-slate-700 ring-slate-200";
+}
 
 export const vendorAssignments: VendorAssignment[] = [
   {
@@ -142,7 +149,7 @@ export const vendorPackages: VendorPackage[] = [
       },
     ],
     note: "如現場尺寸有變動請提前告知。",
-    documentGenerated: true,
+    documentStatus: "已生成",
   },
   {
     id: "vp-obsidian-woodlight-001",
@@ -162,7 +169,7 @@ export const vendorPackages: VendorPackage[] = [
       },
     ],
     note: "最終尺寸請依客戶確認版為準。",
-    documentGenerated: false,
+    documentStatus: "未生成",
   },
 ];
 

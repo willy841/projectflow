@@ -406,6 +406,12 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
             {openCategory === "vendor" ? (
               <ProjectVendorSection
                 projectId={project.id}
+                projectInfo={{
+                  name: project.name,
+                  eventDate: project.eventDate,
+                  location: project.location,
+                  loadInTime: project.loadInTime,
+                }}
                 visible
                 vendorTaskItems={vendorAssignments}
               />
