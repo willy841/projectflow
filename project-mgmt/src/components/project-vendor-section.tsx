@@ -74,6 +74,7 @@ export function ProjectVendorSection({
   );
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setAssignments((current) => {
       const currentMap = new Map(current.map((assignment) => [assignment.id, assignment]));
       return vendorTaskItems.map((item) => {

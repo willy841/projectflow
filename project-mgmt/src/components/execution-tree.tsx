@@ -9,6 +9,15 @@ export type AssignmentReply = {
   id: string;
   message: string;
   createdAt: string;
+  meta?: {
+    title?: string;
+    quantity?: string;
+    amount?: string;
+    size?: string;
+    materialStructure?: string;
+    fileUrl?: string;
+    vendor?: string;
+  };
 };
 
 export type DesignAssignmentDraft = {
@@ -233,7 +242,7 @@ function DesignAssignmentForm({
           </div>
           <p className="mt-1 text-sm text-slate-600">來源項目：{title}</p>
         </div>
-        <div className="text-xs text-slate-500">主卡只保留摘要，詳細規格在此編輯</div>
+        <div className="text-xs text-slate-500">母卡主欄位：項目、尺寸、材質 + 結構、數量；補充欄位放在展開層</div>
       </div>
 
       {saved && !isEditing ? (
@@ -242,7 +251,7 @@ function DesignAssignmentForm({
           subtitle="設計交辦主層欄位已依 spec v1 收斂"
           summary={[
             saved.size ? `尺寸：${saved.size}` : null,
-            saved.material ? `材質：${saved.material}` : null,
+            saved.material ? `材質 + 結構：${saved.material}` : null,
             saved.quantity ? `數量：${saved.quantity}` : null,
             saved.assignee ? `負責人：${saved.assignee}` : null,
           ].filter((item): item is string => Boolean(item))}
@@ -250,13 +259,14 @@ function DesignAssignmentForm({
             { label: "來源項目 / 次項目", value: title },
             { label: "負責人", value: saved.assignee || "未指定" },
             { label: "尺寸", value: saved.size || "未填寫" },
-            { label: "材質", value: saved.material || "未填寫" },
+            { label: "材質 + 結構", value: saved.material || "未填寫" },
             { label: "數量", value: saved.quantity || "未填寫" },
-            { label: "是否需結構圖", value: saved.structureRequired || "未填寫" },
-            { label: "設計內容 / 需求說明", value: saved.note || "未填寫" },
+            { label: "需求說明", value: saved.note || "未填寫" },
             { label: "參考連結", value: saved.referenceUrl || "未填寫" },
+            { label: "負責人", value: saved.assignee || "未指定" },
+            { label: "狀態", value: saved.status || "未填寫" },
           ]}
-          collapsedFields={saved.outsourceTarget ? [{ label: "發包對象", value: saved.outsourceTarget }] : []}
+          collapsedFields={saved.outsourceTarget ? [{ label: "執行廠商（預設）", value: saved.outsourceTarget }] : []}
           actions={{ onEdit: actions.onEdit, onDelete: actions.onDelete }}
         />
       ) : (
@@ -271,19 +281,16 @@ function DesignAssignmentForm({
               <input value={draft.size} onChange={(e) => onChange("size", e.target.value)} placeholder="例如：W240 x H300 cm" className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400" />
             </label>
             <label className="flex flex-col gap-2">
-              <span className="text-sm font-medium text-slate-700">材質</span>
-              <input value={draft.material} onChange={(e) => onChange("material", e.target.value)} placeholder="例如：珍珠板＋輸出" className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400" />
+              <span className="text-sm font-medium text-slate-700">材質 + 結構</span>
+              <input value={draft.material} onChange={(e) => onChange("material", e.target.value)} placeholder="例如：珍珠板＋輸出＋木作結構" className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400" />
             </label>
             <label className="flex flex-col gap-2">
               <span className="text-sm font-medium text-slate-700">數量</span>
               <input value={draft.quantity} onChange={(e) => onChange("quantity", e.target.value)} placeholder="例如：1 式" className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400" />
             </label>
             <label className="flex flex-col gap-2">
-              <span className="text-sm font-medium text-slate-700">是否需結構圖</span>
-              <select value={draft.structureRequired} onChange={(e) => onChange("structureRequired", e.target.value)} className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400">
-                <option value="需要">需要</option>
-                <option value="不需要">不需要</option>
-              </select>
+              <span className="text-sm font-medium text-slate-700">執行廠商（預設，可留空）</span>
+              <input value={draft.outsourceTarget} onChange={(e) => onChange("outsourceTarget", e.target.value)} placeholder="例如：星澄輸出" className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400" />
             </label>
             <AssignmentStatusField value={draft.status} onChange={(value) => onChange("status", value)} />
             <label className="flex flex-col gap-2 md:col-span-2 xl:col-span-3">
@@ -295,8 +302,8 @@ function DesignAssignmentForm({
               <textarea value={draft.note} onChange={(e) => onChange("note", e.target.value)} placeholder="補充設計需求、排版重點與執行說明" className="min-h-28 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-slate-400" />
             </label>
             <label className="flex flex-col gap-2 xl:col-span-1">
-              <span className="text-sm font-medium text-slate-700">發包對象（折疊資訊）</span>
-              <input value={draft.outsourceTarget} onChange={(e) => onChange("outsourceTarget", e.target.value)} placeholder="例如：星澄輸出" className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400" />
+              <span className="text-sm font-medium text-slate-700">補充註記</span>
+              <input value={draft.structureRequired} onChange={(e) => onChange("structureRequired", e.target.value)} placeholder="例如：需注意現場結構限制" className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400" />
             </label>
           </div>
           <div className="mt-4 flex flex-wrap gap-2">
