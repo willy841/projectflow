@@ -16,8 +16,8 @@ function getDocumentStatusMessage(status: VendorDocumentStatus) {
 function buildDocumentText(vendorPackage: VendorPackage) {
   const lines = [
     `${vendorPackage.eventDate} ${vendorPackage.projectName}`,
-    `地點 ${vendorPackage.location}`,
-    `進場時間 ${vendorPackage.loadInTime}`,
+    `地點：${vendorPackage.location}`,
+    `進場時間：${vendorPackage.loadInTime}`,
     "",
     "需求內容",
     ...vendorPackage.items.map(
