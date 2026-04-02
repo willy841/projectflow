@@ -1,5 +1,5 @@
-import { redirect } from "next/navigation";
+import { QuoteCostListClient } from "@/components/quote-cost-list-client";
 
-export default function LegacyQuoteCostsPage() {
-  redirect("/quote-cost");
+export default function QuoteCostsPage() {
+  return <QuoteCostListClient />;
 }
