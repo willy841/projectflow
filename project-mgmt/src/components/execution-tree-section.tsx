@@ -349,7 +349,7 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
     replies: replyOverrides[assignment.targetId] ?? assignment.data.replies ?? [],
   })), [vendorAssignments, project.name, replyOverrides]);
 
-  const currentList = openCategory === "design" ? designList : openCategory === "procurement" ? procurementList : vendorList;
+  const currentList = openCategory === "design" ? designList : openCategory === "procurement" ? procurementList : [];
 
   const categoryMeta = {
     design: { title: "專案設計", description: "交辦主卡先收斂為摘要，回覆改用摘要列展開。", count: designList.length, accent: "text-blue-700", ring: "ring-blue-200" },
@@ -396,11 +396,17 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
         <div className="mt-6 rounded-3xl border border-slate-300 bg-slate-100 p-5 shadow-inner">
           <div className="mb-4">
             <h4 className="text-lg font-semibold text-slate-900">{categoryMeta[openCategory].title}</h4>
-            <p className="mt-1 text-sm text-slate-500">共 {currentList.length} 筆，已依分類集中顯示於下方。</p>
+            <p className="mt-1 text-sm text-slate-500">
+              {openCategory === "vendor" ? "點選專案廠商後，這裡應承接廠商需求與廠商發包清單主線。" : `共 ${currentList.length} 筆，已依分類集中顯示於下方。`}
+            </p>
           </div>
 
           <div className="space-y-3">
-            {currentList.length ? currentList.map((item, itemIndex) => {
+            {openCategory === "vendor" ? (
+              <div className="rounded-2xl border border-dashed border-violet-300 bg-white p-5 text-sm leading-6 text-slate-600">
+                專案廠商分類已保留為唯一入口；Vendor Flow 主體下一步會正式整合進這一層，目前先移除舊的重複廠商任務工作台，避免與新主線衝突。
+              </div>
+            ) : currentList.length ? currentList.map((item, itemIndex) => {
               const replyForm = replyForms[item.id] ?? defaultReplyForm;
               const isReplyOpen = activeReplyBoxId === item.id;
               const isDetailOpen = expandedDetailId === item.id;
