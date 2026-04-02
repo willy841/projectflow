@@ -51,8 +51,8 @@ export function ProjectVendorSection({ projectId }: { projectId: string }) {
       <article className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
         <div className="mb-5">
           <p className="text-xs font-semibold tracking-wide text-slate-500">7 區</p>
-          <h3 className="mt-1 text-xl font-semibold text-slate-900">任務檢視區</h3>
-          <p className="mt-1 text-sm text-slate-500">7-1、7-2 為設計與備品任務檢視；7-3 專案廠商僅作為 Vendor Flow 入口卡。</p>
+          <h3 className="mt-1 text-xl font-semibold text-slate-900">專案分類檢視區</h3>
+          <p className="mt-1 text-sm text-slate-500">這裡是唯一的分類切換入口，點選卡片後直接顯示對應內容。</p>
         </div>
 
         <div className="grid gap-4 md:grid-cols-3">
