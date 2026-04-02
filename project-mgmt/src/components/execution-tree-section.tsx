@@ -232,6 +232,18 @@ function ExecutionFieldGrid({ fields }: { fields: DisplayField[] }) {
   );
 }
 
+function getDocumentStatusClass(status: "未生成" | "已生成" | "需更新") {
+  if (status === "已生成") {
+    return "bg-emerald-50 text-emerald-700 ring-emerald-200";
+  }
+
+  if (status === "需更新") {
+    return "bg-amber-50 text-amber-700 ring-amber-200";
+  }
+
+  return "bg-slate-100 text-slate-700 ring-slate-200";
+}
+
 function DesignDocumentPreview({
   project,
   group,
@@ -1103,6 +1115,9 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
       count: designList.length,
       accent: "text-blue-700",
       ring: "ring-blue-200",
+      activeSurface: "bg-blue-50/80",
+      activeBadge: "bg-blue-100 text-blue-700",
+      sectionHint: "目前聚焦設計交辦與設計文件整理。",
     },
     procurement: {
       title: "專案備品",
@@ -1110,6 +1125,9 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
       count: procurementList.length,
       accent: "text-amber-700",
       ring: "ring-amber-200",
+      activeSurface: "bg-amber-50/80",
+      activeBadge: "bg-amber-100 text-amber-700",
+      sectionHint: "目前聚焦備品交辦與輸出前整理。",
     },
     vendor: {
       title: "專案廠商",
@@ -1117,6 +1135,9 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
       count: vendorList.length,
       accent: "text-violet-700",
       ring: "ring-violet-200",
+      activeSurface: "bg-violet-50/80",
+      activeBadge: "bg-violet-100 text-violet-700",
+      sectionHint: "目前聚焦廠商需求與發包清單主線。",
     },
   };
 
@@ -1157,18 +1178,25 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
                   key={category}
                   type="button"
                   onClick={() => handleOpenCategory(category)}
-                  className={`rounded-3xl border bg-white p-5 text-left shadow-sm transition ${isActive ? `${meta.ring} border-transparent ring-2` : "border-slate-200 hover:border-slate-300"}`}
+                  className={`rounded-3xl border bg-white p-5 text-left shadow-sm transition ${isActive ? `${meta.ring} border-transparent ring-2 shadow-md` : "border-slate-200 hover:border-slate-300 hover:bg-slate-50/60"}`}
                 >
                   <div className="flex items-center justify-between gap-3">
                     <div>
-                      <p className={`text-lg font-semibold ${meta.accent}`}>
-                        {meta.title}
-                      </p>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <p className={`text-lg font-semibold ${meta.accent}`}>
+                          {meta.title}
+                        </p>
+                        {isActive ? (
+                          <span className="inline-flex items-center justify-center rounded-full bg-slate-900 px-2.5 py-1 text-[11px] font-semibold text-white">
+                            目前檢視
+                          </span>
+                        ) : null}
+                      </div>
                       <p className="mt-2 text-sm text-slate-500">
                         {meta.description}
                       </p>
                     </div>
-                    <span className="inline-flex min-w-[36px] items-center justify-center rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
+                    <span className={`inline-flex min-w-[36px] items-center justify-center rounded-full px-3 py-1 text-xs font-semibold ${isActive ? "bg-slate-900 text-white" : "bg-slate-100 text-slate-700"}`}>
                       {meta.count}
                     </span>
                   </div>
@@ -1179,15 +1207,25 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
         </div>
 
         <div className="mt-6 rounded-3xl border border-slate-300 bg-slate-100 p-5 shadow-inner">
-          <div className="mb-4">
-            <h4 className="text-lg font-semibold text-slate-900">
-              {categoryMeta[openCategory].title}
-            </h4>
-            <p className="mt-1 text-sm text-slate-500">
-              {openCategory === "vendor"
-                ? "點選專案廠商後，這裡應承接廠商需求與廠商發包清單主線。"
-                : `共 ${currentList.length} 筆，已依分類集中顯示於下方。`}
-            </p>
+          <div className="mb-4 flex flex-col gap-3 border-b border-slate-200 pb-4 sm:flex-row sm:items-start sm:justify-between">
+            <div>
+              <h4 className="text-lg font-semibold text-slate-900">
+                {categoryMeta[openCategory].title}
+              </h4>
+              <p className="mt-1 text-sm text-slate-500">
+                {openCategory === "vendor"
+                  ? "點選專案廠商後，這裡應承接廠商需求與廠商發包清單主線。"
+                  : `共 ${currentList.length} 筆，已依分類集中顯示於下方。`}
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <span className="inline-flex items-center justify-center rounded-full bg-white px-3 py-1 text-xs font-semibold text-slate-700 ring-1 ring-slate-200">
+                Step 1：選分類
+              </span>
+              <span className="inline-flex items-center justify-center rounded-full bg-white px-3 py-1 text-xs font-semibold text-slate-700 ring-1 ring-slate-200">
+                Step 2：看主卡 / 回覆 / 整理層
+              </span>
+            </div>
           </div>
 
           <div className="space-y-3">
@@ -1917,7 +1955,7 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
                                 {group.vendor}
                               </p>
                               <span
-                                className={`inline-flex items-center justify-center rounded-full px-3 py-1 text-xs font-medium ring-1 ${group.status === "已生成" ? "bg-emerald-50 text-emerald-700 ring-emerald-200" : group.status === "需更新" ? "bg-amber-50 text-amber-700 ring-amber-200" : "bg-slate-100 text-slate-700 ring-slate-200"}`}
+                                className={`inline-flex items-center justify-center rounded-full px-3 py-1 text-xs font-medium ring-1 ${getDocumentStatusClass(group.status)}`}
                               >
                                 {group.status}
                               </span>
@@ -1927,24 +1965,6 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
                             </p>
                           </div>
                           <div className="flex flex-wrap gap-2">
-                            <button
-                              type="button"
-                              onClick={() =>
-                                toggleDesignOrganizeContent(group.vendor)
-                              }
-                              className="inline-flex items-center justify-center rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-50"
-                            >
-                              {isContentOpen ? "收合整理內容" : "查看整理內容"}
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() =>
-                                toggleDesignOrganizeDocument(group.vendor)
-                              }
-                              className="inline-flex items-center justify-center rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-50"
-                            >
-                              {isDocumentOpen ? "收合文件" : "查看文件"}
-                            </button>
                             <button
                               type="button"
                               onClick={() =>
@@ -1958,6 +1978,24 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
                               {group.status === "未生成"
                                 ? "生成文件"
                                 : "重新生成文件"}
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() =>
+                                toggleDesignOrganizeContent(group.vendor)
+                              }
+                              className={`inline-flex items-center justify-center rounded-xl border px-3 py-2 text-xs font-semibold transition ${isContentOpen ? "border-slate-900 bg-slate-900 text-white" : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50"}`}
+                            >
+                              {isContentOpen ? "收合整理內容" : "查看整理內容"}
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() =>
+                                toggleDesignOrganizeDocument(group.vendor)
+                              }
+                              className={`inline-flex items-center justify-center rounded-xl border px-3 py-2 text-xs font-semibold transition ${isDocumentOpen ? "border-slate-900 bg-slate-900 text-white" : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50"}`}
+                            >
+                              {isDocumentOpen ? "收合文件" : "查看文件"}
                             </button>
                           </div>
                         </div>
@@ -2064,7 +2102,7 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
                           {project.name}
                         </p>
                         <span
-                          className={`inline-flex items-center justify-center rounded-full px-3 py-1 text-xs font-medium ring-1 ${procurementDocumentGroup.status === "已生成" ? "bg-emerald-50 text-emerald-700 ring-emerald-200" : procurementDocumentGroup.status === "需更新" ? "bg-amber-50 text-amber-700 ring-amber-200" : "bg-slate-100 text-slate-700 ring-slate-200"}`}
+                          className={`inline-flex items-center justify-center rounded-full px-3 py-1 text-xs font-medium ring-1 ${getDocumentStatusClass(procurementDocumentGroup.status)}`}
                         >
                           {procurementDocumentGroup.status}
                         </span>
@@ -2074,24 +2112,6 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
                       </p>
                     </div>
                     <div className="flex flex-wrap gap-2">
-                      <button
-                        type="button"
-                        onClick={() => toggleProcurementOrganizeContent(project.id)}
-                        className="inline-flex items-center justify-center rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-50"
-                      >
-                        {activeProcurementContent === project.id
-                          ? "收合整理內容"
-                          : "查看整理內容"}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => toggleProcurementOrganizeDocument(project.id)}
-                        className="inline-flex items-center justify-center rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-50"
-                      >
-                        {activeProcurementDocument === project.id
-                          ? "收合文件"
-                          : "查看文件"}
-                      </button>
                       <button
                         type="button"
                         onClick={() =>
@@ -2105,6 +2125,24 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
                         {procurementDocumentGroup.status === "未生成"
                           ? "生成文件"
                           : "重新生成文件"}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => toggleProcurementOrganizeContent(project.id)}
+                        className={`inline-flex items-center justify-center rounded-xl border px-3 py-2 text-xs font-semibold transition ${activeProcurementContent === project.id ? "border-slate-900 bg-slate-900 text-white" : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50"}`}
+                      >
+                        {activeProcurementContent === project.id
+                          ? "收合整理內容"
+                          : "查看整理內容"}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => toggleProcurementOrganizeDocument(project.id)}
+                        className={`inline-flex items-center justify-center rounded-xl border px-3 py-2 text-xs font-semibold transition ${activeProcurementDocument === project.id ? "border-slate-900 bg-slate-900 text-white" : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50"}`}
+                      >
+                        {activeProcurementDocument === project.id
+                          ? "收合文件"
+                          : "查看文件"}
                       </button>
                     </div>
                   </div>
