@@ -9,6 +9,10 @@
 - 廠商管理
 - 成本與帳務摘要
 
+## 專案 Repo
+
+- GitHub: https://github.com/willy841/projectflow.git
+
 ## 技術
 
 - Next.js 16

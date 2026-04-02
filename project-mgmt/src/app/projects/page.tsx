@@ -1,0 +1,123 @@
+import Link from "next/link";
+import { AppShell } from "@/components/app-shell";
+import { getStatusClass, projects } from "@/components/project-data";
+
+export default function ProjectsPage() {
+  return (
+    <AppShell activePath="/projects">
+      <header className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+        <div className="flex flex-col gap-5 xl:flex-row xl:items-center xl:justify-between">
+          <div>
+            <p className="text-sm text-slate-500">Project List</p>
+            <h2 className="mt-1 text-3xl font-semibold tracking-tight">專案列表</h2>
+            <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-600">
+              先提供管理者快速檢視所有專案的狀態、預算、成本與活動日期，後續可再接搜尋、篩選與真實資料來源。
+            </p>
+          </div>
+
+          <div className="flex flex-wrap gap-3">
+            <button className="rounded-2xl border border-slate-300 bg-white px-5 py-3 text-sm font-medium text-slate-700">
+              篩選條件
+            </button>
+            <Link
+              href="/projects/new"
+              className="rounded-2xl bg-slate-950 px-5 py-3 text-sm font-medium text-white"
+            >
+              + 新增專案
+            </Link>
+          </div>
+        </div>
+      </header>
+
+      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <article className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
+          <p className="text-sm text-slate-500">專案總數</p>
+          <p className="mt-3 text-3xl font-semibold tracking-tight">{projects.length}</p>
+        </article>
+        <article className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
+          <p className="text-sm text-slate-500">執行中</p>
+          <p className="mt-3 text-3xl font-semibold tracking-tight">
+            {projects.filter((project) => project.status === "執行中").length}
+          </p>
+        </article>
+        <article className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
+          <p className="text-sm text-slate-500">待發包 / 採購中</p>
+          <p className="mt-3 text-3xl font-semibold tracking-tight">
+            {projects.filter((project) => ["待發包", "採購中"].includes(project.status)).length}
+          </p>
+        </article>
+        <article className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
+          <p className="text-sm text-slate-500">平均進度</p>
+          <p className="mt-3 text-3xl font-semibold tracking-tight">
+            {Math.round(projects.reduce((total, project) => total + project.progress, 0) / projects.length)}%
+          </p>
+        </article>
+      </section>
+
+      <section className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+        <div className="mb-5 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+          <div>
+            <h3 className="text-xl font-semibold">全部專案</h3>
+            <p className="mt-1 text-sm text-slate-500">點選專案名稱可進入詳細頁。</p>
+          </div>
+          <div className="flex flex-wrap gap-3">
+            <input
+              placeholder="搜尋專案 / 客戶 / 地點"
+              className="h-11 w-72 rounded-2xl border border-slate-200 px-4 text-sm outline-none focus:border-slate-400"
+            />
+            <button className="rounded-2xl border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700">
+              依日期排序
+            </button>
+          </div>
+        </div>
+
+        <div className="overflow-hidden rounded-2xl border border-slate-200">
+          <table className="min-w-full divide-y divide-slate-200 text-left text-sm">
+            <thead className="bg-slate-50 text-slate-500">
+              <tr>
+                <th className="px-4 py-3 font-medium">專案名稱</th>
+                <th className="px-4 py-3 font-medium">客戶</th>
+                <th className="px-4 py-3 font-medium">活動日期</th>
+                <th className="px-4 py-3 font-medium">地點</th>
+                <th className="px-4 py-3 font-medium">狀態</th>
+                <th className="px-4 py-3 font-medium">預算</th>
+                <th className="px-4 py-3 font-medium">成本</th>
+                <th className="px-4 py-3 font-medium">負責人</th>
+                <th className="px-4 py-3 font-medium">進度</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100 bg-white">
+              {projects.map((project) => (
+                <tr key={project.id}>
+                  <td className="px-4 py-4">
+                    <Link href={`/projects/${project.id}`} className="font-medium text-slate-900 underline-offset-4 hover:underline">
+                      {project.name}
+                    </Link>
+                    <p className="mt-1 text-xs text-slate-500">{project.code}</p>
+                  </td>
+                  <td className="px-4 py-4 text-slate-600">{project.client}</td>
+                  <td className="px-4 py-4 text-slate-600">{project.eventDate}</td>
+                  <td className="px-4 py-4 text-slate-600">{project.location}</td>
+                  <td className="px-4 py-4">
+                    <span className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ring-1 ${getStatusClass(project.status)}`}>
+                      {project.status}
+                    </span>
+                  </td>
+                  <td className="px-4 py-4 text-slate-600">{project.budget}</td>
+                  <td className="px-4 py-4 text-slate-600">{project.cost}</td>
+                  <td className="px-4 py-4 text-slate-600">{project.owner}</td>
+                  <td className="px-4 py-4">
+                    <div className="w-28 rounded-full bg-slate-100">
+                      <div className="h-2 rounded-full bg-slate-900" style={{ width: `${project.progress}%` }} />
+                    </div>
+                    <p className="mt-2 text-xs text-slate-500">{project.progress}%</p>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </AppShell>
+  );
+}
