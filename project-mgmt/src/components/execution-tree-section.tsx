@@ -434,9 +434,12 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
   const [openCategory, setOpenCategory] = useState<OpenCategory>("design");
   const [activeReplyBoxId, setActiveReplyBoxId] = useState<string | null>(null);
   const [expandedDetailId, setExpandedDetailId] = useState<string | null>(null);
-  const [expandedReplyNodes, setExpandedReplyNodes] = useState<
-    Record<string, boolean>
-  >({});
+  const [expandedReplyListId, setExpandedReplyListId] = useState<string | null>(
+    null,
+  );
+  const [expandedReplyDetailId, setExpandedReplyDetailId] = useState<
+    string | null
+  >(null);
   const [replyForms, setReplyForms] = useState<Record<string, ReplyForm>>({});
   const [replyOverrides, setReplyOverrides] = useState<
     Record<string, AssignmentReply[]>
@@ -461,6 +464,91 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
   const [activeProcurementContent, setActiveProcurementContent] = useState<
     string | null
   >(null);
+
+  function resetCategoryExpansions() {
+    setActiveReplyBoxId(null);
+    setExpandedDetailId(null);
+    setExpandedReplyListId(null);
+    setExpandedReplyDetailId(null);
+    setEditingReplyId(null);
+    setEditingReplyMessage("");
+    setActiveDesignDocumentVendor(null);
+    setActiveDesignDocumentContentVendor(null);
+    setActiveProcurementDocument(null);
+    setActiveProcurementContent(null);
+  }
+
+  function handleOpenCategory(category: OpenCategory) {
+    setOpenCategory(category);
+    resetCategoryExpansions();
+  }
+
+  function focusItem(itemId: string, target: "replies" | "replyBox" | "detail") {
+    setEditingReplyId(null);
+    setEditingReplyMessage("");
+    setExpandedReplyDetailId(null);
+    setExpandedReplyListId(target === "replies" ? itemId : null);
+    setActiveReplyBoxId(target === "replyBox" ? itemId : null);
+    setExpandedDetailId(target === "detail" ? itemId : null);
+  }
+
+  function toggleReplyList(itemId: string) {
+    const nextId = expandedReplyListId === itemId ? null : itemId;
+    if (!nextId) {
+      setExpandedReplyListId(null);
+      setExpandedReplyDetailId(null);
+      setEditingReplyId(null);
+      setEditingReplyMessage("");
+      return;
+    }
+    focusItem(itemId, "replies");
+  }
+
+  function toggleReplyBox(itemId: string) {
+    if (activeReplyBoxId === itemId) {
+      setActiveReplyBoxId(null);
+      return;
+    }
+    focusItem(itemId, "replyBox");
+  }
+
+  function toggleDetail(itemId: string) {
+    if (expandedDetailId === itemId) {
+      setExpandedDetailId(null);
+      return;
+    }
+    focusItem(itemId, "detail");
+  }
+
+  function toggleReplyDetail(replyId: string) {
+    setEditingReplyId(null);
+    setEditingReplyMessage("");
+    setExpandedReplyDetailId((prev) => (prev === replyId ? null : replyId));
+  }
+
+  function toggleDesignOrganizeContent(vendor: string) {
+    setActiveDesignDocumentVendor(null);
+    setActiveDesignDocumentContentVendor((prev) =>
+      prev === vendor ? null : vendor,
+    );
+  }
+
+  function toggleDesignOrganizeDocument(vendor: string) {
+    setActiveDesignDocumentContentVendor(null);
+    setActiveDesignDocumentVendor((prev) => (prev === vendor ? null : vendor));
+  }
+
+  function toggleProcurementOrganizeContent(projectId: string) {
+    setActiveProcurementDocument(null);
+    setActiveProcurementContent((prev) => (prev === projectId ? null : projectId));
+  }
+
+  function toggleProcurementOrganizeDocument(projectId: string) {
+    setActiveProcurementContent(null);
+    setActiveProcurementDocument((prev) =>
+      prev === projectId ? null : projectId,
+    );
+  }
 
   function getCurrentReplies(targetId: string, type: OpenCategory) {
     if (replyOverrides[targetId]) {
@@ -613,10 +701,12 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
     updateReplies(targetId, type, (replies) => [...replies, reply]);
     setReplyForms((prev) => ({ ...prev, [targetId]: defaultReplyForm }));
     setActiveReplyBoxId(null);
-    setExpandedReplyNodes((prev) => ({ ...prev, [reply.id]: false }));
+    setExpandedReplyListId(targetId);
+    setExpandedReplyDetailId(null);
   }
 
   function startEditReply(reply: AssignmentReply) {
+    setExpandedReplyDetailId(reply.id);
     setEditingReplyId(reply.id);
     setEditingReplyMessage(reply.message.replace(/\n?\[已確認金額\]/g, ""));
   }
@@ -1066,7 +1156,7 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
                 <button
                   key={category}
                   type="button"
-                  onClick={() => setOpenCategory(category)}
+                  onClick={() => handleOpenCategory(category)}
                   className={`rounded-3xl border bg-white p-5 text-left shadow-sm transition ${isActive ? `${meta.ring} ring-2` : "border-slate-200 hover:border-slate-300"}`}
                 >
                   <div className="flex items-center justify-between gap-3">
@@ -1116,6 +1206,7 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
             ) : currentList.length ? (
               currentList.map((item, itemIndex) => {
                 const replyForm = replyForms[item.id] ?? defaultReplyForm;
+                const isReplyListOpen = expandedReplyListId === item.id;
                 const isReplyOpen = activeReplyBoxId === item.id;
                 const isDetailOpen = expandedDetailId === item.id;
                 const isDesignCard = openCategory === "design";
@@ -1183,36 +1274,21 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
                         <div className="flex flex-wrap gap-2">
                           <button
                             type="button"
-                            onClick={() =>
-                              setExpandedReplyNodes((prev) => ({
-                                ...prev,
-                                [item.id]: !(prev[item.id] ?? false),
-                              }))
-                            }
+                            onClick={() => toggleReplyList(item.id)}
                             className="inline-flex items-center justify-center rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-50"
                           >
-                            {(expandedReplyNodes[item.id] ?? false)
-                              ? "收合回覆"
-                              : "查看回覆"}
+                            {isReplyListOpen ? "收合回覆" : "查看回覆"}
                           </button>
                           <button
                             type="button"
-                            onClick={() =>
-                              setActiveReplyBoxId((prev) =>
-                                prev === item.id ? null : item.id,
-                              )
-                            }
+                            onClick={() => toggleReplyBox(item.id)}
                             className="inline-flex items-center justify-center rounded-xl bg-slate-900 px-3 py-2 text-xs font-semibold text-white transition hover:bg-slate-800"
                           >
                             {isReplyOpen ? "取消回覆" : "新增回覆"}
                           </button>
                           <button
                             type="button"
-                            onClick={() =>
-                              setExpandedDetailId((prev) =>
-                                prev === item.id ? null : item.id,
-                              )
-                            }
+                            onClick={() => toggleDetail(item.id)}
                             className="inline-flex items-center justify-center rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-50"
                           >
                             {isDetailOpen ? "收合主卡資訊" : "查看主卡資訊"}
@@ -1248,7 +1324,7 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
                         </div>
                       ) : null}
 
-                      {(expandedReplyNodes[item.id] ?? false) ? (
+                      {isReplyListOpen ? (
                         <div className="rounded-2xl border border-slate-300 bg-white p-4 shadow-sm">
                           <div className="flex items-center justify-between gap-3">
                             <div>
@@ -1268,7 +1344,7 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
                             {item.replies.length ? (
                               item.replies.map((reply, replyIndex) => {
                                 const isExpanded =
-                                  expandedReplyNodes[reply.id] ?? false;
+                                  expandedReplyDetailId === reply.id;
                                 const isEditing = editingReplyId === reply.id;
                                 const summary = parseReplyMessage(reply);
                                 const parsedDesign =
@@ -1323,12 +1399,7 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
                                       <div className="flex flex-wrap gap-2 xl:justify-end">
                                         <button
                                           type="button"
-                                          onClick={() =>
-                                            setExpandedReplyNodes((prev) => ({
-                                              ...prev,
-                                              [reply.id]: !isExpanded,
-                                            }))
-                                          }
+                                          onClick={() => toggleReplyDetail(reply.id)}
                                           className="inline-flex min-w-[104px] items-center justify-center rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-50"
                                         >
                                           {isExpanded ? "收合資訊" : "回覆資訊"}
@@ -1819,9 +1890,7 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
                             <button
                               type="button"
                               onClick={() =>
-                                setActiveDesignDocumentContentVendor((prev) =>
-                                  prev === group.vendor ? null : group.vendor,
-                                )
+                                toggleDesignOrganizeContent(group.vendor)
                               }
                               className="inline-flex items-center justify-center rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-50"
                             >
@@ -1830,9 +1899,7 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
                             <button
                               type="button"
                               onClick={() =>
-                                setActiveDesignDocumentVendor((prev) =>
-                                  prev === group.vendor ? null : group.vendor,
-                                )
+                                toggleDesignOrganizeDocument(group.vendor)
                               }
                               className="inline-flex items-center justify-center rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-50"
                             >
@@ -1969,11 +2036,7 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
                     <div className="flex flex-wrap gap-2">
                       <button
                         type="button"
-                        onClick={() =>
-                          setActiveProcurementContent((prev) =>
-                            prev === project.id ? null : project.id,
-                          )
-                        }
+                        onClick={() => toggleProcurementOrganizeContent(project.id)}
                         className="inline-flex items-center justify-center rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-50"
                       >
                         {activeProcurementContent === project.id
@@ -1982,11 +2045,7 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
                       </button>
                       <button
                         type="button"
-                        onClick={() =>
-                          setActiveProcurementDocument((prev) =>
-                            prev === project.id ? null : project.id,
-                          )
-                        }
+                        onClick={() => toggleProcurementOrganizeDocument(project.id)}
                         className="inline-flex items-center justify-center rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-50"
                       >
                         {activeProcurementDocument === project.id
