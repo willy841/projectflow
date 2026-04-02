@@ -48,46 +48,6 @@ export function ProjectVendorSection({ projectId }: { projectId: string }) {
 
   return (
     <section className="space-y-6">
-      <article className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
-        <div className="mb-5">
-          <p className="text-xs font-semibold tracking-wide text-slate-500">7 區</p>
-          <h3 className="mt-1 text-xl font-semibold text-slate-900">專案分類檢視區</h3>
-          <p className="mt-1 text-sm text-slate-500">這裡是唯一的分類切換入口，點選卡片後直接顯示對應內容。</p>
-        </div>
-
-        <div className="grid gap-4 md:grid-cols-3">
-          <button
-            type="button"
-            onClick={() => setActiveBoard("design")}
-            className={`rounded-3xl border p-5 text-left shadow-sm transition ${activeBoard === "design" ? "border-slate-900 bg-slate-900 text-white" : "border-slate-200 bg-slate-50 text-slate-900"}`}
-          >
-            <p className={`text-xs font-semibold tracking-wide ${activeBoard === "design" ? "text-slate-200" : "text-slate-500"}`}>7-1</p>
-            <p className="mt-2 text-lg font-semibold">專案設計</p>
-            <p className={`mt-2 text-sm ${activeBoard === "design" ? "text-slate-200" : "text-slate-500"}`}>設計任務發佈後的需求列表與回覆檢視。</p>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setActiveBoard("procurement")}
-            className={`rounded-3xl border p-5 text-left shadow-sm transition ${activeBoard === "procurement" ? "border-slate-900 bg-slate-900 text-white" : "border-slate-200 bg-slate-50 text-slate-900"}`}
-          >
-            <p className={`text-xs font-semibold tracking-wide ${activeBoard === "procurement" ? "text-slate-200" : "text-slate-500"}`}>7-2</p>
-            <p className="mt-2 text-lg font-semibold">專案備品</p>
-            <p className={`mt-2 text-sm ${activeBoard === "procurement" ? "text-slate-200" : "text-slate-500"}`}>備品任務發佈後的需求列表與回覆檢視。</p>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setActiveBoard("vendor")}
-            className={`rounded-3xl border p-5 text-left shadow-sm transition ${activeBoard === "vendor" ? "border-blue-600 bg-blue-600 text-white" : "border-slate-200 bg-slate-50 text-slate-900"}`}
-          >
-            <p className={`text-xs font-semibold tracking-wide ${activeBoard === "vendor" ? "text-blue-100" : "text-slate-500"}`}>7-3</p>
-            <p className="mt-2 text-lg font-semibold">專案廠商</p>
-            <p className={`mt-2 text-sm ${activeBoard === "vendor" ? "text-blue-100" : "text-slate-500"}`}>只保留入口卡；點選後才顯示廠商需求與廠商發包清單。</p>
-          </button>
-        </div>
-      </article>
-
       {activeBoard === "vendor" ? (
         <>
           <article className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
