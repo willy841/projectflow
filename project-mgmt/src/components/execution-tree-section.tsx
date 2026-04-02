@@ -1157,7 +1157,7 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
                   key={category}
                   type="button"
                   onClick={() => handleOpenCategory(category)}
-                  className={`rounded-3xl border bg-white p-5 text-left shadow-sm transition ${isActive ? `${meta.ring} ring-2` : "border-slate-200 hover:border-slate-300"}`}
+                  className={`rounded-3xl border bg-white p-5 text-left shadow-sm transition ${isActive ? `${meta.ring} border-transparent ring-2` : "border-slate-200 hover:border-slate-300"}`}
                 >
                   <div className="flex items-center justify-between gap-3">
                     <div>
@@ -1211,10 +1211,22 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
                 const isDetailOpen = expandedDetailId === item.id;
                 const isDesignCard = openCategory === "design";
                 const isProcurementCard = openCategory === "procurement";
+                const latestReply = item.replies[item.replies.length - 1];
+                const latestReplySummary = latestReply
+                  ? parseReplyMessage(latestReply)
+                  : null;
+                const activePanelLabel = isReplyOpen
+                  ? "回覆中"
+                  : isReplyListOpen
+                    ? "回覆列表展開"
+                    : isDetailOpen
+                      ? "主卡資訊展開"
+                      : null;
+
                 return (
                   <div
                     key={item.id}
-                    className="rounded-2xl border border-slate-300 bg-white p-4 shadow-sm"
+                    className={`rounded-2xl border p-4 shadow-sm transition ${activePanelLabel ? "border-slate-900 bg-slate-50/60 ring-1 ring-slate-200" : "border-slate-300 bg-white"}`}
                   >
                     <div className="flex flex-col gap-4">
                       <div className="flex flex-col gap-3 xl:flex-row xl:items-start xl:justify-between">
@@ -1234,6 +1246,11 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
                                   {item.badge}
                                 </span>
                               </>
+                            ) : null}
+                            {activePanelLabel ? (
+                              <span className="inline-flex items-center justify-center rounded-full bg-slate-900/8 px-3 py-1 text-xs font-semibold text-slate-700 ring-1 ring-slate-300">
+                                {activePanelLabel}
+                              </span>
                             ) : null}
                           </div>
                           <h5 className="mt-3 text-base font-semibold text-slate-900">
@@ -1269,28 +1286,51 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
                               </span>
                             </div>
                           ) : null}
+
+                          <div className="mt-3 flex flex-wrap gap-2">
+                            <span className="inline-flex items-center rounded-full bg-white px-3 py-1 text-xs font-medium text-slate-700 ring-1 ring-slate-200">
+                              回覆 {item.replies.length} 則
+                            </span>
+                            {latestReplySummary ? (
+                              <>
+                                <span className="inline-flex max-w-full items-center rounded-full bg-white px-3 py-1 text-xs font-medium text-slate-700 ring-1 ring-slate-200">
+                                  最新：{latestReplySummary.title}
+                                </span>
+                                <span className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-medium ring-1 ${latestReplySummary.confirmed ? "bg-emerald-50 text-emerald-700 ring-emerald-200" : "bg-amber-50 text-amber-700 ring-amber-200"}`}>
+                                  {latestReplySummary.statusLabel}
+                                </span>
+                              </>
+                            ) : (
+                              <span className="inline-flex items-center rounded-full bg-white px-3 py-1 text-xs font-medium text-slate-500 ring-1 ring-slate-200">
+                                尚無回覆
+                              </span>
+                            )}
+                          </div>
                         </div>
 
                         <div className="flex flex-wrap gap-2">
                           <button
                             type="button"
                             onClick={() => toggleReplyList(item.id)}
-                            className="inline-flex items-center justify-center rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-50"
+                            className={`inline-flex items-center gap-2 justify-center rounded-xl border px-3 py-2 text-xs font-semibold transition ${isReplyListOpen ? "border-slate-900 bg-slate-900 text-white shadow-sm" : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50"}`}
                           >
-                            {isReplyListOpen ? "收合回覆" : "查看回覆"}
+                            <span className={`text-[10px] transition ${isReplyListOpen ? "rotate-90" : ""}`}>›</span>
+                            {isReplyListOpen ? "收合回覆" : `查看回覆（${item.replies.length}）`}
                           </button>
                           <button
                             type="button"
                             onClick={() => toggleReplyBox(item.id)}
-                            className="inline-flex items-center justify-center rounded-xl bg-slate-900 px-3 py-2 text-xs font-semibold text-white transition hover:bg-slate-800"
+                            className={`inline-flex items-center gap-2 justify-center rounded-xl border px-3 py-2 text-xs font-semibold transition ${isReplyOpen ? "border-slate-900 bg-slate-900 text-white shadow-sm" : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50"}`}
                           >
-                            {isReplyOpen ? "取消回覆" : "新增回覆"}
+                            <span className={`text-[10px] transition ${isReplyOpen ? "rotate-90" : ""}`}>›</span>
+                            {isReplyOpen ? "收合回覆表單" : "新增回覆"}
                           </button>
                           <button
                             type="button"
                             onClick={() => toggleDetail(item.id)}
-                            className="inline-flex items-center justify-center rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-50"
+                            className={`inline-flex items-center gap-2 justify-center rounded-xl border px-3 py-2 text-xs font-semibold transition ${isDetailOpen ? "border-slate-900 bg-slate-900 text-white shadow-sm" : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50"}`}
                           >
+                            <span className={`text-[10px] transition ${isDetailOpen ? "rotate-90" : ""}`}>›</span>
                             {isDetailOpen ? "收合主卡資訊" : "查看主卡資訊"}
                           </button>
                         </div>
