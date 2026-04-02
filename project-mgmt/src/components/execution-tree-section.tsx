@@ -414,9 +414,7 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
       badgeClass: getStatusClass(task.status),
       categoryLabel: "設計",
       owner: task.assignee,
-      cardSummary: [
-        `任務標題：${task.title}`,
-      ],
+      cardSummary: [],
       fields: [
         { label: "所屬專案", value: project.name },
         { label: "項目", value: task.title },
@@ -614,8 +612,7 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
               const replyForm = replyForms[item.id] ?? defaultReplyForm;
               const isReplyOpen = activeReplyBoxId === item.id;
               const isDetailOpen = expandedDetailId === item.id;
-              const latestReply = item.replies[item.replies.length - 1];
-              const latestSummary = latestReply ? parseReplyMessage(latestReply) : null;
+              const isDesignCard = openCategory === "design";
               return (
                 <div key={item.id} className="rounded-2xl border border-slate-300 bg-white p-4 shadow-sm">
                   <div className="flex flex-col gap-4">
@@ -625,20 +622,18 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
                           <span className="inline-flex items-center justify-center rounded-full bg-slate-900 px-3 py-1 text-xs font-semibold text-white">
                             #{itemIndex + 1}
                           </span>
-                          <span className="inline-flex items-center justify-center rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
-                            {item.categoryLabel}
-                          </span>
-                          <span className={`inline-flex items-center justify-center rounded-full px-3 py-1 text-xs font-medium ${item.badgeClass}`}>
-                            {item.badge}
-                          </span>
+                          {!isDesignCard ? (
+                            <>
+                              <span className="inline-flex items-center justify-center rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
+                                {item.categoryLabel}
+                              </span>
+                              <span className={`inline-flex items-center justify-center rounded-full px-3 py-1 text-xs font-medium ${item.badgeClass}`}>
+                                {item.badge}
+                              </span>
+                            </>
+                          ) : null}
                         </div>
                         <h5 className="mt-3 text-base font-semibold text-slate-900">{item.title}</h5>
-                        <div className="mt-2 flex flex-wrap gap-3 text-sm text-slate-500">
-                          <span>所屬專案：{project.name}</span>
-                          <span>來源：{item.sourceLabel}</span>
-                          {item.owner ? <span>負責人：{item.owner}</span> : null}
-                          <span>回覆 {item.replies.length} 則</span>
-                        </div>
                         {item.cardSummary.length ? (
                           <div className="mt-3 flex flex-wrap gap-2">
                             {item.cardSummary.map((line) => (
@@ -647,28 +642,25 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
                               </span>
                             ))}
                           </div>
-                        ) : null}
-                        <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
-                          <div className="flex flex-wrap items-center justify-between gap-3">
-                            <div className="flex flex-wrap items-center gap-3 text-sm text-slate-600">
-                              <span>回覆數量：{item.replies.length}</span>
-                              <span>
-                                最近狀態摘要：{latestSummary ? `${latestSummary.statusLabel}｜${latestSummary.amount}` : "尚無回覆"}
-                              </span>
-                            </div>
-                            <div className="flex flex-wrap gap-2">
-                              <button type="button" onClick={() => setExpandedReplyNodes((prev) => ({ ...prev, [item.id]: !(prev[item.id] ?? false) }))} className="inline-flex items-center justify-center rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-50">
-                                {(expandedReplyNodes[item.id] ?? false) ? "收合回覆" : "查看回覆"}
-                              </button>
-                              <button type="button" onClick={() => setActiveReplyBoxId((prev) => (prev === item.id ? null : item.id))} className="inline-flex items-center justify-center rounded-xl bg-slate-900 px-3 py-2 text-xs font-semibold text-white transition hover:bg-slate-800">
-                                {isReplyOpen ? "取消回覆" : "新增回覆"}
-                              </button>
-                            </div>
+                        ) : isDesignCard ? (
+                          <div className="mt-3 flex flex-wrap gap-2">
+                            <span className="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-500">
+                              尺寸：未填寫
+                            </span>
+                            <span className="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-500">
+                              材質 + 結構：未填寫
+                            </span>
                           </div>
-                        </div>
+                        ) : null}
                       </div>
 
                       <div className="flex flex-wrap gap-2">
+                        <button type="button" onClick={() => setExpandedReplyNodes((prev) => ({ ...prev, [item.id]: !(prev[item.id] ?? false) }))} className="inline-flex items-center justify-center rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-50">
+                          {(expandedReplyNodes[item.id] ?? false) ? "收合回覆" : "查看回覆"}
+                        </button>
+                        <button type="button" onClick={() => setActiveReplyBoxId((prev) => (prev === item.id ? null : item.id))} className="inline-flex items-center justify-center rounded-xl bg-slate-900 px-3 py-2 text-xs font-semibold text-white transition hover:bg-slate-800">
+                          {isReplyOpen ? "取消回覆" : "新增回覆"}
+                        </button>
                         <button type="button" onClick={() => setExpandedDetailId((prev) => (prev === item.id ? null : item.id))} className="inline-flex items-center justify-center rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-50">
                           {isDetailOpen ? "收合主卡資訊" : "查看主卡資訊"}
                         </button>
