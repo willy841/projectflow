@@ -613,6 +613,7 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
               const isReplyOpen = activeReplyBoxId === item.id;
               const isDetailOpen = expandedDetailId === item.id;
               const isDesignCard = openCategory === "design";
+              const isProcurementCard = openCategory === "procurement";
               return (
                 <div key={item.id} className="rounded-2xl border border-slate-300 bg-white p-4 shadow-sm">
                   <div className="flex flex-col gap-4">
@@ -622,7 +623,7 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
                           <span className="inline-flex items-center justify-center rounded-full bg-slate-900 px-3 py-1 text-xs font-semibold text-white">
                             #{itemIndex + 1}
                           </span>
-                          {!isDesignCard ? (
+                          {!isDesignCard && !isProcurementCard ? (
                             <>
                               <span className="inline-flex items-center justify-center rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
                                 {item.categoryLabel}
@@ -649,6 +650,15 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
                             </span>
                             <span className="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-500">
                               材質 + 結構：未填寫
+                            </span>
+                          </div>
+                        ) : isProcurementCard ? (
+                          <div className="mt-3 flex flex-wrap gap-2">
+                            <span className="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-500">
+                              尺寸：未填寫
+                            </span>
+                            <span className="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-500">
+                              材質：未填寫
                             </span>
                           </div>
                         ) : null}
