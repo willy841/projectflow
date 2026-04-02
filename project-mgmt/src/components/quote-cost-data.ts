@@ -1,142 +1,130 @@
-import { getProjectById } from "@/components/project-data";
+export type QuoteCostProjectStatus = "執行中" | "已結案";
+export type ReconciliationStatus = "未開始" | "待確認" | "已完成";
 
-export type QuoteCostStatus = "執行中" | "已結案";
-
-type CostLineSource = "設計" | "備品" | "廠商";
-
-export type QuoteCostLine = {
+export type QuoteLineItem = {
   id: string;
-  title: string;
-  adjustedAmount: number;
+  category: string;
+  itemName: string;
+  description: string;
+  quantity: number;
+  unit: string;
+  unitPrice: number;
+};
+
+export type CostSourceType = "設計" | "備品" | "廠商";
+
+export type CostLineItem = {
+  id: string;
+  itemName: string;
+  sourceType: CostSourceType;
+  sourceRef: string;
+  vendorId: string | null;
+  vendorName: string | null;
   originalAmount: number;
-  source: CostLineSource;
-  sourceLabel: string;
-  vendorName: string | null;
+  adjustedAmount: number;
 };
 
-export type VendorCostGroup = {
-  vendorName: string | null;
-  lines: QuoteCostLine[];
-};
-
-export type QuoteCostRecord = {
-  projectId: string;
-  quoteTotal: number;
-  quoteImportedAt: string;
-  quoteLineCount: number;
-  reconciliationConfirmed: boolean;
-  reconciliationConfirmedAt?: string;
-  closeable: boolean;
-  closedAt?: string;
-  status: QuoteCostStatus;
-  quoteFileName: string;
+export type QuoteCostProject = {
+  id: string;
+  projectCode: string;
+  projectName: string;
+  clientName: string;
+  eventDate: string;
+  projectStatus: QuoteCostProjectStatus;
+  quotationImported: boolean;
+  reconciliationStatus: ReconciliationStatus;
+  closeStatus: "未結案" | "已結案";
+  quotationItems: QuoteLineItem[];
+  costItems: CostLineItem[];
   note: string;
-  costGroups: VendorCostGroup[];
 };
 
-const quoteCostRecords: QuoteCostRecord[] = [
+export const UNSPECIFIED_VENDOR_ID = "unassigned";
+export const UNSPECIFIED_VENDOR_NAME = "未指定廠商";
+
+export const vendorDirectory = [
+  { id: "vendor-led-studio", name: "曜石影像製作" },
+  { id: "vendor-wood-lab", name: "木作實驗室" },
+  { id: "vendor-print-house", name: "春分印刷" },
+  { id: "vendor-props-team", name: "青田展示製作" },
+  { id: "vendor-gift-supply", name: "禮品補給站" },
+];
+
+export const quoteCostProjects: QuoteCostProject[] = [
   {
-    projectId: "spring-popup-2026",
-    quoteTotal: 680000,
-    quoteImportedAt: "2026-04-01 14:20",
-    quoteLineCount: 18,
-    reconciliationConfirmed: false,
-    closeable: false,
-    status: "執行中",
-    quoteFileName: "morino-spring-popup-quotation-v3.xlsx",
-    note: "仍有未指定廠商的備品與設計成本待補綁，暫不建議結案。",
-    costGroups: [
-      {
-        vendorName: "映彩視覺",
-        lines: [
-          { id: "spring-design-1", title: "入口主背板輸出完稿", adjustedAmount: 18000, originalAmount: 18000, source: "設計", sourceLabel: "設計文件整理 / R1", vendorName: "映彩視覺" },
-          { id: "spring-design-2", title: "導視系統版型整理", adjustedAmount: 8200, originalAmount: 7600, source: "設計", sourceLabel: "設計文件整理 / R2", vendorName: "映彩視覺" },
-        ],
-      },
-      {
-        vendorName: "星澄輸出",
-        lines: [
-          { id: "spring-vendor-1", title: "主背板大圖輸出", adjustedAmount: 28600, originalAmount: 27400, source: "廠商", sourceLabel: "廠商發包清單 / VP-031", vendorName: "星澄輸出" },
-          { id: "spring-vendor-2", title: "活動現場導視輸出", adjustedAmount: 16400, originalAmount: 16400, source: "廠商", sourceLabel: "廠商發包清單 / VP-031", vendorName: "星澄輸出" },
-        ],
-      },
-      {
-        vendorName: "木與光工坊",
-        lines: [
-          { id: "spring-proc-1", title: "陳列桌製作", adjustedAmount: 138000, originalAmount: 142000, source: "備品", sourceLabel: "備品整理 / PO-211", vendorName: "木與光工坊" },
-          { id: "spring-proc-2", title: "品牌立牌結構", adjustedAmount: 26500, originalAmount: 24800, source: "備品", sourceLabel: "備品整理 / PO-214", vendorName: "木與光工坊" },
-        ],
-      },
-      {
-        vendorName: null,
-        lines: [
-          { id: "spring-unspecified-1", title: "贈品吊卡印刷", adjustedAmount: 12500, originalAmount: 12500, source: "備品", sourceLabel: "備品整理 / PO-219", vendorName: null },
-          { id: "spring-unspecified-2", title: "包裝貼紙延伸設計", adjustedAmount: 6800, originalAmount: 6800, source: "設計", sourceLabel: "設計文件整理 / R3", vendorName: null },
-        ],
-      },
+    id: "spring-popup-2026",
+    projectCode: "QC-2026-031",
+    projectName: "春季品牌快閃活動",
+    clientName: "森野生活",
+    eventDate: "2026-04-12",
+    projectStatus: "執行中",
+    quotationImported: true,
+    reconciliationStatus: "待確認",
+    closeStatus: "未結案",
+    note: "第一輪先以 Excel 匯入 mock 結構呈現，成本調整僅存在本頁 local state。",
+    quotationItems: [
+      { id: "q1", category: "場佈", itemName: "入口主背板製作", description: "主背板木作、輸出與現場安裝", quantity: 1, unit: "式", unitPrice: 168000 },
+      { id: "q2", category: "視覺", itemName: "導視系統與立牌", description: "導視立牌、價卡與掛旗整合", quantity: 1, unit: "式", unitPrice: 92000 },
+      { id: "q3", category: "備品", itemName: "陳列桌與展示道具", description: "三組陳列桌與展示層架", quantity: 1, unit: "式", unitPrice: 126000 },
+      { id: "q4", category: "印刷", itemName: "贈品吊卡與貼紙", description: "吊卡、貼紙、包裝貼標", quantity: 1, unit: "式", unitPrice: 48000 },
+    ],
+    costItems: [
+      { id: "c1", itemName: "主背板木作與安裝", sourceType: "廠商", sourceRef: "廠商發包清單 / 春季包 #01", vendorId: "vendor-wood-lab", vendorName: "木作實驗室", originalAmount: 118000, adjustedAmount: 118000 },
+      { id: "c2", itemName: "導視系統輸出", sourceType: "設計", sourceRef: "設計文件整理 / 導視系統版型", vendorId: "vendor-print-house", vendorName: "春分印刷", originalAmount: 32000, adjustedAmount: 35500 },
+      { id: "c3", itemName: "陳列桌租借", sourceType: "備品", sourceRef: "備品整理 / 陳列桌三組", vendorId: "vendor-props-team", vendorName: "青田展示製作", originalAmount: 54000, adjustedAmount: 54000 },
+      { id: "c4", itemName: "品牌立牌輸出", sourceType: "設計", sourceRef: "設計文件整理 / 品牌立牌版型", vendorId: null, vendorName: null, originalAmount: 16800, adjustedAmount: 16800 },
+      { id: "c5", itemName: "贈品吊卡印刷", sourceType: "備品", sourceRef: "備品整理 / 吊卡印刷", vendorId: "vendor-gift-supply", vendorName: "禮品補給站", originalAmount: 22600, adjustedAmount: 22600 },
     ],
   },
   {
-    projectId: "obsidian-launch-2026",
-    quoteTotal: 1280000,
-    quoteImportedAt: "2026-03-29 10:12",
-    quoteLineCount: 26,
-    reconciliationConfirmed: true,
-    reconciliationConfirmedAt: "2026-04-02 16:30",
-    closeable: true,
-    closedAt: "2026-04-03 01:20",
-    status: "已結案",
-    quoteFileName: "obsidian-launch-master-quote.xlsx",
-    note: "對帳已確認，專案已手動結案。",
-    costGroups: [
-      {
-        vendorName: "曜石整合製作",
-        lines: [
-          { id: "obsidian-vendor-1", title: "舞台主視覺施工", adjustedAmount: 286000, originalAmount: 286000, source: "廠商", sourceLabel: "廠商發包清單 / VP-028", vendorName: "曜石整合製作" },
-          { id: "obsidian-vendor-2", title: "接待區背牆木作", adjustedAmount: 196000, originalAmount: 188000, source: "廠商", sourceLabel: "廠商發包清單 / VP-028", vendorName: "曜石整合製作" },
-        ],
-      },
-      {
-        vendorName: "映彩視覺",
-        lines: [
-          { id: "obsidian-design-1", title: "主 KV 延伸版位", adjustedAmount: 52000, originalAmount: 52000, source: "設計", sourceLabel: "設計文件整理 / R1", vendorName: "映彩視覺" },
-        ],
-      },
-      {
-        vendorName: "霧光花藝",
-        lines: [
-          { id: "obsidian-proc-1", title: "接待桌花與名牌採購", adjustedAmount: 32000, originalAmount: 32000, source: "備品", sourceLabel: "備品整理 / PO-188", vendorName: "霧光花藝" },
-        ],
-      },
+    id: "obsidian-launch-2026",
+    projectCode: "QC-2026-028",
+    projectName: "新品發表會主視覺與會場製作",
+    clientName: "曜石科技",
+    eventDate: "2026-04-20",
+    projectStatus: "執行中",
+    quotationImported: true,
+    reconciliationStatus: "未開始",
+    closeStatus: "未結案",
+    note: "木作與 LED 牆還在調整，先保留未指定廠商成本以便後續補綁。",
+    quotationItems: [
+      { id: "q1", category: "舞台", itemName: "主舞台 LED 動畫", description: "LED 動畫設計與播放素材整理", quantity: 1, unit: "式", unitPrice: 285000 },
+      { id: "q2", category: "會場", itemName: "接待區背牆木作", description: "背牆木作、烤漆與施工", quantity: 1, unit: "式", unitPrice: 360000 },
+      { id: "q3", category: "輸出", itemName: "現場指示與識別物", description: "名牌、指示牌與報到背板輸出", quantity: 1, unit: "式", unitPrice: 118000 },
+    ],
+    costItems: [
+      { id: "c1", itemName: "LED 動畫外包", sourceType: "設計", sourceRef: "設計文件整理 / 主 KV 延伸版位", vendorId: "vendor-led-studio", vendorName: "曜石影像製作", originalAmount: 132000, adjustedAmount: 145000 },
+      { id: "c2", itemName: "接待區背牆木作", sourceType: "廠商", sourceRef: "廠商發包清單 / 背牆木作", vendorId: "vendor-wood-lab", vendorName: "木作實驗室", originalAmount: 188000, adjustedAmount: 188000 },
+      { id: "c3", itemName: "舞台輸出圖檔整理", sourceType: "設計", sourceRef: "設計文件整理 / 舞台輸出檔", vendorId: null, vendorName: null, originalAmount: 28000, adjustedAmount: 28000 },
     ],
   },
   {
-    projectId: "department-store-display-2026",
-    quoteTotal: 420000,
-    quoteImportedAt: "2026-04-02 11:08",
-    quoteLineCount: 15,
-    reconciliationConfirmed: false,
-    closeable: false,
-    status: "執行中",
-    quoteFileName: "greenmall-display-quote.xlsx",
-    note: "報價單已匯入，但成本仍在補齊中，尚未進入對帳確認。",
-    costGroups: [
-      {
-        vendorName: "青木五金",
-        lines: [
-          { id: "dept-proc-1", title: "展示架五金與配件", adjustedAmount: 56000, originalAmount: 56000, source: "備品", sourceLabel: "備品整理 / PO-301", vendorName: "青木五金" },
-        ],
-      },
-      {
-        vendorName: null,
-        lines: [
-          { id: "dept-design-1", title: "POP 與價卡完稿", adjustedAmount: 24000, originalAmount: 22500, source: "設計", sourceLabel: "設計文件整理 / R1", vendorName: null },
-          { id: "dept-proc-2", title: "贈品包材追加", adjustedAmount: 24000, originalAmount: 24000, source: "備品", sourceLabel: "備品整理 / PO-305", vendorName: null },
-        ],
-      },
+    id: "qingshan-store-display-2026",
+    projectCode: "QC-2026-024",
+    projectName: "百貨檔期陳列與贈品備品整合",
+    clientName: "青禾百貨",
+    eventDate: "2026-04-25",
+    projectStatus: "已結案",
+    quotationImported: true,
+    reconciliationStatus: "已完成",
+    closeStatus: "已結案",
+    note: "此案作為已結案 mock 範例，方便驗收列表分區與結案狀態。",
+    quotationItems: [
+      { id: "q1", category: "視覺", itemName: "POP 與價卡完稿", description: "檔期 POP、價卡與吊牌完稿", quantity: 1, unit: "式", unitPrice: 92000 },
+      { id: "q2", category: "展示", itemName: "展示架與五金配件", description: "展示架結構、五金與現場調整", quantity: 1, unit: "式", unitPrice: 146000 },
+      { id: "q3", category: "贈品", itemName: "贈品包材追加", description: "贈品包材與標示物追加", quantity: 1, unit: "式", unitPrice: 58000 },
+    ],
+    costItems: [
+      { id: "c1", itemName: "POP 與價卡輸出", sourceType: "設計", sourceRef: "設計文件整理 / POP 完稿", vendorId: "vendor-print-house", vendorName: "春分印刷", originalAmount: 41800, adjustedAmount: 41800 },
+      { id: "c2", itemName: "展示架五金與配件", sourceType: "備品", sourceRef: "備品整理 / 五金配件採購", vendorId: "vendor-props-team", vendorName: "青田展示製作", originalAmount: 86000, adjustedAmount: 89500 },
+      { id: "c3", itemName: "贈品包材追加", sourceType: "備品", sourceRef: "備品整理 / 包材追加", vendorId: "vendor-gift-supply", vendorName: "禮品補給站", originalAmount: 23500, adjustedAmount: 23500 },
     ],
   },
 ];
+
+export function getQuoteCostProjectById(id: string) {
+  return quoteCostProjects.find((project) => project.id === id);
+}
 
 export function formatCurrency(value: number) {
   return new Intl.NumberFormat("zh-TW", {
@@ -146,37 +134,29 @@ export function formatCurrency(value: number) {
   }).format(value);
 }
 
-function sum(values: number[]) {
-  return values.reduce((total, value) => total + value, 0);
+export function getQuotationTotal(items: QuoteLineItem[]) {
+  return items.reduce((sum, item) => sum + item.quantity * item.unitPrice, 0);
 }
 
-export function getQuoteCostRecord(projectId: string) {
-  return quoteCostRecords.find((record) => record.projectId === projectId);
+export function getAdjustedCostTotal(items: CostLineItem[]) {
+  return items.reduce((sum, item) => sum + item.adjustedAmount, 0);
 }
 
-export function getQuoteCostProjects() {
-  return quoteCostRecords
-    .map((record) => {
-      const project = getProjectById(record.projectId);
-      if (!project) return null;
+export function getOriginalCostTotal(items: CostLineItem[]) {
+  return items.reduce((sum, item) => sum + item.originalAmount, 0);
+}
 
-      const adjustedCostTotal = sum(
-        record.costGroups.flatMap((group) => group.lines.map((line) => line.adjustedAmount)),
-      );
-      const originalCostTotal = sum(
-        record.costGroups.flatMap((group) => group.lines.map((line) => line.originalAmount)),
-      );
-      const grossProfit = record.quoteTotal - adjustedCostTotal;
-      const hasUnassignedVendor = record.costGroups.some((group) => !group.vendorName);
+export function getGrossProfit(quotationTotal: number, adjustedCostTotal: number) {
+  return quotationTotal - adjustedCostTotal;
+}
 
-      return {
-        ...record,
-        project,
-        adjustedCostTotal,
-        originalCostTotal,
-        grossProfit,
-        hasUnassignedVendor,
-      };
-    })
-    .filter((item): item is NonNullable<typeof item> => Boolean(item));
+export function getReconciliationStatusClass(status: ReconciliationStatus) {
+  if (status === "已完成") return "bg-emerald-50 text-emerald-700 ring-emerald-200";
+  if (status === "待確認") return "bg-amber-50 text-amber-700 ring-amber-200";
+  return "bg-slate-100 text-slate-700 ring-slate-200";
+}
+
+export function getCloseStatusClass(status: "未結案" | "已結案") {
+  if (status === "已結案") return "bg-slate-100 text-slate-700 ring-slate-200";
+  return "bg-sky-50 text-sky-700 ring-sky-200";
 }
