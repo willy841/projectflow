@@ -33,8 +33,8 @@ export function ProjectVendorSection({
   visible?: boolean;
   vendorTaskItems?: VendorAssignmentItem[];
 }) {
-  const packageMap = useMemo(() => buildPackageMap(), []);
-  const packages = useMemo(() => getPackagesByProjectId(projectId), [projectId]);
+  const [packages, setPackages] = useState<VendorPackage[]>(() => getPackagesByProjectId(projectId));
+  const packageMap = useMemo(() => Object.fromEntries(packages.map((pkg) => [pkg.id, pkg])), [packages]);
   const [assignments, setAssignments] = useState<VendorAssignment[]>(() =>
     vendorTaskItems.map((item) => ({
       id: item.targetId,
@@ -65,10 +65,64 @@ export function ProjectVendorSection({
 
   function handleSend(assignment: VendorAssignment) {
     if (!assignment.selectedVendorName) return;
-    const matchedPackage = packages.find((pkg) => pkg.vendorName === assignment.selectedVendorName);
+    const selectedVendorName = assignment.selectedVendorName;
+
+    let nextPackageId = assignment.packageId;
+
+    setPackages((current) => {
+      const matchedPackage = current.find((pkg) => pkg.vendorName === selectedVendorName);
+
+      if (matchedPackage) {
+        nextPackageId = matchedPackage.id;
+        const alreadyExists = matchedPackage.items.some((item) => item.assignmentId === assignment.id);
+        if (alreadyExists) {
+          return current;
+        }
+        return current.map((pkg) =>
+          pkg.id === matchedPackage.id
+            ? {
+                ...pkg,
+                items: [
+                  ...pkg.items,
+                  {
+                    id: `line-${assignment.id}`,
+                    assignmentId: assignment.id,
+                    itemName: assignment.title,
+                    requirementText: assignment.summary,
+                  },
+                ],
+              }
+            : pkg,
+        );
+      }
+
+      const createdPackage: VendorPackage = {
+        id: `vp-${assignment.id}`,
+        code: `VP-${Date.now()}`,
+        projectId,
+        projectName: assignment.title,
+        vendorName: selectedVendorName,
+        eventDate: "待補日期",
+        location: "待補地點",
+        loadInTime: "待補時間",
+        items: [
+          {
+            id: `line-${assignment.id}`,
+            assignmentId: assignment.id,
+            itemName: assignment.title,
+            requirementText: assignment.summary,
+          },
+        ],
+        note: "",
+        documentGenerated: false,
+      };
+      nextPackageId = createdPackage.id;
+      return [...current, createdPackage];
+    });
+
     handleAssignmentChange(assignment.id, {
       status: "done",
-      packageId: matchedPackage?.id ?? assignment.packageId,
+      packageId: nextPackageId,
     });
   }
 
