@@ -771,7 +771,7 @@ function AssignmentMenu({
       <button
         type="button"
         onClick={() => onToggle(targetId)}
-        className="inline-flex h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-800 transition hover:bg-slate-50"
+        className="inline-flex h-11 min-w-[72px] items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-800 transition hover:bg-slate-50"
       >
         交辦
       </button>
@@ -1679,16 +1679,13 @@ export function ExecutionTree({
             ) : null}
 
             {isOpen ? (
-              <div className="mt-5 rounded-3xl border border-slate-300 bg-slate-100 p-4">
-                <p className="mb-4 max-w-3xl text-sm leading-6 text-slate-600">
-                  {item.detail}
-                </p>
+              <div className="mt-5 rounded-3xl border border-slate-200 bg-slate-50 p-4">
                 {item.note ? (
                   <p className="mb-3 text-sm text-slate-500">
                     備註：{item.note}
                   </p>
                 ) : null}
-                <div className="space-y-3 border-l border-slate-300 pl-4 md:pl-6">
+                <div className="space-y-3 border-l border-slate-200 pl-4 md:pl-6">
                   {(item.children ?? []).map((child, childIndex) => {
                     const isEditingChild = editingChildId === child.id;
                     const showChildDesignForm =
@@ -1708,7 +1705,7 @@ export function ExecutionTree({
                     return (
                       <div
                         key={child.id}
-                        className="rounded-2xl border border-slate-300 bg-white px-4 py-3 shadow-sm"
+                        className="rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-sm"
                       >
                         <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
                           <div className="flex-1">
@@ -1830,14 +1827,14 @@ export function ExecutionTree({
                               onClick={() =>
                                 startEditingChild(child.id, child.title)
                               }
-                              className="inline-flex h-9 items-center justify-center rounded-xl border border-slate-300 bg-white px-3 text-xs font-semibold text-slate-700 transition hover:bg-slate-100"
+                              className="inline-flex h-9 min-w-[54px] items-center justify-center rounded-xl border border-slate-300 bg-white px-3 text-xs font-semibold text-slate-700 transition hover:bg-slate-100"
                             >
                               編輯
                             </button>
                             <button
                               type="button"
                               onClick={() => removeChild(item.id, child.id)}
-                              className="inline-flex h-9 items-center justify-center rounded-xl border border-rose-200 bg-white px-3 text-xs font-semibold text-rose-600 transition hover:bg-rose-50"
+                              className="inline-flex h-9 min-w-[54px] items-center justify-center rounded-xl border border-rose-200 bg-white px-3 text-xs font-semibold text-rose-600 transition hover:bg-rose-50"
                             >
                               刪除
                             </button>
