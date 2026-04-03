@@ -771,7 +771,7 @@ function AssignmentMenu({
       <button
         type="button"
         onClick={() => onToggle(targetId)}
-        className="inline-flex h-11 min-w-[72px] items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-800 transition hover:bg-slate-50"
+        className="inline-flex h-11 w-[72px] items-center justify-center rounded-2xl border border-slate-300 bg-white px-3 text-sm font-semibold text-slate-800 transition hover:bg-slate-50"
       >
         交辦
       </button>
@@ -1827,14 +1827,14 @@ export function ExecutionTree({
                               onClick={() =>
                                 startEditingChild(child.id, child.title)
                               }
-                              className="inline-flex h-9 min-w-[54px] items-center justify-center rounded-xl border border-slate-300 bg-white px-3 text-xs font-semibold text-slate-700 transition hover:bg-slate-100"
+                              className="inline-flex h-9 w-[54px] items-center justify-center rounded-xl border border-slate-300 bg-white px-3 text-xs font-semibold text-slate-700 transition hover:bg-slate-100"
                             >
                               編輯
                             </button>
                             <button
                               type="button"
                               onClick={() => removeChild(item.id, child.id)}
-                              className="inline-flex h-9 min-w-[54px] items-center justify-center rounded-xl border border-rose-200 bg-white px-3 text-xs font-semibold text-rose-600 transition hover:bg-rose-50"
+                              className="inline-flex h-9 w-[54px] items-center justify-center rounded-xl border border-rose-200 bg-white px-3 text-xs font-semibold text-rose-600 transition hover:bg-rose-50"
                             >
                               刪除
                             </button>
