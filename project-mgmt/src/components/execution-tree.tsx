@@ -950,6 +950,7 @@ export function ExecutionTree({
   );
   const [editingChildId, setEditingChildId] = useState<string | null>(null);
   const [editingMainId, setEditingMainId] = useState<string | null>(null);
+  const [collapsedAssignmentIds, setCollapsedAssignmentIds] = useState<Record<string, boolean>>({});
   const [editingValue, setEditingValue] = useState("");
   const [activeAssignMenu, setActiveAssignMenu] = useState<string | null>(null);
   const [showMainItemCreator, setShowMainItemCreator] = useState(false);
@@ -1037,6 +1038,13 @@ export function ExecutionTree({
 
   function updateDraft(itemId: string, value: string) {
     setDrafts((prev) => ({ ...prev, [itemId]: value }));
+  }
+
+  function toggleAssignmentCollapse(targetId: string) {
+    setCollapsedAssignmentIds((prev) => ({
+      ...prev,
+      [targetId]: !prev[targetId],
+    }));
   }
   function getParentItemId(targetId: string) {
     const matchedParent = localItems.find(
@@ -1480,6 +1488,11 @@ export function ExecutionTree({
         const showMainVendorForm =
           activeVendorFormId === item.id ||
           Boolean(savedVendorAssignments[item.id]);
+        const hasMainAssignment =
+          Boolean(savedDesignAssignments[item.id]) ||
+          Boolean(savedProcurementAssignments[item.id]) ||
+          Boolean(savedVendorAssignments[item.id]);
+        const isMainAssignmentCollapsed = collapsedAssignmentIds[item.id] ?? false;
         return (
           <div
             key={item.id}
@@ -1550,7 +1563,7 @@ export function ExecutionTree({
                       </div>
                       <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
                         <div className="flex flex-wrap items-center justify-between gap-3 text-sm text-slate-600">
-                          <div className="flex flex-wrap gap-2">
+                          <div className="flex flex-wrap items-center gap-2">
                             {savedDesignAssignments[item.id] ? (
                               <span className="inline-flex items-center justify-center rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700 ring-1 ring-blue-200">
                                 已建立設計交辦
@@ -1566,12 +1579,20 @@ export function ExecutionTree({
                                 已建立廠商交辦
                               </span>
                             ) : null}
-                            {!savedDesignAssignments[item.id] &&
-                            !savedProcurementAssignments[item.id] &&
-                            !savedVendorAssignments[item.id] ? (
+                            {!hasMainAssignment ? (
                               <span className="text-xs text-slate-500">
                                 尚未建立交辦
                               </span>
+                            ) : null}
+                            {hasMainAssignment ? (
+                              <button
+                                type="button"
+                                onClick={() => toggleAssignmentCollapse(item.id)}
+                                className="inline-flex h-7 w-7 items-center justify-center rounded-full border border-slate-200 bg-white text-sm text-slate-600 transition hover:border-slate-300 hover:bg-slate-100 hover:text-slate-900"
+                                aria-label={isMainAssignmentCollapsed ? "展開交辦內容" : "收合交辦內容"}
+                              >
+                                {isMainAssignmentCollapsed ? "›" : "⌄"}
+                              </button>
                             ) : null}
                           </div>
                           <span className="text-xs text-slate-500">
@@ -1611,7 +1632,7 @@ export function ExecutionTree({
                 </button>
               </div>
             </div>
-            {showMainDesignForm ? (
+            {showMainDesignForm && !isMainAssignmentCollapsed ? (
               <DesignAssignmentForm
                 title={item.title}
                 draft={
@@ -1631,7 +1652,7 @@ export function ExecutionTree({
                 }}
               />
             ) : null}
-            {showMainProcurementForm ? (
+            {showMainProcurementForm && !isMainAssignmentCollapsed ? (
               <ProcurementAssignmentForm
                 title={item.title}
                 draft={
@@ -1651,7 +1672,7 @@ export function ExecutionTree({
                 }}
               />
             ) : null}
-            {showMainVendorForm ? (
+            {showMainVendorForm && !isMainAssignmentCollapsed ? (
               <VendorAssignmentForm
                 title={item.title}
                 draft={
@@ -1696,6 +1717,11 @@ export function ExecutionTree({
                     const showChildVendorForm =
                       activeVendorFormId === child.id ||
                       Boolean(savedVendorAssignments[child.id]);
+                    const hasChildAssignment =
+                      Boolean(savedDesignAssignments[child.id]) ||
+                      Boolean(savedProcurementAssignments[child.id]) ||
+                      Boolean(savedVendorAssignments[child.id]);
+                    const isChildAssignmentCollapsed = collapsedAssignmentIds[child.id] ?? false;
                     return (
                       <div
                         key={child.id}
@@ -1761,7 +1787,7 @@ export function ExecutionTree({
                                 </div>
                                 <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
                                   <div className="flex flex-wrap items-center justify-between gap-3 text-sm text-slate-600">
-                                    <div className="flex flex-wrap gap-2">
+                                    <div className="flex flex-wrap items-center gap-2">
                                       {savedDesignAssignments[child.id] ? (
                                         <span className="inline-flex items-center justify-center rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700 ring-1 ring-blue-200">
                                           已建立設計交辦
@@ -1777,12 +1803,20 @@ export function ExecutionTree({
                                           已建立廠商交辦
                                         </span>
                                       ) : null}
-                                      {!savedDesignAssignments[child.id] &&
-                                      !savedProcurementAssignments[child.id] &&
-                                      !savedVendorAssignments[child.id] ? (
+                                      {!hasChildAssignment ? (
                                         <span className="text-xs text-slate-500">
                                           尚未建立交辦
                                         </span>
+                                      ) : null}
+                                      {hasChildAssignment ? (
+                                        <button
+                                          type="button"
+                                          onClick={() => toggleAssignmentCollapse(child.id)}
+                                          className="inline-flex h-7 w-7 items-center justify-center rounded-full border border-slate-200 bg-white text-sm text-slate-600 transition hover:border-slate-300 hover:bg-slate-100 hover:text-slate-900"
+                                          aria-label={isChildAssignmentCollapsed ? "展開交辦內容" : "收合交辦內容"}
+                                        >
+                                          {isChildAssignmentCollapsed ? "›" : "⌄"}
+                                        </button>
                                       ) : null}
                                     </div>
                                     <span className="text-xs text-slate-500">
@@ -1838,7 +1872,7 @@ export function ExecutionTree({
                             </button>
                           </div>
                         </div>
-                        {showChildDesignForm ? (
+                        {showChildDesignForm && !isChildAssignmentCollapsed ? (
                           <DesignAssignmentForm
                             title={child.title}
                             draft={
@@ -1858,7 +1892,7 @@ export function ExecutionTree({
                             }}
                           />
                         ) : null}
-                        {showChildProcurementForm ? (
+                        {showChildProcurementForm && !isChildAssignmentCollapsed ? (
                           <ProcurementAssignmentForm
                             title={child.title}
                             draft={
@@ -1883,7 +1917,7 @@ export function ExecutionTree({
                             }}
                           />
                         ) : null}
-                        {showChildVendorForm ? (
+                        {showChildVendorForm && !isChildAssignmentCollapsed ? (
                           <VendorAssignmentForm
                             title={child.title}
                             draft={
