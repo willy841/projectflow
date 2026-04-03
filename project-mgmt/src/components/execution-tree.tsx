@@ -755,6 +755,7 @@ function AssignmentMenu({
   hasDesign,
   hasProcurement,
   hasVendor,
+  size = "main",
 }: {
   targetId: string;
   isActive: boolean;
@@ -765,13 +766,19 @@ function AssignmentMenu({
   hasDesign: boolean;
   hasProcurement: boolean;
   hasVendor: boolean;
+  size?: "main" | "child";
 }) {
+  const buttonClass =
+    size === "child"
+      ? "inline-flex h-9 w-[54px] items-center justify-center rounded-xl border border-slate-300 bg-white px-3 text-xs font-semibold text-slate-700 transition hover:bg-slate-100"
+      : "inline-flex h-11 w-[72px] items-center justify-center rounded-2xl border border-slate-300 bg-white px-3 text-sm font-semibold text-slate-800 transition hover:bg-slate-50";
+
   return (
     <div className="relative">
       <button
         type="button"
         onClick={() => onToggle(targetId)}
-        className="inline-flex h-11 w-[72px] items-center justify-center rounded-2xl border border-slate-300 bg-white px-3 text-sm font-semibold text-slate-800 transition hover:bg-slate-50"
+        className={buttonClass}
       >
         交辦
       </button>
@@ -1821,6 +1828,7 @@ export function ExecutionTree({
                               hasVendor={Boolean(
                                 savedVendorAssignments[child.id],
                               )}
+                              size="child"
                             />
                             <button
                               type="button"
