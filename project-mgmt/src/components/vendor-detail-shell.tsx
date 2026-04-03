@@ -6,6 +6,7 @@ import {
   formatCurrency,
   getVendorPaymentStatusClass,
   getVendorRecordsByVendorId,
+  type VendorBasicProfile,
   type VendorProjectRecord,
 } from "@/components/vendor-data";
 import { TRADE_OPTIONS, useVendorStore } from "@/components/vendor-store";
@@ -13,6 +14,125 @@ import { TRADE_OPTIONS, useVendorStore } from "@/components/vendor-store";
 type Props = {
   vendorId: string;
 };
+
+type VendorEditableForm = {
+  contactName: string;
+  phone: string;
+  email: string;
+  lineId: string;
+  address: string;
+  bankName: string;
+  accountName: string;
+  accountNumber: string;
+};
+
+function buildVendorEditableForm(vendor: VendorBasicProfile): VendorEditableForm {
+  return {
+    contactName: vendor.contactName || "",
+    phone: vendor.phone || "",
+    email: vendor.email || "",
+    lineId: vendor.lineId || "",
+    address: vendor.address || "",
+    bankName: vendor.bankName || "",
+    accountName: vendor.accountName || "",
+    accountNumber: vendor.accountNumber || "",
+  };
+}
+
+function VendorProfileEditor({
+  vendor,
+  onSave,
+}: {
+  vendor: VendorBasicProfile;
+  onSave: (patch: VendorEditableForm) => void;
+}) {
+  const [editableForm, setEditableForm] = useState<VendorEditableForm>(() => buildVendorEditableForm(vendor));
+  const [saveMessage, setSaveMessage] = useState("");
+
+  function updateEditableField(field: keyof VendorEditableForm, value: string) {
+    setEditableForm((current) => ({ ...current, [field]: value }));
+    if (saveMessage) {
+      setSaveMessage("");
+    }
+  }
+
+  function saveVendorProfile() {
+    const patch = {
+      contactName: editableForm.contactName.trim(),
+      phone: editableForm.phone.trim(),
+      email: editableForm.email.trim(),
+      lineId: editableForm.lineId.trim(),
+      address: editableForm.address.trim(),
+      bankName: editableForm.bankName.trim(),
+      accountName: editableForm.accountName.trim(),
+      accountNumber: editableForm.accountNumber.trim(),
+    };
+    setEditableForm(patch);
+    onSave(patch);
+    setSaveMessage("已儲存，vendor detail 已同步更新。");
+  }
+
+  return (
+    <article className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+      <div className="mb-5 flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+        <div>
+          <p className="text-xs font-semibold tracking-wide text-slate-500">A. 廠商資料</p>
+          <h3 className="mt-1 text-xl font-semibold text-slate-900">基本資料與匯款資訊</h3>
+          <p className="mt-2 text-sm leading-6 text-slate-600">維持 local state / localStorage MVP，儲存後直接同步 vendor detail 顯示，不碰後端。</p>
+        </div>
+        <div className="flex flex-col items-start gap-2 lg:items-end">
+          <span className="inline-flex rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700 ring-1 ring-emerald-200">
+            可直接編輯
+          </span>
+          {saveMessage ? <p className="text-xs text-emerald-700">{saveMessage}</p> : null}
+        </div>
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-2">
+        <div className="rounded-2xl bg-slate-50 p-4">
+          <p className="text-sm text-slate-500">合作類型</p>
+          <p className="mt-2 font-medium text-slate-900">{vendor.category || "待補充"}</p>
+        </div>
+
+        {[
+          { label: "聯絡人", field: "contactName", type: "text", placeholder: "請輸入聯絡人" },
+          { label: "電話", field: "phone", type: "text", placeholder: "請輸入電話" },
+          { label: "Email", field: "email", type: "email", placeholder: "請輸入 Email" },
+          { label: "LINE", field: "lineId", type: "text", placeholder: "請輸入 LINE" },
+          { label: "地址", field: "address", type: "text", placeholder: "請輸入地址", fullWidth: true },
+          { label: "銀行", field: "bankName", type: "text", placeholder: "請輸入銀行名稱" },
+          { label: "戶名", field: "accountName", type: "text", placeholder: "請輸入戶名" },
+          { label: "帳號", field: "accountNumber", type: "text", placeholder: "請輸入帳號" },
+        ].map((item) => (
+          <label
+            key={item.field}
+            className={`rounded-2xl bg-slate-50 p-4 ${item.fullWidth ? "md:col-span-2" : ""}`}
+          >
+            <span className="text-sm text-slate-500">{item.label}</span>
+            <input
+              type={item.type}
+              value={editableForm[item.field as keyof VendorEditableForm]}
+              onChange={(event) => updateEditableField(item.field as keyof VendorEditableForm, event.target.value)}
+              placeholder={item.placeholder}
+              className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-slate-400"
+            />
+          </label>
+        ))}
+      </div>
+
+      <div className="mt-5 flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-slate-50 px-4 py-4">
+        <p className="text-sm text-slate-500">銀行代碼目前維持既有資料顯示：{vendor.bankCode || "未填"}</p>
+        <button
+          type="button"
+          onClick={saveVendorProfile}
+          className="inline-flex items-center justify-center rounded-2xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800"
+        >
+          儲存基本資料與匯款資訊
+        </button>
+      </div>
+    </article>
+  );
+}
 
 export function VendorDetailShell({ vendorId }: Props) {
   const { getVendorById, updateVendor, isReady } = useVendorStore();
@@ -88,36 +208,13 @@ export function VendorDetailShell({ vendorId }: Props) {
       </header>
 
       <section className="grid gap-6 2xl:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)]">
-        <article className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
-          <div className="mb-5 flex items-center justify-between gap-3">
-            <div>
-              <p className="text-xs font-semibold tracking-wide text-slate-500">A. 廠商資料</p>
-              <h3 className="mt-1 text-xl font-semibold text-slate-900">基本資料與匯款資訊</h3>
-            </div>
-            <span className="inline-flex rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700 ring-1 ring-slate-200">
-              Mock 資料
-            </span>
-          </div>
-
-          <div className="grid gap-4 md:grid-cols-2">
-            {[
-              ["合作類型", vendor.category || "待補充"],
-              ["聯絡人", vendor.contactName || "-"],
-              ["電話", vendor.phone || "-"],
-              ["Email", vendor.email || "-"],
-              ["LINE", vendor.lineId || "-"],
-              ["地址", vendor.address || "-"],
-              ["銀行", vendor.bankName ? `${vendor.bankName} (${vendor.bankCode})` : "-"],
-              ["戶名", vendor.accountName || "-"],
-              ["帳號", vendor.accountNumber || "-"],
-            ].map(([label, value]) => (
-              <div key={label} className="rounded-2xl bg-slate-50 p-4">
-                <p className="text-sm text-slate-500">{label}</p>
-                <p className="mt-2 font-medium text-slate-900">{value}</p>
-              </div>
-            ))}
-          </div>
-        </article>
+        <VendorProfileEditor
+          key={vendor.id}
+          vendor={vendor}
+          onSave={(patch) => {
+            updateVendor(vendor.id, patch);
+          }}
+        />
 
         <article className="rounded-3xl border border-sky-200 bg-sky-50/60 p-6 shadow-sm ring-1 ring-sky-100">
           <div className="mb-5 flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
