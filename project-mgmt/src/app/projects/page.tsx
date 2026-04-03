@@ -78,11 +78,11 @@ export default function ProjectsPage() {
       </section>
 
       <section className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
-        <div className="mb-5 flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+        <div className="mb-5 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
           <div className="min-w-0">
-            <div className="flex flex-wrap items-center gap-3">
-              <h3 className="text-xl font-semibold">全部專案</h3>
-              <p className="text-sm text-slate-500">
+            <div className="flex min-h-11 flex-wrap items-center gap-3">
+              <h3 className="text-xl font-semibold leading-none">全部專案</h3>
+              <p className="text-sm leading-none text-slate-500">
                 目前顯示 <span className="font-semibold text-slate-800">{visibleProjects.length}</span> / {projects.length} 個專案
               </p>
             </div>
