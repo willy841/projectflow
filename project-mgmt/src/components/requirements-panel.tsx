@@ -91,9 +91,9 @@ export function RequirementsPanel({
 
   return (
     <article className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
-      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="min-w-0">
-          <h3 className="text-xl font-semibold">需求溝通</h3>
+      <div className="mb-4 flex min-h-11 flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div className="min-w-0 pt-2 sm:pt-1.5">
+          <h3 className="text-xl font-semibold leading-none">需求溝通</h3>
         </div>
         <button
           type="button"
