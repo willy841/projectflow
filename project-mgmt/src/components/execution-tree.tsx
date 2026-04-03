@@ -139,7 +139,7 @@ function SavedSummary({
   actions,
 }: {
   title: string;
-  subtitle: string;
+  subtitle?: string;
   summary: string[];
   fields: Array<{ label: string; value: string }>;
   collapsedFields?: Array<{ label: string; value: string }>;
@@ -155,7 +155,7 @@ function SavedSummary({
               已建立
             </span>
           </div>
-          <p className="mt-1 text-sm text-slate-500">{subtitle}</p>
+          {subtitle ? <p className="mt-1 text-sm text-slate-500">{subtitle}</p> : null}
           {summary.length ? (
             <div className="mt-3 flex flex-wrap gap-2">
               {summary.map((item) => (
