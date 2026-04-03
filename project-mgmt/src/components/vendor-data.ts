@@ -51,6 +51,7 @@ export type VendorBasicProfile = {
   id: string;
   name: string;
   category: string;
+  tradeLabels?: string[];
   contactName: string;
   phone: string;
   email: string;

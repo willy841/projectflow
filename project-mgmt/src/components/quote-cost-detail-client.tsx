@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { AppShell } from "@/components/app-shell";
+import { VendorQuickCreateDialog } from "@/components/vendor-quick-create-dialog";
+import { useVendorStore } from "@/components/vendor-store";
 import {
   formatCurrency,
   getAdjustedCostTotal,
@@ -27,8 +29,10 @@ type Props = {
 type EditableProjectState = QuoteCostProject;
 
 export function QuoteCostDetailClient({ project, mode = "active" }: Props) {
+  const { vendors } = useVendorStore();
   const [state, setState] = useState<EditableProjectState>(project);
   const [quoteImportIndex, setQuoteImportIndex] = useState(0);
+  const [quickCreateItemId, setQuickCreateItemId] = useState<string | null>(null);
   const quoteImportOptions = sampleQuoteImports[project.id] ?? [project.quotationImport].filter(Boolean);
   const quoteLineItemOptions = sampleQuoteLineItemsByProject[project.id] ?? [project.quotationItems];
   const isClosedView = mode === "closed";
@@ -59,6 +63,12 @@ export function QuoteCostDetailClient({ project, mode = "active" }: Props) {
   const manualItems = state.costItems.filter((item) => item.isManual);
   const includedManualTotal = manualItems.filter((item) => item.includedInCost).reduce((sum, item) => sum + item.adjustedAmount, 0);
   const vendorIncludedTotal = state.costItems.filter((item) => !item.isManual && item.includedInCost).reduce((sum, item) => sum + item.adjustedAmount, 0);
+  const availableVendors = useMemo(() => {
+    const merged = new Map<string, { id: string; name: string }>();
+    vendorDirectory.forEach((vendor) => merged.set(vendor.id, vendor));
+    vendors.forEach((vendor) => merged.set(vendor.id, { id: vendor.id, name: vendor.name }));
+    return Array.from(merged.values());
+  }, [vendors]);
 
   function mutateCosts(mutator: (prev: EditableProjectState) => EditableProjectState) {
     setState((prev) => {
@@ -103,7 +113,7 @@ export function QuoteCostDetailClient({ project, mode = "active" }: Props) {
   }
 
   function handleVendorChange(itemId: string, vendorId: string) {
-    const vendor = vendorDirectory.find((entry) => entry.id === vendorId);
+    const vendor = availableVendors.find((entry) => entry.id === vendorId);
     mutateCosts((prev) => ({
       ...prev,
       costItems: prev.costItems.map((item) =>
@@ -164,7 +174,8 @@ export function QuoteCostDetailClient({ project, mode = "active" }: Props) {
   }
 
   return (
-    <AppShell activePath={isClosedView ? "/closeout" : "/quote-costs"}>
+    <>
+      <AppShell activePath={isClosedView ? "/closeout" : "/quote-costs"}>
       <header className={`overflow-hidden rounded-[28px] border p-6 shadow-sm xl:p-7 ${isClosedView ? "border-slate-200 bg-linear-to-br from-slate-50 to-white" : "border-slate-200 bg-linear-to-br from-slate-900 via-slate-800 to-slate-900 text-white"}`}>
         <div className="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
           <div>
@@ -399,10 +410,19 @@ export function QuoteCostDetailClient({ project, mode = "active" }: Props) {
                               className="mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-white px-3 text-sm outline-none focus:border-slate-400 disabled:bg-slate-50 disabled:text-slate-600"
                             >
                               <option value={UNSPECIFIED_VENDOR_ID}>{UNSPECIFIED_VENDOR_NAME}</option>
-                              {vendorDirectory.map((vendor) => (
+                              {availableVendors.map((vendor) => (
                                 <option key={vendor.id} value={vendor.id}>{vendor.name}</option>
                               ))}
                             </select>
+                            {!isClosedView ? (
+                              <button
+                                type="button"
+                                onClick={() => setQuickCreateItemId(item.id)}
+                                className="mt-2 inline-flex items-center justify-center rounded-xl border border-dashed border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50"
+                              >
+                                找不到廠商？快速建立
+                              </button>
+                            ) : null}
                           </div>
                           <div className="flex items-end">
                             <label className="flex h-11 w-full items-center gap-2 rounded-2xl border border-slate-200 bg-white px-3 text-sm text-slate-600">
@@ -511,7 +531,18 @@ export function QuoteCostDetailClient({ project, mode = "active" }: Props) {
           <OverviewRow label="目前狀態" value={`${state.reconciliationStatus} / ${state.closeStatus}`} archived={isClosedView} />
         </div>
       </section>
-    </AppShell>
+      </AppShell>
+      <VendorQuickCreateDialog
+        open={Boolean(quickCreateItemId)}
+        onClose={() => setQuickCreateItemId(null)}
+        title="流程內快速建立廠商"
+        description="設計 / 備品 / 廠商相關流程若匹配不到既有廠商，可直接建立；成功後會立刻回填到目前選單。"
+        onCreated={(vendor) => {
+          if (!quickCreateItemId) return;
+          handleVendorChange(quickCreateItemId, vendor.id);
+        }}
+      />
+    </>
   );
 }
 
