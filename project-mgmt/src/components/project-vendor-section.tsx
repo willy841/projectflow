@@ -6,7 +6,9 @@ import {
   getPackagesByProjectId,
   getVendorDocumentStatusClass,
   vendorPackages,
+  vendorProfiles,
   type VendorAssignment,
+  type VendorBasicProfile,
   type VendorPackage,
 } from "@/components/vendor-data";
 import type { VendorAssignmentItem } from "@/components/execution-tree-section";
@@ -19,6 +21,18 @@ type ProjectVendorInfo = {
 };
 
 type PackageMap = Record<string, VendorPackage>;
+type QuickCreateForm = {
+  name: string;
+  category: string;
+  trades: string[];
+};
+
+type QuickCreateFeedback =
+  | { type: "success"; message: string }
+  | { type: "duplicate"; message: string }
+  | null;
+
+const TRADE_PRESETS = ["輸出", "木作", "施工", "佈置", "電工", "燈光", "活動執行"];
 
 function mapVendorTaskItemToAssignment(projectId: string, item: VendorAssignmentItem): VendorAssignment {
   return {
@@ -48,12 +62,22 @@ function buildPackageMap(packages: VendorPackage[]): PackageMap {
   return Object.fromEntries(packages.map((pkg) => [pkg.id, pkg]));
 }
 
-function groupPackagesByVendor(packages: VendorPackage[]) {
-  return packages.reduce<Record<string, VendorPackage[]>>((acc, pkg) => {
-    if (!acc[pkg.vendorName]) acc[pkg.vendorName] = [];
-    acc[pkg.vendorName].push(pkg);
-    return acc;
-  }, {});
+function normalizeName(value: string) {
+  return value.trim().toLocaleLowerCase();
+}
+
+function buildVendorOptionNames(packages: VendorPackage[], createdVendors: VendorBasicProfile[]) {
+  const names = new Set<string>();
+
+  vendorProfiles.forEach((vendor) => names.add(vendor.name));
+  createdVendors.forEach((vendor) => names.add(vendor.name));
+  packages.forEach((pkg) => names.add(pkg.vendorName));
+
+  return Array.from(names).sort((a, b) => a.localeCompare(b, "zh-Hant"));
+}
+
+function createEmptyQuickForm(): QuickCreateForm {
+  return { name: "", category: "", trades: [] };
 }
 
 export function ProjectVendorSection({
@@ -68,10 +92,15 @@ export function ProjectVendorSection({
   vendorTaskItems?: VendorAssignmentItem[];
 }) {
   const [packages, setPackages] = useState<VendorPackage[]>(() => getPackagesByProjectId(projectId));
+  const [createdVendors, setCreatedVendors] = useState<VendorBasicProfile[]>([]);
   const packageMap = useMemo(() => buildPackageMap(packages), [packages]);
+  const vendorOptions = useMemo(() => buildVendorOptionNames(packages, createdVendors), [packages, createdVendors]);
   const [assignments, setAssignments] = useState<VendorAssignment[]>(() =>
     vendorTaskItems.map((item) => mapVendorTaskItemToAssignment(projectId, item))
   );
+  const [openQuickCreateId, setOpenQuickCreateId] = useState<string | null>(null);
+  const [quickCreateDrafts, setQuickCreateDrafts] = useState<Record<string, QuickCreateForm>>({});
+  const [quickCreateFeedback, setQuickCreateFeedback] = useState<Record<string, QuickCreateFeedback>>({});
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -97,6 +126,87 @@ export function ProjectVendorSection({
 
   function handleAssignmentChange(id: string, patch: Partial<VendorAssignment>) {
     setAssignments((current) => current.map((assignment) => (assignment.id === id ? { ...assignment, ...patch } : assignment)));
+  }
+
+  function toggleQuickCreate(assignment: VendorAssignment) {
+    setQuickCreateFeedback((current) => ({ ...current, [assignment.id]: null }));
+    setQuickCreateDrafts((current) => ({
+      ...current,
+      [assignment.id]: current[assignment.id] ?? createEmptyQuickForm(),
+    }));
+    setOpenQuickCreateId((current) => (current === assignment.id ? null : assignment.id));
+  }
+
+  function updateQuickCreateDraft(id: string, patch: Partial<QuickCreateForm>) {
+    setQuickCreateDrafts((current) => ({
+      ...current,
+      [id]: {
+        ...(current[id] ?? createEmptyQuickForm()),
+        ...patch,
+      },
+    }));
+  }
+
+  function toggleQuickTrade(id: string, trade: string) {
+    const draft = quickCreateDrafts[id] ?? createEmptyQuickForm();
+    const trades = draft.trades.includes(trade)
+      ? draft.trades.filter((item) => item !== trade)
+      : [...draft.trades, trade];
+    updateQuickCreateDraft(id, { trades });
+  }
+
+  function createVendorFromQuickForm(assignment: VendorAssignment) {
+    const draft = quickCreateDrafts[assignment.id] ?? createEmptyQuickForm();
+    const normalizedName = normalizeName(draft.name);
+    if (!normalizedName) return;
+
+    const existingVendor = [...vendorProfiles, ...createdVendors].find((vendor) => normalizeName(vendor.name) === normalizedName);
+
+    if (existingVendor) {
+      handleAssignmentChange(assignment.id, { selectedVendorName: existingVendor.name });
+      if (!assignment.tradeLabel?.trim() && draft.trades.length) {
+        handleAssignmentChange(assignment.id, { tradeLabel: draft.trades.join(" / ") });
+      }
+      setQuickCreateFeedback((current) => ({
+        ...current,
+        [assignment.id]: {
+          type: "duplicate",
+          message: `「${existingVendor.name}」已存在，已直接幫你選取。`,
+        },
+      }));
+      return;
+    }
+
+    const nextVendor: VendorBasicProfile = {
+      id: `vendor-inline-${assignment.id}`,
+      name: draft.name.trim(),
+      category: draft.category.trim() || draft.trades.join(" / ") || "未分類",
+      contactName: "",
+      phone: "",
+      email: "",
+      lineId: "",
+      address: "",
+      note: draft.trades.length ? `Quick create 工種：${draft.trades.join(" / ")}` : "Quick create 建立",
+      bankName: "",
+      bankCode: "",
+      accountName: "",
+      accountNumber: "",
+    };
+
+    setCreatedVendors((current) => [...current, nextVendor]);
+    handleAssignmentChange(assignment.id, {
+      selectedVendorName: nextVendor.name,
+      tradeLabel: assignment.tradeLabel?.trim() ? assignment.tradeLabel : draft.trades.join(" / "),
+    });
+    setQuickCreateFeedback((current) => ({
+      ...current,
+      [assignment.id]: {
+        type: "success",
+        message: `已建立「${nextVendor.name}」，並自動選取到這張需求卡。`,
+      },
+    }));
+    setQuickCreateDrafts((current) => ({ ...current, [assignment.id]: createEmptyQuickForm() }));
+    setOpenQuickCreateId(null);
   }
 
   function handleSend(assignment: VendorAssignment) {
@@ -172,8 +282,6 @@ export function ProjectVendorSection({
     });
   }
 
-  const vendorPackagesByName = groupPackagesByVendor(packages);
-
   if (!visible) {
     return null;
   }
@@ -198,6 +306,9 @@ export function ProjectVendorSection({
             const canSubmit = Boolean(
               assignment.title.trim() && assignment.summary.trim() && (assignment.tradeLabel || "").trim() && selectedVendorName.trim() && !isSubmitted,
             );
+            const isQuickCreateOpen = openQuickCreateId === assignment.id;
+            const quickCreateState = quickCreateDrafts[assignment.id] ?? createEmptyQuickForm();
+            const feedback = quickCreateFeedback[assignment.id];
 
             return (
               <div key={assignment.id} className="rounded-3xl border border-slate-200 bg-slate-50 p-5">
@@ -207,9 +318,14 @@ export function ProjectVendorSection({
                   <span className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ring-1 ${isSubmitted ? "bg-emerald-50 text-emerald-700 ring-emerald-200" : "bg-slate-100 text-slate-700 ring-slate-200"}`}>
                     {statusLabel}
                   </span>
+                  {selectedVendorName ? (
+                    <span className="inline-flex rounded-full bg-sky-50 px-3 py-1 text-xs font-medium text-sky-700 ring-1 ring-sky-200">
+                      已選：{selectedVendorName}
+                    </span>
+                  ) : null}
                 </div>
 
-                <div className="mt-4 grid gap-4 xl:grid-cols-[minmax(0,1fr)_220px_220px]">
+                <div className="mt-4 grid gap-4 xl:grid-cols-[minmax(0,1fr)_240px_260px]">
                   <div className="space-y-4">
                     <label className="block">
                       <p className="mb-2 text-sm font-medium text-slate-700">任務標題</p>
@@ -235,11 +351,15 @@ export function ProjectVendorSection({
 
                   <div className="space-y-4">
                     <label className="block">
-                      <p className="mb-2 text-sm font-medium text-slate-700">工種</p>
+                      <div className="mb-2 flex items-center justify-between gap-2">
+                        <p className="text-sm font-medium text-slate-700">工種</p>
+                        <span className="text-xs text-slate-400">可多選後自動帶入</span>
+                      </div>
                       <input
                         value={assignment.tradeLabel || ""}
                         onChange={(event) => handleAssignmentChange(assignment.id, { tradeLabel: event.target.value })}
                         disabled={isSubmitted}
+                        placeholder="例如：輸出 / 施工"
                         className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-500"
                       />
                     </label>
@@ -254,20 +374,107 @@ export function ProjectVendorSection({
                   </div>
 
                   <div className="space-y-4">
-                    <label className="block">
-                      <p className="mb-2 text-sm font-medium text-slate-700">選擇廠商</p>
+                    <div className="rounded-2xl border border-slate-200 bg-white p-4">
+                      <div className="flex items-center justify-between gap-2">
+                        <p className="text-sm font-medium text-slate-700">選擇廠商</p>
+                        {!isSubmitted ? (
+                          <button
+                            type="button"
+                            onClick={() => toggleQuickCreate(assignment)}
+                            className="inline-flex items-center justify-center rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-[11px] font-semibold text-slate-700 transition hover:border-sky-200 hover:bg-sky-50 hover:text-sky-700"
+                          >
+                            {isQuickCreateOpen ? "收合 quick create" : "+ 快速建立廠商"}
+                          </button>
+                        ) : null}
+                      </div>
+
                       <select
                         value={selectedVendorName}
                         onChange={(event) => handleAssignmentChange(assignment.id, { selectedVendorName: event.target.value })}
                         disabled={isSubmitted}
-                        className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-500"
+                        className="mt-3 w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-500"
                       >
                         <option value="">請選擇廠商</option>
-                        {Object.keys(vendorPackagesByName).map((vendorName) => (
+                        {vendorOptions.map((vendorName) => (
                           <option key={vendorName} value={vendorName}>{vendorName}</option>
                         ))}
                       </select>
-                    </label>
+
+                      {feedback ? (
+                        <div className={`mt-3 rounded-2xl px-3 py-2 text-xs font-medium ring-1 ${feedback.type === "success" ? "bg-emerald-50 text-emerald-700 ring-emerald-200" : "bg-amber-50 text-amber-700 ring-amber-200"}`}>
+                          {feedback.message}
+                        </div>
+                      ) : null}
+
+                      {isQuickCreateOpen ? (
+                        <div className="mt-3 rounded-2xl border border-sky-100 bg-sky-50/70 p-3">
+                          <div className="flex items-start justify-between gap-3">
+                            <div>
+                              <p className="text-sm font-semibold text-slate-900">Quick create 廠商</p>
+                              <p className="mt-1 text-xs leading-5 text-slate-500">不用離開流程；建立後會自動選中這張需求卡。</p>
+                            </div>
+                            <span className="rounded-full bg-white px-2.5 py-1 text-[11px] font-semibold text-sky-700 ring-1 ring-sky-100">輕量建立</span>
+                          </div>
+
+                          <div className="mt-3 space-y-3">
+                            <input
+                              value={quickCreateState.name}
+                              onChange={(event) => updateQuickCreateDraft(assignment.id, { name: event.target.value })}
+                              placeholder="廠商名稱"
+                              className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-sky-300"
+                            />
+                            <input
+                              value={quickCreateState.category}
+                              onChange={(event) => updateQuickCreateDraft(assignment.id, { category: event.target.value })}
+                              placeholder="合作類型（可不填）"
+                              className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-sky-300"
+                            />
+                            <div>
+                              <div className="mb-2 flex items-center justify-between gap-2">
+                                <p className="text-xs font-semibold text-slate-700">工種（可多選）</p>
+                                <span className="text-[11px] text-slate-400">不把表單做重，只保留常用選項</span>
+                              </div>
+                              <div className="flex flex-wrap gap-2">
+                                {TRADE_PRESETS.map((trade) => {
+                                  const active = quickCreateState.trades.includes(trade);
+                                  return (
+                                    <button
+                                      key={trade}
+                                      type="button"
+                                      onClick={() => toggleQuickTrade(assignment.id, trade)}
+                                      className={`inline-flex items-center justify-center rounded-full px-3 py-1.5 text-xs font-medium ring-1 transition ${active ? "bg-slate-900 text-white ring-slate-900" : "bg-white text-slate-700 ring-slate-200 hover:bg-slate-50"}`}
+                                    >
+                                      {trade}
+                                    </button>
+                                  );
+                                })}
+                              </div>
+                              {quickCreateState.trades.length ? (
+                                <p className="mt-2 text-xs text-slate-500">已選工種：{quickCreateState.trades.join(" / ")}</p>
+                              ) : null}
+                            </div>
+                          </div>
+
+                          <div className="mt-4 flex flex-wrap gap-2">
+                            <button
+                              type="button"
+                              onClick={() => createVendorFromQuickForm(assignment)}
+                              disabled={!quickCreateState.name.trim()}
+                              className="inline-flex items-center justify-center rounded-2xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-300"
+                            >
+                              建立並選取
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setOpenQuickCreateId(null)}
+                              className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+                            >
+                              稍後再建
+                            </button>
+                          </div>
+                        </div>
+                      ) : null}
+                    </div>
 
                     <button
                       type="button"
@@ -278,7 +485,7 @@ export function ProjectVendorSection({
                       送出
                     </button>
 
-                    {isSubmitted ? <p className="text-xs leading-5 text-slate-500">已送出後不可再次送出；後續整理請到 package 內進行。</p> : null}
+                    {isSubmitted ? <p className="text-xs leading-5 text-slate-500">已送出後不可再次送出；後續整理請到 package 內進行。</p> : <p className="text-xs leading-5 text-slate-500">建立成功後會直接歸入同專案 + 同廠商的 Package，流程不中斷。</p>}
                   </div>
                 </div>
               </div>

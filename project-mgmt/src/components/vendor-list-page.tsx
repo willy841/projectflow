@@ -20,9 +20,19 @@ export function VendorListPage() {
               第一輪先做可驗收 mock / front-end MVP：列表頁只保留廠商名稱與未付款總額，點進去再看廠商資料、未付款專案與往來歷史。
             </p>
           </div>
-          <div className="rounded-3xl border border-amber-200 bg-amber-50 px-5 py-4 text-sm text-amber-900">
-            <p className="font-semibold">全部未付款總額</p>
-            <p className="mt-2 text-2xl font-semibold">{formatCurrency(totalOutstanding)}</p>
+
+          <div className="flex flex-col items-stretch gap-3 sm:items-end">
+            <div className="rounded-3xl border border-amber-200 bg-amber-50 px-5 py-4 text-sm text-amber-900">
+              <p className="font-semibold">全部未付款總額</p>
+              <p className="mt-2 text-2xl font-semibold">{formatCurrency(totalOutstanding)}</p>
+            </div>
+            <button
+              type="button"
+              className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 shadow-sm transition hover:border-slate-400 hover:bg-slate-50"
+            >
+              + 新增廠商
+            </button>
+            <p className="text-xs text-slate-500">入口先做清楚但不搶畫面；詳細 quick create 仍優先在專案流程內完成。</p>
           </div>
         </div>
       </header>
