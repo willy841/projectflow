@@ -3,18 +3,19 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { AppShell } from "@/components/app-shell";
-import { designTaskGroups } from "@/components/design-task-data";
+import { projects } from "@/components/project-data";
 
 type ConfirmStatus = "尚無回覆" | "待確認" | "已確認";
 type DocumentStatus = "未生成" | "已生成" | "需更新";
 
-type DesignTaskBoardRecord = {
+type ProcurementBoardRecord = {
   id: string;
   projectId: string;
   projectName: string;
   title: string;
   size: string;
   material: string;
+  quantity: string;
   replyCount: number;
   confirmStatus: ConfirmStatus;
   documentStatus: DocumentStatus;
@@ -33,26 +34,29 @@ function getDocumentBadgeClass(status: DocumentStatus) {
   return "bg-slate-100 text-slate-700 ring-slate-200";
 }
 
-export default function DesignTasksPage() {
+export default function ProcurementTasksPage() {
   const [query, setQuery] = useState("");
   const [confirmFilter, setConfirmFilter] = useState<"all" | ConfirmStatus>("all");
   const [documentFilter, setDocumentFilter] = useState<"all" | DocumentStatus>("all");
   const [vendorFilter, setVendorFilter] = useState("all");
 
-  const records = useMemo<DesignTaskBoardRecord[]>(
+  const records = useMemo<ProcurementBoardRecord[]>(
     () =>
-      designTaskGroups.map((task, index) => ({
-        id: task.id,
-        projectId: task.projectId,
-        projectName: task.projectName,
-        title: task.title,
-        size: task.size,
-        material: task.material,
-        replyCount: index % 3 === 0 ? 0 : index % 3 === 1 ? 2 : 3,
-        confirmStatus: index % 3 === 0 ? "尚無回覆" : index % 3 === 1 ? "待確認" : "已確認",
-        documentStatus: index % 3 === 2 ? (index % 2 === 0 ? "已生成" : "需更新") : "未生成",
-        vendorName: task.outsourceTarget && task.outsourceTarget !== "尚未指定" ? task.outsourceTarget : "未指定",
-      })),
+      projects.flatMap((project) =>
+        project.procurementTasks.map((task, index) => ({
+          id: `${project.id}-procurement-${index}`,
+          projectId: project.id,
+          projectName: project.name,
+          title: task.title,
+          size: index % 2 === 0 ? "W60 x D60 x H110 cm" : "未填寫",
+          material: index % 2 === 0 ? "壓克力 / 金屬" : "紙材 / 印刷",
+          quantity: index % 2 === 0 ? "3 組" : "1 式",
+          replyCount: index % 3 === 0 ? 0 : index % 3 === 1 ? 2 : 3,
+          confirmStatus: index % 3 === 0 ? "尚無回覆" : index % 3 === 1 ? "待確認" : "已確認",
+          documentStatus: index % 3 === 2 ? (index % 2 === 0 ? "已生成" : "需更新") : "未生成",
+          vendorName: index % 2 === 0 ? "星澄輸出" : "未指定",
+        })),
+      ),
     [],
   );
 
@@ -80,13 +84,13 @@ export default function DesignTasksPage() {
   }), [records]);
 
   return (
-    <AppShell activePath="/design-tasks">
+    <AppShell activePath="/procurement-tasks">
       <header className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
         <div className="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
           <div>
             <p className="text-sm text-slate-500">跨專案工作台</p>
-            <h2 className="mt-1 text-3xl font-semibold tracking-tight text-slate-900">設計任務版</h2>
-            <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-600">以跨專案視角追蹤設計任務是否已被回覆、是否已被確認、是否已進文件主線。</p>
+            <h2 className="mt-1 text-3xl font-semibold tracking-tight text-slate-900">備品採購版</h2>
+            <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-600">以跨專案視角追蹤備品項目是否已被回覆、是否已被確認、是否已進單一備品文件主線。</p>
           </div>
 
           <div className="grid gap-3 sm:grid-cols-3">
@@ -110,20 +114,11 @@ export default function DesignTasksPage() {
         <div className="grid gap-3 xl:grid-cols-[minmax(0,1.35fr)_repeat(3,minmax(0,0.75fr))]">
           <label className="flex flex-col gap-2">
             <span className="text-sm font-medium text-slate-700">搜尋</span>
-            <input
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-              placeholder="搜尋專案名稱或任務標題"
-              className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400"
-            />
+            <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="搜尋專案名稱或備品項目" className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400" />
           </label>
           <label className="flex flex-col gap-2">
             <span className="text-sm font-medium text-slate-700">回覆 / 確認狀態</span>
-            <select
-              value={confirmFilter}
-              onChange={(event) => setConfirmFilter(event.target.value as typeof confirmFilter)}
-              className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400"
-            >
+            <select value={confirmFilter} onChange={(event) => setConfirmFilter(event.target.value as typeof confirmFilter)} className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400">
               <option value="all">全部</option>
               <option value="尚無回覆">尚無回覆</option>
               <option value="待確認">待確認</option>
@@ -132,11 +127,7 @@ export default function DesignTasksPage() {
           </label>
           <label className="flex flex-col gap-2">
             <span className="text-sm font-medium text-slate-700">文件狀態</span>
-            <select
-              value={documentFilter}
-              onChange={(event) => setDocumentFilter(event.target.value as typeof documentFilter)}
-              className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400"
-            >
+            <select value={documentFilter} onChange={(event) => setDocumentFilter(event.target.value as typeof documentFilter)} className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400">
               <option value="all">全部</option>
               <option value="未生成">未生成</option>
               <option value="已生成">已生成</option>
@@ -144,12 +135,8 @@ export default function DesignTasksPage() {
             </select>
           </label>
           <label className="flex flex-col gap-2">
-            <span className="text-sm font-medium text-slate-700">執行廠商</span>
-            <select
-              value={vendorFilter}
-              onChange={(event) => setVendorFilter(event.target.value)}
-              className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400"
-            >
+            <span className="text-sm font-medium text-slate-700">廠商</span>
+            <select value={vendorFilter} onChange={(event) => setVendorFilter(event.target.value)} className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400">
               <option value="all">全部</option>
               {vendors.map((vendor) => (
                 <option key={vendor} value={vendor}>{vendor}</option>
@@ -161,7 +148,7 @@ export default function DesignTasksPage() {
 
       <section className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
         <div className="mb-4 flex items-center justify-between gap-3">
-          <h3 className="text-xl font-semibold text-slate-900">跨專案設計任務總表</h3>
+          <h3 className="text-xl font-semibold text-slate-900">跨專案備品任務總表</h3>
           <span className="text-sm text-slate-500">共 {filtered.length} 筆</span>
         </div>
 
@@ -176,47 +163,23 @@ export default function DesignTasksPage() {
                   </div>
 
                   <div className="flex flex-wrap gap-2 text-xs">
-                    <span className={`inline-flex rounded-full px-3 py-1 font-medium ring-1 ${getConfirmBadgeClass(record.confirmStatus)}`}>
-                      {record.confirmStatus}
-                    </span>
-                    <span className={`inline-flex rounded-full px-3 py-1 font-medium ring-1 ${getDocumentBadgeClass(record.documentStatus)}`}>
-                      {record.documentStatus}
-                    </span>
-                    <span className="inline-flex rounded-full bg-white px-3 py-1 font-medium text-slate-700 ring-1 ring-slate-200">
-                      回覆 {record.replyCount} 則
-                    </span>
+                    <span className={`inline-flex rounded-full px-3 py-1 font-medium ring-1 ${getConfirmBadgeClass(record.confirmStatus)}`}>{record.confirmStatus}</span>
+                    <span className={`inline-flex rounded-full px-3 py-1 font-medium ring-1 ${getDocumentBadgeClass(record.documentStatus)}`}>{record.documentStatus}</span>
+                    <span className="inline-flex rounded-full bg-white px-3 py-1 font-medium text-slate-700 ring-1 ring-slate-200">回覆 {record.replyCount} 則</span>
                   </div>
 
-                  <div className="grid gap-3 md:grid-cols-3">
-                    <div className="rounded-2xl bg-slate-50 px-3 py-2">
-                      <p className="text-xs text-slate-500">尺寸</p>
-                      <p className="mt-1 text-sm font-medium text-slate-900">{record.size}</p>
-                    </div>
-                    <div className="rounded-2xl bg-slate-50 px-3 py-2">
-                      <p className="text-xs text-slate-500">材質 + 結構</p>
-                      <p className="mt-1 text-sm font-medium text-slate-900">{record.material}</p>
-                    </div>
-                    <div className="rounded-2xl bg-slate-50 px-3 py-2">
-                      <p className="text-xs text-slate-500">執行廠商</p>
-                      <p className="mt-1 text-sm font-medium text-slate-900">{record.vendorName}</p>
-                    </div>
+                  <div className="grid gap-3 md:grid-cols-4">
+                    <div className="rounded-2xl bg-slate-50 px-3 py-2"><p className="text-xs text-slate-500">尺寸</p><p className="mt-1 text-sm font-medium text-slate-900">{record.size}</p></div>
+                    <div className="rounded-2xl bg-slate-50 px-3 py-2"><p className="text-xs text-slate-500">材質</p><p className="mt-1 text-sm font-medium text-slate-900">{record.material}</p></div>
+                    <div className="rounded-2xl bg-slate-50 px-3 py-2"><p className="text-xs text-slate-500">數量</p><p className="mt-1 text-sm font-medium text-slate-900">{record.quantity}</p></div>
+                    <div className="rounded-2xl bg-slate-50 px-3 py-2"><p className="text-xs text-slate-500">廠商</p><p className="mt-1 text-sm font-medium text-slate-900">{record.vendorName}</p></div>
                   </div>
                 </div>
 
                 <div className="flex flex-wrap gap-2 xl:justify-end">
-                  <Link href={`/projects/${record.projectId}`} className="inline-flex items-center justify-center rounded-2xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800">
-                    查看任務
-                  </Link>
-                  {record.confirmStatus === "已確認" ? (
-                    <Link href={`/projects/${record.projectId}`} className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 transition hover:bg-slate-50">
-                      查看整理內容
-                    </Link>
-                  ) : null}
-                  {record.documentStatus !== "未生成" ? (
-                    <Link href={`/projects/${record.projectId}`} className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 transition hover:bg-slate-50">
-                      查看文件
-                    </Link>
-                  ) : null}
+                  <Link href={`/projects/${record.projectId}`} className="inline-flex items-center justify-center rounded-2xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800">查看任務</Link>
+                  {record.confirmStatus === "已確認" ? <Link href={`/projects/${record.projectId}`} className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 transition hover:bg-slate-50">查看整理內容</Link> : null}
+                  {record.documentStatus !== "未生成" ? <Link href={`/projects/${record.projectId}`} className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 transition hover:bg-slate-50">查看文件</Link> : null}
                 </div>
               </div>
             </article>
