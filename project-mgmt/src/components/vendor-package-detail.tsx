@@ -91,8 +91,7 @@ export function VendorPackageDetail({ vendorPackage }: { vendorPackage: VendorPa
       <header className="rounded-3xl border border-blue-200 bg-blue-50/70 p-6 shadow-sm ring-1 ring-blue-100">
         <div className="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
           <div>
-            <p className="text-sm text-slate-500">{vendorPackage.code}</p>
-            <h2 className="mt-1 text-3xl font-semibold tracking-tight text-slate-900">{vendorPackage.vendorName}</h2>
+            <h2 className="text-3xl font-semibold tracking-tight text-slate-900">{vendorPackage.vendorName}</h2>
             <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-600">{getDocumentStatusMessage(documentStatus)}</p>
           </div>
           <span className={`inline-flex self-start rounded-full px-3 py-1 text-xs font-medium ring-1 ${getVendorDocumentStatusClass(documentStatus)}`}>
@@ -101,12 +100,13 @@ export function VendorPackageDetail({ vendorPackage }: { vendorPackage: VendorPa
         </div>
       </header>
 
-      <section className="grid gap-6 2xl:grid-cols-[minmax(0,1.05fr)_minmax(340px,0.95fr)]">
-        <article className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
-          <div className="mb-5">
-            <h3 className="text-xl font-semibold text-slate-900">Package 基本資料</h3>
-            <p className="mt-1 text-sm text-slate-500">這一層只整理文件背景、發包項目與整體備註。</p>
-          </div>
+      <section className="grid gap-6 2xl:grid-cols-[minmax(0,1.2fr)_minmax(340px,0.8fr)]">
+        <article className="space-y-6 rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+          <section>
+            <div className="mb-5">
+              <h3 className="text-xl font-semibold text-slate-900">背景資訊</h3>
+              <p className="mt-1 text-sm text-slate-500">這一區只維護文件背景資訊副本，不回寫 project 主資料。</p>
+            </div>
 
           <div className="grid gap-4 md:grid-cols-2">
             <label className="flex flex-col gap-2">
@@ -126,51 +126,65 @@ export function VendorPackageDetail({ vendorPackage }: { vendorPackage: VendorPa
               <input type="time" value={loadInTime} onChange={(event) => { setLoadInTime(event.target.value); markDirty(); }} className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-blue-400" />
             </label>
           </div>
+          </section>
 
-          <div className="mt-6 space-y-4">
-            {items.map((item, index) => (
-              <div key={item.id} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                <p className="text-sm font-semibold text-slate-700">項目 {index + 1}</p>
-                <div className="mt-3 grid gap-4 xl:grid-cols-[320px_minmax(0,1fr)]">
-                  <label className="flex flex-col gap-2">
-                    <span className="text-sm font-medium text-slate-700">項目名稱</span>
-                    <input value={item.itemName} onChange={(event) => updateItemName(item.id, event.target.value)} className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-blue-400" />
-                  </label>
-                  <label className="flex flex-col gap-2">
-                    <span className="text-sm font-medium text-slate-700">需求內容</span>
-                    <textarea value={item.requirementText} onChange={(event) => updateRequirement(item.id, event.target.value)} rows={3} className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-blue-400" />
-                  </label>
+          <section>
+            <div className="mb-5">
+              <h3 className="text-xl font-semibold text-slate-900">發包項目整理</h3>
+              <p className="mt-1 text-sm text-slate-500">這一區是整理主場，只保留項目名稱與需求內容。</p>
+            </div>
+
+            <div className="space-y-4">
+              {items.map((item, index) => (
+                <div key={item.id} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                  <p className="text-sm font-semibold text-slate-700">項目 {index + 1}</p>
+                  <div className="mt-3 grid gap-4 xl:grid-cols-[320px_minmax(0,1fr)]">
+                    <label className="flex flex-col gap-2">
+                      <span className="text-sm font-medium text-slate-700">項目名稱</span>
+                      <input value={item.itemName} onChange={(event) => updateItemName(item.id, event.target.value)} className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-blue-400" />
+                    </label>
+                    <label className="flex flex-col gap-2">
+                      <span className="text-sm font-medium text-slate-700">需求內容</span>
+                      <textarea value={item.requirementText} onChange={(event) => updateRequirement(item.id, event.target.value)} rows={3} className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-blue-400" />
+                    </label>
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          </section>
 
-          <label className="mt-6 flex flex-col gap-2">
-            <span className="text-sm font-medium text-slate-700">文件整體備註</span>
-            <textarea value={note} onChange={(event) => { setNote(event.target.value); markDirty(); }} rows={4} className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-blue-400" />
-          </label>
+          <section>
+            <label className="flex flex-col gap-2">
+              <span className="text-sm font-medium text-slate-700">文件整體備註</span>
+              <textarea value={note} onChange={(event) => { setNote(event.target.value); markDirty(); }} rows={4} className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-blue-400" />
+            </label>
+          </section>
         </article>
 
-        <article className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
-          <div className="mb-5 flex items-center justify-between gap-3">
-            <div>
+        <aside className="space-y-4 rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+          <div>
+            <div className="flex flex-wrap items-center gap-3">
               <h3 className="text-xl font-semibold text-slate-900">最終對外文件預覽</h3>
-              <p className="mt-1 text-sm text-slate-500">條列式模板，不顯示金額。</p>
+              <span className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ring-1 ${getVendorDocumentStatusClass(documentStatus)}`}>
+                {documentStatus}
+              </span>
             </div>
-            {primaryActionLabel ? (
-              <button type="button" onClick={handleGenerate} className="inline-flex items-center justify-center rounded-2xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700">
-                {primaryActionLabel}
-              </button>
-            ) : null}
+            <p className="mt-2 text-sm leading-6 text-slate-600">{getDocumentStatusMessage(documentStatus)}</p>
           </div>
 
-          <pre className="min-h-[360px] whitespace-pre-wrap rounded-2xl bg-slate-950 p-5 text-sm leading-7 text-slate-100">{documentText}</pre>
+          {primaryActionLabel ? (
+            <button type="button" onClick={handleGenerate} className="inline-flex w-full items-center justify-center rounded-2xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700">
+              {primaryActionLabel}
+            </button>
+          ) : null}
 
-          <div className="mt-5 flex flex-wrap gap-3">
+          <pre className="min-h-[360px] whitespace-pre-wrap rounded-2xl bg-slate-900 p-5 text-sm leading-7 text-slate-100">{documentText}</pre>
+
+          <div className="flex flex-wrap gap-3">
             <button type="button" onClick={handleCopy} className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 transition hover:bg-slate-50">複製內容</button>
             <button type="button" onClick={handleExport} className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 transition hover:bg-slate-50">匯出 TXT</button>
           </div>
-        </article>
+        </aside>
       </section>
     </div>
   );

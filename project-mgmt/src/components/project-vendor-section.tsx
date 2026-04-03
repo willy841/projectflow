@@ -312,40 +312,28 @@ export function ProjectVendorSection({
         </div>
 
         {packages.length ? (
-          <div className="overflow-x-auto rounded-2xl bg-white ring-1 ring-blue-100">
-            <table className="min-w-[720px] divide-y divide-slate-200 text-sm xl:min-w-full">
-              <thead>
-                <tr className="text-left text-slate-500">
-                  <th className="px-4 py-3 font-medium">廠商名稱</th>
-                  <th className="px-4 py-3 font-medium">項目數</th>
-                  <th className="px-4 py-3 font-medium">文件狀態</th>
-                  <th className="px-4 py-3 font-medium">操作</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {packages.map((vendorPackage) => (
-                  <tr key={vendorPackage.id}>
-                    <td className="px-4 py-4">
-                      <div>
-                        <p className="font-semibold text-slate-900">{vendorPackage.vendorName}</p>
-                        <p className="mt-1 text-xs text-slate-500">{vendorPackage.code}</p>
-                      </div>
-                    </td>
-                    <td className="px-4 py-4 font-medium text-slate-700">{vendorPackage.items.length} 筆</td>
-                    <td className="px-4 py-4">
+          <div className="space-y-3">
+            {packages.map((vendorPackage) => (
+              <article key={vendorPackage.id} className="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-blue-100">
+                <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-center gap-3">
+                      <h4 className="text-lg font-semibold text-slate-900">{vendorPackage.vendorName}</h4>
                       <span className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ring-1 ${getVendorDocumentStatusClass(vendorPackage.documentStatus)}`}>
                         {vendorPackage.documentStatus}
                       </span>
-                    </td>
-                    <td className="px-4 py-4">
-                      <Link href={`/vendor-packages/${vendorPackage.id}`} className="inline-flex items-center justify-center rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-800 transition hover:bg-slate-50">
-                        查看 Package
-                      </Link>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                    </div>
+                    <div className="mt-3 flex flex-wrap items-center gap-4 text-sm text-slate-600">
+                      <p>項目數：<span className="font-medium text-slate-800">{vendorPackage.items.length} 筆</span></p>
+                      <p className="text-slate-500">{vendorPackage.code}</p>
+                    </div>
+                  </div>
+                  <Link href={`/vendor-packages/${vendorPackage.id}`} className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 transition hover:bg-slate-50">
+                    查看 Package
+                  </Link>
+                </div>
+              </article>
+            ))}
           </div>
         ) : (
           <div className="rounded-2xl border border-dashed border-blue-200 bg-white p-6 text-sm text-slate-500">目前尚未建立廠商發包清單。</div>
