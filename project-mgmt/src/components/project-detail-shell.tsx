@@ -157,39 +157,69 @@ export function ProjectDetailShell({ project }: { project: Project }) {
         </section>
       ) : null}
 
-      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-[repeat(3,minmax(0,1fr))_minmax(0,1.05fr)_minmax(0,1.35fr)]">
-        {[
-          { label: "活動日期", value: projectForm.eventDate },
-          { label: "活動地點", value: projectForm.location },
-          { label: "進場時間", value: projectForm.loadInTime },
-          { label: "專案預算", value: projectForm.budget },
-        ].map((item) => (
-          <article key={item.label} className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
-            <p className="text-[11px] font-medium tracking-[0.14em] text-slate-500 uppercase">{item.label}</p>
-            <p className="mt-3 text-2xl font-semibold tracking-tight text-slate-900">{item.value}</p>
-          </article>
-        ))}
+      <section className="grid gap-4 xl:grid-cols-[minmax(0,1.1fr)_minmax(0,0.92fr)_minmax(0,1.1fr)]">
+        <article className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-slate-500">活動資訊</p>
+              <h3 className="mt-2 text-xl font-semibold tracking-tight text-slate-900">{projectForm.eventDate}</h3>
+            </div>
+            <span className="inline-flex rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700 ring-1 ring-slate-200">
+              {projectForm.eventType}
+            </span>
+          </div>
+          <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-1 2xl:grid-cols-2">
+            <div className="rounded-2xl bg-slate-50 px-4 py-3.5">
+              <p className="text-xs text-slate-500">活動地點</p>
+              <p className="mt-2 font-medium text-slate-900">{projectForm.location}</p>
+            </div>
+            <div className="rounded-2xl bg-slate-50 px-4 py-3.5">
+              <p className="text-xs text-slate-500">進場時間</p>
+              <p className="mt-2 font-medium text-slate-900">{projectForm.loadInTime}</p>
+            </div>
+          </div>
+        </article>
 
         <article className="rounded-3xl border border-slate-900 bg-slate-900 p-5 text-white shadow-sm ring-1 ring-slate-900/10">
           <div className="flex flex-wrap items-center gap-2">
-            <p className="text-sm text-slate-300">目前有效成本</p>
+            <p className="text-sm text-slate-300">成本 / 預算摘要</p>
             <span className={`inline-flex rounded-full px-2.5 py-1 text-[11px] font-semibold ring-1 ${hasWorkflowCost ? "border border-emerald-400/30 bg-emerald-500/15 text-emerald-100 ring-emerald-400/20" : "border border-white/10 bg-white/10 text-slate-200 ring-white/10"}`}>
               {hasWorkflowCost ? "主線成本" : "參考成本"}
             </span>
           </div>
-          <p className="mt-2 text-[11px] font-medium tracking-[0.14em] text-slate-300 uppercase">目前有效成本</p>
-          <p className="mt-2 text-3xl font-semibold tracking-tight">{workflowAdjustedCost ?? projectForm.cost}</p>
-          <div className="mt-4 rounded-2xl border border-white/10 bg-white/5 p-3 text-sm text-slate-200">
-            <div className="flex items-start justify-between gap-3">
-              <span className="text-slate-400">原始基準</span>
-              <span className="text-right font-medium text-slate-300">{projectForm.cost}</span>
-            </div>
+          <div className="mt-4 rounded-2xl border border-white/10 bg-white/5 p-4">
+            <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-slate-300">目前有效成本</p>
+            <p className="mt-2 text-3xl font-semibold tracking-tight">{workflowAdjustedCost ?? projectForm.cost}</p>
+          </div>
+          <div className="mt-3 rounded-2xl border border-white/10 bg-white/5 p-4">
+            <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-slate-300">專案預算</p>
+            <p className="mt-2 text-xl font-semibold tracking-tight text-white">{projectForm.budget}</p>
           </div>
           <p className="mt-3 text-xs leading-5 text-slate-300">
             {hasWorkflowCost
-              ? "首屏只保留目前有效成本作為主資訊；原始基準降階作背景參考。"
+              ? "首屏只保留目前有效成本作為主資訊；預算與原始基準降階作管理參考。"
               : "目前尚未接到主線成本，先沿用專案基準顯示；後續一旦成立會自動切換。"}
           </p>
+        </article>
+
+        <article className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
+          <div className="mb-4">
+            <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-slate-500">客戶資訊</p>
+            <h3 className="mt-2 text-xl font-semibold tracking-tight text-slate-900">{projectForm.client}</h3>
+          </div>
+          <div className="grid gap-3 sm:grid-cols-2">
+            {[
+              ["聯繫人", projectForm.contactName],
+              ["電話", projectForm.contactPhone],
+              ["Email", projectForm.contactEmail],
+              ["LINE", projectForm.contactLine],
+            ].map(([label, value]) => (
+              <div key={label} className="rounded-2xl bg-slate-50 px-4 py-3.5">
+                <p className="text-xs text-slate-500">{label}</p>
+                <p className="mt-2 font-medium text-slate-900">{value}</p>
+              </div>
+            ))}
+          </div>
         </article>
       </section>
 

@@ -286,7 +286,7 @@ export function ProjectVendorSection({
                       onClick={() => handleSend({ ...assignment, selectedVendorName })}
                       className="inline-flex h-12 w-full items-center justify-center rounded-2xl bg-slate-900 px-4 text-sm font-semibold text-white shadow-sm transition disabled:cursor-not-allowed disabled:bg-slate-300"
                     >
-                      {isSubmitted ? "已送出" : "送出至 Package"}
+                      {isSubmitted ? "已送出" : "送出至發包單"}
                     </button>
                     <div className="mt-3 min-h-10">
                       {inlineErrors[assignment.id] ? (
@@ -329,7 +329,7 @@ export function ProjectVendorSection({
                     </div>
                   </div>
                   <Link href={`/vendor-packages/${vendorPackage.id}`} className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 transition hover:bg-slate-50">
-                    進入 Package
+                    查看發包單
                   </Link>
                 </div>
               </article>

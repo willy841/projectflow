@@ -45,16 +45,16 @@ export default function VendorPackagesPage() {
       <header className="rounded-3xl border border-blue-200 bg-blue-50/70 p-6 shadow-sm ring-1 ring-blue-100">
         <div className="flex flex-col gap-5 2xl:flex-row 2xl:items-start 2xl:justify-between">
           <div>
-            <p className="text-sm text-slate-500">Package 主線</p>
+            <p className="text-sm text-slate-500">發包主線</p>
             <h2 className="mt-1 text-3xl font-semibold tracking-tight text-slate-900">廠商發包清單</h2>
             <p className="mt-3 max-w-4xl text-sm leading-6 text-slate-600">
-              這裡只處理已送出的 Package：先看廠商、文件狀態與項目數，再進入單一 Package 整理對外內容。
+              這裡只處理已送出的發包單：先看廠商、文件狀態與項目數，再進入單一發包單整理對外內容。
             </p>
           </div>
 
           <div className="grid gap-3 sm:grid-cols-3 2xl:min-w-[430px]">
             <article className="rounded-2xl bg-white/80 px-4 py-3 ring-1 ring-blue-100">
-              <p className="text-xs font-medium text-slate-500">全部 Package</p>
+              <p className="text-xs font-medium text-slate-500">全部發包單</p>
               <p className="mt-2 text-2xl font-semibold text-slate-900">{vendorPackages.length}</p>
             </article>
             <article className="rounded-2xl bg-white/80 px-4 py-3 ring-1 ring-blue-100">
@@ -96,7 +96,7 @@ export default function VendorPackagesPage() {
             <input
               value={searchKeyword}
               onChange={(event) => setSearchKeyword(event.target.value)}
-              placeholder="搜尋廠商 / 專案 / 地點 / Package 代碼"
+              placeholder="搜尋廠商 / 專案 / 地點 / 發包單代碼"
               className="h-11 w-full rounded-2xl border border-slate-200 px-4 text-sm outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-200 sm:w-[320px]"
             />
           </div>
@@ -143,7 +143,7 @@ export default function VendorPackagesPage() {
                       href={`/vendor-packages/${vendorPackage.id}`}
                       className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 transition hover:bg-slate-50"
                     >
-                      查看 Package
+                      查看發包單
                     </Link>
                   </td>
                 </tr>
@@ -154,7 +154,7 @@ export default function VendorPackagesPage() {
 
         {!visiblePackages.length ? (
           <div className="mt-4 rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-6 text-sm text-slate-500">
-            目前沒有符合篩選條件的 package。
+            目前沒有符合篩選條件的發包單。
           </div>
         ) : null}
       </section>
