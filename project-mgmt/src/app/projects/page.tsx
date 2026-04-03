@@ -80,24 +80,22 @@ export default function ProjectsPage() {
       <section className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
         <div className="mb-5 flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
           <div className="min-w-0">
-            <h3 className="text-xl font-semibold">全部專案</h3>
-            <p className="mt-1 text-sm leading-6 text-slate-500">點選專案名稱可進入詳細頁。</p>
+            <div className="flex flex-wrap items-center gap-3">
+              <h3 className="text-xl font-semibold">全部專案</h3>
+              <p className="text-sm text-slate-500">
+                目前顯示 <span className="font-semibold text-slate-800">{visibleProjects.length}</span> / {projects.length} 個專案
+              </p>
+            </div>
           </div>
-          <div className="flex w-full flex-col gap-3 sm:flex-row xl:w-auto">
+          <div className="flex w-full flex-col items-end gap-2 sm:flex-row sm:items-center xl:w-auto">
             <input
               value={searchKeyword}
               onChange={(event) => setSearchKeyword(event.target.value)}
               placeholder="搜尋專案 / 客戶 / 地點 / 專案代碼"
               className="h-11 w-full min-w-0 rounded-2xl border border-slate-200 px-4 text-sm outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-200 sm:w-80 xl:w-72"
             />
+            <p className="text-sm text-slate-500">日期排序：{dateSortOrder === "desc" ? "最新在上" : "最舊在上"}</p>
           </div>
-        </div>
-
-        <div className="mb-4 flex items-center justify-between gap-3 text-sm text-slate-500">
-          <p>
-            目前顯示 <span className="font-semibold text-slate-800">{visibleProjects.length}</span> / {projects.length} 個專案
-          </p>
-          <p>日期排序：{dateSortOrder === "desc" ? "最新在上" : "最舊在上"}</p>
         </div>
 
         <div className="overflow-x-auto rounded-2xl border border-slate-200">
