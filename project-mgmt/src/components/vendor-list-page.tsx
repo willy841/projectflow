@@ -17,6 +17,7 @@ export function VendorListPage() {
   const [createdVendorName, setCreatedVendorName] = useState("");
   const [searchKeyword, setSearchKeyword] = useState("");
   const [activeTrade, setActiveTrade] = useState<string | null>(null);
+  const [showUnpaidOnly, setShowUnpaidOnly] = useState(false);
   const [deletingVendorId, setDeletingVendorId] = useState<string | null>(null);
 
   const vendorCards = useMemo(() => vendors.map((vendor) => ({
@@ -33,9 +34,10 @@ export function VendorListPage() {
         .toLowerCase()
         .includes(keyword);
       const matchesTrade = !activeTrade || (vendor.tradeLabels ?? []).includes(activeTrade) || vendor.category === activeTrade;
-      return matchesSearch && matchesTrade;
+      const matchesUnpaid = !showUnpaidOnly || vendor.outstandingTotal > 0;
+      return matchesSearch && matchesTrade && matchesUnpaid;
     });
-  }, [activeTrade, searchKeyword, vendorCards]);
+  }, [activeTrade, searchKeyword, showUnpaidOnly, vendorCards]);
 
   const totalOutstanding = filteredVendorCards.reduce((sum, vendor) => sum + vendor.outstandingTotal, 0);
   const deletingVendor = deletingVendorId ? vendors.find((vendor) => vendor.id === deletingVendorId) : null;
@@ -94,12 +96,13 @@ export function VendorListPage() {
 
             <div className="flex flex-wrap items-center gap-2 text-xs text-slate-500 xl:justify-end">
               <span>共 {filteredVendorCards.length} 間</span>
-              {(searchKeyword || activeTrade) ? (
+              {(searchKeyword || activeTrade || showUnpaidOnly) ? (
                 <button
                   type="button"
                   onClick={() => {
                     setSearchKeyword("");
                     setActiveTrade(null);
+                    setShowUnpaidOnly(false);
                   }}
                   className="inline-flex items-center justify-center rounded-full border border-slate-200 bg-white px-3 py-1.5 font-medium text-slate-600 transition hover:border-slate-300 hover:text-slate-900"
                 >
@@ -109,32 +112,49 @@ export function VendorListPage() {
             </div>
           </div>
 
-          <div>
-            <div className="mb-2 flex items-center gap-2">
-              <span className="text-xs font-semibold tracking-wide text-slate-500">工種篩選</span>
-              <span className="text-xs text-slate-400">單選</span>
+          <div className="space-y-4">
+            <div>
+              <div className="mb-2 flex items-center gap-2">
+                <span className="text-xs font-semibold tracking-wide text-slate-500">狀態篩選</span>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={() => setShowUnpaidOnly((current) => !current)}
+                  className={`rounded-full px-3 py-2 text-xs font-medium ring-1 transition ${showUnpaidOnly ? "bg-amber-500 text-white ring-amber-500" : "bg-white text-slate-700 ring-slate-200 hover:bg-slate-50"}`}
+                >
+                  未付款
+                </button>
+              </div>
             </div>
-            <div className="flex flex-wrap gap-2">
-              <button
-                type="button"
-                onClick={() => setActiveTrade(null)}
-                className={`rounded-full px-3 py-2 text-xs font-medium ring-1 transition ${activeTrade === null ? "bg-slate-900 text-white ring-slate-900" : "bg-white text-slate-700 ring-slate-200 hover:bg-slate-50"}`}
-              >
-                全部工種
-              </button>
-              {TRADE_OPTIONS.map((trade) => {
-                const active = activeTrade === trade;
-                return (
-                  <button
-                    key={trade}
-                    type="button"
-                    onClick={() => setActiveTrade(active ? null : trade)}
-                    className={`rounded-full px-3 py-2 text-xs font-medium ring-1 transition ${active ? "bg-sky-600 text-white ring-sky-600" : "bg-white text-slate-700 ring-slate-200 hover:bg-slate-50"}`}
-                  >
-                    {trade}
-                  </button>
-                );
-              })}
+
+            <div>
+              <div className="mb-2 flex items-center gap-2">
+                <span className="text-xs font-semibold tracking-wide text-slate-500">工種篩選</span>
+                <span className="text-xs text-slate-400">單選</span>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={() => setActiveTrade(null)}
+                  className={`rounded-full px-3 py-2 text-xs font-medium ring-1 transition ${activeTrade === null ? "bg-slate-900 text-white ring-slate-900" : "bg-white text-slate-700 ring-slate-200 hover:bg-slate-50"}`}
+                >
+                  全部工種
+                </button>
+                {TRADE_OPTIONS.map((trade) => {
+                  const active = activeTrade === trade;
+                  return (
+                    <button
+                      key={trade}
+                      type="button"
+                      onClick={() => setActiveTrade(active ? null : trade)}
+                      className={`rounded-full px-3 py-2 text-xs font-medium ring-1 transition ${active ? "bg-sky-600 text-white ring-sky-600" : "bg-white text-slate-700 ring-slate-200 hover:bg-slate-50"}`}
+                    >
+                      {trade}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           </div>
         </div>
