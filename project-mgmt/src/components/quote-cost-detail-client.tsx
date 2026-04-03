@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { AppShell } from "@/components/app-shell";
 import { VendorQuickCreateDialog } from "@/components/vendor-quick-create-dialog";
 import { useVendorStore } from "@/components/vendor-store";
@@ -11,6 +11,7 @@ import {
   getGrossProfit,
   getOriginalCostTotal,
   getQuotationTotal,
+  upsertStoredQuoteCostProject,
   QuoteCostProject,
   sampleQuoteImports,
   sampleQuoteLineItemsByProject,
@@ -25,32 +26,42 @@ import { getQuoteCostProjectsWithWorkflow } from "@/components/project-workflow-
 type DetailMode = "active" | "closed";
 
 type Props = {
-  project: QuoteCostProject;
+  projectId: string;
   mode?: DetailMode;
 };
 
 type EditableProjectState = QuoteCostProject;
 
-export function QuoteCostDetailClient({ project, mode = "active" }: Props) {
+export function QuoteCostDetailClient({ projectId, mode = "active" }: Props) {
   const { vendors } = useVendorStore();
-  const workflowProject = getQuoteCostProjectsWithWorkflow().find((item) => item.id === project.id) ?? project;
-  const [state, setState] = useState<EditableProjectState>(workflowProject);
+  const workflowProject = getQuoteCostProjectsWithWorkflow().find((item) => item.id === projectId) ?? null;
+  const [state, setState] = useState<EditableProjectState | null>(workflowProject);
   const [quoteImportIndex, setQuoteImportIndex] = useState(0);
   const [quickCreateItemId, setQuickCreateItemId] = useState<string | null>(null);
-  const quoteImportOptions = sampleQuoteImports[project.id] ?? [project.quotationImport].filter(Boolean);
-  const quoteLineItemOptions = sampleQuoteLineItemsByProject[project.id] ?? [project.quotationItems];
   const isClosedView = mode === "closed";
 
-  const quotationTotal = useMemo(() => getQuotationTotal(state.quotationItems), [state.quotationItems]);
-  const adjustedCostTotal = useMemo(() => getAdjustedCostTotal(state.costItems), [state.costItems]);
-  const originalCostTotal = useMemo(() => getOriginalCostTotal(state.costItems), [state.costItems]);
+  useEffect(() => {
+    setState(getQuoteCostProjectsWithWorkflow().find((item) => item.id === projectId) ?? null);
+  }, [projectId]);
+
+  useEffect(() => {
+    if (!state) return;
+    upsertStoredQuoteCostProject(state);
+  }, [state]);
+
+  const quoteImportOptions = state ? sampleQuoteImports[state.id] ?? [state.quotationImport].filter(Boolean) : [];
+  const quoteLineItemOptions = state ? sampleQuoteLineItemsByProject[state.id] ?? [state.quotationItems] : [];
+
+  const quotationTotal = useMemo(() => getQuotationTotal(state?.quotationItems ?? []), [state]);
+  const adjustedCostTotal = useMemo(() => getAdjustedCostTotal(state?.costItems ?? []), [state]);
+  const originalCostTotal = useMemo(() => getOriginalCostTotal(state?.costItems ?? []), [state]);
   const grossProfit = useMemo(() => getGrossProfit(quotationTotal, adjustedCostTotal), [quotationTotal, adjustedCostTotal]);
-  const excludedCostItems = useMemo(() => state.costItems.filter((item) => !item.includedInCost), [state.costItems]);
-  const costSourceSummary = useMemo(() => getCostSourceSummary(state.costItems), [state.costItems]);
+  const excludedCostItems = useMemo(() => (state?.costItems ?? []).filter((item) => !item.includedInCost), [state]);
+  const costSourceSummary = useMemo(() => getCostSourceSummary(state?.costItems ?? []), [state]);
 
   const vendorGroups = useMemo(() => {
     const map = new Map<string, { key: string; name: string; items: EditableProjectState["costItems"] }>();
-    state.costItems
+    (state?.costItems ?? [])
       .filter((item) => !item.isManual)
       .forEach((item) => {
         const key = item.vendorId ?? UNSPECIFIED_VENDOR_ID;
@@ -63,11 +74,11 @@ export function QuoteCostDetailClient({ project, mode = "active" }: Props) {
       if (b.key === UNSPECIFIED_VENDOR_ID) return 1;
       return b.items.length - a.items.length;
     });
-  }, [state.costItems]);
+  }, [state]);
 
-  const manualItems = state.costItems.filter((item) => item.isManual);
+  const manualItems = (state?.costItems ?? []).filter((item) => item.isManual);
   const includedManualTotal = manualItems.filter((item) => item.includedInCost).reduce((sum, item) => sum + item.adjustedAmount, 0);
-  const vendorIncludedTotal = state.costItems.filter((item) => !item.isManual && item.includedInCost).reduce((sum, item) => sum + item.adjustedAmount, 0);
+  const vendorIncludedTotal = (state?.costItems ?? []).filter((item) => !item.isManual && item.includedInCost).reduce((sum, item) => sum + item.adjustedAmount, 0);
   const availableVendors = useMemo(() => {
     const merged = new Map<string, { id: string; name: string }>();
     vendorDirectory.forEach((vendor) => merged.set(vendor.id, vendor));
@@ -77,6 +88,7 @@ export function QuoteCostDetailClient({ project, mode = "active" }: Props) {
 
   function mutateCosts(mutator: (prev: EditableProjectState) => EditableProjectState) {
     setState((prev) => {
+      if (!prev) return prev;
       const next = mutator(prev);
       if (prev.reconciliationStatus === "已完成") {
         return {
@@ -90,17 +102,21 @@ export function QuoteCostDetailClient({ project, mode = "active" }: Props) {
   }
 
   function handleImportQuote(index: number) {
+    if (!state) return;
     const quotationImport = quoteImportOptions[index] ?? null;
     const quotationItems = quoteLineItemOptions[index] ?? quoteLineItemOptions[0] ?? state.quotationItems;
     setQuoteImportIndex(index);
-    setState((prev) => ({
-      ...prev,
-      quotationImported: true,
-      quotationImport,
-      quotationItems,
-      closeStatus: prev.closeStatus === "已結案" ? "未結案" : prev.closeStatus,
-      reconciliationStatus: prev.reconciliationStatus === "已完成" ? "待確認" : prev.reconciliationStatus,
-    }));
+    setState((prev) => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        quotationImported: true,
+        quotationImport,
+        quotationItems,
+        closeStatus: prev.closeStatus === "已結案" ? "未結案" : prev.closeStatus,
+        reconciliationStatus: prev.reconciliationStatus === "已完成" ? "待確認" : prev.reconciliationStatus,
+      };
+    });
   }
 
   function handleAdjustedAmountChange(itemId: string, value: string) {
@@ -169,13 +185,27 @@ export function QuoteCostDetailClient({ project, mode = "active" }: Props) {
   }
 
   function handleConfirmReconciliation() {
-    if (!state.quotationImported || state.costItems.length === 0) return;
-    setState((prev) => ({ ...prev, reconciliationStatus: "已完成" }));
+    if (!state?.quotationImported || state.costItems.length === 0) return;
+    setState((prev) => (prev ? { ...prev, reconciliationStatus: "已完成" } : prev));
   }
 
   function handleCloseProject() {
-    if (!state.quotationImported || state.costItems.length === 0 || state.reconciliationStatus !== "已完成") return;
-    setState((prev) => ({ ...prev, projectStatus: "已結案", closeStatus: "已結案" }));
+    if (!state?.quotationImported || state.costItems.length === 0 || state.reconciliationStatus !== "已完成") return;
+    setState((prev) => (prev ? { ...prev, projectStatus: "已結案", closeStatus: "已結案" } : prev));
+  }
+
+  if (!state || (isClosedView ? state.projectStatus !== "已結案" : state.projectStatus !== "執行中")) {
+    return (
+      <AppShell activePath={isClosedView ? "/closeouts" : "/quote-costs"}>
+        <section className="rounded-[28px] border border-slate-200 bg-white p-8 shadow-sm">
+          <h2 className="text-2xl font-semibold text-slate-900">這個專案目前不在這個列表</h2>
+          <p className="mt-3 text-sm leading-6 text-slate-600">可能是路由有誤，或它已經被移到另一個狀態列表。</p>
+          <Link href={isClosedView ? "/closeouts" : "/quote-costs"} className="mt-5 inline-flex items-center justify-center rounded-2xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800">
+            返回列表
+          </Link>
+        </section>
+      </AppShell>
+    );
   }
 
   return (

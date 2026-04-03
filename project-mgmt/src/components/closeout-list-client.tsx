@@ -9,11 +9,11 @@ import {
   getGrossProfit,
   getQuotationTotal,
   getReconciliationStatusClass,
-  quoteCostProjects,
 } from "@/components/quote-cost-data";
+import { getQuoteCostProjectsWithWorkflow } from "@/components/project-workflow-store";
 
 export function CloseoutListClient() {
-  const closedProjects = quoteCostProjects
+  const closedProjects = getQuoteCostProjectsWithWorkflow()
     .filter((project) => project.projectStatus === "已結案")
     .map((project) => {
       const quotationTotal = getQuotationTotal(project.quotationItems);

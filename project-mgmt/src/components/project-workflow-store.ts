@@ -19,8 +19,8 @@ import {
 import {
   formatCurrency,
   getAdjustedCostTotal,
+  readStoredQuoteCostProjects,
   type CostLineItem,
-  quoteCostProjects,
   type QuoteCostProject,
   type CostSourceType,
 } from "@/components/quote-cost-data";
@@ -343,9 +343,9 @@ function buildWorkflowCostItems(projectId: string): CostLineItem[] {
 }
 
 export function getQuoteCostProjectsWithWorkflow(): QuoteCostProject[] {
-  if (typeof window === "undefined") return quoteCostProjects;
+  const baseProjects = readStoredQuoteCostProjects();
 
-  return quoteCostProjects.map((project) => {
+  return baseProjects.map((project) => {
     const workflowItems = buildWorkflowCostItems(project.id);
     return mergeQuoteCostSeedWithWorkflow(project, workflowItems);
   });
