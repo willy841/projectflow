@@ -1144,12 +1144,8 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
   return (
     <>
       <section className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
-        <div className="mb-5 flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
-          <div className="min-w-0">
-            <h3 className="text-xl font-semibold">專案執行項目</h3>
-          </div>
-        </div>
         <ExecutionTree
+          heading="專案執行項目"
           items={project.executionItems}
           onDesignAssignmentsChange={setDesignAssignments}
           onProcurementAssignmentsChange={setProcurementAssignments}

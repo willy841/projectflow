@@ -919,6 +919,7 @@ export function ExecutionTree({
   onDesignAssignmentsChange,
   onProcurementAssignmentsChange,
   onVendorAssignmentsChange,
+  heading = "新增主項目",
 }: {
   items: ProjectExecutionItem[];
   onDesignAssignmentsChange?: (
@@ -942,6 +943,7 @@ export function ExecutionTree({
       data: VendorAssignmentDraft;
     }>,
   ) => void;
+  heading?: string;
 }) {
   const [expandedItemId, setExpandedItemId] = useState<string | null>(null);
   const [drafts, setDrafts] = useState<Record<string, string>>({});
@@ -1403,20 +1405,20 @@ export function ExecutionTree({
       <div className="rounded-3xl border border-dashed border-slate-300 bg-slate-50 p-4">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
           <div>
-            <p className="text-sm font-medium text-slate-800">新增主項目</p>
+            <h3 className="text-xl font-semibold text-slate-900">{heading}</h3>
           </div>
           <div className="flex flex-wrap gap-2">
             <button
               type="button"
               onClick={() => setShowMainItemCreator((prev) => !prev)}
-              className="inline-flex shrink-0 items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 shadow-sm transition hover:border-slate-400 hover:bg-slate-50"
+              className="inline-flex h-11 shrink-0 items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-800 shadow-sm transition hover:border-slate-400 hover:bg-slate-50"
             >
               + 新增主項目
             </button>
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              className="inline-flex shrink-0 items-center justify-center rounded-2xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700"
+              className="inline-flex h-11 shrink-0 items-center justify-center rounded-2xl bg-blue-600 px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700"
             >
               匯入 CSV
             </button>
