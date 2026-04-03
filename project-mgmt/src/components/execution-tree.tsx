@@ -1038,8 +1038,30 @@ export function ExecutionTree({
   function updateDraft(itemId: string, value: string) {
     setDrafts((prev) => ({ ...prev, [itemId]: value }));
   }
+  function getParentItemId(targetId: string) {
+    const matchedParent = localItems.find(
+      (item) =>
+        item.id === targetId ||
+        (item.children ?? []).some((child) => child.id === targetId),
+    );
+    return matchedParent?.id ?? targetId;
+  }
+
+  function resetTransientPanels() {
+    setActiveAssignMenu(null);
+    setActiveDesignFormId(null);
+    setActiveProcurementFormId(null);
+    setActiveVendorFormId(null);
+  }
+
   function toggleItem(itemId: string) {
-    setExpandedItemId((prev) => (prev === itemId ? null : itemId));
+    setExpandedItemId((prev) => {
+      const nextId = prev === itemId ? null : itemId;
+      if (nextId !== prev) {
+        resetTransientPanels();
+      }
+      return nextId;
+    });
   }
   function updateDesignAssignmentDraft(
     targetId: string,
@@ -1082,6 +1104,7 @@ export function ExecutionTree({
   }
 
   function openDesignForm(targetId: string) {
+    setExpandedItemId(getParentItemId(targetId));
     setActiveDesignFormId(targetId);
     setActiveProcurementFormId(null);
     setActiveVendorFormId(null);
@@ -1095,6 +1118,7 @@ export function ExecutionTree({
     }));
   }
   function openProcurementForm(targetId: string) {
+    setExpandedItemId(getParentItemId(targetId));
     setActiveProcurementFormId(targetId);
     setActiveDesignFormId(null);
     setActiveVendorFormId(null);
@@ -1108,6 +1132,7 @@ export function ExecutionTree({
     }));
   }
   function openVendorForm(targetId: string, title: string) {
+    setExpandedItemId(getParentItemId(targetId));
     setActiveVendorFormId(targetId);
     setActiveDesignFormId(null);
     setActiveProcurementFormId(null);
@@ -1291,6 +1316,10 @@ export function ExecutionTree({
     setEditingValue("");
   }
   function toggleAssignMenu(targetId: string) {
+    setExpandedItemId(getParentItemId(targetId));
+    setActiveDesignFormId(null);
+    setActiveProcurementFormId(null);
+    setActiveVendorFormId(null);
     setActiveAssignMenu((prev) => (prev === targetId ? null : targetId));
   }
 
