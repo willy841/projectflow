@@ -1156,9 +1156,6 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
       <section className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
         <div className="mb-5">
           <h3 className="text-xl font-semibold">專案分類檢視</h3>
-          <p className="mt-1 text-sm leading-6 text-slate-500">
-            主卡先看摘要，詳細內容與回覆資訊都改成按需展開。
-          </p>
         </div>
 
         <div className="grid gap-3 lg:grid-cols-3">
@@ -1173,8 +1170,8 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
                   onClick={() => handleOpenCategory(category)}
                   className={`rounded-3xl border bg-white p-5 text-left shadow-sm transition ${isActive ? `${meta.ring} border-transparent ring-2 shadow-md` : "border-slate-200 hover:border-slate-300 hover:bg-slate-50/60"}`}
                 >
-                  <div className="flex items-center justify-between gap-3">
-                    <div>
+                  <div className="flex min-h-[84px] items-center justify-between gap-3">
+                    <div className="flex min-h-full items-center">
                       <div className="flex flex-wrap items-center gap-2">
                         <p className={`text-lg font-semibold ${meta.accent}`}>
                           {meta.title}
@@ -1185,9 +1182,6 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
                           </span>
                         ) : null}
                       </div>
-                      <p className="mt-2 text-sm text-slate-500">
-                        {meta.description}
-                      </p>
                     </div>
                     <span className={`inline-flex min-w-[36px] items-center justify-center rounded-full px-3 py-1 text-xs font-semibold ${isActive ? "bg-slate-900 text-white" : "bg-slate-100 text-slate-700"}`}>
                       {meta.count}
@@ -1201,15 +1195,15 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
 
         <div className="mt-6 rounded-3xl border border-slate-300 bg-slate-100 p-5 shadow-inner">
           <div className="mb-4 flex flex-col gap-3 border-b border-slate-200 pb-4 sm:flex-row sm:items-start sm:justify-between">
-            <div>
+            <div className="flex flex-wrap items-center gap-3">
               <h4 className="text-lg font-semibold text-slate-900">
                 {categoryMeta[openCategory].title}
               </h4>
-              <p className="mt-1 text-sm text-slate-500">
-                {openCategory === "vendor"
-                  ? "點選專案廠商後，這裡應承接廠商需求與廠商發包清單主線。"
-                  : `共 ${currentList.length} 筆，已依分類集中顯示於下方。`}
-              </p>
+              {openCategory !== "vendor" ? (
+                <span className="text-sm font-medium text-slate-500">
+                  共 {currentList.length} 筆
+                </span>
+              ) : null}
             </div>
             <div className="flex flex-wrap gap-2">
               <span className="inline-flex items-center justify-center rounded-full bg-white px-3 py-1 text-xs font-semibold text-slate-700 ring-1 ring-slate-200">
