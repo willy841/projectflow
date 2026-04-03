@@ -305,7 +305,7 @@ export function QuoteCostDetailClient({ project, mode = "active" }: Props) {
           <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
             <div>
               <p className="text-xs font-semibold tracking-[0.16em] text-slate-400 uppercase">成本主線判讀</p>
-              <h4 className="mt-2 text-lg font-semibold text-slate-900">先看目前有效總額，再往下區分 workflow 主線與例外。</h4>
+              <h4 className="mt-2 text-lg font-semibold text-slate-900">先看目前有效總額，再往下區分主線成本與例外。</h4>
               <p className="mt-2 text-sm leading-6 text-slate-500">這裡把使用者第一個要判斷的資訊拉前面：目前計入成本的有效總額，以及有哪些項目還停留在未指定廠商或不計入成本。</p>
             </div>
             <div className="grid gap-3 sm:min-w-[320px] sm:grid-cols-2">

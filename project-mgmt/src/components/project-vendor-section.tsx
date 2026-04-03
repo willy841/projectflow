@@ -292,7 +292,7 @@ export function ProjectVendorSection({
                       {inlineErrors[assignment.id] ? (
                         <p className="text-xs leading-5 text-rose-600">{inlineErrors[assignment.id]}</p>
                       ) : isSubmitted ? (
-                        <p className="text-xs leading-5 text-slate-500">已送出後主欄位會鎖定；後續整理請到 Package 主線處理。</p>
+                        <p className="text-xs leading-5 text-slate-500">已送出後主欄位會鎖定；後續整理請到發包主線處理。</p>
                       ) : null}
                     </div>
                   </div>
@@ -306,7 +306,7 @@ export function ProjectVendorSection({
       <article className="rounded-3xl border border-blue-200 bg-blue-50/60 p-6 shadow-sm ring-1 ring-blue-100">
         <div className="mb-5 flex items-center justify-between gap-3">
           <div>
-            <p className="text-xs font-semibold tracking-wide text-blue-700">已送出 Package</p>
+            <p className="text-xs font-semibold tracking-wide text-blue-700">已送出發包單</p>
             <h3 className="mt-1 text-xl font-semibold text-slate-900">廠商發包清單</h3>
           </div>
         </div>
@@ -336,7 +336,7 @@ export function ProjectVendorSection({
             ))}
           </div>
         ) : (
-          <div className="rounded-2xl border border-dashed border-blue-200 bg-white p-6 text-sm text-slate-500">目前還沒有已送出的 package。</div>
+          <div className="rounded-2xl border border-dashed border-blue-200 bg-white p-6 text-sm text-slate-500">目前還沒有已送出的發包單。</div>
         )}
       </article>
 

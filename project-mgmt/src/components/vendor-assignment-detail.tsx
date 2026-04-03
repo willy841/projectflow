@@ -45,7 +45,7 @@ export function VendorAssignmentDetail({ assignment }: { assignment: VendorAssig
         <p className="mt-3 text-sm leading-7 text-slate-700">{assignment.summary}</p>
         <div className="mt-5 rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-4">
           <p className="text-sm text-slate-500">流程說明</p>
-          <p className="mt-2 text-sm leading-6 text-slate-700">這一層是輕量直接處理卡；選擇廠商並送出後，需求會直接進入同專案 + 同廠商的 Package 主線。</p>
+          <p className="mt-2 text-sm leading-6 text-slate-700">這一層是輕量直接處理卡；選擇廠商並送出後，需求會直接進入同專案 + 同廠商的發包主線。</p>
         </div>
       </article>
     </div>

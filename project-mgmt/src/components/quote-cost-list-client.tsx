@@ -56,7 +56,7 @@ export function QuoteCostListClient({ mode = "active" }: { mode?: "active" | "cl
   return (
     <AppShell activePath="/quote-costs">
       <header className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200 xl:p-7">
-        <p className="text-sm text-slate-500">Quote & Cost Module</p>
+        <p className="text-sm text-slate-500">報價成本模組</p>
         <h2 className="mt-1 text-3xl font-semibold tracking-tight text-slate-900">報價成本</h2>
         <p className="mt-3 max-w-4xl text-sm leading-6 text-slate-600">
           這裡只保留執行中專案，集中管理有效報價、成本調整與對帳收斂。畫面重點不是歷史留存，而是先看哪一案還需要往前推進。
