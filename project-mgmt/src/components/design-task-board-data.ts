@@ -14,6 +14,9 @@ export type DesignTaskBoardRecord = {
   confirmStatus: ConfirmStatus;
   documentStatus: DocumentStatus;
   vendorName: string;
+  costLabel: string;
+  costAmount: number;
+  costLocked: boolean;
 };
 
 function getConfirmStatus(status: string, outsourceStatus: string): ConfirmStatus {
@@ -35,8 +38,16 @@ function getReplyCount(confirmStatus: ConfirmStatus, status: string) {
   return 0;
 }
 
+function parseCurrency(value: string) {
+  const numeric = Number(value.replace(/[^\d.-]/g, ""));
+  return Number.isFinite(numeric) ? numeric : 0;
+}
+
 export const designTaskBoardRecords: DesignTaskBoardRecord[] = designTaskGroups.map((task) => {
   const confirmStatus = getConfirmStatus(task.status, task.outsourceStatus);
+  const costAmount = parseCurrency(task.cost);
+  const costLocked = confirmStatus === "已確認";
+
   return {
     id: task.id,
     projectId: task.projectId,
@@ -48,5 +59,8 @@ export const designTaskBoardRecords: DesignTaskBoardRecord[] = designTaskGroups.
     confirmStatus,
     documentStatus: getDocumentStatus(confirmStatus, task.status, task.outsourceStatus),
     vendorName: task.outsourceTarget && task.outsourceTarget !== "尚未指定" ? task.outsourceTarget : "未指定",
+    costLabel: task.cost,
+    costAmount,
+    costLocked,
   };
 });

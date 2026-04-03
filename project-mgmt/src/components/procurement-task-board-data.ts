@@ -15,6 +15,9 @@ export type ProcurementBoardRecord = {
   confirmStatus: ConfirmStatus;
   documentStatus: DocumentStatus;
   vendorName: string;
+  costLabel: string;
+  costAmount: number;
+  costLocked: boolean;
 };
 
 function getConfirmStatus(status: string): ConfirmStatus {
@@ -35,9 +38,17 @@ function getReplyCount(confirmStatus: ConfirmStatus, status: string) {
   return 0;
 }
 
+function parseCurrency(value: string) {
+  const numeric = Number(value.replace(/[^\d.-]/g, ""));
+  return Number.isFinite(numeric) ? numeric : 0;
+}
+
 export const procurementTaskBoardRecords: ProcurementBoardRecord[] = projects.flatMap((project) =>
   project.procurementTasks.map((task, index) => {
     const confirmStatus = getConfirmStatus(task.status);
+    const costAmount = parseCurrency(task.budget);
+    const costLocked = confirmStatus === "已確認";
+
     return {
       id: `${project.id}-procurement-${index}`,
       projectId: project.id,
@@ -50,6 +61,9 @@ export const procurementTaskBoardRecords: ProcurementBoardRecord[] = projects.fl
       confirmStatus,
       documentStatus: getDocumentStatus(task.status, confirmStatus),
       vendorName: task.buyer || "未指定",
+      costLabel: task.budget,
+      costAmount,
+      costLocked,
     };
   }),
 );

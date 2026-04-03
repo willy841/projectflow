@@ -22,6 +22,14 @@ function getDocumentBadgeClass(status: DocumentStatus) {
   return "bg-slate-100 text-slate-700 ring-slate-200";
 }
 
+function formatCurrency(amount: number) {
+  return new Intl.NumberFormat("zh-TW", {
+    style: "currency",
+    currency: "TWD",
+    maximumFractionDigits: 0,
+  }).format(amount);
+}
+
 export default function ProcurementTasksPage() {
   const [query, setQuery] = useState("");
   const [confirmFilter, setConfirmFilter] = useState<"all" | ConfirmStatus>("all");
@@ -50,7 +58,8 @@ export default function ProcurementTasksPage() {
     total: records.length,
     pendingConfirm: records.filter((record) => record.confirmStatus === "待確認").length,
     documentNeedUpdate: records.filter((record) => record.documentStatus === "需更新").length,
-    projectCount: new Set(records.map((record) => record.projectId)).size,
+    confirmedCostTotal: records.filter((record) => record.costLocked).reduce((sum, record) => sum + record.costAmount, 0),
+    lockedVendorCount: new Set(records.filter((record) => record.costLocked).map((record) => record.vendorName).filter((vendor) => vendor && vendor !== "未指定")).size,
   }), [records]);
 
   return (
@@ -63,7 +72,7 @@ export default function ProcurementTasksPage() {
             <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-600">以跨專案視角追蹤備品項目是否已被回覆、是否已被確認、是否已進單一備品文件主線。</p>
           </div>
 
-          <div className="grid gap-3 sm:grid-cols-3">
+          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
             <article className="rounded-2xl bg-slate-50 px-4 py-3">
               <p className="text-xs text-slate-500">總任務數</p>
               <p className="mt-2 text-2xl font-semibold text-slate-900">{stats.total}</p>
@@ -75,6 +84,11 @@ export default function ProcurementTasksPage() {
             <article className="rounded-2xl bg-blue-50 px-4 py-3">
               <p className="text-xs text-blue-700">需更新文件</p>
               <p className="mt-2 text-2xl font-semibold text-blue-900">{stats.documentNeedUpdate}</p>
+            </article>
+            <article className="rounded-2xl bg-emerald-50 px-4 py-3">
+              <p className="text-xs text-emerald-700">已確認成本</p>
+              <p className="mt-2 text-2xl font-semibold text-emerald-900">{formatCurrency(stats.confirmedCostTotal)}</p>
+              <p className="mt-1 text-xs text-emerald-700">已鎖定 {stats.lockedVendorCount} 家供應商</p>
             </article>
           </div>
         </div>
@@ -138,11 +152,12 @@ export default function ProcurementTasksPage() {
                     <span className="inline-flex rounded-full bg-white px-3 py-1 font-medium text-slate-700 ring-1 ring-slate-200">回覆 {record.replyCount} 則</span>
                   </div>
 
-                  <div className="grid gap-3 md:grid-cols-4">
+                  <div className="grid gap-3 md:grid-cols-5">
                     <div className="rounded-2xl bg-slate-50 px-3 py-2"><p className="text-xs text-slate-500">尺寸</p><p className="mt-1 text-sm font-medium text-slate-900">{record.size}</p></div>
                     <div className="rounded-2xl bg-slate-50 px-3 py-2"><p className="text-xs text-slate-500">材質</p><p className="mt-1 text-sm font-medium text-slate-900">{record.material}</p></div>
                     <div className="rounded-2xl bg-slate-50 px-3 py-2"><p className="text-xs text-slate-500">數量</p><p className="mt-1 text-sm font-medium text-slate-900">{record.quantity}</p></div>
                     <div className="rounded-2xl bg-slate-50 px-3 py-2"><p className="text-xs text-slate-500">廠商</p><p className="mt-1 text-sm font-medium text-slate-900">{record.vendorName}</p></div>
+                    <div className={`rounded-2xl px-3 py-2 ${record.costLocked ? "bg-emerald-50" : "bg-slate-50"}`}><p className={`text-xs ${record.costLocked ? "text-emerald-700" : "text-slate-500"}`}>成本主線</p><p className={`mt-1 text-sm font-medium ${record.costLocked ? "text-emerald-900" : "text-slate-900"}`}>{record.costLocked ? record.costLabel : "待確認後成立"}</p></div>
                   </div>
                 </div>
 
