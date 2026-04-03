@@ -209,7 +209,7 @@ export function ProjectVendorSection({
                   </span>
                 </div>
 
-                <div className="mt-4 grid gap-4 xl:grid-cols-[minmax(0,1fr)_220px_280px] xl:grid-rows-[auto_auto] xl:items-start">
+                <div className="mt-4 grid gap-4 xl:grid-cols-[minmax(0,1fr)_220px_280px] xl:grid-rows-[auto_1fr] xl:items-start">
                   <div className="space-y-4 xl:row-span-2">
                     <label className="block">
                       <p className="mb-2 text-sm font-medium text-slate-700">任務標題</p>
@@ -253,20 +253,20 @@ export function ProjectVendorSection({
                     </label>
                   </div>
 
-                  <div className="space-y-4 xl:contents">
-                    <div className="relative xl:col-start-3 xl:row-start-1">
-                      <div className="mb-2 flex h-6 items-center">
+                  <div className="flex flex-col gap-4 xl:row-span-2">
+                    <div>
+                      <div className="mb-2 flex h-6 items-center justify-between gap-2">
                         <p className="text-sm font-medium text-slate-700">選擇廠商</p>
+                        {!isSubmitted ? (
+                          <button
+                            type="button"
+                            onClick={() => setQuickCreateAssignmentId(assignment.id)}
+                            className="inline-flex h-7 items-center justify-center rounded-lg border border-dashed border-slate-300 bg-white px-2.5 text-[11px] font-semibold text-slate-700 transition hover:bg-slate-50"
+                          >
+                            快速建立
+                          </button>
+                        ) : null}
                       </div>
-                      {!isSubmitted ? (
-                        <button
-                          type="button"
-                          onClick={() => setQuickCreateAssignmentId(assignment.id)}
-                          className="absolute right-0 top-0 inline-flex h-8 items-center justify-center rounded-xl border border-dashed border-slate-300 bg-white px-3 text-xs font-semibold text-slate-700 transition hover:bg-slate-50"
-                        >
-                          快速建立
-                        </button>
-                      ) : null}
                       <select
                         value={selectedVendorName}
                         onChange={(event) => handleAssignmentChange(assignment.id, { selectedVendorName: event.target.value })}
@@ -280,8 +280,9 @@ export function ProjectVendorSection({
                       </select>
                     </div>
 
-                    <div className="xl:col-start-3 xl:row-start-2 xl:self-start">
-                      <div className="mb-2 h-6" />
+                    <div className="flex-1" />
+
+                    <div className="flex items-end">
                       <button
                         type="button"
                         disabled={!canSubmit}
