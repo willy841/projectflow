@@ -20,7 +20,7 @@ export function VendorAssignmentDetail({ assignment }: { assignment: VendorAssig
           </div>
           {vendorPackage ? (
             <Link href={`/vendor-packages/${vendorPackage.id}`} className="inline-flex items-center justify-center rounded-2xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700">
-              前往所屬 Package
+              前往發包內容
             </Link>
           ) : null}
         </div>

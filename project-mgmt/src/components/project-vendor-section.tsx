@@ -279,20 +279,20 @@ export function ProjectVendorSection({
                   </label>
 
                   <div className="flex h-full flex-col">
-                    <p className="mb-2 flex h-6 items-center text-sm font-medium text-slate-700">送出</p>
+                    <p className="mb-2 flex h-6 items-center text-sm font-medium text-slate-700">發包操作</p>
                     <button
                       type="button"
                       disabled={!canSubmit}
                       onClick={() => handleSend({ ...assignment, selectedVendorName })}
                       className="inline-flex h-12 w-full items-center justify-center rounded-2xl bg-slate-900 px-4 text-sm font-semibold text-white shadow-sm transition disabled:cursor-not-allowed disabled:bg-slate-300"
                     >
-                      {isSubmitted ? "已送出" : "送出"}
+                      {isSubmitted ? "已發包" : "發包給廠商"}
                     </button>
                     <div className="mt-3 min-h-10">
                       {inlineErrors[assignment.id] ? (
                         <p className="text-xs leading-5 text-rose-600">{inlineErrors[assignment.id]}</p>
                       ) : isSubmitted ? (
-                        <p className="text-xs leading-5 text-slate-500">已送出後主欄位已鎖定；後續整理請到 package 內進行。</p>
+                        <p className="text-xs leading-5 text-slate-500">已發包後主欄位會鎖定；後續整理請到 package 內進行。</p>
                       ) : null}
                     </div>
                   </div>
@@ -329,7 +329,7 @@ export function ProjectVendorSection({
                     </div>
                   </div>
                   <Link href={`/vendor-packages/${vendorPackage.id}`} className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 transition hover:bg-slate-50">
-                    查看 Package
+                    查看發包內容
                   </Link>
                 </div>
               </article>

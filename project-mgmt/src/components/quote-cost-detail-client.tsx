@@ -180,7 +180,7 @@ export function QuoteCostDetailClient({ project, mode = "active" }: Props) {
 
   return (
     <>
-      <AppShell activePath={isClosedView ? "/closeout" : "/quote-costs"}>
+      <AppShell activePath={isClosedView ? "/closeouts" : "/quote-costs"}>
       <header className={`overflow-hidden rounded-[28px] border p-6 shadow-sm xl:p-7 ${isClosedView ? "border-slate-200 bg-linear-to-br from-slate-50 to-white" : "border-slate-200 bg-linear-to-br from-slate-900 via-slate-800 to-slate-900 text-white"}`}>
         <div className="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
           <div>
@@ -204,7 +204,7 @@ export function QuoteCostDetailClient({ project, mode = "active" }: Props) {
               <QuickPanel value={state.reconciliationStatus} label="對帳狀態" archived={isClosedView} />
               <QuickPanel value={state.closeStatus} label="結案狀態" archived={isClosedView} />
             </div>
-            <Link href={isClosedView ? "/closeout" : "/quote-costs"} className={`inline-flex items-center justify-center rounded-2xl px-4 py-2.5 text-sm font-semibold transition ${isClosedView ? "border border-slate-300 bg-white text-slate-800 hover:border-slate-400 hover:bg-slate-50" : "bg-white text-slate-900 hover:bg-slate-100"}`}>
+            <Link href={isClosedView ? "/closeouts" : "/quote-costs"} className={`inline-flex items-center justify-center rounded-2xl px-4 py-2.5 text-sm font-semibold transition ${isClosedView ? "border border-slate-300 bg-white text-slate-800 hover:border-slate-400 hover:bg-slate-50" : "bg-white text-slate-900 hover:bg-slate-100"}`}>
               返回{isClosedView ? "結案列表" : "報價成本列表"}
             </Link>
           </div>

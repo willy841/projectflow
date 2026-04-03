@@ -1,5 +1,5 @@
-import { CloseoutListClient } from "@/components/closeout-list-client";
+import { redirect } from "next/navigation";
 
-export default function CloseoutPage() {
-  return <CloseoutListClient />;
+export default function CloseoutAliasPage() {
+  redirect("/closeouts");
 }

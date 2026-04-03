@@ -38,9 +38,9 @@ export function CloseoutListClient() {
   const archivedGrossProfit = closedProjects.reduce((sum, item) => sum + item.grossProfit, 0);
 
   return (
-    <AppShell activePath="/closeout">
+    <AppShell activePath="/closeouts">
       <header className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200 xl:p-7">
-        <p className="text-sm text-slate-500">Closeout Archive</p>
+        <p className="text-sm text-slate-500">結案留存</p>
         <h2 className="mt-1 text-3xl font-semibold tracking-tight text-slate-900">結案</h2>
         <p className="mt-3 max-w-4xl text-sm leading-6 text-slate-600">
           這裡不是把執行中列表換資料來源而已，而是把已結案專案整理成可回查的專案池：看當下結果、看留存版本，也看哪些案子在結案時保留了例外備註。
@@ -120,7 +120,7 @@ export function CloseoutListClient() {
                 </div>
 
                 <Link
-                  href={`/closeout/${project.id}`}
+                  href={`/closeouts/${project.id}`}
                   className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-800 transition hover:border-slate-400 hover:bg-slate-50"
                 >
                   查看留存

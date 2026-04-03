@@ -7,6 +7,7 @@ const navItems = [
   { label: "設計任務版", href: "/design-tasks" },
   { label: "備品採購版", href: "/procurement-tasks" },
   { label: "廠商資料", href: "/vendors" },
+  { label: "廠商發包清單", href: "/vendor-packages" },
   { label: "報價成本", href: "/quote-costs" },
   { label: "結案", href: "/closeouts" },
   { label: "帳務中心", href: "#" },

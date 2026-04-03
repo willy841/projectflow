@@ -18,7 +18,7 @@ export function VendorPackageDetailRoute({ id }: { id: string }) {
             返回專案列表
           </Link>
           <Link href="/vendor-packages" className="inline-flex items-center justify-center rounded-2xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700">
-            查看所有 Package
+            查看所有發包內容
           </Link>
         </div>
       </div>

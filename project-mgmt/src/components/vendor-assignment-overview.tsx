@@ -39,7 +39,7 @@ export function VendorAssignmentOverview({ assignments, packages }: Props) {
                   <>
                     已送進廠商發包清單：
                     <Link href={`/vendor-packages/${vendorPackage.id}`} className="ml-1 font-medium text-slate-900 underline-offset-4 hover:underline">
-                      {vendorPackage.code}
+                      {vendorPackage.code}（查看發包內容）
                     </Link>
                   </>
                 ) : (
