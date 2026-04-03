@@ -1404,9 +1404,6 @@ export function ExecutionTree({
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
           <div>
             <p className="text-sm font-medium text-slate-800">新增主項目</p>
-            <p className="mt-1 text-sm text-slate-500">
-              直接在這裡建立第一層主項目，或匯入 CSV 自動展開樹狀結構。
-            </p>
           </div>
           <div className="flex flex-wrap gap-2">
             <button
@@ -1435,15 +1432,6 @@ export function ExecutionTree({
               }}
             />
           </div>
-        </div>
-        <div className="mt-3 rounded-2xl bg-white p-3 text-xs leading-6 text-slate-500 ring-1 ring-slate-200">
-          匯入規則：第一欄若為{" "}
-          <span className="font-semibold text-slate-700">1.</span>、
-          <span className="font-semibold text-slate-700">2.</span>{" "}
-          會建立主項目；若為{" "}
-          <span className="font-semibold text-slate-700">1-1</span>、
-          <span className="font-semibold text-slate-700">2-2</span>{" "}
-          會自動掛到對應主項目底下。其餘欄位會依序帶入名稱、數量、單位、金額、備註。
         </div>
         {showMainItemCreator ? (
           <div className="mt-4 flex flex-col gap-3 sm:flex-row">
