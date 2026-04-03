@@ -112,39 +112,49 @@ export function VendorListPage() {
             </div>
           </div>
 
-          <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-2 xl:gap-x-4">
-            <span className="text-[11px] font-semibold tracking-wide text-slate-500">狀態篩選</span>
-            <button
-              type="button"
-              onClick={() => setShowUnpaidOnly((current) => !current)}
-              className={`rounded-full px-3 py-1.5 text-xs font-medium ring-1 transition ${showUnpaidOnly ? "bg-amber-500 text-white ring-amber-500" : "bg-white text-slate-700 ring-slate-200 hover:bg-slate-50"}`}
-            >
-              未付款
-            </button>
+          <div className="mt-3 grid gap-3 xl:grid-cols-[minmax(0,0.75fr)_minmax(0,1.85fr)] xl:items-start">
+            <div className="rounded-2xl border border-slate-200 bg-white px-4 py-3">
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-[11px] font-semibold tracking-wide text-slate-500">狀態篩選</span>
+              </div>
+              <div className="mt-2 flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setShowUnpaidOnly((current) => !current)}
+                  className={`rounded-full px-3 py-1.5 text-xs font-medium ring-1 transition ${showUnpaidOnly ? "bg-amber-500 text-white ring-amber-500" : "bg-white text-slate-700 ring-slate-200 hover:bg-slate-50"}`}
+                >
+                  未付款
+                </button>
+              </div>
+            </div>
 
-            <span className="ml-1 text-[11px] font-semibold tracking-wide text-slate-500 xl:ml-3">工種篩選</span>
-            <span className="text-xs text-slate-400">單選</span>
-            <div className="flex min-w-0 flex-wrap items-center gap-2 xl:flex-1">
-              <button
-                type="button"
-                onClick={() => setActiveTrade(null)}
-                className={`rounded-full px-3 py-1.5 text-xs font-medium ring-1 transition ${activeTrade === null ? "bg-slate-900 text-white ring-slate-900" : "bg-white text-slate-700 ring-slate-200 hover:bg-slate-50"}`}
-              >
-                全部工種
-              </button>
-              {TRADE_OPTIONS.map((trade) => {
-                const active = activeTrade === trade;
-                return (
-                  <button
-                    key={trade}
-                    type="button"
-                    onClick={() => setActiveTrade(active ? null : trade)}
-                    className={`rounded-full px-3 py-1.5 text-xs font-medium ring-1 transition ${active ? "bg-sky-600 text-white ring-sky-600" : "bg-white text-slate-700 ring-slate-200 hover:bg-slate-50"}`}
-                  >
-                    {trade}
-                  </button>
-                );
-              })}
+            <div className="rounded-2xl border border-slate-200 bg-white px-4 py-3">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="text-[11px] font-semibold tracking-wide text-slate-500">工種篩選</span>
+                <span className="text-xs text-slate-400">單選</span>
+              </div>
+              <div className="mt-2 flex min-w-0 flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setActiveTrade(null)}
+                  className={`rounded-full px-3 py-1.5 text-xs font-medium ring-1 transition ${activeTrade === null ? "bg-slate-900 text-white ring-slate-900" : "bg-white text-slate-700 ring-slate-200 hover:bg-slate-50"}`}
+                >
+                  全部工種
+                </button>
+                {TRADE_OPTIONS.map((trade) => {
+                  const active = activeTrade === trade;
+                  return (
+                    <button
+                      key={trade}
+                      type="button"
+                      onClick={() => setActiveTrade(active ? null : trade)}
+                      className={`rounded-full px-3 py-1.5 text-xs font-medium ring-1 transition ${active ? "bg-sky-600 text-white ring-sky-600" : "bg-white text-slate-700 ring-slate-200 hover:bg-slate-50"}`}
+                    >
+                      {trade}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           </div>
         </div>
