@@ -17,6 +17,7 @@ type VendorStoreContextValue = {
   isReady: boolean;
   createVendor: (input: QuickCreateVendorInput) => { ok: true; vendor: VendorBasicProfile } | { ok: false; reason: "duplicate"; vendor: VendorBasicProfile };
   updateVendor: (id: string, patch: Partial<VendorBasicProfile>) => void;
+  deleteVendor: (id: string) => void;
   getVendorById: (id: string) => VendorBasicProfile | undefined;
   getVendorByName: (name: string) => VendorBasicProfile | undefined;
 };
@@ -141,6 +142,14 @@ export function VendorStoreProvider({ children }: { children: React.ReactNode })
             tradeLabels,
           };
         });
+        persistVendors(nextVendors);
+        return nextVendors;
+      });
+    },
+    deleteVendor(id) {
+      hasLocalChangesRef.current = true;
+      setVendors((current) => {
+        const nextVendors = current.filter((vendor) => vendor.id !== id);
         persistVendors(nextVendors);
         return nextVendors;
       });
