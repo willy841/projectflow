@@ -1544,13 +1544,6 @@ export function ExecutionTree({
                           <span>{item.children?.length ?? 0}</span>
                         </span>
                       </div>
-                      <div className="mt-2 flex flex-wrap gap-3 text-sm text-slate-500">
-                        <span>類型：{item.category}</span>
-                        {item.quantity ? (
-                          <span>數量：{item.quantity}</span>
-                        ) : null}
-                        {item.unit ? <span>單位：{item.unit}</span> : null}
-                      </div>
                       <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
                         <div className="flex flex-wrap items-center justify-between gap-3 text-sm text-slate-600">
                           <div className="flex flex-wrap items-center gap-2">
