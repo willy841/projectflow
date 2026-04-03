@@ -163,9 +163,9 @@ export function ProjectDetailShell({ project }: { project: Project }) {
 
       <section className="grid gap-6 2xl:grid-cols-[minmax(0,1.08fr)_minmax(340px,0.92fr)]">
         <article className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
-          <div className="mb-4">
-            <div className="min-w-0">
-              <h3 className="text-xl font-semibold">專案基本資訊</h3>
+          <div className="mb-4 min-h-11 flex items-start">
+            <div className="min-w-0 pt-1.5">
+              <h3 className="text-xl font-semibold leading-none">專案基本資訊</h3>
             </div>
           </div>
 
