@@ -14,6 +14,7 @@ export type QuickCreateVendorInput = {
 
 type VendorStoreContextValue = {
   vendors: VendorBasicProfile[];
+  isReady: boolean;
   createVendor: (input: QuickCreateVendorInput) => { ok: true; vendor: VendorBasicProfile } | { ok: false; reason: "duplicate"; vendor: VendorBasicProfile };
   updateVendor: (id: string, patch: Partial<VendorBasicProfile>) => void;
   getVendorById: (id: string) => VendorBasicProfile | undefined;
@@ -37,28 +38,41 @@ function withDefaultTrades(vendor: VendorBasicProfile): VendorBasicProfile {
   };
 }
 
+function getDefaultVendors() {
+  return vendorProfiles.map(withDefaultTrades);
+}
+
+function readStoredVendors() {
+  if (typeof window === "undefined") return null;
+
+  try {
+    const raw = window.localStorage.getItem(STORAGE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as VendorBasicProfile[];
+    if (!Array.isArray(parsed) || !parsed.length) return null;
+    return parsed.map(withDefaultTrades);
+  } catch {
+    return null;
+  }
+}
+
+function persistVendors(vendors: VendorBasicProfile[]) {
+  if (typeof window === "undefined") return;
+  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(vendors));
+}
+
 export function VendorStoreProvider({ children }: { children: React.ReactNode }) {
-  const [vendors, setVendors] = useState<VendorBasicProfile[]>(() => vendorProfiles.map(withDefaultTrades));
+  const [vendors, setVendors] = useState<VendorBasicProfile[]>(() => readStoredVendors() ?? getDefaultVendors());
+  const isReady = typeof window !== "undefined";
 
   useEffect(() => {
-    try {
-      const raw = window.localStorage.getItem(STORAGE_KEY);
-      if (!raw) return;
-      const parsed = JSON.parse(raw) as VendorBasicProfile[];
-      if (!Array.isArray(parsed) || !parsed.length) return;
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setVendors(parsed.map(withDefaultTrades));
-    } catch {
-      // ignore malformed storage in MVP
-    }
-  }, []);
-
-  useEffect(() => {
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(vendors));
-  }, [vendors]);
+    if (!isReady) return;
+    persistVendors(vendors);
+  }, [isReady, vendors]);
 
   const value = useMemo<VendorStoreContextValue>(() => ({
     vendors,
+    isReady,
     createVendor(input) {
       const name = input.name.trim();
       const tradeLabels = Array.from(new Set(input.tradeLabels.map((item) => item.trim()).filter(Boolean)));
@@ -91,12 +105,16 @@ export function VendorStoreProvider({ children }: { children: React.ReactNode })
         accountName: "",
         accountNumber: "",
       };
-      setVendors((current) => [...current, nextVendor]);
+      setVendors((current) => {
+        const nextVendors = [...current, nextVendor];
+        persistVendors(nextVendors);
+        return nextVendors;
+      });
       return { ok: true as const, vendor: nextVendor };
     },
     updateVendor(id, patch) {
-      setVendors((current) =>
-        current.map((vendor) => {
+      setVendors((current) => {
+        const nextVendors = current.map((vendor) => {
           if (vendor.id !== id) return vendor;
           const tradeLabels = patch.tradeLabels
             ? Array.from(new Set(patch.tradeLabels.map((item) => item.trim()).filter(Boolean)))
@@ -107,8 +125,10 @@ export function VendorStoreProvider({ children }: { children: React.ReactNode })
             category: patch.category ?? tradeLabels[0] ?? vendor.category,
             tradeLabels,
           };
-        }),
-      );
+        });
+        persistVendors(nextVendors);
+        return nextVendors;
+      });
     },
     getVendorById(id) {
       return vendors.find((vendor) => vendor.id === id);
@@ -116,7 +136,7 @@ export function VendorStoreProvider({ children }: { children: React.ReactNode })
     getVendorByName(name) {
       return vendors.find((vendor) => vendor.name === name);
     },
-  }), [vendors]);
+  }), [isReady, vendors]);
 
   return <VendorStoreContext.Provider value={value}>{children}</VendorStoreContext.Provider>;
 }

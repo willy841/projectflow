@@ -15,7 +15,7 @@ type Props = {
 };
 
 export function VendorDetailShell({ vendorId }: Props) {
-  const { getVendorById, updateVendor } = useVendorStore();
+  const { getVendorById, updateVendor, isReady } = useVendorStore();
   const vendor = getVendorById(vendorId);
   const [records, setRecords] = useState<VendorProjectRecord[]>(() => getVendorRecordsByVendorId(vendorId));
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
@@ -27,6 +27,14 @@ export function VendorDetailShell({ vendorId }: Props) {
   const selectedTotal = selectedRecords.reduce((sum, record) => sum + record.adjustedCost, 0);
 
   if (!vendor) {
+    if (!isReady) {
+      return (
+        <div className="rounded-3xl border border-dashed border-slate-300 bg-white p-8 text-sm text-slate-500">
+          廠商資料載入中，正在同步前端 local state…
+        </div>
+      );
+    }
+
     return (
       <div className="rounded-3xl border border-dashed border-slate-300 bg-white p-8 text-sm text-slate-500">
         找不到此廠商。若是剛建立，請先回廠商列表確認前端 local state 是否已建立成功。
