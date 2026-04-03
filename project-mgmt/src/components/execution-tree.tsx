@@ -1539,13 +1539,13 @@ export function ExecutionTree({
                         <h4 className="text-lg font-semibold text-slate-900">
                           {item.title}
                         </h4>
-                        <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2 py-1 text-xs font-medium text-slate-500 ring-1 ring-slate-200">
+                        <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-1.5 py-0.5 text-[11px] font-medium text-slate-500 ring-1 ring-slate-200">
                           <span aria-hidden="true">≡</span>
                           <span>{item.children?.length ?? 0}</span>
                         </span>
                       </div>
-                      <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
-                        <div className="flex flex-wrap items-center justify-between gap-3 text-sm text-slate-500">
+                      <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50/70 px-4 py-2.5">
+                        <div className="flex flex-wrap items-center justify-between gap-3 text-sm text-slate-400">
                           <div className="flex flex-wrap items-center gap-2">
                             {savedDesignAssignments[item.id] ? (
                               <span className="inline-flex items-center justify-center rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700 ring-1 ring-blue-200">
@@ -1578,7 +1578,7 @@ export function ExecutionTree({
                               </button>
                             ) : null}
                           </div>
-                          <span className="text-xs text-slate-400">
+                          <span className="text-[11px] text-slate-300">
                             主卡摘要
                           </span>
                         </div>
@@ -1756,20 +1756,8 @@ export function ExecutionTree({
                                 <h5 className="mt-3 font-medium text-slate-900">
                                   {child.title}
                                 </h5>
-                                <div className="mt-2 flex flex-wrap gap-3 text-sm text-slate-500">
-                                  <span>類型：{child.category}</span>
-                                  {child.assignee ? (
-                                    <span>負責：{child.assignee}</span>
-                                  ) : null}
-                                  {child.quantity ? (
-                                    <span>數量：{child.quantity}</span>
-                                  ) : null}
-                                  {child.unit ? (
-                                    <span>單位：{child.unit}</span>
-                                  ) : null}
-                                </div>
-                                <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
-                                  <div className="flex flex-wrap items-center justify-between gap-3 text-sm text-slate-600">
+                                <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50/70 px-4 py-2.5">
+                                  <div className="flex flex-wrap items-center justify-between gap-3 text-sm text-slate-400">
                                     <div className="flex flex-wrap items-center gap-2">
                                       {savedDesignAssignments[child.id] ? (
                                         <span className="inline-flex items-center justify-center rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700 ring-1 ring-blue-200">
@@ -1802,7 +1790,7 @@ export function ExecutionTree({
                                         </button>
                                       ) : null}
                                     </div>
-                                    <span className="text-xs text-slate-500">
+                                    <span className="text-[11px] text-slate-300">
                                       附屬摘要
                                     </span>
                                   </div>
@@ -1842,14 +1830,14 @@ export function ExecutionTree({
                               onClick={() =>
                                 startEditingChild(child.id, child.title)
                               }
-                              className="inline-flex min-h-9 items-center justify-center rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-100"
+                              className="inline-flex h-9 items-center justify-center rounded-xl border border-slate-300 bg-white px-3 text-xs font-semibold text-slate-700 transition hover:bg-slate-100"
                             >
                               編輯
                             </button>
                             <button
                               type="button"
                               onClick={() => removeChild(item.id, child.id)}
-                              className="inline-flex min-h-9 items-center justify-center rounded-xl border border-rose-200 bg-white px-3 py-2 text-xs font-semibold text-rose-600 transition hover:bg-rose-50"
+                              className="inline-flex h-9 items-center justify-center rounded-xl border border-rose-200 bg-white px-3 text-xs font-semibold text-rose-600 transition hover:bg-rose-50"
                             >
                               刪除
                             </button>
