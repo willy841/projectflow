@@ -1171,8 +1171,8 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
                   className={`rounded-3xl border bg-white p-5 text-left shadow-sm transition ${isActive ? `${meta.ring} border-transparent ring-2 shadow-md` : "border-slate-200 hover:border-slate-300 hover:bg-slate-50/60"}`}
                 >
                   <div className="flex min-h-[84px] items-center justify-between gap-3">
-                    <div className="flex min-h-full items-center">
-                      <div className="flex flex-col justify-center gap-2">
+                    <div className="flex min-h-full flex-1 items-center justify-center text-center">
+                      <div className="flex flex-col items-center justify-center gap-2">
                         <p className={`text-lg font-semibold ${meta.accent}`}>
                           {meta.title}
                         </p>
