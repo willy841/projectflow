@@ -12,15 +12,21 @@ import { projects } from "@/components/project-data";
 import { getDesignBoardRecords } from "@/components/project-workflow-store";
 
 function getConfirmBadgeClass(status: ConfirmStatus) {
-  if (status === "已確認") return "bg-emerald-50 text-emerald-700 ring-emerald-200";
-  if (status === "待確認") return "bg-amber-50 text-amber-700 ring-amber-200";
-  return "bg-slate-100 text-slate-700 ring-slate-200";
+  if (status === "已確認") return "border border-emerald-200 bg-emerald-50 text-emerald-700";
+  if (status === "待確認") return "border border-amber-200 bg-amber-50 text-amber-700";
+  return "border border-slate-200 bg-slate-100 text-slate-700";
 }
 
 function getDocumentBadgeClass(status: DocumentStatus) {
-  if (status === "已生成") return "bg-emerald-50 text-emerald-700 ring-emerald-200";
-  if (status === "需更新") return "bg-blue-50 text-blue-700 ring-blue-200";
-  return "bg-slate-100 text-slate-700 ring-slate-200";
+  if (status === "已生成") return "border border-emerald-200 bg-emerald-50 text-emerald-700";
+  if (status === "需更新") return "border border-amber-200 bg-amber-50 text-amber-700";
+  return "border border-slate-200 bg-slate-100 text-slate-700";
+}
+
+function getDocumentActionLabel(status: DocumentStatus) {
+  if (status === "已生成") return "查看文件";
+  if (status === "需更新") return "查看舊文件";
+  return "未生成";
 }
 
 function formatCurrency(amount: number) {
@@ -82,9 +88,9 @@ export default function DesignTasksPage() {
               <p className="text-xs text-amber-700">待確認</p>
               <p className="mt-2 text-2xl font-semibold text-amber-900">{stats.pendingConfirm}</p>
             </article>
-            <article className="rounded-2xl bg-blue-50 px-4 py-3">
-              <p className="text-xs text-blue-700">需更新文件</p>
-              <p className="mt-2 text-2xl font-semibold text-blue-900">{stats.documentNeedUpdate}</p>
+            <article className="rounded-2xl bg-amber-50 px-4 py-3">
+              <p className="text-xs text-amber-700">需更新文件</p>
+              <p className="mt-2 text-2xl font-semibold text-amber-900">{stats.documentNeedUpdate}</p>
             </article>
             <article className="rounded-2xl bg-emerald-50 px-4 py-3">
               <p className="text-xs text-emerald-700">已確認成本</p>
@@ -158,39 +164,40 @@ export default function DesignTasksPage() {
           {filtered.map((record) => (
             <article key={record.id} className="rounded-2xl border border-slate-200 p-4 transition hover:border-slate-300 hover:bg-slate-50/70">
               <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
-                <div className="min-w-0 flex-1 space-y-3">
-                  <div>
-                    <p className="text-sm font-medium text-slate-500">{record.projectName}</p>
-                    <h4 className="mt-1 text-lg font-semibold text-slate-900">{record.title}</h4>
-                  </div>
-
-                  <div className="flex flex-wrap gap-2 text-xs">
-                    <span className={`inline-flex rounded-full px-3 py-1 font-medium ring-1 ${getConfirmBadgeClass(record.confirmStatus)}`}>
-                      {record.confirmStatus}
-                    </span>
-                    <span className={`inline-flex rounded-full px-3 py-1 font-medium ring-1 ${getDocumentBadgeClass(record.documentStatus)}`}>
-                      {record.documentStatus}
-                    </span>
-                    <span className="inline-flex rounded-full bg-white px-3 py-1 font-medium text-slate-700 ring-1 ring-slate-200">
-                      回覆 {record.replyCount} 則
-                    </span>
+                <div className="min-w-0 flex-1 space-y-4">
+                  <div className="flex flex-wrap items-start justify-between gap-3">
+                    <div>
+                      <p className="text-sm font-medium text-slate-500">{record.projectName}</p>
+                      <h4 className="mt-1 text-lg font-semibold text-slate-900">{record.title}</h4>
+                    </div>
+                    <div className="flex flex-wrap gap-2 text-xs">
+                      <span className={`inline-flex rounded-full px-3 py-1 font-medium ${getConfirmBadgeClass(record.confirmStatus)}`}>
+                        回覆狀態｜{record.confirmStatus}
+                      </span>
+                      <span className={`inline-flex rounded-full px-3 py-1 font-medium ${getDocumentBadgeClass(record.documentStatus)}`}>
+                        文件狀態｜{record.documentStatus}
+                      </span>
+                      <span className="inline-flex rounded-full border border-slate-200 bg-white px-3 py-1 font-medium text-slate-700">
+                        回覆 {record.replyCount} 則
+                      </span>
+                    </div>
                   </div>
 
                   <div className="grid gap-3 md:grid-cols-4">
-                    <div className="rounded-2xl bg-slate-50 px-3 py-2">
-                      <p className="text-xs text-slate-500">尺寸</p>
+                    <div className="rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2.5">
+                      <p className="text-[11px] font-medium text-slate-500">尺寸</p>
                       <p className="mt-1 text-sm font-medium text-slate-900">{record.size}</p>
                     </div>
-                    <div className="rounded-2xl bg-slate-50 px-3 py-2">
-                      <p className="text-xs text-slate-500">材質 + 結構</p>
+                    <div className="rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2.5">
+                      <p className="text-[11px] font-medium text-slate-500">材質 + 結構</p>
                       <p className="mt-1 text-sm font-medium text-slate-900">{record.material}</p>
                     </div>
-                    <div className="rounded-2xl bg-slate-50 px-3 py-2">
-                      <p className="text-xs text-slate-500">執行廠商</p>
+                    <div className="rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2.5">
+                      <p className="text-[11px] font-medium text-slate-500">執行廠商</p>
                       <p className="mt-1 text-sm font-medium text-slate-900">{record.vendorName}</p>
                     </div>
-                    <div className={`rounded-2xl px-3 py-2 ${record.costLocked ? "bg-emerald-50" : "bg-slate-50"}`}>
-                      <p className={`text-xs ${record.costLocked ? "text-emerald-700" : "text-slate-500"}`}>成本主線</p>
+                    <div className={`rounded-2xl border px-3 py-2.5 ${record.costLocked ? "border-emerald-200 bg-emerald-50" : "border-slate-200 bg-slate-50"}`}>
+                      <p className={`text-[11px] font-medium ${record.costLocked ? "text-emerald-700" : "text-slate-500"}`}>成本主線</p>
                       <p className={`mt-1 text-sm font-medium ${record.costLocked ? "text-emerald-900" : "text-slate-900"}`}>
                         {record.costLocked ? record.costLabel : "待確認後成立"}
                       </p>
@@ -198,7 +205,7 @@ export default function DesignTasksPage() {
                   </div>
                 </div>
 
-                <div className="flex flex-wrap gap-2 xl:justify-end">
+                <div className="flex flex-wrap gap-2 xl:w-[320px] xl:justify-end">
                   <Link href={`/projects/${record.projectId}`} className="inline-flex items-center justify-center rounded-2xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800">
                     查看任務
                   </Link>
@@ -209,7 +216,7 @@ export default function DesignTasksPage() {
                   ) : null}
                   {record.documentStatus !== "未生成" ? (
                     <Link href={`/projects/${record.projectId}`} className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 transition hover:bg-slate-50">
-                      查看文件
+                      {getDocumentActionLabel(record.documentStatus)}
                     </Link>
                   ) : null}
                 </div>

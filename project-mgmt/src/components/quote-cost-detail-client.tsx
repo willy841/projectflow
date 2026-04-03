@@ -185,7 +185,7 @@ export function QuoteCostDetailClient({ project, mode = "active" }: Props) {
         <div className="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
           <div>
             <div className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold tracking-[0.18em] uppercase ${isClosedView ? "border border-slate-200 bg-white text-slate-500" : "border border-white/15 bg-white/10 text-slate-100"}`}>
-              {isClosedView ? "Closeout Detail Archive" : "Quote Cost Active Workspace"}
+              {isClosedView ? "結案留存詳情" : "報價成本進行中"}
             </div>
             <h2 className={`mt-4 text-3xl font-semibold tracking-tight ${isClosedView ? "text-slate-900" : "text-white"}`}>{state.projectName}</h2>
             <p className={`mt-2 text-sm ${isClosedView ? "text-slate-500" : "text-slate-300"}`}>{state.projectCode} ・ {state.clientName} ・ {state.eventDate}</p>
@@ -197,7 +197,7 @@ export function QuoteCostDetailClient({ project, mode = "active" }: Props) {
           </div>
           <div className={`grid gap-3 rounded-3xl border p-4 text-sm sm:min-w-[300px] ${isClosedView ? "border-slate-200 bg-slate-50 text-slate-600" : "border-white/10 bg-white/6 text-slate-200"}`}>
             <div>
-              <p className={`text-xs font-medium tracking-[0.16em] uppercase ${isClosedView ? "text-slate-400" : "text-slate-300"}`}>{isClosedView ? "Archive Focus" : "Management Focus"}</p>
+              <p className={`text-xs font-medium tracking-[0.16em] uppercase ${isClosedView ? "text-slate-400" : "text-slate-300"}`}>{isClosedView ? "結案留存重點" : "進行中管理重點"}</p>
               <p className={`mt-1 text-base font-semibold ${isClosedView ? "text-slate-900" : "text-white"}`}>{isClosedView ? "結案留存 / 最終結果確認" : "進行中控盤 / 成本管理 / 對帳推進"}</p>
             </div>
             <div className="grid grid-cols-2 gap-3 text-xs">
@@ -310,7 +310,7 @@ export function QuoteCostDetailClient({ project, mode = "active" }: Props) {
             </div>
             <div className="grid gap-3 sm:min-w-[320px] sm:grid-cols-2">
               <InfoChip label="目前有效成本" value={formatCurrency(adjustedCostTotal)} archived={isClosedView} />
-              <InfoChip label="fallback / 原始基準" value={formatCurrency(originalCostTotal)} archived={isClosedView} />
+              <InfoChip label="原始成本基準" value={formatCurrency(originalCostTotal)} archived={isClosedView} />
             </div>
           </div>
 
@@ -330,7 +330,7 @@ export function QuoteCostDetailClient({ project, mode = "active" }: Props) {
 
         <div className="mt-5 grid gap-4 xl:grid-cols-[1.6fr_1fr]">
           <article className={`rounded-3xl border p-5 ${isClosedView ? "border-slate-200 bg-white" : "border-slate-900 bg-slate-900 text-white"}`}>
-            <p className={`text-xs font-medium tracking-[0.16em] uppercase ${isClosedView ? "text-slate-400" : "text-slate-300"}`}>Primary Cost Area</p>
+            <p className={`text-xs font-medium tracking-[0.16em] uppercase ${isClosedView ? "text-slate-400" : "text-slate-300"}`}>主成本區</p>
             <h4 className={`mt-2 text-xl font-semibold ${isClosedView ? "text-slate-900" : "text-white"}`}>廠商成本區</h4>
             <p className={`mt-2 text-sm leading-6 ${isClosedView ? "text-slate-600" : "text-slate-200"}`}>這裡是成本主線本體：設計 / 備品 / 廠商三條線一旦成立成本，先全部收進這裡，再按廠商分組往下看明細與調整。</p>
             <div className="mt-4 grid gap-3 sm:grid-cols-3">
@@ -341,7 +341,7 @@ export function QuoteCostDetailClient({ project, mode = "active" }: Props) {
           </article>
 
           <article className="rounded-3xl border border-slate-200 bg-white p-5">
-            <p className="text-xs font-medium tracking-[0.16em] text-slate-400 uppercase">Secondary Cost Area</p>
+            <p className="text-xs font-medium tracking-[0.16em] text-slate-400 uppercase">次成本區</p>
             <h4 className="mt-2 text-lg font-semibold text-slate-900">人工成本區</h4>
             <p className="mt-2 text-sm leading-6 text-slate-500">人工成本保留在次層，避免與 workflow 成立的廠商成本主線混讀；需要補車資、雜支或臨時費用時再往這裡處理。</p>
             <div className="mt-4 grid gap-3 sm:grid-cols-2">
@@ -356,7 +356,7 @@ export function QuoteCostDetailClient({ project, mode = "active" }: Props) {
             <div className={`rounded-3xl border p-4 ${isClosedView ? "border-amber-200 bg-amber-50/70" : "border-amber-200 bg-amber-50"}`}>
               <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
                 <div>
-                  <p className="text-sm font-semibold text-amber-900">fallback / 例外：不計入成本項</p>
+                  <p className="text-sm font-semibold text-amber-900">例外區：不計入成本項</p>
                   <p className="mt-1 text-sm text-amber-800">這些項目保留紀錄，但目前不進有效總額；讓主線先保持乾淨，例外再集中收斂。</p>
                 </div>
                 <span className="inline-flex rounded-full border border-amber-200 bg-white px-3 py-1 text-xs font-medium text-amber-800">
@@ -640,7 +640,7 @@ function SectionHeader({ index, title, description, archived = false }: { index:
   return (
     <div>
       <div className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ring-1 ${archived ? "bg-slate-100 text-slate-600 ring-slate-200" : "bg-slate-100 text-slate-700 ring-slate-200"}`}>
-        {index}. {archived ? "Archive Section" : "Workspace Section"}
+        {index}. {archived ? "留存區塊" : "工作區塊"}
       </div>
       <h3 className="mt-3 text-xl font-semibold text-slate-900">{title}</h3>
       <p className="mt-1 max-w-3xl text-sm leading-6 text-slate-500">{description}</p>

@@ -2055,14 +2055,34 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
                               <span
                                 className={`inline-flex items-center justify-center rounded-full px-3 py-1 text-xs font-medium ring-1 ${getDocumentStatusClass(group.status)}`}
                               >
-                                {group.status}
+                                文件狀態｜{group.status}
                               </span>
                             </div>
                             <p className="mt-2 text-sm text-slate-500">
-                              項目數量：{group.replies.length}
+                              已確認回覆：{group.replies.length} 筆
                             </p>
                           </div>
                           <div className="flex flex-wrap gap-2">
+                            <button
+                              type="button"
+                              onClick={() =>
+                                toggleDesignOrganizeContent(group.vendor)
+                              }
+                              className={`inline-flex items-center justify-center rounded-xl border px-3 py-2 text-xs font-semibold transition ${isContentOpen ? "border-slate-900 bg-slate-900 text-white" : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50"}`}
+                            >
+                              {isContentOpen ? "收合整理內容" : "查看整理內容"}
+                            </button>
+                            {group.status !== "未生成" ? (
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  toggleDesignOrganizeDocument(group.vendor)
+                                }
+                                className={`inline-flex items-center justify-center rounded-xl border px-3 py-2 text-xs font-semibold transition ${isDocumentOpen ? "border-slate-900 bg-slate-900 text-white" : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50"}`}
+                              >
+                                {isDocumentOpen ? "收合文件" : group.status === "需更新" ? "查看舊文件" : "查看文件"}
+                              </button>
+                            ) : null}
                             <button
                               type="button"
                               onClick={() =>
@@ -2076,24 +2096,6 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
                               {group.status === "未生成"
                                 ? "生成文件"
                                 : "重新生成文件"}
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() =>
-                                toggleDesignOrganizeContent(group.vendor)
-                              }
-                              className={`inline-flex items-center justify-center rounded-xl border px-3 py-2 text-xs font-semibold transition ${isContentOpen ? "border-slate-900 bg-slate-900 text-white" : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50"}`}
-                            >
-                              {isContentOpen ? "收合整理內容" : "查看整理內容"}
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() =>
-                                toggleDesignOrganizeDocument(group.vendor)
-                              }
-                              className={`inline-flex items-center justify-center rounded-xl border px-3 py-2 text-xs font-semibold transition ${isDocumentOpen ? "border-slate-900 bg-slate-900 text-white" : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50"}`}
-                            >
-                              {isDocumentOpen ? "收合文件" : "查看文件"}
                             </button>
                           </div>
                         </div>
@@ -2206,14 +2208,36 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
                         <span
                           className={`inline-flex items-center justify-center rounded-full px-3 py-1 text-xs font-medium ring-1 ${getDocumentStatusClass(procurementDocumentGroup.status)}`}
                         >
-                          {procurementDocumentGroup.status}
+                          文件狀態｜{procurementDocumentGroup.status}
                         </span>
                       </div>
                       <p className="mt-2 text-sm text-slate-500">
-                        回覆筆數：{procurementDocumentGroup.replies.length}
+                        已確認回覆：{procurementDocumentGroup.replies.length} 筆
                       </p>
                     </div>
                     <div className="flex flex-wrap gap-2">
+                      <button
+                        type="button"
+                        onClick={() => toggleProcurementOrganizeContent(project.id)}
+                        className={`inline-flex items-center justify-center rounded-xl border px-3 py-2 text-xs font-semibold transition ${activeProcurementContent === project.id ? "border-slate-900 bg-slate-900 text-white" : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50"}`}
+                      >
+                        {activeProcurementContent === project.id
+                          ? "收合整理內容"
+                          : "查看整理內容"}
+                      </button>
+                      {procurementDocumentGroup.status !== "未生成" ? (
+                        <button
+                          type="button"
+                          onClick={() => toggleProcurementOrganizeDocument(project.id)}
+                          className={`inline-flex items-center justify-center rounded-xl border px-3 py-2 text-xs font-semibold transition ${activeProcurementDocument === project.id ? "border-slate-900 bg-slate-900 text-white" : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50"}`}
+                        >
+                          {activeProcurementDocument === project.id
+                            ? "收合文件"
+                            : procurementDocumentGroup.status === "需更新"
+                              ? "查看舊文件"
+                              : "查看文件"}
+                        </button>
+                      ) : null}
                       <button
                         type="button"
                         onClick={() =>
@@ -2227,24 +2251,6 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
                         {procurementDocumentGroup.status === "未生成"
                           ? "生成文件"
                           : "重新生成文件"}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => toggleProcurementOrganizeContent(project.id)}
-                        className={`inline-flex items-center justify-center rounded-xl border px-3 py-2 text-xs font-semibold transition ${activeProcurementContent === project.id ? "border-slate-900 bg-slate-900 text-white" : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50"}`}
-                      >
-                        {activeProcurementContent === project.id
-                          ? "收合整理內容"
-                          : "查看整理內容"}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => toggleProcurementOrganizeDocument(project.id)}
-                        className={`inline-flex items-center justify-center rounded-xl border px-3 py-2 text-xs font-semibold transition ${activeProcurementDocument === project.id ? "border-slate-900 bg-slate-900 text-white" : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50"}`}
-                      >
-                        {activeProcurementDocument === project.id
-                          ? "收合文件"
-                          : "查看文件"}
                       </button>
                     </div>
                   </div>
