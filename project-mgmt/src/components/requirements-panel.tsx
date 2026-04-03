@@ -89,7 +89,7 @@ export function RequirementsPanel({
 
   return (
     <article className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
-      <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="min-w-0">
           <h3 className="text-xl font-semibold">需求溝通</h3>
         </div>
@@ -139,7 +139,7 @@ export function RequirementsPanel({
 
       <div className="space-y-3">
         {items.map((item, index) => (
-          <div key={`${item.title}-${index}`} className="rounded-2xl border border-slate-200 p-4">
+          <div key={`${item.title}-${index}`} className="rounded-2xl border border-slate-200 px-4 py-3.5">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
               <div className="min-w-0 text-left">
                 <p className="text-xs font-medium text-slate-500">{item.date}</p>

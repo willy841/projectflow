@@ -178,7 +178,7 @@ export function ProjectDetailShell({ project }: { project: Project }) {
               ["Email", projectForm.contactEmail],
               ["LINE", projectForm.contactLine],
             ].map(([label, value]) => (
-              <div key={label} className="rounded-2xl bg-slate-50 p-4">
+              <div key={label} className="rounded-2xl bg-slate-50 px-4 py-3.5">
                 <p className="text-sm text-slate-500">{label}</p>
                 <p className="mt-2 font-medium text-slate-900">{value}</p>
               </div>
