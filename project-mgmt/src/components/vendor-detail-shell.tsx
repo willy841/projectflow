@@ -30,14 +30,14 @@ export function VendorDetailShell({ vendorId }: Props) {
     if (!isReady) {
       return (
         <div className="rounded-3xl border border-dashed border-slate-300 bg-white p-8 text-sm text-slate-500">
-          廠商資料載入中，正在同步前端 local state…
+          廠商資料載入中，正在同步前端 local state / localStorage…
         </div>
       );
     }
 
     return (
       <div className="rounded-3xl border border-dashed border-slate-300 bg-white p-8 text-sm text-slate-500">
-        找不到此廠商。若是剛建立，請先回廠商列表確認前端 local state 是否已建立成功。
+        找不到此廠商。前端資料同步已完成，但目前 store 內沒有這筆 vendor。
       </div>
     );
   }

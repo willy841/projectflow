@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { createContext, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { vendorProfiles, type VendorBasicProfile } from "@/components/vendor-data";
 
 const STORAGE_KEY = "projectflow-vendors";
@@ -62,8 +62,21 @@ function persistVendors(vendors: VendorBasicProfile[]) {
 }
 
 export function VendorStoreProvider({ children }: { children: React.ReactNode }) {
-  const [vendors, setVendors] = useState<VendorBasicProfile[]>(() => readStoredVendors() ?? getDefaultVendors());
-  const isReady = typeof window !== "undefined";
+  const [vendors, setVendors] = useState<VendorBasicProfile[]>(getDefaultVendors);
+  const [isReady, setIsReady] = useState(false);
+  const hasLocalChangesRef = useRef(false);
+
+  useEffect(() => {
+    const storedVendors = readStoredVendors();
+
+    setVendors((current) => {
+      if (hasLocalChangesRef.current || !storedVendors) {
+        return current;
+      }
+      return storedVendors;
+    });
+    setIsReady(true);
+  }, []);
 
   useEffect(() => {
     if (!isReady) return;
@@ -105,6 +118,7 @@ export function VendorStoreProvider({ children }: { children: React.ReactNode })
         accountName: "",
         accountNumber: "",
       };
+      hasLocalChangesRef.current = true;
       setVendors((current) => {
         const nextVendors = [...current, nextVendor];
         persistVendors(nextVendors);
@@ -113,6 +127,7 @@ export function VendorStoreProvider({ children }: { children: React.ReactNode })
       return { ok: true as const, vendor: nextVendor };
     },
     updateVendor(id, patch) {
+      hasLocalChangesRef.current = true;
       setVendors((current) => {
         const nextVendors = current.map((vendor) => {
           if (vendor.id !== id) return vendor;
