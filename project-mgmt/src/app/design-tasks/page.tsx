@@ -4,11 +4,12 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import { AppShell } from "@/components/app-shell";
 import {
-  designTaskBoardRecords,
   type ConfirmStatus,
   type DesignTaskBoardRecord,
   type DocumentStatus,
 } from "@/components/design-task-board-data";
+import { projects } from "@/components/project-data";
+import { getDesignBoardRecords } from "@/components/project-workflow-store";
 
 function getConfirmBadgeClass(status: ConfirmStatus) {
   if (status === "已確認") return "bg-emerald-50 text-emerald-700 ring-emerald-200";
@@ -36,7 +37,7 @@ export default function DesignTasksPage() {
   const [documentFilter, setDocumentFilter] = useState<"all" | DocumentStatus>("all");
   const [vendorFilter, setVendorFilter] = useState("all");
 
-  const records = useMemo<DesignTaskBoardRecord[]>(() => designTaskBoardRecords, []);
+  const records = useMemo<DesignTaskBoardRecord[]>(() => getDesignBoardRecords(projects), []);
 
   const vendors = useMemo(
     () => Array.from(new Set(records.map((record) => record.vendorName))).filter(Boolean),

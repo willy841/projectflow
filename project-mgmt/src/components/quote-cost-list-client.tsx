@@ -9,11 +9,12 @@ import {
   getGrossProfit,
   getQuotationTotal,
   getReconciliationStatusClass,
-  quoteCostProjects,
+  type CostSourceType,
 } from "@/components/quote-cost-data";
+import { getQuoteCostProjectsWithWorkflow } from "@/components/project-workflow-store";
 
 export function QuoteCostListClient({ mode = "active" }: { mode?: "active" | "closed" }) {
-  const activeProjects = quoteCostProjects
+  const activeProjects = getQuoteCostProjectsWithWorkflow()
     .filter((project) => project.projectStatus === "執行中")
     .map((project) => {
       const quotationTotal = getQuotationTotal(project.quotationItems);
@@ -24,6 +25,8 @@ export function QuoteCostListClient({ mode = "active" }: { mode?: "active" | "cl
       const manualCostCount = project.costItems.filter((item) => item.isManual).length;
       const needsAttentionScore = excludedCostCount + unassignedVendorCount + (project.reconciliationStatus !== "已完成" ? 1 : 0);
 
+      const sourceSummary = getSourceSummary(project.costItems);
+
       return {
         project,
         quotationTotal,
@@ -33,6 +36,7 @@ export function QuoteCostListClient({ mode = "active" }: { mode?: "active" | "cl
         unassignedVendorCount,
         manualCostCount,
         needsAttentionScore,
+        sourceSummary,
       };
     })
     .sort((a, b) => {
@@ -113,7 +117,7 @@ export function QuoteCostListClient({ mode = "active" }: { mode?: "active" | "cl
         </div>
 
         <div className="space-y-4">
-          {activeProjects.map(({ project, quotationTotal, adjustedCostTotal, grossProfit, excludedCostCount, unassignedVendorCount, manualCostCount, needsAttentionScore }) => (
+          {activeProjects.map(({ project, quotationTotal, adjustedCostTotal, grossProfit, excludedCostCount, unassignedVendorCount, manualCostCount, needsAttentionScore, sourceSummary }) => (
             <article key={project.id} className="rounded-3xl border border-slate-200 p-5">
               <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
                 <div>
@@ -151,11 +155,31 @@ export function QuoteCostListClient({ mode = "active" }: { mode?: "active" | "cl
                 <MetricCard label="人工成本筆數" value={`${manualCostCount} 筆`} />
               </div>
 
-              <div className="mt-5 flex flex-wrap gap-2">
-                {excludedCostCount > 0 && <ExceptionBadge label={`未計入成本 ${excludedCostCount} 筆`} tone="amber" />}
-                {unassignedVendorCount > 0 && <ExceptionBadge label={`未指定廠商 ${unassignedVendorCount} 筆`} tone="sky" />}
-                {manualCostCount > 0 && <ExceptionBadge label={`人工成本 ${manualCostCount} 筆`} tone="slate" />}
-                {excludedCostCount === 0 && unassignedVendorCount === 0 && <ExceptionBadge label="目前無成本例外" tone="emerald" />}
+              <div className="mt-5 grid gap-3 xl:grid-cols-[1.4fr_1fr]">
+                <div>
+                  <p className="text-xs font-semibold tracking-[0.16em] text-slate-400 uppercase">成本承接三條線</p>
+                  <div className="mt-3 grid gap-3 md:grid-cols-3">
+                    {sourceSummary.map((item) => (
+                      <div key={item.label} className="rounded-2xl bg-slate-50 p-4 ring-1 ring-slate-200">
+                        <div className="flex items-center justify-between gap-2">
+                          <span className={`inline-flex rounded-full px-2.5 py-1 text-[11px] font-semibold ring-1 ${item.badgeClass}`}>{item.label}</span>
+                          <span className="text-xs text-slate-500">{item.count} 筆</span>
+                        </div>
+                        <p className="mt-3 text-sm font-semibold text-slate-900">{formatCurrency(item.total)}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <p className="text-xs font-semibold tracking-[0.16em] text-slate-400 uppercase">例外 / 補充</p>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {excludedCostCount > 0 && <ExceptionBadge label={`未計入成本 ${excludedCostCount} 筆`} tone="amber" />}
+                    {unassignedVendorCount > 0 && <ExceptionBadge label={`未指定廠商 ${unassignedVendorCount} 筆`} tone="sky" />}
+                    {manualCostCount > 0 && <ExceptionBadge label={`人工成本 ${manualCostCount} 筆`} tone="slate" />}
+                    {excludedCostCount === 0 && unassignedVendorCount === 0 && <ExceptionBadge label="目前無成本例外" tone="emerald" />}
+                  </div>
+                </div>
               </div>
             </article>
           ))}
@@ -163,6 +187,26 @@ export function QuoteCostListClient({ mode = "active" }: { mode?: "active" | "cl
       </section>
     </AppShell>
   );
+}
+
+function getSourceSummary(costItems: Array<{ sourceType: CostSourceType; adjustedAmount: number; includedInCost: boolean }>) {
+  const sourceOrder: CostSourceType[] = ["設計", "備品", "廠商"];
+  const sourceTone: Record<CostSourceType, string> = {
+    設計: "bg-blue-50 text-blue-700 ring-blue-200",
+    備品: "bg-amber-50 text-amber-700 ring-amber-200",
+    廠商: "bg-violet-50 text-violet-700 ring-violet-200",
+    人工: "bg-slate-100 text-slate-700 ring-slate-200",
+  };
+
+  return sourceOrder.map((sourceType) => {
+    const items = costItems.filter((item) => item.sourceType === sourceType && item.includedInCost);
+    return {
+      label: sourceType,
+      count: items.length,
+      total: items.reduce((sum, item) => sum + item.adjustedAmount, 0),
+      badgeClass: sourceTone[sourceType],
+    };
+  });
 }
 
 function FocusMetric({ label, value, helper }: { label: string; value: string; helper: string }) {

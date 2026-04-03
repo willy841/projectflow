@@ -1,7 +1,11 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ProjectVendorSection } from "@/components/project-vendor-section";
+import {
+  getExecutionSectionStorageKey,
+  readStoredExecutionSectionState,
+} from "@/components/project-workflow-store";
 import {
   AssignmentReply,
   DesignAssignmentDraft,
@@ -482,6 +486,33 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
   const [activeProcurementContent, setActiveProcurementContent] = useState<
     string | null
   >(null);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const stored = readStoredExecutionSectionState(project.id);
+    setReplyOverrides(stored.replyOverrides ?? {});
+    setGeneratedDesignDocuments(stored.generatedDesignDocuments ?? {});
+    setGeneratedProcurementDocuments(
+      stored.generatedProcurementDocuments ?? {},
+    );
+  }, [project.id]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    window.localStorage.setItem(
+      getExecutionSectionStorageKey(project.id),
+      JSON.stringify({
+        replyOverrides,
+        generatedDesignDocuments,
+        generatedProcurementDocuments,
+      }),
+    );
+  }, [
+    generatedDesignDocuments,
+    generatedProcurementDocuments,
+    project.id,
+    replyOverrides,
+  ]);
 
   function resetCategoryExpansions() {
     setActiveReplyBoxId(null);
@@ -1180,9 +1211,43 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
         <ExecutionTree
           heading="專案執行項目"
           items={project.executionItems}
-          onDesignAssignmentsChange={setDesignAssignments}
-          onProcurementAssignmentsChange={setProcurementAssignments}
-          onVendorAssignmentsChange={setVendorAssignments}
+          projectId={project.id}
+          onDesignAssignmentsChange={(payload) =>
+            setDesignAssignments(
+              payload.map((item) => ({
+                ...item,
+                data: {
+                  ...item.data,
+                  replies:
+                    replyOverrides[item.targetId] ?? item.data.replies ?? [],
+                },
+              })),
+            )
+          }
+          onProcurementAssignmentsChange={(payload) =>
+            setProcurementAssignments(
+              payload.map((item) => ({
+                ...item,
+                data: {
+                  ...item.data,
+                  replies:
+                    replyOverrides[item.targetId] ?? item.data.replies ?? [],
+                },
+              })),
+            )
+          }
+          onVendorAssignmentsChange={(payload) =>
+            setVendorAssignments(
+              payload.map((item) => ({
+                ...item,
+                data: {
+                  ...item.data,
+                  replies:
+                    replyOverrides[item.targetId] ?? item.data.replies ?? [],
+                },
+              })),
+            )
+          }
         />
       </section>
 

@@ -2,6 +2,10 @@
 
 import { useEffect, useRef, useState } from "react";
 import {
+  getExecutionTreeStorageKey,
+  readStoredExecutionTreeState,
+} from "@/components/project-workflow-store";
+import {
   ProjectExecutionItem,
   getStatusClass,
 } from "@/components/project-data";
@@ -918,12 +922,14 @@ function parseImportedRows(rows: string[][]): ImportedItem[] {
 
 export function ExecutionTree({
   items,
+  projectId,
   onDesignAssignmentsChange,
   onProcurementAssignmentsChange,
   onVendorAssignmentsChange,
   heading = "新增主項目",
 }: {
   items: ProjectExecutionItem[];
+  projectId?: string;
   onDesignAssignmentsChange?: (
     payload: Array<{
       targetId: string;
@@ -985,6 +991,26 @@ export function ExecutionTree({
     Record<string, VendorAssignmentDraft>
   >({});
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  useEffect(() => {
+    if (!projectId || typeof window === "undefined") return;
+    const stored = readStoredExecutionTreeState(projectId);
+    setSavedDesignAssignments(stored.savedDesignAssignments ?? {});
+    setSavedProcurementAssignments(stored.savedProcurementAssignments ?? {});
+    setSavedVendorAssignments(stored.savedVendorAssignments ?? {});
+  }, [projectId]);
+
+  useEffect(() => {
+    if (!projectId || typeof window === "undefined") return;
+    window.localStorage.setItem(
+      getExecutionTreeStorageKey(projectId),
+      JSON.stringify({
+        savedDesignAssignments,
+        savedProcurementAssignments,
+        savedVendorAssignments,
+      }),
+    );
+  }, [projectId, savedDesignAssignments, savedProcurementAssignments, savedVendorAssignments]);
 
   useEffect(() => {
     if (!onDesignAssignmentsChange) return;

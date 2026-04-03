@@ -4,11 +4,12 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import { AppShell } from "@/components/app-shell";
 import {
-  procurementTaskBoardRecords,
   type ConfirmStatus,
   type DocumentStatus,
   type ProcurementBoardRecord,
 } from "@/components/procurement-task-board-data";
+import { projects } from "@/components/project-data";
+import { getProcurementBoardRecords } from "@/components/project-workflow-store";
 
 function getConfirmBadgeClass(status: ConfirmStatus) {
   if (status === "已確認") return "bg-emerald-50 text-emerald-700 ring-emerald-200";
@@ -36,7 +37,7 @@ export default function ProcurementTasksPage() {
   const [documentFilter, setDocumentFilter] = useState<"all" | DocumentStatus>("all");
   const [vendorFilter, setVendorFilter] = useState("all");
 
-  const records = useMemo<ProcurementBoardRecord[]>(() => procurementTaskBoardRecords, []);
+  const records = useMemo<ProcurementBoardRecord[]>(() => getProcurementBoardRecords(projects), []);
 
   const vendors = useMemo(
     () => Array.from(new Set(records.map((record) => record.vendorName))).filter(Boolean),
