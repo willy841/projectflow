@@ -207,43 +207,49 @@ export function VendorDetailShell({ vendorId }: Props) {
         </div>
       </header>
 
-      <section className="grid gap-6 2xl:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)]">
-        <VendorProfileEditor
-          key={vendor.id}
-          vendor={vendor}
-          onSave={(patch) => {
-            updateVendor(vendor.id, patch);
-          }}
-        />
+      <section className="grid gap-6 xl:grid-cols-[minmax(0,1.65fr)_320px] xl:items-start">
+        <div className="min-w-0">
+          <VendorProfileEditor
+            key={vendor.id}
+            vendor={vendor}
+            onSave={(patch) => {
+              updateVendor(vendor.id, patch);
+            }}
+          />
+        </div>
 
-        <article className="rounded-3xl border border-sky-200 bg-sky-50/60 p-6 shadow-sm ring-1 ring-sky-100">
-          <div className="mb-5 flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
-            <div>
-              <p className="text-xs font-semibold tracking-wide text-sky-700">B. 工種維護區</p>
-              <h3 className="mt-1 text-xl font-semibold text-slate-900">正式補 / 編輯工種</h3>
-              <p className="mt-2 text-sm leading-6 text-slate-600">符合本輪 MVP 規格：quick create 可先略過；進到 vendor detail 後，再正式補齊或編輯工種。</p>
-            </div>
-            <div className="rounded-2xl bg-white px-4 py-3 text-sm text-slate-700 ring-1 ring-sky-200">
-              目前已選 {vendor.tradeLabels?.length ?? 0} 個工種
-            </div>
-          </div>
+        <aside className="xl:sticky xl:top-6">
+          <article className="rounded-3xl border border-sky-200 bg-sky-50/60 p-5 shadow-sm ring-1 ring-sky-100">
+            <div className="space-y-4">
+              <div>
+                <p className="text-xs font-semibold tracking-wide text-sky-700">B. 側欄類別區</p>
+                <h3 className="mt-1 text-xl font-semibold text-slate-900">選擇類別</h3>
+                <p className="mt-2 text-sm leading-6 text-slate-600">此區維持既有工種多選規則，僅調整為右側獨立側欄，讓第一屏主次更清楚。</p>
+              </div>
 
-          <div className="flex flex-wrap gap-2">
-            {TRADE_OPTIONS.map((trade) => {
-              const active = vendor.tradeLabels?.includes(trade) ?? false;
-              return (
-                <button
-                  key={trade}
-                  type="button"
-                  onClick={() => toggleTrade(trade)}
-                  className={`rounded-full px-3 py-2 text-xs font-medium ring-1 transition ${active ? "bg-slate-900 text-white ring-slate-900" : "bg-white text-slate-700 ring-slate-200 hover:bg-slate-50"}`}
-                >
-                  {trade}
-                </button>
-              );
-            })}
-          </div>
-        </article>
+              <div className="rounded-2xl bg-white px-4 py-3 text-sm text-slate-700 ring-1 ring-sky-200">
+                <p className="text-xs font-semibold tracking-wide text-sky-700">已選工種</p>
+                <p className="mt-1 text-base font-semibold text-slate-900">{vendor.tradeLabels?.length ?? 0} 個</p>
+              </div>
+
+              <div className="flex flex-wrap gap-2">
+                {TRADE_OPTIONS.map((trade) => {
+                  const active = vendor.tradeLabels?.includes(trade) ?? false;
+                  return (
+                    <button
+                      key={trade}
+                      type="button"
+                      onClick={() => toggleTrade(trade)}
+                      className={`rounded-full px-3 py-2 text-xs font-medium ring-1 transition ${active ? "bg-slate-900 text-white ring-slate-900" : "bg-white text-slate-700 ring-slate-200 hover:bg-slate-50"}`}
+                    >
+                      {trade}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </article>
+        </aside>
       </section>
 
       <article className="rounded-3xl border border-amber-200 bg-amber-50/60 p-6 shadow-sm ring-1 ring-amber-100">
