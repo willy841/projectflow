@@ -1147,9 +1147,6 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
         <div className="mb-5 flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
           <div className="min-w-0">
             <h3 className="text-xl font-semibold">專案執行項目</h3>
-            <p className="mt-1 text-sm leading-6 text-slate-500">
-              維持樹狀項目操作，交辦主卡改為摘要呈現，避免同頁資訊過重。
-            </p>
           </div>
         </div>
         <ExecutionTree

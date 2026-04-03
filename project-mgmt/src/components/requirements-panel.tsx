@@ -89,10 +89,9 @@ export function RequirementsPanel({
 
   return (
     <article className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
-      <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+      <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="min-w-0">
           <h3 className="text-xl font-semibold">需求溝通</h3>
-          <p className="mt-1 text-sm leading-6 text-slate-500">在專案內直接記錄需求溝通內容，日期會自動記錄儲存當下時間。</p>
         </div>
         <button
           type="button"
@@ -101,7 +100,7 @@ export function RequirementsPanel({
             setEditingIndex(null);
             resetForm();
           }}
-          className="inline-flex shrink-0 items-center justify-center whitespace-nowrap rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 shadow-sm transition hover:border-slate-400 hover:bg-slate-50"
+          className="inline-flex h-11 shrink-0 items-center justify-center whitespace-nowrap rounded-2xl border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-800 shadow-sm transition hover:border-slate-400 hover:bg-slate-50"
         >
           + 新增紀錄
         </button>

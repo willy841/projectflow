@@ -166,7 +166,6 @@ export function ProjectDetailShell({ project }: { project: Project }) {
           <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div className="min-w-0">
               <h3 className="text-xl font-semibold">專案基本資訊</h3>
-              <p className="mt-1 text-sm leading-6 text-slate-500">專案主檔與客戶聯繫窗口。</p>
             </div>
             <div className="text-left text-sm text-slate-500 sm:text-right">
               <p>負責人：{projectForm.owner}</p>
