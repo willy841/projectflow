@@ -261,9 +261,11 @@ export function ProjectVendorSection({
                           <button
                             type="button"
                             onClick={() => setQuickCreateAssignmentId(assignment.id)}
-                            className="inline-flex h-7 items-center justify-center rounded-lg border border-dashed border-slate-300 bg-white px-2.5 text-[11px] font-semibold text-slate-700 transition hover:bg-slate-50"
+                            title="快速建立廠商"
+                            aria-label="快速建立廠商"
+                            className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-dashed border-slate-300 bg-white text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
                           >
-                            快速建立
+                            +
                           </button>
                         ) : null}
                       </div>
