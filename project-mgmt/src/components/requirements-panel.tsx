@@ -58,11 +58,13 @@ export function RequirementsPanel({
     const title = formTitle.trim();
     if (!title) return;
 
-    setItems((prev) =>
-      prev.map((item, index) =>
-        index === editingIndex ? { title, date: getCurrentTimestamp() } : item
-      )
-    );
+    setItems((prev) => {
+      const updatedItem = { title, date: getCurrentTimestamp() };
+      return [
+        updatedItem,
+        ...prev.filter((_, index) => index !== editingIndex),
+      ];
+    });
 
     setEditingIndex(null);
     resetForm();
