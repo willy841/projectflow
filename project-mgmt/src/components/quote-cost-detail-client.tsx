@@ -356,8 +356,8 @@ export function QuoteCostDetailClient({ project, mode = "active" }: Props) {
             <div className={`rounded-3xl border p-4 ${isClosedView ? "border-amber-200 bg-amber-50/70" : "border-amber-200 bg-amber-50"}`}>
               <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
                 <div>
-                  <p className="text-sm font-semibold text-amber-900">例外區：不計入成本項</p>
-                  <p className="mt-1 text-sm text-amber-800">這些項目保留紀錄，但目前不進有效總額；讓主線先保持乾淨，例外再集中收斂。</p>
+                  <p className="text-sm font-semibold text-amber-900">例外項：目前不計入成本</p>
+                  <p className="mt-1 text-sm text-amber-800">這些項目保留紀錄，但暫不進有效總額；主線先看已成立成本，例外資訊集中放在這裡。</p>
                 </div>
                 <span className="inline-flex rounded-full border border-amber-200 bg-white px-3 py-1 text-xs font-medium text-amber-800">
                   {excludedCostItems.length} 筆未納入

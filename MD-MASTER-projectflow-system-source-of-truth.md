@@ -67,6 +67,70 @@
   - 命名與資訊架構是否一致
 - 不要只講抽象規劃，要能直接落成畫面或互動
 
+### 2.1-A UI 工作原則（2026-04-04 CPO 收斂版）
+本段整理使用者對 `projectflow` UI / UX 的穩定要求。後續若要續接 UI 微調、驗收、派工或做 handoff，應優先以本段作為高階準則。
+
+#### A. UI 的核心目標
+使用者要的不是「設計稿式漂亮畫面」，而是：
+> **高資訊密度、可快速判讀、可立即操作、桌機 100% 比例下穩定、主次清楚的管理介面。**
+
+也就是：
+- 可以密，但不能亂
+- 可以多，但不能雜
+- 可以快修，但不能失去系統性
+
+#### B. 驗收時最在意的 UI 指標
+後續驗收時，特別優先看：
+1. 按鈕可讀性
+2. badge 對齊與垂直置中
+3. 桌機 100% 顯示比例排版穩定度
+4. 畫布寬度 / 側欄寬度 / 表格寬度是否合理
+5. 命名、狀態語言、資訊架構是否一致
+6. 首屏是否能快速判讀，不靠長段 helper copy 補救
+
+#### C. 使用者偏好的 UI 方向
+1. **高資訊密度，但主次一定要清楚**
+   - 可接受管理台型 UI
+   - 但首屏不能塞到失去辨識力
+   - 展開後視線要自然往下走
+
+2. **主線資訊要優先，背景 / fallback / 例外資訊要降階**
+   - 不接受 seed / fallback / 補充資訊搶主線注意力
+   - 成本主線、文件主線、任務主線都要先被看懂
+
+3. **CTA 主次要非常明確**
+   - 主按鈕要一眼看出來
+   - 輔助操作不能搶走主流程
+   - `查看整理內容`、`查看文件`、`生成文件` 等操作要有固定節奏
+
+4. **狀態語言與視覺要像同一套系統**
+   - badge 名稱要一致
+   - 文件狀態、回覆狀態、操作狀態要用同一語氣
+   - 顏色與命名不能在不同頁面互相打架
+
+5. **對齊不是裝飾，而是品質本體**
+   - 表頭與搜尋列對齊
+   - label 基線對齊
+   - badge 垂直置中
+   - 按鈕高度一致
+   - 卡片 / 區塊左右基準線一致
+
+#### D. 明確不喜歡的 UI 問題
+1. 多餘說明文 / helper copy 太多
+2. 同一頁看起來像三套 UI 拼起來
+3. 靠零碎 padding / margin 補位硬修版型
+4. 主線資訊被例外資訊、fallback 資訊、背景資訊搶焦點
+
+#### E. 後續派工時應直接遵守的 8 條 UI 準則
+1. 高資訊密度可以，但主次一定要清楚
+2. 桌機 100% 比例下，排版不能跑掉
+3. 按鈕、badge、label、欄位基線必須對齊
+4. 主 CTA 要明確，輔助操作不能搶主流程
+5. 狀態語言、顏色、命名必須跨頁一致
+6. 首屏只留判讀必要資訊，不要塞滿
+7. 主線資訊優先；fallback、例外、背景資訊降階
+8. 不要靠零碎 padding 補丁修版型；版型問題要從結構解
+
 ## 2.2 協作規則
 - 當 context 接近飽和，必須主動提醒、收口並整理交接 MD
 - 當 usage 剩餘約 10%，也必須執行相同收口流程
@@ -2890,3 +2954,214 @@ Vendor 詳情頁第一版採以下三層主結構：
 - 7-3 專案廠商只保留入口，不再做第二套 vendor 工作台
 - Vendor Flow 已收斂為：廠商需求卡 → Package 層 → 最終文件
 - GitHub / SSH / Vercel 的實務設定必須寫死遵守，避免再出現推不上去、推錯、deploy 吃錯設定的問題
+
+---
+
+# 20. 2026-04-04 本輪完成事項（最新續接基準）
+
+本節整理 2026-04-04 這一輪依固定任務順序完成的內容。之後若要續接 `projectflow`，應先看本節，再決定是進驗收、補 bug，還是開下一輪需求。
+
+## 20.1 本輪執行順序（已完成）
+本輪是依以下順序實際推進：
+1. 報價成本承接三條線
+2. 設計線確認 / 文件 / 成本主線
+3. 備品線確認 / 文件 / 成本主線
+4. 設計任務版 / 備品採購版承接真實主線資料
+5. Vendor Flow 不主動重開，只做必要承接與 bugfix 邊界內處理
+
+重要：
+- 本輪已依三角色原則執行：CPO 對話與交辦、CTO 實作、前端設計師收斂 UI/UX
+- 本輪不是重新討論需求，而是沿既定順序直接落地與收尾
+
+## 20.2 報價成本承接三條線：本輪正式完成的範圍
+### A. 成本資料主線已接通
+本輪已新增：
+- `src/components/project-workflow-store.ts`
+
+目前已開始用前端 localStorage / workflow store 承接並共用以下資料：
+- `ExecutionTree` 的設計 / 備品 / 廠商交辦
+- `ExecutionTreeSection` 的回覆、確認、文件生成狀態
+- `quote-costs` 列表與詳情頁
+- `design-tasks` / `procurement-tasks` 跨專案工作台
+
+### B. workflow 成本主線規則（本輪新增）
+本輪新增並正式收斂：
+- `confirmed` 的設計回覆 → workflow 成本明細
+- `confirmed` 的備品回覆 → workflow 成本明細
+- Vendor assignment / package → workflow 成本明細
+
+也就是：
+- 設計、備品、Vendor 三條線都已開始進入 `quote-cost` 的成本主線
+- 這一輪仍是 **mock / local state / localStorage MVP**，不是正式後端持久化
+
+### C. seed 與 workflow 的主從 / 去重規則（本輪新增）
+本輪已在 `project-workflow-store.ts` 新增：
+- `mergeQuoteCostSeedWithWorkflow()`
+- `getProjectWorkflowCostSummary(projectId)`
+
+正式規則：
+- **workflow 成本為主**
+- static seed 只保留：
+  - `manual`
+  - 或 workflow 尚未接管的 `sourceType`
+- 若某案某條線已有 workflow 明細，該條線的 seed 成本不再一起累加
+
+正式語意：
+> `quote-cost` 現在不是靜態 seed 與 workflow 任意疊加，而是 workflow 為主、seed 為 fallback / 背景參考。
+
+## 20.3 Project Detail 成本摘要：本輪正式收斂
+### A. 頂部「目前成本」已接 workflow 主線
+本輪已改在：
+- `src/components/project-detail-shell.tsx`
+
+正式規則：
+- 頂部摘要優先顯示 **workflow 成本合計**
+- 若 workflow 尚未接手，才退回 `seed fallback`
+- UI 上要明確標示當前是：
+  - `workflow 主線`
+  - 或 `seed fallback`
+
+### B. 成本欄位與 fallback 語意
+本輪已收斂：
+- 編輯區的「目前成本」欄位改為唯讀
+- reset 時若已有 workflow 成本，回到 workflow 成本值
+- `主線成本` 文案已收成 `目前有效成本`
+- `fallback seed` 文案已收成 `原始 seed 參考`
+
+正式語意：
+> `Project Detail` 上方成本摘要，不再是另一套可手改的平行數字，而是承接 workflow 成本主線的摘要區；seed 只作背景參考。
+
+## 20.4 設計線 / 備品線：本輪正式完成的第一輪閉環
+### A. 設計線
+本輪已完成到可運作層級：
+- 設計交辦資料持久化到 localStorage
+- 設計回覆 / 確認狀態 / 文件生成計數持久化
+- 已確認設計回覆可進 workflow 成本主線
+- `design-tasks` 會優先吃真實 workflow 主線資料
+- 文件狀態已依：
+  - 已確認回覆數
+  - 已生成數
+  推導
+
+### B. 備品線
+本輪已完成到可運作層級：
+- 備品交辦資料持久化到 localStorage
+- 備品回覆 / 確認狀態 / 文件生成計數持久化
+- 已確認備品回覆可進 workflow 成本主線
+- `procurement-tasks` 會優先吃真實 workflow 主線資料
+- 文件狀態已依確認與生成狀態推導
+
+### C. 本輪正式判斷
+設計線與備品線本輪都已達到：
+- `confirmed reply -> workflow cost item`
+- `整理 / 文件 / 成本` 三段可運作閉環
+
+重要提醒：
+- 目前仍是前端 localStorage MVP
+- 不是正式 DB / API / server action 資料層
+- 但已不是只有 mock 頁面，而是開始共享真實 workflow 主線資料
+
+## 20.5 跨專案工作台：本輪正式收斂結果
+### A. 資料承接
+本輪已收斂：
+- `src/app/design-tasks/page.tsx`
+- `src/app/procurement-tasks/page.tsx`
+
+正式規則：
+- 不再只吃 `designTaskBoardRecords` / `procurementTaskBoardRecords`
+- 改為優先讀 workflow store
+- 若某專案尚無真實 workflow 資料，才 fallback 舊 mock
+
+### B. 卡片與 badge 一致性（本輪第三輪微調）
+本輪已再收斂：
+- 設計線 / 備品線兩頁卡片改為相同閱讀順序：
+  1. 專案 / 任務標題
+  2. 回覆 / 確認 badge
+  3. 文件 badge
+  4. 回覆數
+  5. 摘要資訊格
+  6. 操作按鈕
+- badge 文案統一為：
+  - `回覆 / 確認：...`
+  - `文件：...`
+- `需更新` 文件狀態顏色統一收成 amber
+- `需更新` 狀態下的文件按鈕文案改為：`查看舊文件`
+
+正式語意：
+> 跨專案工作台現在不只是資料開始吃真實主線，連卡片節奏、狀態語言與舊 / 新文件判讀也已收斂到一致心智。
+
+## 20.6 Project Detail 內整理層 / 文件層：本輪第三輪微調
+本輪已微調 `src/components/execution-tree-section.tsx`，讓設計整理 / 備品整理兩條線在 Project Detail 內有更一致的主次關係。
+
+正式規則：
+- `查看整理內容` = 固定主入口
+- `查看文件` 只在已有文件時才出現
+- `未生成` 時不顯示無意義的 `查看文件`
+- `需更新` 時顯示：`查看舊文件`
+- `生成文件` / `重新生成文件` 保留 primary CTA
+
+正式語意：
+> 在 Project Detail 內，正確閱讀順序是：先看整理內容，再看舊 / 現行文件，最後生成或重新生成文件。
+
+## 20.7 quote-cost / closeout / Project Detail：本輪 UI 語言與層級收斂
+本輪已做一輪最後語言與層級收斂，重點是：
+- 清掉混雜英文
+- 降低 fallback / seed / 例外資訊搶主線的問題
+- 讓成本主線、人工成本、例外項之間的主次更清楚
+
+已收斂方向包括：
+- `報價成本進行中`
+- `結案留存詳情`
+- `主成本區 / 次成本區`
+- `原始成本基準`
+- `例外區` / `例外項：目前不計入成本`
+- `留存區塊 / 工作區塊`
+
+正式語意：
+> quote-cost 與 closeout 現在更像正式產品頁，而不是半中英混搭的工作草稿頁。
+
+## 20.8 Vendor Flow：本輪明確沒做什麼
+本輪有遵守：
+- **沒有主動重開 Vendor Flow 結構**
+- 只在既有 assignment / package / cost 承接邊界內做必要處理
+
+重要提醒：
+- Vendor Flow 主線目前仍維持已封板狀態
+- 除非驗收抓到 bug，否則不要回頭重打開
+
+## 20.9 本輪實際關鍵 commits（2026-04-04）
+本輪關鍵 commit：
+- `b282a77` — `feat: connect workflow costs to project workspaces`
+- `571278c` — `fix: align workflow board titles with execution items`
+- `7990677` — `feat: surface workflow cost on project detail`
+- `ed14c68` — `refactor: tighten workflow board and detail hierarchy`
+
+補充：
+- 本輪已重複驗證 `npm run build` 通過
+- `project-mgmt` 目前沒有未提交的本輪程式碼修改
+
+## 20.10 本輪完成定義（已達成）
+若後續新對話要判斷這輪是否已完成，答案是：**已完成，可進驗收 / 下一輪微調**。
+
+本輪已達成：
+1. 依既定順序推進
+2. 前四項都已做出可運作成果
+3. 第五項有遵守不重開
+4. 有 build 驗證
+5. 有 commit 落地
+6. UI 與資料主線都已進入可驗收狀態
+
+## 20.11 後續若要續接，最合理的入口
+若後續要續接，建議優先走以下其中一種：
+### A. 驗收模式
+直接逐頁驗：
+- `Project Detail`
+- `quote-costs` / `quote-costs/[id]`
+- `design-tasks`
+- `procurement-tasks`
+
+### B. 下一輪微調
+若驗收後仍要再修，優先應是：
+1. 小型 UI / badge / spacing / density 微調
+2. workflow 成本與 seed fallback 文案 / 提示進一步收斂
+3. 若未來要升級，才再討論 localStorage MVP -> 正式資料層
