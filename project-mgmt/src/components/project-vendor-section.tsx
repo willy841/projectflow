@@ -186,7 +186,6 @@ export function ProjectVendorSection({
           <div>
             <p className="text-xs font-semibold tracking-wide text-sky-700">PRE-ISSUE</p>
             <h3 className="mt-1 text-xl font-semibold text-slate-900">廠商需求</h3>
-            <p className="mt-1 text-sm text-slate-500">主欄位只有任務標題、需求說明、工種。流程內若找不到廠商，可直接 quick create；建立成功會立刻回填並自動選中。</p>
           </div>
         </div>
 
@@ -306,7 +305,6 @@ export function ProjectVendorSection({
           <div>
             <p className="text-xs font-semibold tracking-wide text-blue-700">POST-ISSUE</p>
             <h3 className="mt-1 text-xl font-semibold text-slate-900">廠商發包清單</h3>
-            <p className="mt-1 text-sm text-slate-500">清單顯示的是文件狀態：未生成 / 已生成 / 需更新；進入 package 後只整理文件背景、發包項目與文件整體備註。</p>
           </div>
         </div>
 
@@ -337,7 +335,7 @@ export function ProjectVendorSection({
                       </span>
                     </td>
                     <td className="px-4 py-4">
-                      <Link href={`/vendor-packages/${vendorPackage.id}`} className="inline-flex items-center justify-center rounded-xl bg-blue-600 px-3 py-2 text-xs font-semibold text-white">
+                      <Link href={`/vendor-packages/${vendorPackage.id}`} className="inline-flex items-center justify-center rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-800 transition hover:bg-slate-50">
                         查看 Package
                       </Link>
                     </td>
