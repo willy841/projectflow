@@ -42,7 +42,7 @@ export function RequirementsPanel({
     const title = formTitle.trim();
     if (!title) return;
 
-    setItems((prev) => [...prev, { title, date: getCurrentTimestamp() }]);
+    setItems((prev) => [{ title, date: getCurrentTimestamp() }, ...prev]);
     resetForm();
     setShowCreate(false);
   }
