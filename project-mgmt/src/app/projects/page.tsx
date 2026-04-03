@@ -8,14 +8,23 @@ import { getStatusClass, projects } from "@/components/project-data";
 const parseEventDate = (value: string) => new Date(value).getTime();
 
 export default function ProjectsPage() {
-  const [dateSortOrder, setDateSortOrder] = useState<"asc" | "desc">("asc");
+  const [dateSortOrder, setDateSortOrder] = useState<"asc" | "desc">("desc");
+  const [searchKeyword, setSearchKeyword] = useState("");
 
-  const sortedProjects = useMemo(() => {
-    return [...projects].sort((a, b) => {
+  const visibleProjects = useMemo(() => {
+    const keyword = searchKeyword.trim().toLowerCase();
+
+    const filteredProjects = keyword
+      ? projects.filter((project) => {
+          return [project.name, project.client, project.location, project.code].some((value) => value.toLowerCase().includes(keyword));
+        })
+      : projects;
+
+    return [...filteredProjects].sort((a, b) => {
       const dateDiff = parseEventDate(a.eventDate) - parseEventDate(b.eventDate);
       return dateSortOrder === "asc" ? dateDiff : -dateDiff;
     });
-  }, [dateSortOrder]);
+  }, [dateSortOrder, searchKeyword]);
 
   return (
     <AppShell activePath="/projects">
@@ -76,10 +85,19 @@ export default function ProjectsPage() {
           </div>
           <div className="flex w-full flex-col gap-3 sm:flex-row xl:w-auto">
             <input
-              placeholder="搜尋專案 / 客戶 / 地點"
-              className="h-11 w-full min-w-0 rounded-2xl border border-slate-200 px-4 text-sm outline-none focus:border-slate-400 sm:w-80 xl:w-72"
+              value={searchKeyword}
+              onChange={(event) => setSearchKeyword(event.target.value)}
+              placeholder="搜尋專案 / 客戶 / 地點 / 專案代碼"
+              className="h-11 w-full min-w-0 rounded-2xl border border-slate-200 px-4 text-sm outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-200 sm:w-80 xl:w-72"
             />
           </div>
+        </div>
+
+        <div className="mb-4 flex items-center justify-between gap-3 text-sm text-slate-500">
+          <p>
+            目前顯示 <span className="font-semibold text-slate-800">{visibleProjects.length}</span> / {projects.length} 個專案
+          </p>
+          <p>日期排序：{dateSortOrder === "desc" ? "最新在上" : "最舊在上"}</p>
         </div>
 
         <div className="overflow-x-auto rounded-2xl border border-slate-200">
@@ -92,10 +110,16 @@ export default function ProjectsPage() {
                   <button
                     type="button"
                     onClick={() => setDateSortOrder((current) => (current === "asc" ? "desc" : "asc"))}
-                    className="inline-flex items-center gap-1 text-left transition hover:text-slate-700"
+                    className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-left transition ${
+                      dateSortOrder === "asc" || dateSortOrder === "desc"
+                        ? "bg-slate-200 text-slate-900 shadow-sm"
+                        : "text-slate-500"
+                    } hover:bg-slate-200 hover:text-slate-900`}
                   >
                     <span>活動日期</span>
-                    <span className="text-xs text-slate-400">{dateSortOrder === "asc" ? "↑" : "↓"}</span>
+                    <span className={`text-xs ${dateSortOrder === "asc" || dateSortOrder === "desc" ? "text-slate-700" : "text-slate-400"}`}>
+                      {dateSortOrder === "asc" ? "↑ 最舊" : "↓ 最新"}
+                    </span>
                   </button>
                 </th>
                 <th className="px-4 py-3 font-medium">地點</th>
@@ -107,7 +131,7 @@ export default function ProjectsPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 bg-white">
-              {sortedProjects.map((project) => (
+              {visibleProjects.map((project) => (
                 <tr key={project.id} className="align-middle">
                   <td className="px-4 py-4 align-middle">
                     <Link href={`/projects/${project.id}`} className="font-medium text-slate-900 underline-offset-4 hover:underline">
