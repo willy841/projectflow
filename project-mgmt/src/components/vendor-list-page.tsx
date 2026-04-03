@@ -51,14 +51,14 @@ export function VendorListPage() {
   return (
     <>
       <header className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200 xl:p-7">
-        <div className="flex flex-col gap-4 2xl:flex-row 2xl:items-start 2xl:justify-between">
-          <div className="min-w-0">
+        <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
+          <div className="min-w-0 xl:pt-2">
             <div className="flex flex-wrap items-center gap-3">
               <h2 className="text-3xl font-semibold tracking-tight text-slate-900">廠商資料</h2>
               <button
                 type="button"
                 onClick={() => setQuickCreateOpen(true)}
-                className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 shadow-sm transition hover:border-slate-400 hover:bg-slate-50"
+                className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-800 shadow-sm transition hover:border-slate-400 hover:bg-slate-50"
               >
                 + 新增廠商
               </button>
@@ -70,19 +70,19 @@ export function VendorListPage() {
             ) : null}
           </div>
 
-          <div className="sm:min-w-[260px]">
-            <div className="rounded-3xl border border-amber-200 bg-amber-50 px-5 py-4 text-sm text-amber-900">
+          <div className="sm:min-w-[260px] xl:self-stretch">
+            <div className="rounded-3xl border border-amber-200 bg-amber-50 px-5 py-4 text-sm text-amber-900 xl:h-full xl:min-h-[104px] xl:flex xl:flex-col xl:justify-center">
               <p className="font-semibold">目前篩選結果未付款總額</p>
               <p className="mt-2 text-2xl font-semibold">{formatCurrency(totalOutstanding)}</p>
             </div>
           </div>
         </div>
 
-        <div className="mt-6 space-y-4 rounded-3xl border border-slate-200 bg-slate-50/80 p-4">
-          <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
-            <label className="block min-w-0 flex-1">
-              <span className="mb-2 block text-xs font-semibold tracking-wide text-slate-500">搜尋廠商</span>
-              <div className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-sm transition focus-within:border-slate-400">
+        <div className="mt-5 rounded-3xl border border-slate-200 bg-slate-50/80 p-3.5">
+          <div className="flex flex-col gap-3 xl:flex-row xl:flex-wrap xl:items-center xl:justify-between">
+            <label className="block min-w-0 flex-1 xl:min-w-[280px]">
+              <span className="mb-1.5 block text-[11px] font-semibold tracking-wide text-slate-500">搜尋廠商</span>
+              <div className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-2.5 shadow-sm transition focus-within:border-slate-400">
                 <span className="text-sm text-slate-400">⌕</span>
                 <input
                   type="search"
@@ -112,32 +112,26 @@ export function VendorListPage() {
             </div>
           </div>
 
-          <div className="space-y-4">
-            <div>
-              <div className="mb-2 flex items-center gap-2">
-                <span className="text-xs font-semibold tracking-wide text-slate-500">狀態篩選</span>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                <button
-                  type="button"
-                  onClick={() => setShowUnpaidOnly((current) => !current)}
-                  className={`rounded-full px-3 py-2 text-xs font-medium ring-1 transition ${showUnpaidOnly ? "bg-amber-500 text-white ring-amber-500" : "bg-white text-slate-700 ring-slate-200 hover:bg-slate-50"}`}
-                >
-                  未付款
-                </button>
-              </div>
+          <div className="mt-3 flex flex-col gap-3 xl:flex-row xl:flex-wrap xl:items-center">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-[11px] font-semibold tracking-wide text-slate-500">狀態篩選</span>
+              <button
+                type="button"
+                onClick={() => setShowUnpaidOnly((current) => !current)}
+                className={`rounded-full px-3 py-1.5 text-xs font-medium ring-1 transition ${showUnpaidOnly ? "bg-amber-500 text-white ring-amber-500" : "bg-white text-slate-700 ring-slate-200 hover:bg-slate-50"}`}
+              >
+                未付款
+              </button>
             </div>
 
-            <div>
-              <div className="mb-2 flex items-center gap-2">
-                <span className="text-xs font-semibold tracking-wide text-slate-500">工種篩選</span>
-                <span className="text-xs text-slate-400">單選</span>
-              </div>
-              <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap items-center gap-2 xl:min-w-0 xl:flex-1">
+              <span className="text-[11px] font-semibold tracking-wide text-slate-500">工種篩選</span>
+              <span className="text-xs text-slate-400">單選</span>
+              <div className="flex flex-wrap gap-2 xl:min-w-0">
                 <button
                   type="button"
                   onClick={() => setActiveTrade(null)}
-                  className={`rounded-full px-3 py-2 text-xs font-medium ring-1 transition ${activeTrade === null ? "bg-slate-900 text-white ring-slate-900" : "bg-white text-slate-700 ring-slate-200 hover:bg-slate-50"}`}
+                  className={`rounded-full px-3 py-1.5 text-xs font-medium ring-1 transition ${activeTrade === null ? "bg-slate-900 text-white ring-slate-900" : "bg-white text-slate-700 ring-slate-200 hover:bg-slate-50"}`}
                 >
                   全部工種
                 </button>
@@ -148,7 +142,7 @@ export function VendorListPage() {
                       key={trade}
                       type="button"
                       onClick={() => setActiveTrade(active ? null : trade)}
-                      className={`rounded-full px-3 py-2 text-xs font-medium ring-1 transition ${active ? "bg-sky-600 text-white ring-sky-600" : "bg-white text-slate-700 ring-slate-200 hover:bg-slate-50"}`}
+                      className={`rounded-full px-3 py-1.5 text-xs font-medium ring-1 transition ${active ? "bg-sky-600 text-white ring-sky-600" : "bg-white text-slate-700 ring-slate-200 hover:bg-slate-50"}`}
                     >
                       {trade}
                     </button>
