@@ -254,19 +254,19 @@ export function ProjectVendorSection({
                   </div>
 
                   <div className="space-y-4 xl:contents">
-                    <div className="xl:col-start-3 xl:row-start-1">
-                      <div className="mb-2 flex items-center justify-between gap-2">
+                    <div className="relative xl:col-start-3 xl:row-start-1">
+                      <div className="mb-2 flex h-6 items-center">
                         <p className="text-sm font-medium text-slate-700">選擇廠商</p>
-                        {!isSubmitted ? (
-                          <button
-                            type="button"
-                            onClick={() => setQuickCreateAssignmentId(assignment.id)}
-                            className="inline-flex h-8 items-center justify-center rounded-xl border border-dashed border-slate-300 bg-white px-3 text-xs font-semibold text-slate-700 transition hover:bg-slate-50"
-                          >
-                            快速建立
-                          </button>
-                        ) : null}
                       </div>
+                      {!isSubmitted ? (
+                        <button
+                          type="button"
+                          onClick={() => setQuickCreateAssignmentId(assignment.id)}
+                          className="absolute right-0 top-0 inline-flex h-8 items-center justify-center rounded-xl border border-dashed border-slate-300 bg-white px-3 text-xs font-semibold text-slate-700 transition hover:bg-slate-50"
+                        >
+                          快速建立
+                        </button>
+                      ) : null}
                       <select
                         value={selectedVendorName}
                         onChange={(event) => handleAssignmentChange(assignment.id, { selectedVendorName: event.target.value })}
@@ -280,7 +280,8 @@ export function ProjectVendorSection({
                       </select>
                     </div>
 
-                    <div className="xl:col-start-3 xl:row-start-2 xl:self-end">
+                    <div className="xl:col-start-3 xl:row-start-2 xl:self-start">
+                      <div className="mb-2 h-6" />
                       <button
                         type="button"
                         disabled={!canSubmit}
