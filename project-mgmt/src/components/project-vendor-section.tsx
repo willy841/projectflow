@@ -255,19 +255,19 @@ export function ProjectVendorSection({
 
                   <div className="flex flex-col gap-4 xl:row-span-2">
                     <div>
-                      <div className="mb-2 flex h-6 items-center justify-between gap-2">
-                        <p className="text-sm font-medium text-slate-700">選擇廠商</p>
+                      <div className="mb-2 flex h-6 items-center gap-1.5">
                         {!isSubmitted ? (
                           <button
                             type="button"
                             onClick={() => setQuickCreateAssignmentId(assignment.id)}
                             title="快速建立廠商"
                             aria-label="快速建立廠商"
-                            className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-dashed border-slate-300 bg-white text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+                            className="inline-flex h-6 w-6 items-center justify-center rounded-full border border-dashed border-slate-300 bg-white text-[11px] font-semibold leading-none text-slate-700 transition hover:bg-slate-50"
                           >
                             +
                           </button>
                         ) : null}
+                        <p className="text-sm font-medium text-slate-700">選擇廠商</p>
                       </div>
                       <select
                         value={selectedVendorName}
