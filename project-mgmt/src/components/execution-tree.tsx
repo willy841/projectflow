@@ -943,9 +943,7 @@ export function ExecutionTree({
     }>,
   ) => void;
 }) {
-  const [expanded, setExpanded] = useState<Record<string, boolean>>(
-    Object.fromEntries(items.map((item) => [item.id, false])),
-  );
+  const [expandedItemId, setExpandedItemId] = useState<string | null>(null);
   const [drafts, setDrafts] = useState<Record<string, string>>({});
   const [localItems, setLocalItems] = useState<ImportedItem[]>(
     items as ImportedItem[],
@@ -1041,7 +1039,7 @@ export function ExecutionTree({
     setDrafts((prev) => ({ ...prev, [itemId]: value }));
   }
   function toggleItem(itemId: string) {
-    setExpanded((prev) => ({ ...prev, [itemId]: !prev[itemId] }));
+    setExpandedItemId((prev) => (prev === itemId ? null : itemId));
   }
   function updateDesignAssignmentDraft(
     targetId: string,
@@ -1211,7 +1209,7 @@ export function ExecutionTree({
         children: [],
       },
     ]);
-    setExpanded((prev) => ({ ...prev, [newId]: false }));
+    setExpandedItemId(newId);
     setMainItemDraft("");
     setShowMainItemCreator(false);
   }
@@ -1223,7 +1221,7 @@ export function ExecutionTree({
     const imported = parseImportedRows(rows.slice(1));
     if (!imported.length) return;
     setLocalItems(imported);
-    setExpanded(Object.fromEntries(imported.map((item) => [item.id, false])));
+    setExpandedItemId(imported[0]?.id ?? null);
   }
 
   function addChild(itemId: string) {
@@ -1249,7 +1247,7 @@ export function ExecutionTree({
       ),
     );
     setDrafts((prev) => ({ ...prev, [itemId]: "" }));
-    setExpanded((prev) => ({ ...prev, [itemId]: true }));
+    setExpandedItemId(itemId);
   }
 
   function startEditingMain(itemId: string, currentTitle: string) {
@@ -1305,11 +1303,9 @@ export function ExecutionTree({
     )
       return;
     setLocalItems((prev) => prev.filter((item) => item.id !== itemId));
-    setExpanded((prev) => {
-      const next = { ...prev };
-      delete next[itemId];
-      return next;
-    });
+    if (expandedItemId === itemId) {
+      setExpandedItemId(null);
+    }
     setSavedDesignAssignments((prev) => {
       const next = { ...prev };
       delete next[itemId];
@@ -1444,7 +1440,7 @@ export function ExecutionTree({
       </div>
 
       {localItems.map((item, itemIndex) => {
-        const isOpen = expanded[item.id];
+        const isOpen = expandedItemId === item.id;
         const isEditingMain = editingMainId === item.id;
         const showMainDesignForm =
           activeDesignFormId === item.id ||
