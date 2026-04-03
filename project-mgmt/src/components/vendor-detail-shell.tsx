@@ -10,7 +10,7 @@ import {
   type VendorBasicProfile,
   type VendorProjectRecord,
 } from "@/components/vendor-data";
-import { TRADE_OPTIONS, useVendorStore } from "@/components/vendor-store";
+import { useVendorStore } from "@/components/vendor-store";
 
 const DELETE_CONFIRM_TITLE = "確認刪除這個廠商？";
 const DELETE_CONFIRM_DESCRIPTION = "這是刪除動作，刪除後會從目前的前端 vendor 清單移除。請再次確認是否要刪除這個廠商。";
@@ -135,7 +135,7 @@ function VendorProfileEditor({
 
 export function VendorDetailShell({ vendorId }: Props) {
   const router = useRouter();
-  const { getVendorById, updateVendor, deleteVendor, isReady } = useVendorStore();
+  const { getVendorById, updateVendor, deleteVendor, isReady, trades } = useVendorStore();
   const vendor = getVendorById(vendorId);
   const [records, setRecords] = useState<VendorProjectRecord[]>(() => getVendorRecordsByVendorId(vendorId));
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
@@ -205,7 +205,7 @@ export function VendorDetailShell({ vendorId }: Props) {
         <header className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
           <div className="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
             <div className="min-w-0 flex-1">
-              <p className="text-sm text-slate-500">Vendor Detail</p>
+              <p className="text-sm text-slate-500">廠商詳情</p>
               <div className="mt-1 flex flex-wrap items-center gap-3">
                 <h2 className="text-3xl font-semibold tracking-tight text-slate-900">{vendor.name}</h2>
                 {(vendor.tradeLabels?.length ?? 0) > 0 ? (
@@ -253,14 +253,22 @@ export function VendorDetailShell({ vendorId }: Props) {
               <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                 <div>
                   <p className="text-xs font-semibold tracking-wide text-sky-700">Vendor identity / 工種</p>
-                  <p className="mt-1 text-sm leading-6 text-slate-600">維持既有工種多選規則，只把編輯入口整合回主卡附近，避免獨立主區塊搶走版面。</p>
+                  <p className="mt-1 text-sm leading-6 text-slate-600">此處只負責選擇既有工種；新增 / 刪除工種統一回廠商列表的工種管理區處理，避免資料來源分散。</p>
                 </div>
-                <div className="rounded-2xl bg-white px-4 py-3 text-sm text-slate-700 ring-1 ring-sky-200">
-                  已選 {vendor.tradeLabels?.length ?? 0} 個工種
+                <div className="flex flex-wrap items-center gap-3">
+                  <div className="rounded-2xl bg-white px-4 py-3 text-sm text-slate-700 ring-1 ring-sky-200">
+                    已選 {vendor.tradeLabels?.length ?? 0} 個工種
+                  </div>
+                  <Link
+                    href="/vendors"
+                    className="inline-flex items-center justify-center rounded-2xl border border-sky-200 bg-white px-4 py-3 text-sm font-semibold text-sky-700 transition hover:bg-sky-50"
+                  >
+                    到列表管理工種
+                  </Link>
                 </div>
               </div>
               <div className="mt-4 flex flex-wrap gap-2">
-                {TRADE_OPTIONS.map((trade) => {
+                {trades.map((trade) => {
                   const active = vendor.tradeLabels?.includes(trade) ?? false;
                   return (
                     <button

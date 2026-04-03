@@ -344,7 +344,7 @@ export function ProjectVendorSection({
         open={Boolean(quickCreateAssignmentId)}
         onClose={() => setQuickCreateAssignmentId(null)}
         title="流程內快速建立廠商"
-        description="入口 B：設計 / 備品 / Vendor 流程匹配不到廠商時，可直接建立；成功後立刻回填當前選單並自動選中。"
+        description="這裡只快速建立廠商並回填選單；工種新增 / 刪除統一回廠商資料模組管理。"
         onCreated={(vendor) => {
           if (!quickCreateAssignmentId) return;
           handleAssignmentChange(quickCreateAssignmentId, {

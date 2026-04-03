@@ -568,7 +568,7 @@ export function QuoteCostDetailClient({ project, mode = "active" }: Props) {
         open={Boolean(quickCreateItemId)}
         onClose={() => setQuickCreateItemId(null)}
         title="流程內快速建立廠商"
-        description="設計 / 備品 / 廠商相關流程若匹配不到既有廠商，可直接建立；成功後會立刻回填到目前選單。"
+        description="這裡只快速建立廠商並回填選單；工種新增 / 刪除統一回廠商資料模組管理。"
         onCreated={(vendor) => {
           if (!quickCreateItemId) return;
           handleVendorChange(quickCreateItemId, vendor.id);

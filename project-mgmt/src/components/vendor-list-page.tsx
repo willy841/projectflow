@@ -5,35 +5,54 @@ import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getVendorOutstandingTotal, formatCurrency } from "@/components/vendor-data";
 import { VendorQuickCreateDialog } from "@/components/vendor-quick-create-dialog";
-import { TRADE_OPTIONS, useVendorStore } from "@/components/vendor-store";
+import { useVendorStore } from "@/components/vendor-store";
 
 const DELETE_CONFIRM_TITLE = "確認刪除這個廠商？";
 const DELETE_CONFIRM_DESCRIPTION = "這是刪除動作，刪除後會從目前的前端 vendor 清單移除。請再次確認是否要刪除這個廠商。";
 
 export function VendorListPage() {
   const router = useRouter();
-  const { vendors, deleteVendor } = useVendorStore();
+  const { vendors, trades, deleteVendor, createTrade, deleteTrade } = useVendorStore();
   const [quickCreateOpen, setQuickCreateOpen] = useState(false);
   const [createdVendorName, setCreatedVendorName] = useState("");
   const [searchKeyword, setSearchKeyword] = useState("");
   const [activeTrade, setActiveTrade] = useState<string | null>(null);
   const [showUnpaidOnly, setShowUnpaidOnly] = useState(false);
   const [deletingVendorId, setDeletingVendorId] = useState<string | null>(null);
+  const [newTradeName, setNewTradeName] = useState("");
+  const [tradeFeedback, setTradeFeedback] = useState<{ type: "error" | "success"; message: string } | null>(null);
 
-  const vendorCards = useMemo(() => vendors.map((vendor) => ({
-    ...vendor,
-    outstandingTotal: getVendorOutstandingTotal(vendor.id),
-  })), [vendors]);
+  const tradeUsageMap = useMemo(
+    () =>
+      new Map(
+        trades.map((trade) => [
+          trade,
+          vendors.filter((vendor) => (vendor.tradeLabels ?? []).includes(trade)).length,
+        ]),
+      ),
+    [trades, vendors],
+  );
+
+  const vendorCards = useMemo(
+    () =>
+      vendors.map((vendor) => ({
+        ...vendor,
+        outstandingTotal: getVendorOutstandingTotal(vendor.id),
+      })),
+    [vendors],
+  );
 
   const filteredVendorCards = useMemo(() => {
     const keyword = searchKeyword.trim().toLowerCase();
 
     return vendorCards.filter((vendor) => {
-      const matchesSearch = !keyword || [vendor.name, vendor.category, ...(vendor.tradeLabels ?? [])]
-        .join(" ")
-        .toLowerCase()
-        .includes(keyword);
-      const matchesTrade = !activeTrade || (vendor.tradeLabels ?? []).includes(activeTrade) || vendor.category === activeTrade;
+      const matchesSearch =
+        !keyword ||
+        [vendor.name, vendor.category, ...(vendor.tradeLabels ?? [])]
+          .join(" ")
+          .toLowerCase()
+          .includes(keyword);
+      const matchesTrade = !activeTrade || (vendor.tradeLabels ?? []).includes(activeTrade);
       const matchesUnpaid = !showUnpaidOnly || vendor.outstandingTotal > 0;
       return matchesSearch && matchesTrade && matchesUnpaid;
     });
@@ -46,6 +65,36 @@ export function VendorListPage() {
     if (!deletingVendorId) return;
     deleteVendor(deletingVendorId);
     setDeletingVendorId(null);
+  }
+
+  function handleCreateTrade() {
+    const result = createTrade(newTradeName);
+    if (!result.ok) {
+      setTradeFeedback({
+        type: "error",
+        message: result.reason === "empty" ? "工種名稱不可空白。" : `工種「${result.trade}」已存在，禁止重複新增。`,
+      });
+      return;
+    }
+
+    setNewTradeName("");
+    setTradeFeedback({ type: "success", message: `已新增工種「${result.trade}」。` });
+  }
+
+  function handleDeleteTrade(trade: string) {
+    const result = deleteTrade(trade);
+    if (!result.ok) {
+      setTradeFeedback({
+        type: "error",
+        message: `工種「${trade}」已被 ${result.vendorNames.join("、")} 使用中，禁止刪除。`,
+      });
+      return;
+    }
+
+    if (activeTrade === trade) {
+      setActiveTrade(null);
+    }
+    setTradeFeedback({ type: "success", message: `已刪除工種「${trade}」。` });
   }
 
   return (
@@ -71,92 +120,163 @@ export function VendorListPage() {
           </div>
 
           <div className="sm:min-w-[260px] xl:self-stretch">
-            <div className="rounded-3xl border border-amber-200 bg-amber-50 px-5 py-4 text-sm text-amber-900 xl:h-full xl:min-h-[104px] xl:flex xl:flex-col xl:justify-center">
+            <div className="rounded-3xl border border-amber-200 bg-amber-50 px-5 py-4 text-sm text-amber-900 xl:flex xl:h-full xl:min-h-[104px] xl:flex-col xl:justify-center">
               <p className="font-semibold">目前篩選結果未付款總額</p>
               <p className="mt-2 text-2xl font-semibold">{formatCurrency(totalOutstanding)}</p>
             </div>
           </div>
         </div>
 
-        <div className="mt-5 rounded-3xl border border-slate-200 bg-slate-50/80 p-3.5">
-          <div className="flex flex-col gap-3 xl:flex-row xl:flex-wrap xl:items-center xl:justify-between">
-            <label className="block min-w-0 flex-1 xl:min-w-[280px]">
-              <span className="mb-1.5 block text-[11px] font-semibold tracking-wide text-slate-500">搜尋廠商</span>
-              <div className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-2.5 shadow-sm transition focus-within:border-slate-400">
-                <span className="text-sm text-slate-400">⌕</span>
+        <div className="mt-5 grid gap-4 xl:grid-cols-[minmax(0,1.3fr)_minmax(360px,0.9fr)] xl:items-start">
+          <div className="rounded-3xl border border-slate-200 bg-slate-50/80 p-3.5">
+            <div className="flex flex-col gap-3 xl:flex-row xl:flex-wrap xl:items-center xl:justify-between">
+              <label className="block min-w-0 flex-1 xl:min-w-[280px]">
+                <span className="mb-1.5 block text-[11px] font-semibold tracking-wide text-slate-500">搜尋廠商</span>
+                <div className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-2.5 shadow-sm transition focus-within:border-slate-400">
+                  <span className="text-sm text-slate-400">⌕</span>
+                  <input
+                    type="search"
+                    value={searchKeyword}
+                    onChange={(event) => setSearchKeyword(event.target.value)}
+                    placeholder="搜尋廠商名稱、工種或分類"
+                    className="w-full bg-transparent text-sm text-slate-900 outline-none placeholder:text-slate-400"
+                  />
+                </div>
+              </label>
+
+              <div className="flex flex-wrap items-center gap-2 text-xs text-slate-500 xl:justify-end">
+                <span>共 {filteredVendorCards.length} 間</span>
+                {searchKeyword || activeTrade || showUnpaidOnly ? (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSearchKeyword("");
+                      setActiveTrade(null);
+                      setShowUnpaidOnly(false);
+                    }}
+                    className="inline-flex items-center justify-center rounded-full border border-slate-200 bg-white px-3 py-1.5 font-medium text-slate-600 transition hover:border-slate-300 hover:text-slate-900"
+                  >
+                    清除篩選
+                  </button>
+                ) : null}
+              </div>
+            </div>
+
+            <div className="mt-3 grid gap-3 xl:grid-cols-[minmax(0,0.75fr)_minmax(0,1.85fr)] xl:items-start">
+              <div className="rounded-2xl border border-slate-200 bg-white px-4 py-3">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-[11px] font-semibold tracking-wide text-slate-500">狀態篩選</span>
+                </div>
+                <div className="mt-2 flex flex-wrap items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setShowUnpaidOnly((current) => !current)}
+                    className={`rounded-full px-3 py-1.5 text-xs font-medium ring-1 transition ${showUnpaidOnly ? "bg-amber-500 text-white ring-amber-500" : "bg-white text-slate-700 ring-slate-200 hover:bg-slate-50"}`}
+                  >
+                    未付款
+                  </button>
+                </div>
+              </div>
+
+              <div className="rounded-2xl border border-slate-200 bg-white px-4 py-3">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="text-[11px] font-semibold tracking-wide text-slate-500">工種篩選</span>
+                  <span className="text-xs text-slate-400">單選，共用工種來源</span>
+                </div>
+                <div className="mt-2 flex min-w-0 flex-wrap items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setActiveTrade(null)}
+                    className={`rounded-full px-3 py-1.5 text-xs font-medium ring-1 transition ${activeTrade === null ? "bg-slate-900 text-white ring-slate-900" : "bg-white text-slate-700 ring-slate-200 hover:bg-slate-50"}`}
+                  >
+                    全部工種
+                  </button>
+                  {trades.map((trade) => {
+                    const active = activeTrade === trade;
+                    return (
+                      <button
+                        key={trade}
+                        type="button"
+                        onClick={() => setActiveTrade(active ? null : trade)}
+                        className={`rounded-full px-3 py-1.5 text-xs font-medium ring-1 transition ${active ? "bg-sky-600 text-white ring-sky-600" : "bg-white text-slate-700 ring-slate-200 hover:bg-slate-50"}`}
+                      >
+                        {trade}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <aside className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm ring-1 ring-slate-100">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <p className="text-xs font-semibold tracking-wide text-slate-500">工種管理</p>
+                <h3 className="mt-1 text-lg font-semibold text-slate-900">共用工種來源</h3>
+                <p className="mt-2 text-sm leading-6 text-slate-600">只在廠商資料模組管理。新增會自動 trim；空白與重複名稱會被擋下；已被廠商使用中的工種不可刪除。</p>
+              </div>
+              <span className="inline-flex rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600 ring-1 ring-slate-200">
+                {trades.length} 個工種
+              </span>
+            </div>
+
+            <div className="mt-4 flex items-start gap-3">
+              <label className="min-w-0 flex-1">
+                <span className="mb-1.5 block text-[11px] font-semibold tracking-wide text-slate-500">新增工種</span>
                 <input
-                  type="search"
-                  value={searchKeyword}
-                  onChange={(event) => setSearchKeyword(event.target.value)}
-                  placeholder="搜尋廠商名稱、工種或分類"
-                  className="w-full bg-transparent text-sm text-slate-900 outline-none placeholder:text-slate-400"
-                />
-              </div>
-            </label>
-
-            <div className="flex flex-wrap items-center gap-2 text-xs text-slate-500 xl:justify-end">
-              <span>共 {filteredVendorCards.length} 間</span>
-              {(searchKeyword || activeTrade || showUnpaidOnly) ? (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setSearchKeyword("");
-                    setActiveTrade(null);
-                    setShowUnpaidOnly(false);
+                  value={newTradeName}
+                  onChange={(event) => {
+                    setNewTradeName(event.target.value);
+                    if (tradeFeedback) setTradeFeedback(null);
                   }}
-                  className="inline-flex items-center justify-center rounded-full border border-slate-200 bg-white px-3 py-1.5 font-medium text-slate-600 transition hover:border-slate-300 hover:text-slate-900"
-                >
-                  清除篩選
-                </button>
-              ) : null}
-            </div>
-          </div>
-
-          <div className="mt-3 grid gap-3 xl:grid-cols-[minmax(0,0.75fr)_minmax(0,1.85fr)] xl:items-start">
-            <div className="rounded-2xl border border-slate-200 bg-white px-4 py-3">
-              <div className="flex items-center justify-between gap-2">
-                <span className="text-[11px] font-semibold tracking-wide text-slate-500">狀態篩選</span>
-              </div>
-              <div className="mt-2 flex flex-wrap items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => setShowUnpaidOnly((current) => !current)}
-                  className={`rounded-full px-3 py-1.5 text-xs font-medium ring-1 transition ${showUnpaidOnly ? "bg-amber-500 text-white ring-amber-500" : "bg-white text-slate-700 ring-slate-200 hover:bg-slate-50"}`}
-                >
-                  未付款
-                </button>
-              </div>
+                  placeholder="例如：鐵件製作"
+                  className="h-11 w-full rounded-2xl border border-slate-300 bg-white px-4 text-sm text-slate-900 outline-none transition focus:border-slate-400"
+                />
+              </label>
+              <button
+                type="button"
+                onClick={handleCreateTrade}
+                className="mt-[22px] inline-flex h-11 items-center justify-center rounded-2xl bg-slate-900 px-4 text-sm font-semibold text-white transition hover:bg-slate-800"
+              >
+                新增
+              </button>
             </div>
 
-            <div className="rounded-2xl border border-slate-200 bg-white px-4 py-3">
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="text-[11px] font-semibold tracking-wide text-slate-500">工種篩選</span>
-                <span className="text-xs text-slate-400">單選</span>
+            {tradeFeedback ? (
+              <div
+                className={`mt-3 rounded-2xl px-4 py-3 text-sm ${tradeFeedback.type === "error" ? "border border-rose-200 bg-rose-50 text-rose-700" : "border border-emerald-200 bg-emerald-50 text-emerald-700"}`}
+              >
+                {tradeFeedback.message}
               </div>
-              <div className="mt-2 flex min-w-0 flex-wrap items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => setActiveTrade(null)}
-                  className={`rounded-full px-3 py-1.5 text-xs font-medium ring-1 transition ${activeTrade === null ? "bg-slate-900 text-white ring-slate-900" : "bg-white text-slate-700 ring-slate-200 hover:bg-slate-50"}`}
-                >
-                  全部工種
-                </button>
-                {TRADE_OPTIONS.map((trade) => {
-                  const active = activeTrade === trade;
-                  return (
+            ) : null}
+
+            <div className="mt-4 flex flex-wrap gap-2">
+              {trades.map((trade) => {
+                const usageCount = tradeUsageMap.get(trade) ?? 0;
+                const isInUse = usageCount > 0;
+                return (
+                  <div
+                    key={trade}
+                    className="inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-700"
+                  >
+                    <span className="font-medium text-slate-900">{trade}</span>
+                    <span className={`inline-flex rounded-full px-2 py-0.5 ring-1 ${isInUse ? "bg-amber-50 text-amber-700 ring-amber-200" : "bg-white text-slate-500 ring-slate-200"}`}>
+                      {usageCount} 間使用中
+                    </span>
                     <button
-                      key={trade}
                       type="button"
-                      onClick={() => setActiveTrade(active ? null : trade)}
-                      className={`rounded-full px-3 py-1.5 text-xs font-medium ring-1 transition ${active ? "bg-sky-600 text-white ring-sky-600" : "bg-white text-slate-700 ring-slate-200 hover:bg-slate-50"}`}
+                      onClick={() => handleDeleteTrade(trade)}
+                      className={`inline-flex items-center justify-center rounded-full px-2 py-1 font-semibold transition ${isInUse ? "text-slate-400 hover:text-slate-500" : "text-rose-700 hover:bg-rose-50"}`}
+                      title={isInUse ? "已有廠商使用中的工種不可刪除" : `刪除工種 ${trade}`}
                     >
-                      {trade}
+                      刪除
                     </button>
-                  );
-                })}
-              </div>
+                  </div>
+                );
+              })}
             </div>
-          </div>
+          </aside>
         </div>
       </header>
 
@@ -223,8 +343,9 @@ export function VendorListPage() {
         open={quickCreateOpen}
         onClose={() => setQuickCreateOpen(false)}
         title="快速建立廠商"
-        description="沿用既有 quick create 規格：必填只有廠商名稱；工種可多選、非必填；名稱完全相同時禁止重複建立。"
+        description="廠商建立流程會直接使用目前這份共用工種來源；若需要新增或刪除工種，請回到上方工種管理處處理。"
         confirmLabel="建立並查看廠商"
+        allowTradeSelection
         onCreated={(vendor) => {
           setCreatedVendorName(vendor.name);
           router.push(`/vendors/${vendor.id}`);

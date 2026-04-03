@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { TRADE_OPTIONS, useVendorStore } from "@/components/vendor-store";
+import { useVendorStore } from "@/components/vendor-store";
 
 type Props = {
   open: boolean;
@@ -10,6 +10,7 @@ type Props = {
   title?: string;
   description?: string;
   confirmLabel?: string;
+  allowTradeSelection?: boolean;
 };
 
 export function VendorQuickCreateDialog({
@@ -17,10 +18,11 @@ export function VendorQuickCreateDialog({
   onClose,
   onCreated,
   title = "快速建立廠商",
-  description = "第一輪 MVP：最小必填只有廠商名稱；工種可多選、非必填。",
+  description = "第一輪 MVP：最小必填只有廠商名稱；工種改用廠商資料模組內的共用來源。",
   confirmLabel = "建立廠商",
+  allowTradeSelection = false,
 }: Props) {
-  const { createVendor } = useVendorStore();
+  const { createVendor, trades } = useVendorStore();
   const [name, setName] = useState("");
   const [tradeLabels, setTradeLabels] = useState<string[]>([]);
   const [error, setError] = useState("");
@@ -34,7 +36,7 @@ export function VendorQuickCreateDialog({
     }
   }, [open]);
 
-  const sortedTrades = useMemo(() => TRADE_OPTIONS, []);
+  const sortedTrades = useMemo(() => trades, [trades]);
 
   function toggleTrade(trade: string) {
     setTradeLabels((current) => (current.includes(trade) ? current.filter((item) => item !== trade) : [...current, trade]));
@@ -46,7 +48,7 @@ export function VendorQuickCreateDialog({
       setError("請填寫廠商名稱。");
       return;
     }
-    const result = createVendor({ name: trimmedName, tradeLabels });
+    const result = createVendor({ name: trimmedName, tradeLabels: allowTradeSelection ? tradeLabels : [] });
     if (!result.ok) {
       setError(`廠商「${result.vendor.name}」已存在，禁止重複建立。`);
       return;
@@ -62,7 +64,7 @@ export function VendorQuickCreateDialog({
       <div className="w-full max-w-2xl rounded-3xl bg-white p-6 shadow-2xl ring-1 ring-slate-200">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <p className="text-xs font-semibold tracking-wide text-blue-700">QUICK CREATE</p>
+            <p className="text-xs font-semibold tracking-wide text-blue-700">快速建立</p>
             <h3 className="mt-1 text-2xl font-semibold text-slate-900">{title}</h3>
             <p className="mt-2 text-sm leading-6 text-slate-600">{description}</p>
           </div>
@@ -85,24 +87,30 @@ export function VendorQuickCreateDialog({
             />
           </label>
 
-          <div>
-            <p className="mb-2 text-sm font-medium text-slate-700">工種（可多選、非必填）</p>
-            <div className="flex flex-wrap gap-2">
-              {sortedTrades.map((trade) => {
-                const active = tradeLabels.includes(trade);
-                return (
-                  <button
-                    key={trade}
-                    type="button"
-                    onClick={() => toggleTrade(trade)}
-                    className={`rounded-full px-3 py-2 text-xs font-medium ring-1 transition ${active ? "bg-slate-900 text-white ring-slate-900" : "bg-white text-slate-700 ring-slate-200 hover:bg-slate-50"}`}
-                  >
-                    {trade}
-                  </button>
-                );
-              })}
+          {allowTradeSelection ? (
+            <div>
+              <p className="mb-2 text-sm font-medium text-slate-700">工種（共用來源，多選、非必填）</p>
+              <div className="flex flex-wrap gap-2">
+                {sortedTrades.map((trade) => {
+                  const active = tradeLabels.includes(trade);
+                  return (
+                    <button
+                      key={trade}
+                      type="button"
+                      onClick={() => toggleTrade(trade)}
+                      className={`rounded-full px-3 py-2 text-xs font-medium ring-1 transition ${active ? "bg-slate-900 text-white ring-slate-900" : "bg-white text-slate-700 ring-slate-200 hover:bg-slate-50"}`}
+                    >
+                      {trade}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
-          </div>
+          ) : (
+            <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600">
+              工種管理集中在「廠商資料」模組；這裡只建立廠商並回填當前流程。
+            </div>
+          )}
 
           {error ? <div className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">{error}</div> : null}
         </div>
