@@ -32,26 +32,26 @@ export function ProjectDetailShell({ project }: { project: Project }) {
 
   return (
     <>
-      <header className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
-        <div className="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
+      <header className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200 xl:p-6">
+        <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
           <div className="min-w-0 flex-1">
             <h2 className="text-3xl font-semibold tracking-tight text-slate-900">{projectForm.name}</h2>
           </div>
 
-          <div className="flex flex-wrap items-start gap-3 xl:justify-end">
+          <div className="flex flex-wrap items-center gap-2 xl:justify-end">
             <CopyEventInfoButton
               projectName={projectForm.name}
               eventDate={projectForm.eventDate}
               location={projectForm.location}
               loadInTime={projectForm.loadInTime}
             />
-            <Link href="/projects" className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-800 shadow-sm transition hover:border-slate-400 hover:bg-slate-50">
+            <Link href="/projects" className="inline-flex h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-800 shadow-sm transition hover:border-slate-400 hover:bg-slate-50">
               返回列表
             </Link>
             <button
               type="button"
               onClick={() => setIsEditingProject((prev) => !prev)}
-              className="inline-flex items-center justify-center rounded-2xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700"
+              className="inline-flex h-11 items-center justify-center rounded-2xl bg-blue-600 px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700"
             >
               {isEditingProject ? "收合編輯專案" : "編輯專案"}
             </button>

@@ -32,7 +32,7 @@ export function CopyEventInfoButton({
     <button
       type="button"
       onClick={handleCopy}
-      className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 shadow-sm transition hover:border-slate-400 hover:bg-slate-50"
+      className="inline-flex h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-800 shadow-sm transition hover:border-slate-400 hover:bg-slate-50"
     >
       {copied ? "已複製活動資訊" : "複製活動資訊"}
     </button>
