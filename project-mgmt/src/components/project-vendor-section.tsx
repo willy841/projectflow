@@ -3,12 +3,12 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import {
-  getPackagesByProjectId,
   getVendorDocumentStatusClass,
   vendorPackages,
   type VendorAssignment,
   type VendorPackage,
 } from "@/components/vendor-data";
+import { useStoredVendorPackages } from "@/components/vendor-package-store";
 import type { VendorAssignmentItem } from "@/components/execution-tree-section";
 import { VendorQuickCreateDialog } from "@/components/vendor-quick-create-dialog";
 import { useVendorStore } from "@/components/vendor-store";
@@ -62,7 +62,7 @@ export function ProjectVendorSection({
   vendorTaskItems?: VendorAssignmentItem[];
 }) {
   const { vendors } = useVendorStore();
-  const [packages, setPackages] = useState<VendorPackage[]>(() => getPackagesByProjectId(projectId));
+  const { packages, syncPackages } = useStoredVendorPackages(projectId);
   const packageMap = useMemo(() => buildPackageMap(packages), [packages]);
   const [assignments, setAssignments] = useState<VendorAssignment[]>(() =>
     vendorTaskItems.map((item) => mapVendorTaskItemToAssignment(projectId, item))
@@ -112,35 +112,34 @@ export function ProjectVendorSection({
 
     let nextPackageId = assignment.packageId;
 
-    setPackages((current) => {
-      const matchedPackage = current.find((pkg) => pkg.vendorName === selectedVendorName);
+    const matchedPackage = packages.find((pkg) => pkg.vendorName === selectedVendorName);
 
-      if (matchedPackage) {
-        nextPackageId = matchedPackage.id;
-        const alreadyExists = matchedPackage.items.some((item) => item.assignmentId === assignment.id);
-        if (alreadyExists) {
-          return current;
-        }
-        return current.map((pkg) =>
-          pkg.id === matchedPackage.id
-            ? {
-                ...pkg,
-                items: [
-                  ...pkg.items,
-                  {
-                    id: `line-${assignment.id}`,
-                    assignmentId: assignment.id,
-                    itemName: title,
-                    requirementText: summary,
-                  },
-                ],
-                documentStatus: pkg.documentStatus === "已生成" ? "需更新" : pkg.documentStatus,
-              }
-            : pkg,
+    if (matchedPackage) {
+      nextPackageId = matchedPackage.id;
+      const alreadyExists = matchedPackage.items.some((item) => item.assignmentId === assignment.id);
+      if (!alreadyExists) {
+        syncPackages(
+          packages.map((pkg) =>
+            pkg.id === matchedPackage.id
+              ? {
+                  ...pkg,
+                  items: [
+                    ...pkg.items,
+                    {
+                      id: `line-${assignment.id}`,
+                      assignmentId: assignment.id,
+                      itemName: title,
+                      requirementText: summary,
+                    },
+                  ],
+                  documentStatus: pkg.documentStatus === "已生成" ? "需更新" : pkg.documentStatus,
+                }
+              : pkg,
+          ),
         );
       }
-
-      const vendorCodeSeed = vendorPackages.length + current.length + 1;
+    } else {
+      const vendorCodeSeed = vendorPackages.length + packages.length + 1;
       const createdPackage: VendorPackage = {
         id: `vp-${assignment.id}`,
         code: `VP-${projectId}-${vendorCodeSeed}`,
@@ -162,8 +161,8 @@ export function ProjectVendorSection({
         documentStatus: "未生成",
       };
       nextPackageId = createdPackage.id;
-      return [...current, createdPackage];
-    });
+      syncPackages([...packages, createdPackage]);
+    }
 
     handleAssignmentChange(assignment.id, {
       title,
