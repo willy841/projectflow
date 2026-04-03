@@ -31,7 +31,7 @@ export default function ProjectsPage() {
       <header className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200 xl:p-7">
         <div className="flex flex-col gap-5 2xl:flex-row 2xl:items-center 2xl:justify-between">
           <div>
-            <p className="text-sm text-slate-500">專案列表</p>
+            <p className="text-sm text-slate-500">專案管理入口</p>
             <h2 className="mt-1 text-3xl font-semibold tracking-tight">專案管理</h2>
             <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-600">
               先把專案列表當成首頁主體，讓管理者快速查看專案、搜尋、排序並直接進入詳情。
@@ -39,9 +39,6 @@ export default function ProjectsPage() {
           </div>
 
           <div className="flex flex-wrap gap-3">
-            <button className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-800 shadow-sm transition hover:border-slate-400 hover:bg-slate-50">
-              篩選條件
-            </button>
             <Link
               href="/projects/new"
               className="inline-flex items-center justify-center rounded-2xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700"
@@ -56,9 +53,9 @@ export default function ProjectsPage() {
         <div className="mb-5 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
           <div className="min-w-0">
             <div className="flex min-h-11 flex-wrap items-center gap-3">
-              <h3 className="text-xl font-semibold leading-none">全部專案</h3>
+              <h3 className="text-xl font-semibold leading-none">專案總表</h3>
               <p className="text-sm leading-none text-slate-500">
-                目前顯示 <span className="font-semibold text-slate-800">{visibleProjects.length}</span> / {projects.length} 個專案
+                目前顯示 <span className="font-semibold text-slate-800">{visibleProjects.length}</span> / {projects.length} 筆
               </p>
             </div>
           </div>
@@ -137,7 +134,7 @@ export default function ProjectsPage() {
 
       <section className="grid gap-4 md:grid-cols-2 2xl:grid-cols-4">
         <article className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
-          <p className="text-sm text-slate-500">專案總數</p>
+          <p className="text-sm text-slate-500">全部專案</p>
           <p className="mt-3 text-3xl font-semibold tracking-tight">{projects.length}</p>
         </article>
         <article className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
@@ -147,13 +144,13 @@ export default function ProjectsPage() {
           </p>
         </article>
         <article className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
-          <p className="text-sm text-slate-500">待發包 / 採購中</p>
+          <p className="text-sm text-slate-500">待推進事項</p>
           <p className="mt-3 text-3xl font-semibold tracking-tight">
             {projects.filter((project) => ["待發包", "採購中"].includes(project.status)).length}
           </p>
         </article>
         <article className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
-          <p className="text-sm text-slate-500">平均進度</p>
+          <p className="text-sm text-slate-500">整體平均進度</p>
           <p className="mt-3 text-3xl font-semibold tracking-tight">
             {Math.round(projects.reduce((total, project) => total + project.progress, 0) / projects.length)}%
           </p>

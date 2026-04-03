@@ -12,13 +12,13 @@ export function VendorPackageDetailRoute({ id }: { id: string }) {
     return (
       <div className="rounded-3xl border border-dashed border-slate-300 bg-white p-10 text-center shadow-sm ring-1 ring-slate-200">
         <h2 className="text-2xl font-semibold tracking-tight text-slate-900">找不到這筆 Package</h2>
-        <p className="mt-3 text-sm leading-6 text-slate-600">這筆 package 目前沒有出現在前端 package store 或既有 mock 資料中，請返回專案詳細頁重新確認。</p>
+        <p className="mt-3 text-sm leading-6 text-slate-600">這筆 package 目前不在前端 package 主線資料中，請回專案頁確認是否已正式送出。</p>
         <div className="mt-6 flex items-center justify-center gap-3">
           <Link href="/projects" className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-800 transition hover:bg-slate-50">
             返回專案列表
           </Link>
           <Link href="/vendor-packages" className="inline-flex items-center justify-center rounded-2xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700">
-            查看所有發包內容
+            返回 Package 列表
           </Link>
         </div>
       </div>

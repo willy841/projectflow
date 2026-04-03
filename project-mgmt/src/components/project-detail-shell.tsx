@@ -174,20 +174,21 @@ export function ProjectDetailShell({ project }: { project: Project }) {
           <div className="flex flex-wrap items-center gap-2">
             <p className="text-sm text-slate-300">目前有效成本</p>
             <span className={`inline-flex rounded-full px-2.5 py-1 text-[11px] font-semibold ring-1 ${hasWorkflowCost ? "border border-emerald-400/30 bg-emerald-500/15 text-emerald-100 ring-emerald-400/20" : "border border-white/10 bg-white/10 text-slate-200 ring-white/10"}`}>
-              {hasWorkflowCost ? "工作流主線" : "Seed 參考中"}
+              {hasWorkflowCost ? "主線成本" : "參考成本"}
             </span>
           </div>
-          <p className="mt-3 text-3xl font-semibold tracking-tight">{workflowAdjustedCost ?? projectForm.cost}</p>
+          <p className="mt-2 text-[11px] font-medium tracking-[0.14em] text-slate-300 uppercase">目前有效成本</p>
+          <p className="mt-2 text-3xl font-semibold tracking-tight">{workflowAdjustedCost ?? projectForm.cost}</p>
           <div className="mt-4 rounded-2xl border border-white/10 bg-white/5 p-3 text-sm text-slate-200">
             <div className="flex items-start justify-between gap-3">
-              <span className="text-slate-400">Seed 參考</span>
+              <span className="text-slate-400">原始基準</span>
               <span className="text-right font-medium text-slate-300">{projectForm.cost}</span>
             </div>
           </div>
           <p className="mt-3 text-xs leading-5 text-slate-300">
             {hasWorkflowCost
-              ? "首屏只把目前有效成本當主資訊；Seed 僅保留為低權重背景參考。"
-              : "目前尚未接到工作流成本，先以 Seed 參考值顯示；後續一旦成立會自動切換。"}
+              ? "首屏只保留目前有效成本作為主資訊；原始基準降階作背景參考。"
+              : "目前尚未接到主線成本，先沿用專案基準顯示；後續一旦成立會自動切換。"}
           </p>
         </article>
       </section>

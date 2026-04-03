@@ -43,7 +43,7 @@ export function CloseoutListClient() {
         <p className="text-sm text-slate-500">結案留存</p>
         <h2 className="mt-1 text-3xl font-semibold tracking-tight text-slate-900">結案</h2>
         <p className="mt-3 max-w-4xl text-sm leading-6 text-slate-600">
-          這裡不是把執行中列表換資料來源而已，而是把已結案專案整理成可回查的專案池：看當下結果、看留存版本，也看哪些案子在結案時保留了例外備註。
+          這裡只處理已結案專案的留存查閱：先看結案結果，再看報價、成本與例外註記，不再延續進行中管理頁的工作語氣。
         </p>
       </header>
 
@@ -68,7 +68,7 @@ export function CloseoutListClient() {
 
       <section className="grid gap-4 xl:grid-cols-[1.3fr_1fr]">
         <article className="rounded-3xl border border-slate-200 bg-slate-50/70 p-5 shadow-sm">
-          <p className="text-sm font-medium text-slate-500">結案池定位</p>
+          <p className="text-sm font-medium text-slate-500">留存頁定位</p>
           <div className="mt-3 grid gap-3 md:grid-cols-3">
             <ArchiveMetric label="查閱重點" value="留存版本" helper="保留有效報價、成本與毛利結果，後續回頭查不用重建脈絡。" />
             <ArchiveMetric label="確認重點" value="結案結果" helper="維持結案當下的狀態與對帳結果，不再回到進行中操作語境。" />
@@ -77,7 +77,7 @@ export function CloseoutListClient() {
         </article>
 
         <article className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
-          <p className="text-sm font-medium text-slate-500">檢索節奏</p>
+          <p className="text-sm font-medium text-slate-500">查閱節奏</p>
           <div className="mt-3 space-y-3 text-sm text-slate-600">
             <p>先按最新檔期查閱，再快速掃描每案的留存摘要與例外筆數。</p>
             <div className="flex flex-wrap gap-2">
@@ -92,8 +92,8 @@ export function CloseoutListClient() {
       <section className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
         <div className="mb-5 flex flex-col gap-2 lg:flex-row lg:items-center lg:justify-between">
           <div>
-            <h3 className="text-xl font-semibold text-slate-900">已結案專案池</h3>
-            <p className="mt-1 text-sm text-slate-500">把每個結案專案當成留存卡片，而不是進行中專案的縮小版。</p>
+            <h3 className="text-xl font-semibold text-slate-900">已結案專案</h3>
+            <p className="mt-1 text-sm text-slate-500">每筆只保留查閱需要的結果資訊，避免看起來像進行中頁面換資料來源。</p>
           </div>
           <div className="rounded-2xl bg-slate-50 px-4 py-2 text-sm text-slate-600 ring-1 ring-slate-200">
             共 {closedProjects.length} 筆專案

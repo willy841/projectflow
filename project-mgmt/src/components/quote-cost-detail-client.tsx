@@ -191,7 +191,7 @@ export function QuoteCostDetailClient({ project, mode = "active" }: Props) {
             <p className={`mt-2 text-sm ${isClosedView ? "text-slate-500" : "text-slate-300"}`}>{state.projectCode} ・ {state.clientName} ・ {state.eventDate}</p>
             <p className={`mt-3 max-w-3xl text-sm leading-6 ${isClosedView ? "text-slate-600" : "text-slate-200"}`}>
               {isClosedView
-                ? "沿用報價成本詳情的四區骨架，但整體語氣改為歷史查閱與結果確認；資訊以靜態留存為主，不再強調持續編修。"
+                ? "沿用同一份四區骨架，但改成結案留存頁語氣：重點是回查當時結果與保留紀錄，不再像進行中頁面持續推進工作。"
                 : "沿用四區結構處理報價、成本、對帳與結案，讓使用者在同一頁完成進行中專案的控盤與成本確認。"}
             </p>
           </div>
@@ -219,7 +219,7 @@ export function QuoteCostDetailClient({ project, mode = "active" }: Props) {
       </section>
 
       <section className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-sm">
-        <SectionHeader index="1" title="專案總覽" description={isClosedView ? "保留本案結案當下的主要狀態，用於後續查閱與確認。" : "先確認目前有效版本、對帳位置與備註，再進入報價與成本調整。"} archived={isClosedView} />
+        <SectionHeader index="1" title="專案總覽" description={isClosedView ? "保留本案結案當下的主要結果，供後續查閱與對帳回看。" : "先確認目前有效版本、對帳位置與備註，再進入報價與成本調整。"} archived={isClosedView} />
         <div className="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
           <OverviewRow label="對帳狀態" value={state.reconciliationStatus} archived={isClosedView} />
           <OverviewRow label="結案狀態" value={state.closeStatus} archived={isClosedView} />
@@ -230,7 +230,7 @@ export function QuoteCostDetailClient({ project, mode = "active" }: Props) {
 
       <section className={`rounded-[28px] border p-6 shadow-sm ${isClosedView ? "border-slate-200 bg-white" : "border-slate-200 bg-white"}`}>
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-          <SectionHeader index="2" title="對外報價單" description={isClosedView ? "保留結案時有效報價版本，作為歷史結果比對依據。" : "一個專案同時間只保留一份有效對外報價單；Excel 匯入後系統內不可直接編修明細。"} archived={isClosedView} />
+          <SectionHeader index="2" title="對外報價單" description={isClosedView ? "保留結案當下的有效報價版本，作為後續查閱基準。" : "一個專案同時間只保留一份有效對外報價單；Excel 匯入後系統內不可直接編修明細。"} archived={isClosedView} />
           <div className="flex flex-wrap gap-2">
             {isClosedView ? (
               <span className="inline-flex items-center rounded-2xl border border-slate-200 bg-slate-50 px-4 py-2 text-sm font-semibold text-slate-700">
@@ -289,7 +289,7 @@ export function QuoteCostDetailClient({ project, mode = "active" }: Props) {
 
       <section className={`rounded-[28px] border p-6 shadow-sm ${isClosedView ? "border-slate-200 bg-slate-50/70" : "border-slate-200 bg-white"}`}>
         <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
-          <SectionHeader index="3" title="成本管理" description={isClosedView ? "沿用同一骨架，但以留存結果為主：先看廠商成本結果，再往下補充人工成本與例外項。" : "先看廠商成本主體，再補人工成本與例外項；讓使用者快速聚焦主要成本來源。"} archived={isClosedView} />
+          <SectionHeader index="3" title="成本管理" description={isClosedView ? "沿用同一骨架，但改以留存結果為主：先看廠商成本結果，再補人工成本與例外項。" : "先看廠商成本主體，再補人工成本與例外項；讓使用者快速聚焦主要成本來源。"} archived={isClosedView} />
           {!isClosedView && (
             <button
               type="button"

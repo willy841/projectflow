@@ -91,8 +91,10 @@ export function VendorPackageDetail({ vendorPackage }: { vendorPackage: VendorPa
       <header className="rounded-3xl border border-blue-200 bg-blue-50/70 p-6 shadow-sm ring-1 ring-blue-100">
         <div className="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
           <div>
-            <h2 className="text-3xl font-semibold tracking-tight text-slate-900">{vendorPackage.vendorName}</h2>
-            <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-600">{getDocumentStatusMessage(documentStatus)}</p>
+            <p className="text-sm text-slate-500">Package 主線</p>
+            <h2 className="mt-1 text-3xl font-semibold tracking-tight text-slate-900">{vendorPackage.vendorName}</h2>
+            <p className="mt-2 text-sm text-slate-600">{projectName} ・ {eventDate}</p>
+            <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-600">先整理這個 package 真正要對外發出的內容，再決定是否生成最新文件。</p>
           </div>
           <span className={`inline-flex self-start rounded-full px-3 py-1 text-xs font-medium ring-1 ${getVendorDocumentStatusClass(documentStatus)}`}>
             文件 {documentStatus}
@@ -104,8 +106,8 @@ export function VendorPackageDetail({ vendorPackage }: { vendorPackage: VendorPa
         <article className="space-y-6 rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
           <section>
             <div className="mb-5">
-              <h3 className="text-xl font-semibold text-slate-900">背景資訊</h3>
-              <p className="mt-1 text-sm text-slate-500">這一區只維護文件背景資訊副本，不回寫 project 主資料。</p>
+              <h3 className="text-xl font-semibold text-slate-900">文件背景</h3>
+              <p className="mt-1 text-sm text-slate-500">保留 package 自己的背景副本，讓整理文件時不需要回頭改專案主資料。</p>
             </div>
 
           <div className="grid gap-4 md:grid-cols-2">
@@ -130,8 +132,8 @@ export function VendorPackageDetail({ vendorPackage }: { vendorPackage: VendorPa
 
           <section>
             <div className="mb-5">
-              <h3 className="text-xl font-semibold text-slate-900">發包項目整理</h3>
-              <p className="mt-1 text-sm text-slate-500">這一區是整理主場，只保留項目名稱與需求內容。</p>
+              <h3 className="text-xl font-semibold text-slate-900">發包內容整理</h3>
+              <p className="mt-1 text-sm text-slate-500">主線只整理項目名稱與需求內容，避免又回到任務管理頁語氣。</p>
             </div>
 
             <div className="space-y-4">
@@ -155,7 +157,7 @@ export function VendorPackageDetail({ vendorPackage }: { vendorPackage: VendorPa
 
           <section>
             <label className="flex flex-col gap-2">
-              <span className="text-sm font-medium text-slate-700">文件整體備註</span>
+              <span className="text-sm font-medium text-slate-700">整體備註</span>
               <textarea value={note} onChange={(event) => { setNote(event.target.value); markDirty(); }} rows={4} className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-blue-400" />
             </label>
           </section>
@@ -164,7 +166,7 @@ export function VendorPackageDetail({ vendorPackage }: { vendorPackage: VendorPa
         <aside className="space-y-4 rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
           <div>
             <div className="flex flex-wrap items-center gap-3">
-              <h3 className="text-xl font-semibold text-slate-900">最終對外文件預覽</h3>
+              <h3 className="text-xl font-semibold text-slate-900">對外文件預覽</h3>
               <span className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ring-1 ${getVendorDocumentStatusClass(documentStatus)}`}>
                 {documentStatus}
               </span>
