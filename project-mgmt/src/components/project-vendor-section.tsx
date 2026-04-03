@@ -254,19 +254,22 @@ export function ProjectVendorSection({
                   </div>
 
                   <div className="space-y-4">
+                    <div className="flex items-center justify-end">
+                      {!isSubmitted ? (
+                        <button
+                          type="button"
+                          onClick={() => setQuickCreateAssignmentId(assignment.id)}
+                          className="inline-flex h-8 items-center justify-center rounded-xl border border-dashed border-slate-300 bg-white px-3 text-xs font-semibold text-slate-700 transition hover:bg-slate-50"
+                        >
+                          快速建立
+                        </button>
+                      ) : (
+                        <div className="h-8" />
+                      )}
+                    </div>
+
                     <label className="block">
-                      <div className="mb-2 flex items-center justify-between gap-2">
-                        <p className="text-sm font-medium text-slate-700">選擇廠商</p>
-                        {!isSubmitted ? (
-                          <button
-                            type="button"
-                            onClick={() => setQuickCreateAssignmentId(assignment.id)}
-                            className="inline-flex h-8 items-center justify-center rounded-xl border border-dashed border-slate-300 bg-white px-3 text-xs font-semibold text-slate-700 transition hover:bg-slate-50"
-                          >
-                            快速建立
-                          </button>
-                        ) : null}
-                      </div>
+                      <p className="mb-2 text-sm font-medium text-slate-700">選擇廠商</p>
                       <select
                         value={selectedVendorName}
                         onChange={(event) => handleAssignmentChange(assignment.id, { selectedVendorName: event.target.value })}
@@ -280,7 +283,7 @@ export function ProjectVendorSection({
                       </select>
                     </label>
 
-                    <div className="pt-[40px]">
+                    <div>
                       <button
                         type="button"
                         disabled={!canSubmit}
