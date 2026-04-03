@@ -255,7 +255,18 @@ export function ProjectVendorSection({
 
                   <div className="space-y-4">
                     <label className="block">
-                      <p className="mb-2 text-sm font-medium text-slate-700">選擇廠商</p>
+                      <div className="mb-2 flex items-center justify-between gap-2">
+                        <p className="text-sm font-medium text-slate-700">選擇廠商</p>
+                        {!isSubmitted ? (
+                          <button
+                            type="button"
+                            onClick={() => setQuickCreateAssignmentId(assignment.id)}
+                            className="inline-flex h-8 items-center justify-center rounded-xl border border-dashed border-slate-300 bg-white px-3 text-xs font-semibold text-slate-700 transition hover:bg-slate-50"
+                          >
+                            快速建立
+                          </button>
+                        ) : null}
+                      </div>
                       <select
                         value={selectedVendorName}
                         onChange={(event) => handleAssignmentChange(assignment.id, { selectedVendorName: event.target.value })}
@@ -269,24 +280,16 @@ export function ProjectVendorSection({
                       </select>
                     </label>
 
-                    {!isSubmitted ? (
+                    <div className="pt-[40px]">
                       <button
                         type="button"
-                        onClick={() => setQuickCreateAssignmentId(assignment.id)}
-                        className="inline-flex w-full items-center justify-center rounded-2xl border border-dashed border-slate-300 bg-white px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+                        disabled={!canSubmit}
+                        onClick={() => handleSend({ ...assignment, selectedVendorName })}
+                        className="inline-flex h-12 w-full items-center justify-center rounded-2xl bg-slate-900 px-4 text-sm font-semibold text-white shadow-sm disabled:cursor-not-allowed disabled:bg-slate-300"
                       >
-                        找不到廠商？快速建立
+                        送出
                       </button>
-                    ) : null}
-
-                    <button
-                      type="button"
-                      disabled={!canSubmit}
-                      onClick={() => handleSend({ ...assignment, selectedVendorName })}
-                      className="inline-flex w-full items-center justify-center rounded-2xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white shadow-sm disabled:cursor-not-allowed disabled:bg-slate-300"
-                    >
-                      送出
-                    </button>
+                    </div>
 
                     {inlineErrors[assignment.id] ? (
                       <p className="text-xs leading-5 text-rose-600">{inlineErrors[assignment.id]}</p>
