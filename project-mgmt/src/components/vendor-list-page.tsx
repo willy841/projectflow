@@ -1,13 +1,24 @@
+"use client";
+
 import Link from "next/link";
-import { getVendorOutstandingTotal, vendorProfiles, formatCurrency } from "@/components/vendor-data";
+import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
+import { getVendorOutstandingTotal, formatCurrency } from "@/components/vendor-data";
+import { VendorQuickCreateDialog } from "@/components/vendor-quick-create-dialog";
+import { useVendorStore } from "@/components/vendor-store";
 
 export function VendorListPage() {
-  const vendors = vendorProfiles.map((vendor) => ({
+  const router = useRouter();
+  const { vendors } = useVendorStore();
+  const [quickCreateOpen, setQuickCreateOpen] = useState(false);
+  const [createdVendorName, setCreatedVendorName] = useState("");
+
+  const vendorCards = useMemo(() => vendors.map((vendor) => ({
     ...vendor,
     outstandingTotal: getVendorOutstandingTotal(vendor.id),
-  }));
+  })), [vendors]);
 
-  const totalOutstanding = vendors.reduce((sum, vendor) => sum + vendor.outstandingTotal, 0);
+  const totalOutstanding = vendorCards.reduce((sum, vendor) => sum + vendor.outstandingTotal, 0);
 
   return (
     <>
@@ -19,6 +30,11 @@ export function VendorListPage() {
             <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-600">
               第一輪先做可驗收 mock / front-end MVP：列表頁只保留廠商名稱與未付款總額，點進去再看廠商資料、未付款專案與往來歷史。
             </p>
+            {createdVendorName ? (
+              <div className="mt-4 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
+                已建立廠商「{createdVendorName}」，正帶你前往廠商詳情。
+              </div>
+            ) : null}
           </div>
 
           <div className="flex flex-col items-stretch gap-3 sm:items-end">
@@ -28,17 +44,18 @@ export function VendorListPage() {
             </div>
             <button
               type="button"
+              onClick={() => setQuickCreateOpen(true)}
               className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 shadow-sm transition hover:border-slate-400 hover:bg-slate-50"
             >
               + 新增廠商
             </button>
-            <p className="text-xs text-slate-500">入口先做清楚但不搶畫面；詳細 quick create 仍優先在專案流程內完成。</p>
+            <p className="text-xs text-slate-500">可直接 quick create；建立成功後會即時更新列表並進入該廠商詳情。</p>
           </div>
         </div>
       </header>
 
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-        {vendors.map((vendor) => (
+        {vendorCards.map((vendor) => (
           <Link
             key={vendor.id}
             href={`/vendors/${vendor.id}`}
@@ -60,6 +77,18 @@ export function VendorListPage() {
           </Link>
         ))}
       </section>
+
+      <VendorQuickCreateDialog
+        open={quickCreateOpen}
+        onClose={() => setQuickCreateOpen(false)}
+        title="快速建立廠商"
+        description="沿用既有 quick create 規格：必填只有廠商名稱；工種可多選、非必填；名稱完全相同時禁止重複建立。"
+        confirmLabel="建立並查看廠商"
+        onCreated={(vendor) => {
+          setCreatedVendorName(vendor.name);
+          router.push(`/vendors/${vendor.id}`);
+        }}
+      />
     </>
   );
 }
