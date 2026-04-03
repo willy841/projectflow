@@ -89,11 +89,6 @@ function VendorProfileEditor({
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">
-        <div className="rounded-2xl bg-slate-50 p-4">
-          <p className="text-sm text-slate-500">合作類型</p>
-          <p className="mt-2 font-medium text-slate-900">{vendor.category || "待補充"}</p>
-        </div>
-
         {[
           { label: "聯絡人", field: "contactName", type: "text", placeholder: "請輸入聯絡人" },
           { label: "電話", field: "phone", type: "text", placeholder: "請輸入電話" },
