@@ -117,6 +117,11 @@ export function getDesignBoardRecords(projects: Project[]): DesignTaskBoardRecor
     const tree = readStoredExecutionTreeState(project.id);
     const section = readStoredExecutionSectionState(project.id);
     const entries = Object.entries(tree.savedDesignAssignments);
+    const titleMap = new Map<string, string>();
+    project.executionItems.forEach((item) => {
+      titleMap.set(item.id, item.title);
+      (item.children ?? []).forEach((child) => titleMap.set(child.id, child.title));
+    });
 
     if (!entries.length) {
       return designTaskBoardRecords.filter((record) => record.projectId === project.id);
@@ -156,7 +161,7 @@ export function getDesignBoardRecords(projects: Project[]): DesignTaskBoardRecor
         id: `${project.id}-${targetId}`,
         projectId: project.id,
         projectName: project.name,
-        title: assignment.note || assignment.assignee ? project.executionItems.find((item) => item.id === targetId)?.title ?? targetId : targetId,
+        title: titleMap.get(targetId) ?? targetId,
         size: assignment.size || "未填寫",
         material: assignment.material || "未填寫",
         replyCount: replies.length,
@@ -180,6 +185,11 @@ export function getProcurementBoardRecords(projects: Project[]): ProcurementBoar
     const tree = readStoredExecutionTreeState(project.id);
     const section = readStoredExecutionSectionState(project.id);
     const entries = Object.entries(tree.savedProcurementAssignments);
+    const titleMap = new Map<string, string>();
+    project.executionItems.forEach((item) => {
+      titleMap.set(item.id, item.title);
+      (item.children ?? []).forEach((child) => titleMap.set(child.id, child.title));
+    });
 
     if (!entries.length) {
       return procurementTaskBoardRecords.filter((record) => record.projectId === project.id);
@@ -205,7 +215,7 @@ export function getProcurementBoardRecords(projects: Project[]): ProcurementBoar
         id: `${project.id}-${targetId}`,
         projectId: project.id,
         projectName: project.name,
-        title: assignment.item || project.executionItems.find((item) => item.id === targetId)?.title || targetId,
+        title: assignment.item || titleMap.get(targetId) || targetId,
         size: assignment.size || "未填寫",
         material: assignment.material || "未填寫",
         quantity: assignment.quantity || "未填寫",
