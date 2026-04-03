@@ -3,23 +3,12 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { AppShell } from "@/components/app-shell";
-import { designTaskGroups } from "@/components/design-task-data";
-
-type ConfirmStatus = "尚無回覆" | "待確認" | "已確認";
-type DocumentStatus = "未生成" | "已生成" | "需更新";
-
-type DesignTaskBoardRecord = {
-  id: string;
-  projectId: string;
-  projectName: string;
-  title: string;
-  size: string;
-  material: string;
-  replyCount: number;
-  confirmStatus: ConfirmStatus;
-  documentStatus: DocumentStatus;
-  vendorName: string;
-};
+import {
+  designTaskBoardRecords,
+  type ConfirmStatus,
+  type DesignTaskBoardRecord,
+  type DocumentStatus,
+} from "@/components/design-task-board-data";
 
 function getConfirmBadgeClass(status: ConfirmStatus) {
   if (status === "已確認") return "bg-emerald-50 text-emerald-700 ring-emerald-200";
@@ -39,22 +28,7 @@ export default function DesignTasksPage() {
   const [documentFilter, setDocumentFilter] = useState<"all" | DocumentStatus>("all");
   const [vendorFilter, setVendorFilter] = useState("all");
 
-  const records = useMemo<DesignTaskBoardRecord[]>(
-    () =>
-      designTaskGroups.map((task, index) => ({
-        id: task.id,
-        projectId: task.projectId,
-        projectName: task.projectName,
-        title: task.title,
-        size: task.size,
-        material: task.material,
-        replyCount: index % 3 === 0 ? 0 : index % 3 === 1 ? 2 : 3,
-        confirmStatus: index % 3 === 0 ? "尚無回覆" : index % 3 === 1 ? "待確認" : "已確認",
-        documentStatus: index % 3 === 2 ? (index % 2 === 0 ? "已生成" : "需更新") : "未生成",
-        vendorName: task.outsourceTarget && task.outsourceTarget !== "尚未指定" ? task.outsourceTarget : "未指定",
-      })),
-    [],
-  );
+  const records = useMemo<DesignTaskBoardRecord[]>(() => designTaskBoardRecords, []);
 
   const vendors = useMemo(
     () => Array.from(new Set(records.map((record) => record.vendorName))).filter(Boolean),

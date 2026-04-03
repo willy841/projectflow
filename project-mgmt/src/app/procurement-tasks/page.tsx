@@ -3,24 +3,12 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { AppShell } from "@/components/app-shell";
-import { projects } from "@/components/project-data";
-
-type ConfirmStatus = "尚無回覆" | "待確認" | "已確認";
-type DocumentStatus = "未生成" | "已生成" | "需更新";
-
-type ProcurementBoardRecord = {
-  id: string;
-  projectId: string;
-  projectName: string;
-  title: string;
-  size: string;
-  material: string;
-  quantity: string;
-  replyCount: number;
-  confirmStatus: ConfirmStatus;
-  documentStatus: DocumentStatus;
-  vendorName: string;
-};
+import {
+  procurementTaskBoardRecords,
+  type ConfirmStatus,
+  type DocumentStatus,
+  type ProcurementBoardRecord,
+} from "@/components/procurement-task-board-data";
 
 function getConfirmBadgeClass(status: ConfirmStatus) {
   if (status === "已確認") return "bg-emerald-50 text-emerald-700 ring-emerald-200";
@@ -40,25 +28,7 @@ export default function ProcurementTasksPage() {
   const [documentFilter, setDocumentFilter] = useState<"all" | DocumentStatus>("all");
   const [vendorFilter, setVendorFilter] = useState("all");
 
-  const records = useMemo<ProcurementBoardRecord[]>(
-    () =>
-      projects.flatMap((project) =>
-        project.procurementTasks.map((task, index) => ({
-          id: `${project.id}-procurement-${index}`,
-          projectId: project.id,
-          projectName: project.name,
-          title: task.title,
-          size: index % 2 === 0 ? "W60 x D60 x H110 cm" : "未填寫",
-          material: index % 2 === 0 ? "壓克力 / 金屬" : "紙材 / 印刷",
-          quantity: index % 2 === 0 ? "3 組" : "1 式",
-          replyCount: index % 3 === 0 ? 0 : index % 3 === 1 ? 2 : 3,
-          confirmStatus: index % 3 === 0 ? "尚無回覆" : index % 3 === 1 ? "待確認" : "已確認",
-          documentStatus: index % 3 === 2 ? (index % 2 === 0 ? "已生成" : "需更新") : "未生成",
-          vendorName: index % 2 === 0 ? "星澄輸出" : "未指定",
-        })),
-      ),
-    [],
-  );
+  const records = useMemo<ProcurementBoardRecord[]>(() => procurementTaskBoardRecords, []);
 
   const vendors = useMemo(
     () => Array.from(new Set(records.map((record) => record.vendorName))).filter(Boolean),
