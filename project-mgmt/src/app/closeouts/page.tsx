@@ -1,5 +1,5 @@
-import { QuoteCostListClient } from "@/components/quote-cost-list-client";
+import { redirect } from "next/navigation";
 
-export default function CloseoutsPage() {
-  return <QuoteCostListClient mode="closed" />;
+export default function CloseoutsAliasPage() {
+  redirect("/closeout");
 }

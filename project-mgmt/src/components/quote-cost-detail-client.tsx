@@ -17,34 +17,21 @@ import {
   vendorDirectory,
 } from "@/components/quote-cost-data";
 
+type DetailMode = "active" | "closed";
+
 type Props = {
   project: QuoteCostProject;
-  mode?: "active" | "closed";
+  mode?: DetailMode;
 };
 
 type EditableProjectState = QuoteCostProject;
-
-const detailConfig = {
-  active: {
-    activePath: "/quote-costs",
-    pageEyebrow: "Quote Cost Detail",
-    backHref: "/quote-costs",
-    backLabel: "返回報價成本列表",
-  },
-  closed: {
-    activePath: "/closeouts",
-    pageEyebrow: "Project Closeout Detail",
-    backHref: "/closeouts",
-    backLabel: "返回結案列表",
-  },
-} as const;
 
 export function QuoteCostDetailClient({ project, mode = "active" }: Props) {
   const [state, setState] = useState<EditableProjectState>(project);
   const [quoteImportIndex, setQuoteImportIndex] = useState(0);
   const quoteImportOptions = sampleQuoteImports[project.id] ?? [project.quotationImport].filter(Boolean);
   const quoteLineItemOptions = sampleQuoteLineItemsByProject[project.id] ?? [project.quotationItems];
-  const config = detailConfig[mode];
+  const isClosedView = mode === "closed";
 
   const quotationTotal = useMemo(() => getQuotationTotal(state.quotationItems), [state.quotationItems]);
   const adjustedCostTotal = useMemo(() => getAdjustedCostTotal(state.costItems), [state.costItems]);
@@ -170,16 +157,21 @@ export function QuoteCostDetailClient({ project, mode = "active" }: Props) {
   }
 
   return (
-    <AppShell activePath={config.activePath}>
+    <AppShell activePath={isClosedView ? "/closeout" : "/quote-costs"}>
       <header className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200 xl:p-7">
         <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
           <div>
-            <p className="text-sm text-slate-500">{config.pageEyebrow}</p>
+            <p className="text-sm text-slate-500">{isClosedView ? "Closeout Detail" : "Quote Cost Detail"}</p>
             <h2 className="mt-1 text-3xl font-semibold tracking-tight text-slate-900">{state.projectName}</h2>
             <p className="mt-2 text-sm text-slate-500">{state.projectCode} ・ {state.clientName} ・ {state.eventDate}</p>
+            <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-600">
+              {isClosedView
+                ? "沿用報價成本詳情的四區結構，改為以歷史查閱與結果確認為主；內容預設穩定留存，不強調持續編修。"
+                : "沿用四區結構處理報價、成本、對帳與結案，保持進行中專案的操作節奏。"}
+            </p>
           </div>
-          <Link href={config.backHref} className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 transition hover:border-slate-400 hover:bg-slate-50">
-            {config.backLabel}
+          <Link href={isClosedView ? "/closeout" : "/quote-costs"} className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 transition hover:border-slate-400 hover:bg-slate-50">
+            返回{isClosedView ? "結案列表" : "報價成本列表"}
           </Link>
         </div>
       </header>
@@ -210,25 +202,31 @@ export function QuoteCostDetailClient({ project, mode = "active" }: Props) {
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
-            {quoteImportOptions.map((quote, index) => (
-              <button
-                key={`${quote.fileName}-${quote.importedAt}`}
-                type="button"
-                onClick={() => handleImportQuote(index)}
-                className={`rounded-2xl px-4 py-2 text-sm font-semibold transition ${
-                  quoteImportIndex === index ? "bg-blue-600 text-white" : "border border-slate-300 bg-white text-slate-800 hover:border-slate-400 hover:bg-slate-50"
-                }`}
-              >
-                匯入 {quote.fileName}
-              </button>
-            ))}
+            {isClosedView ? (
+              <span className="inline-flex items-center rounded-2xl border border-slate-200 bg-slate-50 px-4 py-2 text-sm font-semibold text-slate-700">
+                結案版本已鎖定
+              </span>
+            ) : (
+              quoteImportOptions.map((quote, index) => (
+                <button
+                  key={`${quote.fileName}-${quote.importedAt}`}
+                  type="button"
+                  onClick={() => handleImportQuote(index)}
+                  className={`rounded-2xl px-4 py-2 text-sm font-semibold transition ${
+                    quoteImportIndex === index ? "bg-blue-600 text-white" : "border border-slate-300 bg-white text-slate-800 hover:border-slate-400 hover:bg-slate-50"
+                  }`}
+                >
+                  匯入 {quote.fileName}
+                </button>
+              ))
+            )}
           </div>
         </div>
 
-        <div className="mt-4 rounded-2xl border border-blue-100 bg-blue-50/70 p-4 text-sm text-blue-900">
+        <div className={`mt-4 rounded-2xl p-4 text-sm ring-1 ${isClosedView ? "border border-slate-200 bg-slate-50 text-slate-800 ring-slate-200" : "border border-blue-100 bg-blue-50/70 text-blue-900 ring-blue-100"}`}>
           <p className="font-semibold">目前有效報價單</p>
           <p className="mt-1">{state.quotationImport?.fileName ?? "未匯入"} ・ {state.quotationImport?.importedAt ?? "-"}</p>
-          <p className="mt-1 text-blue-800">{state.quotationImport?.note ?? ""}</p>
+          <p className={`mt-1 ${isClosedView ? "text-slate-600" : "text-blue-800"}`}>{state.quotationImport?.note ?? ""}</p>
         </div>
 
         <div className="mt-5 overflow-x-auto rounded-2xl border border-slate-200">
@@ -269,13 +267,15 @@ export function QuoteCostDetailClient({ project, mode = "active" }: Props) {
               預設看調整後成本，並持續保留原始成本。廠商成本獨立按廠商分組；人工成本另外成區，不走廠商主軸。
             </p>
           </div>
-          <button
-            type="button"
-            onClick={handleAddManualCost}
-            className="inline-flex items-center justify-center rounded-2xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800"
-          >
-            + 新增人工成本
-          </button>
+          {!isClosedView && (
+            <button
+              type="button"
+              onClick={handleAddManualCost}
+              className="inline-flex items-center justify-center rounded-2xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800"
+            >
+              + 新增人工成本
+            </button>
+          )}
         </div>
 
         <div className="mt-6 space-y-4">
@@ -292,7 +292,7 @@ export function QuoteCostDetailClient({ project, mode = "active" }: Props) {
                 const originalSubtotal = group.items.filter((item) => item.includedInCost).reduce((sum, item) => sum + item.originalAmount, 0);
                 const adjustedSubtotal = group.items.filter((item) => item.includedInCost).reduce((sum, item) => sum + item.adjustedAmount, 0);
                 return (
-                  <details key={group.key} className="rounded-2xl border border-slate-200 bg-slate-50/50 p-4" open>
+                  <details key={group.key} className={`rounded-2xl border p-4 ${isClosedView ? "border-slate-200 bg-slate-50/80" : "border-slate-200 bg-slate-50/50"}`} open>
                     <summary className="flex cursor-pointer list-none items-center justify-between gap-3">
                       <div>
                         <p className="text-base font-semibold text-slate-900">{group.name}</p>
@@ -320,7 +320,8 @@ export function QuoteCostDetailClient({ project, mode = "active" }: Props) {
                                 type="number"
                                 value={item.adjustedAmount}
                                 onChange={(event) => handleAdjustedAmountChange(item.id, event.target.value)}
-                                className="mt-2 h-11 w-full rounded-2xl border border-slate-200 px-3 text-sm outline-none focus:border-slate-400"
+                                readOnly={isClosedView}
+                                className="mt-2 h-11 w-full rounded-2xl border border-slate-200 px-3 text-sm outline-none focus:border-slate-400 read-only:bg-slate-50 read-only:text-slate-600"
                               />
                             </div>
                             <div>
@@ -328,7 +329,8 @@ export function QuoteCostDetailClient({ project, mode = "active" }: Props) {
                               <select
                                 value={item.vendorId ?? UNSPECIFIED_VENDOR_ID}
                                 onChange={(event) => handleVendorChange(item.id, event.target.value)}
-                                className="mt-2 h-11 w-full rounded-2xl border border-slate-200 px-3 text-sm outline-none focus:border-slate-400"
+                                disabled={isClosedView}
+                                className="mt-2 h-11 w-full rounded-2xl border border-slate-200 px-3 text-sm outline-none focus:border-slate-400 disabled:bg-slate-50 disabled:text-slate-600"
                               >
                                 <option value={UNSPECIFIED_VENDOR_ID}>{UNSPECIFIED_VENDOR_NAME}</option>
                                 {vendorDirectory.map((vendor) => (
@@ -342,7 +344,8 @@ export function QuoteCostDetailClient({ project, mode = "active" }: Props) {
                               type="checkbox"
                               checked={item.includedInCost}
                               onChange={(event) => handleIncludeToggle(item.id, event.target.checked)}
-                              className="h-4 w-4 rounded border-slate-300"
+                              disabled={isClosedView}
+                              className="h-4 w-4 rounded border-slate-300 disabled:cursor-not-allowed"
                             />
                             計入成本總額
                           </label>
@@ -369,25 +372,25 @@ export function QuoteCostDetailClient({ project, mode = "active" }: Props) {
                 <div className="rounded-2xl border border-dashed border-slate-300 p-5 text-sm text-slate-500">目前尚未新增人工成本。</div>
               ) : (
                 manualItems.map((item) => (
-                  <div key={item.id} className="rounded-2xl border border-slate-200 bg-slate-50/50 p-4">
+                  <div key={item.id} className={`rounded-2xl border border-slate-200 p-4 ${isClosedView ? "bg-slate-50/80" : "bg-slate-50/50"}`}>
                     <div className="grid gap-4 xl:grid-cols-[1.4fr_1.4fr_1fr]">
                       <div>
                         <label className="text-xs font-medium text-slate-500">項目名稱</label>
-                        <input value={item.itemName} onChange={(event) => handleManualItemChange(item.id, "itemName", event.target.value)} className="mt-2 h-11 w-full rounded-2xl border border-slate-200 px-3 text-sm outline-none focus:border-slate-400" />
+                        <input value={item.itemName} onChange={(event) => handleManualItemChange(item.id, "itemName", event.target.value)} readOnly={isClosedView} className="mt-2 h-11 w-full rounded-2xl border border-slate-200 px-3 text-sm outline-none focus:border-slate-400 read-only:bg-slate-50 read-only:text-slate-600" />
                       </div>
                       <div>
                         <label className="text-xs font-medium text-slate-500">來源紀錄</label>
-                        <input value={item.sourceRef} onChange={(event) => handleManualItemChange(item.id, "sourceRef", event.target.value)} className="mt-2 h-11 w-full rounded-2xl border border-slate-200 px-3 text-sm outline-none focus:border-slate-400" />
+                        <input value={item.sourceRef} onChange={(event) => handleManualItemChange(item.id, "sourceRef", event.target.value)} readOnly={isClosedView} className="mt-2 h-11 w-full rounded-2xl border border-slate-200 px-3 text-sm outline-none focus:border-slate-400 read-only:bg-slate-50 read-only:text-slate-600" />
                       </div>
                       <div>
                         <label className="text-xs font-medium text-slate-500">調整後成本</label>
-                        <input type="number" value={item.adjustedAmount} onChange={(event) => handleManualItemChange(item.id, "adjustedAmount", event.target.value)} className="mt-2 h-11 w-full rounded-2xl border border-slate-200 px-3 text-sm outline-none focus:border-slate-400" />
+                        <input type="number" value={item.adjustedAmount} onChange={(event) => handleManualItemChange(item.id, "adjustedAmount", event.target.value)} readOnly={isClosedView} className="mt-2 h-11 w-full rounded-2xl border border-slate-200 px-3 text-sm outline-none focus:border-slate-400 read-only:bg-slate-50 read-only:text-slate-600" />
                       </div>
                     </div>
                     <div className="mt-3 flex flex-wrap items-center gap-4 text-sm text-slate-600">
                       <span>原始成本：{formatCurrency(item.originalAmount)}</span>
                       <label className="flex items-center gap-2">
-                        <input type="checkbox" checked={item.includedInCost} onChange={(event) => handleIncludeToggle(item.id, event.target.checked)} className="h-4 w-4 rounded border-slate-300" />
+                        <input type="checkbox" checked={item.includedInCost} onChange={(event) => handleIncludeToggle(item.id, event.target.checked)} disabled={isClosedView} className="h-4 w-4 rounded border-slate-300 disabled:cursor-not-allowed" />
                         計入成本總額
                       </label>
                     </div>
@@ -404,26 +407,36 @@ export function QuoteCostDetailClient({ project, mode = "active" }: Props) {
           <div>
             <h3 className="text-xl font-semibold text-slate-900">4. 對帳 / 結案</h3>
             <p className="mt-1 text-sm leading-6 text-slate-500">
-              以對外報價總額與調整後成本總額比對毛利；確認對帳完成後若成本再改，系統會自動取消已確認狀態。
+              {isClosedView
+                ? "此區保留結案當下的對帳與毛利結果，用於後續確認與歷史查閱。"
+                : "以對外報價總額與調整後成本總額比對毛利；確認對帳完成後若成本再改，系統會自動取消已確認狀態。"}
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
-            <button
-              type="button"
-              onClick={handleConfirmReconciliation}
-              disabled={!state.quotationImported || state.costItems.length === 0}
-              className="inline-flex items-center justify-center rounded-2xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:bg-slate-300"
-            >
-              確認對帳完成
-            </button>
-            <button
-              type="button"
-              onClick={handleCloseProject}
-              disabled={!state.quotationImported || state.costItems.length === 0 || state.reconciliationStatus !== "已完成"}
-              className="inline-flex items-center justify-center rounded-2xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-300"
-            >
-              手動結案
-            </button>
+            {isClosedView ? (
+              <span className="inline-flex items-center rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-800">
+                已結案留存版本
+              </span>
+            ) : (
+              <>
+                <button
+                  type="button"
+                  onClick={handleConfirmReconciliation}
+                  disabled={!state.quotationImported || state.costItems.length === 0}
+                  className="inline-flex items-center justify-center rounded-2xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:bg-slate-300"
+                >
+                  確認對帳完成
+                </button>
+                <button
+                  type="button"
+                  onClick={handleCloseProject}
+                  disabled={!state.quotationImported || state.costItems.length === 0 || state.reconciliationStatus !== "已完成"}
+                  className="inline-flex items-center justify-center rounded-2xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-300"
+                >
+                  手動結案
+                </button>
+              </>
+            )}
           </div>
         </div>
 

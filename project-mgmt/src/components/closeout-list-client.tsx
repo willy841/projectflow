@@ -12,54 +12,48 @@ import {
   quoteCostProjects,
 } from "@/components/quote-cost-data";
 
-export function QuoteCostListClient({ mode = "active" }: { mode?: "active" | "closed" }) {
-  const activeProjects = quoteCostProjects.filter((project) => project.projectStatus === "執行中");
-
-  if (mode === "closed") {
-    return null;
-  }
-
-  const importedProjects = activeProjects.filter((project) => project.quotationImported);
-  const pendingReconciliationProjects = activeProjects.filter((project) => project.reconciliationStatus !== "已完成");
-  const unreconciledCostProjects = activeProjects.filter((project) => project.costItems.some((item) => !item.includedInCost));
+export function CloseoutListClient() {
+  const closedProjects = quoteCostProjects.filter((project) => project.projectStatus === "已結案");
+  const fullyReconciled = closedProjects.filter((project) => project.reconciliationStatus === "已完成");
+  const latestEventDate = [...closedProjects].sort((a, b) => b.eventDate.localeCompare(a.eventDate))[0]?.eventDate ?? "-";
 
   return (
-    <AppShell activePath="/quote-costs">
+    <AppShell activePath="/closeout">
       <header className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200 xl:p-7">
-        <p className="text-sm text-slate-500">Quote & Cost Module</p>
-        <h2 className="mt-1 text-3xl font-semibold tracking-tight text-slate-900">報價成本</h2>
+        <p className="text-sm text-slate-500">Closeout Archive</p>
+        <h2 className="mt-1 text-3xl font-semibold tracking-tight text-slate-900">結案</h2>
         <p className="mt-3 max-w-4xl text-sm leading-6 text-slate-600">
-          這裡只保留執行中專案，集中處理對外報價、成本調整與對帳進度，不再混入已結案歷史資料。
+          集中查看已完成專案的報價、成本、毛利與對帳結果。此區以歷史查閱與結果確認為主，不混入進行中管理節奏。
         </p>
       </header>
 
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <article className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
-          <p className="text-sm text-slate-500">執行中專案</p>
-          <p className="mt-3 text-3xl font-semibold tracking-tight">{activeProjects.length}</p>
+          <p className="text-sm text-slate-500">已結案專案</p>
+          <p className="mt-3 text-3xl font-semibold tracking-tight">{closedProjects.length}</p>
         </article>
         <article className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
-          <p className="text-sm text-slate-500">已匯入報價單</p>
-          <p className="mt-3 text-3xl font-semibold tracking-tight">{importedProjects.length}</p>
+          <p className="text-sm text-slate-500">已完成對帳</p>
+          <p className="mt-3 text-3xl font-semibold tracking-tight">{fullyReconciled.length}</p>
         </article>
         <article className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
-          <p className="text-sm text-slate-500">待完成對帳</p>
-          <p className="mt-3 text-3xl font-semibold tracking-tight">{pendingReconciliationProjects.length}</p>
+          <p className="text-sm text-slate-500">最近結案檔期</p>
+          <p className="mt-3 text-2xl font-semibold tracking-tight text-slate-900">{latestEventDate}</p>
         </article>
         <article className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
-          <p className="text-sm text-slate-500">尚有未計入成本項目</p>
-          <p className="mt-3 text-3xl font-semibold tracking-tight">{unreconciledCostProjects.length}</p>
+          <p className="text-sm text-slate-500">查閱定位</p>
+          <p className="mt-3 text-base font-semibold leading-7 text-slate-900">歷史留存 / 結果確認</p>
         </article>
       </section>
 
       <section className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
         <div className="mb-5 flex flex-col gap-2 lg:flex-row lg:items-center lg:justify-between">
           <div>
-            <h3 className="text-xl font-semibold text-slate-900">執行中專案</h3>
-            <p className="mt-1 text-sm text-slate-500">進行中的專案集中在此管理報價、成本與對帳。</p>
+            <h3 className="text-xl font-semibold text-slate-900">已結案專案列表</h3>
+            <p className="mt-1 text-sm text-slate-500">保留結案當下的報價與成本結果，供後續查閱與確認。</p>
           </div>
           <div className="rounded-2xl bg-slate-50 px-4 py-2 text-sm text-slate-600 ring-1 ring-slate-200">
-            共 {activeProjects.length} 筆專案
+            共 {closedProjects.length} 筆專案
           </div>
         </div>
 
@@ -79,7 +73,7 @@ export function QuoteCostListClient({ mode = "active" }: { mode?: "active" | "cl
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 bg-white">
-              {activeProjects.map((project) => {
+              {closedProjects.map((project) => {
                 const quotationTotal = getQuotationTotal(project.quotationItems);
                 const adjustedCostTotal = getAdjustedCostTotal(project.costItems);
                 const grossProfit = getGrossProfit(quotationTotal, adjustedCostTotal);
@@ -107,7 +101,7 @@ export function QuoteCostListClient({ mode = "active" }: { mode?: "active" | "cl
                     </td>
                     <td className="px-4 py-4">
                       <Link
-                        href={`/quote-costs/${project.id}`}
+                        href={`/closeout/${project.id}`}
                         className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-800 transition hover:border-slate-400 hover:bg-slate-50"
                       >
                         查看
