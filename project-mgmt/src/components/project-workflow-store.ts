@@ -17,9 +17,12 @@ import {
   type DocumentStatus as ProcurementDocumentStatus,
 } from "@/components/procurement-task-board-data";
 import {
+  formatCurrency,
+  getAdjustedCostTotal,
   type CostLineItem,
   quoteCostProjects,
   type QuoteCostProject,
+  type CostSourceType,
 } from "@/components/quote-cost-data";
 import { getStoredPackagesByProjectId } from "@/components/vendor-package-store";
 import type { Project } from "@/components/project-data";
@@ -231,6 +234,41 @@ export function getProcurementBoardRecords(projects: Project[]): ProcurementBoar
   });
 }
 
+function getWorkflowManagedSourceTypes(items: CostLineItem[]) {
+  return new Set(items.map((item) => item.sourceType));
+}
+
+function mergeQuoteCostSeedWithWorkflow(project: QuoteCostProject, workflowItems: CostLineItem[]) {
+  if (!workflowItems.length) return project;
+
+  const workflowManagedSources = getWorkflowManagedSourceTypes(workflowItems);
+  const baseSeedItems = project.costItems.filter((item) => item.isManual || !workflowManagedSources.has(item.sourceType));
+  const merged = new Map<string, CostLineItem>(baseSeedItems.map((item) => [item.id, item]));
+
+  workflowItems.forEach((item) => merged.set(item.id, item));
+
+  return {
+    ...project,
+    costItems: Array.from(merged.values()),
+  };
+}
+
+export function getProjectWorkflowCostSummary(projectId: string) {
+  const workflowProject = getQuoteCostProjectsWithWorkflow().find((item) => item.id === projectId);
+  if (!workflowProject) return null;
+
+  const workflowCostTotal = getAdjustedCostTotal(workflowProject.costItems);
+  const workflowItems = buildWorkflowCostItems(projectId);
+
+  return {
+    projectId,
+    total: workflowCostTotal,
+    label: formatCurrency(workflowCostTotal),
+    workflowItemCount: workflowItems.length,
+    workflowManagedSourceTypes: Array.from(getWorkflowManagedSourceTypes(workflowItems)) as CostSourceType[],
+  };
+}
+
 function buildWorkflowCostItems(projectId: string): CostLineItem[] {
   if (typeof window === "undefined") return [];
 
@@ -309,12 +347,6 @@ export function getQuoteCostProjectsWithWorkflow(): QuoteCostProject[] {
 
   return quoteCostProjects.map((project) => {
     const workflowItems = buildWorkflowCostItems(project.id);
-    if (!workflowItems.length) return project;
-    const merged = new Map(project.costItems.map((item) => [item.id, item]));
-    workflowItems.forEach((item) => merged.set(item.id, item));
-    return {
-      ...project,
-      costItems: Array.from(merged.values()),
-    };
+    return mergeQuoteCostSeedWithWorkflow(project, workflowItems);
   });
 }

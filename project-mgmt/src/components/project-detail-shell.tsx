@@ -1,10 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { CopyEventInfoButton } from "@/components/copy-event-info-button";
 import { ExecutionTreeSection } from "@/components/execution-tree-section";
 import { Project } from "@/components/project-data";
+import { getProjectWorkflowCostSummary } from "@/components/project-workflow-store";
 import { RequirementsPanel } from "@/components/requirements-panel";
 
 export function ProjectDetailShell({ project }: { project: Project }) {
@@ -29,6 +30,15 @@ export function ProjectDetailShell({ project }: { project: Project }) {
   function updateField(key: keyof typeof projectForm, value: string) {
     setProjectForm((prev) => ({ ...prev, [key]: value }));
   }
+
+  const workflowCostSummary = useMemo(() => getProjectWorkflowCostSummary(project.id), [project.id]);
+  const workflowAdjustedCost = workflowCostSummary?.label ?? null;
+  const hasWorkflowCost = Boolean(workflowCostSummary && workflowCostSummary.workflowItemCount > 0);
+
+  useEffect(() => {
+    if (!workflowAdjustedCost) return;
+    setProjectForm((prev) => (prev.cost === workflowAdjustedCost ? prev : { ...prev, cost: workflowAdjustedCost }));
+  }, [workflowAdjustedCost]);
 
   return (
     <>
@@ -94,7 +104,8 @@ export function ProjectDetailShell({ project }: { project: Project }) {
                   value={projectForm[key as keyof typeof projectForm]}
                   onChange={(event) => updateField(key as keyof typeof projectForm, event.target.value)}
                   placeholder={placeholder}
-                  className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-blue-400"
+                  readOnly={key === "cost"}
+                  className={`h-11 rounded-2xl border px-4 text-sm outline-none transition ${key === "cost" ? "border-slate-200 bg-slate-50 text-slate-500" : "border-slate-200 bg-white focus:border-blue-400"}`}
                 />
               </label>
             ))}
@@ -134,7 +145,7 @@ export function ProjectDetailShell({ project }: { project: Project }) {
                   contactLine: project.contactLine,
                   owner: project.owner,
                   budget: project.budget,
-                  cost: project.cost,
+                  cost: workflowAdjustedCost ?? project.cost,
                   note: project.note,
                 });
               }}
@@ -146,19 +157,43 @@ export function ProjectDetailShell({ project }: { project: Project }) {
         </section>
       ) : null}
 
-      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-5">
+      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-[repeat(3,minmax(0,1fr))_minmax(0,1.05fr)_minmax(0,1.35fr)]">
         {[
           { label: "活動日期", value: projectForm.eventDate },
           { label: "活動地點", value: projectForm.location },
           { label: "進場時間", value: projectForm.loadInTime },
           { label: "專案預算", value: projectForm.budget },
-          { label: "目前成本", value: projectForm.cost },
         ].map((item) => (
           <article key={item.label} className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
             <p className="text-sm text-slate-500">{item.label}</p>
-            <p className="mt-3 text-2xl font-semibold tracking-tight">{item.value}</p>
+            <p className="mt-3 text-2xl font-semibold tracking-tight text-slate-900">{item.value}</p>
           </article>
         ))}
+
+        <article className="rounded-3xl border border-slate-900 bg-slate-900 p-5 text-white shadow-sm ring-1 ring-slate-900/10">
+          <div className="flex flex-wrap items-center gap-2">
+            <p className="text-sm text-slate-300">目前成本</p>
+            <span className={`inline-flex rounded-full px-2.5 py-1 text-[11px] font-semibold ring-1 ${hasWorkflowCost ? "border border-emerald-400/30 bg-emerald-500/15 text-emerald-100 ring-emerald-400/20" : "border border-white/10 bg-white/10 text-slate-200 ring-white/10"}`}>
+              {hasWorkflowCost ? "workflow 主線" : "seed fallback"}
+            </span>
+          </div>
+          <p className="mt-3 text-3xl font-semibold tracking-tight">{workflowAdjustedCost ?? projectForm.cost}</p>
+          <div className="mt-4 space-y-2 rounded-2xl border border-white/10 bg-white/5 p-3 text-sm text-slate-200">
+            <div className="flex items-start justify-between gap-3">
+              <span className="text-slate-300">主線成本</span>
+              <span className="text-right font-semibold text-white">{workflowAdjustedCost ?? "尚未建立"}</span>
+            </div>
+            <div className="flex items-start justify-between gap-3">
+              <span className="text-slate-300">fallback seed</span>
+              <span className="text-right font-medium text-slate-200">{projectForm.cost}</span>
+            </div>
+          </div>
+          <p className="mt-3 text-xs leading-5 text-slate-300">
+            {hasWorkflowCost
+              ? "上方摘要優先顯示 workflow 成本，對齊下方報價成本主線；原 seed 保留作 fallback 參考。"
+              : "目前尚未接到 workflow 成本，先沿用 seed 顯示；後續一旦有主線成本會自動優先顯示。"}
+          </p>
+        </article>
       </section>
 
       <section className="grid gap-6 2xl:grid-cols-[minmax(0,1.08fr)_minmax(340px,0.92fr)]">
