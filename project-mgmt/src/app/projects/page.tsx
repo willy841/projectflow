@@ -1,8 +1,22 @@
+"use client";
+
+import { useMemo, useState } from "react";
 import Link from "next/link";
 import { AppShell } from "@/components/app-shell";
 import { getStatusClass, projects } from "@/components/project-data";
 
+const parseEventDate = (value: string) => new Date(value).getTime();
+
 export default function ProjectsPage() {
+  const [dateSortOrder, setDateSortOrder] = useState<"asc" | "desc">("asc");
+
+  const sortedProjects = useMemo(() => {
+    return [...projects].sort((a, b) => {
+      const dateDiff = parseEventDate(a.eventDate) - parseEventDate(b.eventDate);
+      return dateSortOrder === "asc" ? dateDiff : -dateDiff;
+    });
+  }, [dateSortOrder]);
+
   return (
     <AppShell activePath="/projects">
       <header className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200 xl:p-7">
@@ -65,9 +79,6 @@ export default function ProjectsPage() {
               placeholder="搜尋專案 / 客戶 / 地點"
               className="h-11 w-full min-w-0 rounded-2xl border border-slate-200 px-4 text-sm outline-none focus:border-slate-400 sm:w-80 xl:w-72"
             />
-            <button className="inline-flex shrink-0 items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 shadow-sm transition hover:border-slate-400 hover:bg-slate-50">
-              依日期排序
-            </button>
           </div>
         </div>
 
@@ -77,7 +88,16 @@ export default function ProjectsPage() {
               <tr>
                 <th className="px-4 py-3 font-medium">專案名稱</th>
                 <th className="px-4 py-3 font-medium">客戶</th>
-                <th className="px-4 py-3 font-medium">活動日期</th>
+                <th className="px-4 py-3 font-medium">
+                  <button
+                    type="button"
+                    onClick={() => setDateSortOrder((current) => (current === "asc" ? "desc" : "asc"))}
+                    className="inline-flex items-center gap-1 text-left transition hover:text-slate-700"
+                  >
+                    <span>活動日期</span>
+                    <span className="text-xs text-slate-400">{dateSortOrder === "asc" ? "↑" : "↓"}</span>
+                  </button>
+                </th>
                 <th className="px-4 py-3 font-medium">地點</th>
                 <th className="px-4 py-3 font-medium">狀態</th>
                 <th className="px-4 py-3 font-medium">預算</th>
@@ -87,7 +107,7 @@ export default function ProjectsPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 bg-white">
-              {projects.map((project) => (
+              {sortedProjects.map((project) => (
                 <tr key={project.id} className="align-middle">
                   <td className="px-4 py-4 align-middle">
                     <Link href={`/projects/${project.id}`} className="font-medium text-slate-900 underline-offset-4 hover:underline">
