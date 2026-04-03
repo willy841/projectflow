@@ -1534,18 +1534,18 @@ export function ExecutionTree({
                         <span className="inline-flex items-center justify-center rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
                           主項目
                         </span>
-                        <span
-                          className={`inline-flex items-center justify-center whitespace-nowrap rounded-full px-3 py-1 text-xs font-medium ring-1 ${getStatusClass(item.status)}`}
-                        >
-                          {item.status}
+                      </div>
+                      <div className="mt-3 flex flex-wrap items-center gap-3">
+                        <h4 className="text-lg font-semibold text-slate-900">
+                          {item.title}
+                        </h4>
+                        <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-600 ring-1 ring-slate-200">
+                          <span aria-hidden="true">≡</span>
+                          <span>{item.children?.length ?? 0}</span>
                         </span>
                       </div>
-                      <h4 className="mt-3 text-lg font-semibold text-slate-900">
-                        {item.title}
-                      </h4>
                       <div className="mt-2 flex flex-wrap gap-3 text-sm text-slate-500">
                         <span>類型：{item.category}</span>
-                        <span>{item.children?.length ?? 0} 個次項目</span>
                         {item.quantity ? (
                           <span>數量：{item.quantity}</span>
                         ) : null}
