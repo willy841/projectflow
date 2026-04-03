@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { CopyEventInfoButton } from "@/components/copy-event-info-button";
 import { ExecutionTreeSection } from "@/components/execution-tree-section";
-import { Project, getStatusClass } from "@/components/project-data";
+import { Project } from "@/components/project-data";
 import { RequirementsPanel } from "@/components/requirements-panel";
 
 export function ProjectDetailShell({ project }: { project: Project }) {
@@ -34,18 +34,11 @@ export function ProjectDetailShell({ project }: { project: Project }) {
     <>
       <header className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
         <div className="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
-          <div>
-            <div className="flex flex-wrap items-center gap-3">
-              <p className="text-sm text-slate-500">{project.code}</p>
-              <span className={`inline-flex items-center justify-center whitespace-nowrap rounded-full px-3 py-1 text-xs font-medium ring-1 ${getStatusClass(project.status)}`}>
-                {project.status}
-              </span>
-            </div>
-            <h2 className="mt-3 text-3xl font-semibold tracking-tight">{projectForm.name}</h2>
-            <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-600">{projectForm.note}</p>
+          <div className="min-w-0 flex-1">
+            <h2 className="text-3xl font-semibold tracking-tight text-slate-900">{projectForm.name}</h2>
           </div>
 
-          <div className="flex flex-wrap gap-3">
+          <div className="flex flex-wrap items-start gap-3 xl:justify-end">
             <CopyEventInfoButton
               projectName={projectForm.name}
               eventDate={projectForm.eventDate}
