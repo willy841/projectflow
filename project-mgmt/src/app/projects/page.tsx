@@ -94,7 +94,6 @@ export default function ProjectsPage() {
               placeholder="搜尋專案 / 客戶 / 地點 / 專案代碼"
               className="h-11 w-full min-w-0 rounded-2xl border border-slate-200 px-4 text-sm outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-200 sm:w-80 xl:w-72"
             />
-            <p className="text-sm text-slate-500">日期排序：{dateSortOrder === "desc" ? "最新在上" : "最舊在上"}</p>
           </div>
         </div>
 
