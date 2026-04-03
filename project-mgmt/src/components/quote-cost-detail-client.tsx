@@ -19,15 +19,32 @@ import {
 
 type Props = {
   project: QuoteCostProject;
+  mode?: "active" | "closed";
 };
 
 type EditableProjectState = QuoteCostProject;
 
-export function QuoteCostDetailClient({ project }: Props) {
+const detailConfig = {
+  active: {
+    activePath: "/quote-costs",
+    pageEyebrow: "Quote Cost Detail",
+    backHref: "/quote-costs",
+    backLabel: "返回報價成本列表",
+  },
+  closed: {
+    activePath: "/closeouts",
+    pageEyebrow: "Project Closeout Detail",
+    backHref: "/closeouts",
+    backLabel: "返回結案列表",
+  },
+} as const;
+
+export function QuoteCostDetailClient({ project, mode = "active" }: Props) {
   const [state, setState] = useState<EditableProjectState>(project);
   const [quoteImportIndex, setQuoteImportIndex] = useState(0);
   const quoteImportOptions = sampleQuoteImports[project.id] ?? [project.quotationImport].filter(Boolean);
   const quoteLineItemOptions = sampleQuoteLineItemsByProject[project.id] ?? [project.quotationItems];
+  const config = detailConfig[mode];
 
   const quotationTotal = useMemo(() => getQuotationTotal(state.quotationItems), [state.quotationItems]);
   const adjustedCostTotal = useMemo(() => getAdjustedCostTotal(state.costItems), [state.costItems]);
@@ -153,16 +170,16 @@ export function QuoteCostDetailClient({ project }: Props) {
   }
 
   return (
-    <AppShell activePath="/quote-costs">
+    <AppShell activePath={config.activePath}>
       <header className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200 xl:p-7">
         <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
           <div>
-            <p className="text-sm text-slate-500">Quote Cost Detail</p>
+            <p className="text-sm text-slate-500">{config.pageEyebrow}</p>
             <h2 className="mt-1 text-3xl font-semibold tracking-tight text-slate-900">{state.projectName}</h2>
             <p className="mt-2 text-sm text-slate-500">{state.projectCode} ・ {state.clientName} ・ {state.eventDate}</p>
           </div>
-          <Link href="/quote-costs" className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 transition hover:border-slate-400 hover:bg-slate-50">
-            返回列表
+          <Link href={config.backHref} className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 transition hover:border-slate-400 hover:bg-slate-50">
+            {config.backLabel}
           </Link>
         </div>
       </header>
