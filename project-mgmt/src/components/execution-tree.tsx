@@ -582,14 +582,12 @@ function VendorAssignmentForm({
               廠商
             </span>
           </div>
-          <p className="mt-1 text-sm text-slate-600">來源項目：{title}</p>
         </div>
       </div>
 
       {saved && !isEditing ? (
         <SavedSummary
           title={saved.title || title}
-          subtitle="廠商交辦主層欄位已依 spec v1 收斂"
           summary={[
             saved.vendorName ? `廠商：${saved.vendorName}` : null,
             saved.category ? `工種：${saved.category}` : null,
