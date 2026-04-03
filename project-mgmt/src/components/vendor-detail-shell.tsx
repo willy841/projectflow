@@ -183,19 +183,18 @@ export function VendorDetailShell({ vendorId }: Props) {
   }
 
   function toggleTrade(trade: string) {
-    if (!vendor) return;
-    const currentTrades = vendor.tradeLabels ?? [];
+    const currentTrades = currentVendor.tradeLabels ?? [];
     const nextTrades = currentTrades.includes(trade)
       ? currentTrades.filter((item) => item !== trade)
       : [...currentTrades, trade];
-    updateVendor(vendor.id, {
+    updateVendor(currentVendor.id, {
       tradeLabels: nextTrades,
-      category: nextTrades[0] || vendor.category || "待補充",
+      category: nextTrades[0] || currentVendor.category || "待補充",
     });
   }
 
   function handleDeleteVendor() {
-    deleteVendor(vendor.id);
+    deleteVendor(currentVendor.id);
     setIsDeleteDialogOpen(false);
     router.push("/vendors");
   }
