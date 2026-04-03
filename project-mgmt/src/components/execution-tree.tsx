@@ -584,9 +584,6 @@ function VendorAssignmentForm({
           </div>
           <p className="mt-1 text-sm text-slate-600">來源項目：{title}</p>
         </div>
-        <div className="text-xs text-slate-500">
-          主卡只保留摘要與入口，不延伸成財務工作台
-        </div>
       </div>
 
       {saved && !isEditing ? (
