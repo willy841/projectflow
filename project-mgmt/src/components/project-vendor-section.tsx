@@ -209,96 +209,93 @@ export function ProjectVendorSection({
                   </span>
                 </div>
 
-                <div className="mt-4 grid gap-4 xl:grid-cols-[minmax(0,1fr)_220px_280px] xl:grid-rows-[auto_1fr] xl:items-start">
-                  <div className="space-y-4 xl:row-span-2">
-                    <label className="block">
-                      <p className="mb-2 text-sm font-medium text-slate-700">任務標題</p>
-                      <input
-                        value={assignment.title}
-                        onChange={(event) => handleAssignmentChange(assignment.id, { title: event.target.value })}
-                        disabled={isSubmitted}
-                        className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-500"
-                      />
-                    </label>
+                <div className="mt-4 grid gap-4 xl:grid-cols-[minmax(0,1.35fr)_220px_280px] xl:grid-rows-[auto_auto] xl:items-start">
+                  <label className="block">
+                    <p className="mb-2 flex h-6 items-center text-sm font-medium text-slate-700">任務標題</p>
+                    <input
+                      value={assignment.title}
+                      onChange={(event) => handleAssignmentChange(assignment.id, { title: event.target.value })}
+                      disabled={isSubmitted}
+                      className="h-12 w-full rounded-2xl border border-slate-300 bg-white px-4 text-sm text-slate-900 disabled:cursor-not-allowed disabled:border-slate-200 disabled:bg-slate-100 disabled:text-slate-500"
+                    />
+                  </label>
 
-                    <label className="block">
-                      <p className="mb-2 text-sm font-medium text-slate-700">需求說明</p>
-                      <textarea
-                        value={assignment.summary}
-                        onChange={(event) => handleAssignmentChange(assignment.id, { summary: event.target.value })}
-                        disabled={isSubmitted}
-                        rows={4}
-                        className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-500"
-                      />
-                    </label>
+                  <label className="block">
+                    <p className="mb-2 flex h-6 items-center text-sm font-medium text-slate-700">工種</p>
+                    <input
+                      value={assignment.tradeLabel || ""}
+                      onChange={(event) => handleAssignmentChange(assignment.id, { tradeLabel: event.target.value })}
+                      disabled={isSubmitted}
+                      className="h-12 w-full rounded-2xl border border-slate-300 bg-white px-4 text-sm text-slate-900 disabled:cursor-not-allowed disabled:border-slate-200 disabled:bg-slate-100 disabled:text-slate-500"
+                    />
+                  </label>
+
+                  <div>
+                    <div className="mb-2 flex h-6 items-center justify-between gap-2">
+                      <p className="text-sm font-medium text-slate-700">選擇廠商</p>
+                      {!isSubmitted ? (
+                        <button
+                          type="button"
+                          onClick={() => setQuickCreateAssignmentId(assignment.id)}
+                          title="快速建立廠商"
+                          aria-label="快速建立廠商"
+                          className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-dashed border-slate-300 bg-white text-[11px] font-semibold leading-none text-slate-700 transition hover:bg-slate-50"
+                        >
+                          +
+                        </button>
+                      ) : null}
+                    </div>
+                    <select
+                      value={selectedVendorName}
+                      onChange={(event) => handleAssignmentChange(assignment.id, { selectedVendorName: event.target.value })}
+                      disabled={isSubmitted}
+                      className="h-12 w-full rounded-2xl border border-slate-300 bg-white px-4 text-sm text-slate-900 disabled:cursor-not-allowed disabled:border-slate-200 disabled:bg-slate-100 disabled:text-slate-500"
+                    >
+                      <option value="">請選擇廠商</option>
+                      {vendors.map((vendor) => (
+                        <option key={vendor.id} value={vendor.name}>{vendor.name}</option>
+                      ))}
+                    </select>
                   </div>
 
-                  <div className="space-y-4 xl:row-span-2">
-                    <label className="block">
-                      <p className="mb-2 text-sm font-medium text-slate-700">工種</p>
-                      <input
-                        value={assignment.tradeLabel || ""}
-                        onChange={(event) => handleAssignmentChange(assignment.id, { tradeLabel: event.target.value })}
-                        disabled={isSubmitted}
-                        className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-500"
-                      />
-                    </label>
-                    <label className="block">
-                      <p className="mb-2 text-sm font-medium text-slate-700">廠商報價</p>
-                      <input
-                        value={assignment.budget}
-                        onChange={(event) => handleAssignmentChange(assignment.id, { budget: event.target.value })}
-                        className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900"
-                      />
-                    </label>
-                  </div>
+                  <label className="block">
+                    <p className="mb-2 flex h-6 items-center text-sm font-medium text-slate-700">需求說明</p>
+                    <textarea
+                      value={assignment.summary}
+                      onChange={(event) => handleAssignmentChange(assignment.id, { summary: event.target.value })}
+                      disabled={isSubmitted}
+                      rows={4}
+                      className="min-h-[112px] w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 disabled:cursor-not-allowed disabled:border-slate-200 disabled:bg-slate-100 disabled:text-slate-500"
+                    />
+                  </label>
 
-                  <div className="flex flex-col gap-4 xl:row-span-2">
-                    <div>
-                      <div className="mb-2 flex h-6 items-center gap-1.5">
-                        {!isSubmitted ? (
-                          <button
-                            type="button"
-                            onClick={() => setQuickCreateAssignmentId(assignment.id)}
-                            title="快速建立廠商"
-                            aria-label="快速建立廠商"
-                            className="inline-flex h-6 w-6 items-center justify-center rounded-full border border-dashed border-slate-300 bg-white text-[11px] font-semibold leading-none text-slate-700 transition hover:bg-slate-50"
-                          >
-                            +
-                          </button>
-                        ) : null}
-                        <p className="text-sm font-medium text-slate-700">選擇廠商</p>
-                      </div>
-                      <select
-                        value={selectedVendorName}
-                        onChange={(event) => handleAssignmentChange(assignment.id, { selectedVendorName: event.target.value })}
-                        disabled={isSubmitted}
-                        className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-500"
-                      >
-                        <option value="">請選擇廠商</option>
-                        {vendors.map((vendor) => (
-                          <option key={vendor.id} value={vendor.name}>{vendor.name}</option>
-                        ))}
-                      </select>
+                  <label className="block">
+                    <p className="mb-2 flex h-6 items-center text-sm font-medium text-slate-600">廠商報價</p>
+                    <input
+                      value={assignment.budget}
+                      onChange={(event) => handleAssignmentChange(assignment.id, { budget: event.target.value })}
+                      disabled={isSubmitted}
+                      className="h-12 w-full rounded-2xl border border-slate-300 bg-white px-4 text-sm text-slate-900 disabled:cursor-not-allowed disabled:border-slate-200 disabled:bg-slate-100 disabled:text-slate-500"
+                    />
+                  </label>
+
+                  <div className="flex h-full flex-col">
+                    <p className="mb-2 flex h-6 items-center text-sm font-medium text-slate-700">送出</p>
+                    <button
+                      type="button"
+                      disabled={!canSubmit}
+                      onClick={() => handleSend({ ...assignment, selectedVendorName })}
+                      className="inline-flex h-12 w-full items-center justify-center rounded-2xl bg-slate-900 px-4 text-sm font-semibold text-white shadow-sm transition disabled:cursor-not-allowed disabled:bg-slate-300"
+                    >
+                      {isSubmitted ? "已送出" : "送出"}
+                    </button>
+                    <div className="mt-3 min-h-10">
+                      {inlineErrors[assignment.id] ? (
+                        <p className="text-xs leading-5 text-rose-600">{inlineErrors[assignment.id]}</p>
+                      ) : isSubmitted ? (
+                        <p className="text-xs leading-5 text-slate-500">已送出後主欄位已鎖定；後續整理請到 package 內進行。</p>
+                      ) : null}
                     </div>
-
-                    <div className="flex-1" />
-
-                    <div className="flex items-end">
-                      <button
-                        type="button"
-                        disabled={!canSubmit}
-                        onClick={() => handleSend({ ...assignment, selectedVendorName })}
-                        className="inline-flex h-12 w-full items-center justify-center rounded-2xl bg-slate-900 px-4 text-sm font-semibold text-white shadow-sm disabled:cursor-not-allowed disabled:bg-slate-300"
-                      >
-                        送出
-                      </button>
-                    </div>
-
-                    {inlineErrors[assignment.id] ? (
-                      <p className="text-xs leading-5 text-rose-600">{inlineErrors[assignment.id]}</p>
-                    ) : null}
-                    {isSubmitted ? <p className="text-xs leading-5 text-slate-500">已送出後不可再次送出；後續整理請到 package 內進行。</p> : null}
                   </div>
                 </div>
               </div>
