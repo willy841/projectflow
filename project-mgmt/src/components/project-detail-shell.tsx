@@ -163,13 +163,9 @@ export function ProjectDetailShell({ project }: { project: Project }) {
 
       <section className="grid gap-6 2xl:grid-cols-[minmax(0,1.08fr)_minmax(340px,0.92fr)]">
         <article className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
-          <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div className="mb-4">
             <div className="min-w-0">
               <h3 className="text-xl font-semibold">專案基本資訊</h3>
-            </div>
-            <div className="text-left text-sm text-slate-500 sm:text-right">
-              <p>負責人：{projectForm.owner}</p>
-              <p className="mt-1">進度：{project.progress}%</p>
             </div>
           </div>
 
