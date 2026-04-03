@@ -771,7 +771,7 @@ function AssignmentMenu({
       <button
         type="button"
         onClick={() => onToggle(targetId)}
-        className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm font-semibold text-slate-800 transition hover:bg-slate-50"
+        className="inline-flex h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-800 transition hover:bg-slate-50"
       >
         交辦
       </button>
@@ -1535,17 +1535,17 @@ export function ExecutionTree({
                           主項目
                         </span>
                       </div>
-                      <div className="mt-3 flex flex-wrap items-center gap-3">
+                      <div className="mt-3 flex flex-wrap items-center gap-2">
                         <h4 className="text-lg font-semibold text-slate-900">
                           {item.title}
                         </h4>
-                        <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-600 ring-1 ring-slate-200">
+                        <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2 py-1 text-xs font-medium text-slate-500 ring-1 ring-slate-200">
                           <span aria-hidden="true">≡</span>
                           <span>{item.children?.length ?? 0}</span>
                         </span>
                       </div>
                       <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
-                        <div className="flex flex-wrap items-center justify-between gap-3 text-sm text-slate-600">
+                        <div className="flex flex-wrap items-center justify-between gap-3 text-sm text-slate-500">
                           <div className="flex flex-wrap items-center gap-2">
                             {savedDesignAssignments[item.id] ? (
                               <span className="inline-flex items-center justify-center rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700 ring-1 ring-blue-200">
@@ -1578,7 +1578,7 @@ export function ExecutionTree({
                               </button>
                             ) : null}
                           </div>
-                          <span className="text-xs text-slate-500">
+                          <span className="text-xs text-slate-400">
                             主卡摘要
                           </span>
                         </div>
@@ -1602,14 +1602,14 @@ export function ExecutionTree({
                 <button
                   type="button"
                   onClick={() => startEditingMain(item.id, item.title)}
-                  className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm font-semibold text-slate-800 transition hover:bg-slate-50"
+                  className="inline-flex h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-800 transition hover:bg-slate-50"
                 >
                   編輯
                 </button>
                 <button
                   type="button"
                   onClick={() => removeMain(item.id)}
-                  className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-rose-200 bg-white px-4 py-3 text-sm font-semibold text-rose-600 transition hover:bg-rose-50"
+                  className="inline-flex h-11 items-center justify-center rounded-2xl border border-rose-200 bg-white px-4 text-sm font-semibold text-rose-600 transition hover:bg-rose-50"
                 >
                   刪除
                 </button>
