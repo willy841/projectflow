@@ -1531,11 +1531,11 @@ export function ExecutionTree({
                         <span className="inline-flex items-center justify-center rounded-full bg-slate-900 px-3 py-1 text-xs font-semibold text-white">
                           #{itemIndex + 1}
                         </span>
-                        <span className="inline-flex items-center justify-center rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
+                        <span className="inline-flex items-center justify-center rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600 ring-1 ring-slate-200">
                           主項目
                         </span>
                       </div>
-                      <div className="mt-3 flex flex-wrap items-center gap-2">
+                      <div className="mt-2.5 flex flex-wrap items-center gap-2">
                         <h4 className="text-lg font-semibold text-slate-900">
                           {item.title}
                         </h4>
@@ -1544,7 +1544,7 @@ export function ExecutionTree({
                           <span>{item.children?.length ?? 0}</span>
                         </span>
                       </div>
-                      <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50/70 px-4 py-2.5">
+                      <div className="mt-3.5 rounded-2xl border border-slate-100 bg-slate-50/60 px-4 py-2">
                         <div className="flex flex-wrap items-center justify-between gap-3 text-sm text-slate-400">
                           <div className="flex flex-wrap items-center gap-2">
                             {savedDesignAssignments[item.id] ? (
@@ -1753,10 +1753,10 @@ export function ExecutionTree({
                                     {child.status}
                                   </span>
                                 </div>
-                                <h5 className="mt-3 font-medium text-slate-900">
+                                <h5 className="mt-2.5 font-medium text-slate-900">
                                   {child.title}
                                 </h5>
-                                <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50/70 px-4 py-2.5">
+                                <div className="mt-3.5 rounded-2xl border border-slate-100 bg-slate-50/60 px-4 py-2">
                                   <div className="flex flex-wrap items-center justify-between gap-3 text-sm text-slate-400">
                                     <div className="flex flex-wrap items-center gap-2">
                                       {savedDesignAssignments[child.id] ? (
