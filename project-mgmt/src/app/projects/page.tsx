@@ -54,15 +54,15 @@ export default function ProjectsPage() {
 
           <div className="grid gap-3 sm:grid-cols-3 2xl:min-w-[420px]">
             <article className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
-              <p className="text-[11px] font-semibold tracking-[0.14em] text-slate-500">全部專案</p>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500">全部專案</p>
               <p className="mt-2 text-2xl font-semibold tracking-tight text-slate-900">{projects.length}</p>
             </article>
             <article className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
-              <p className="text-[11px] font-semibold tracking-[0.14em] text-slate-500">執行中</p>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500">執行中</p>
               <p className="mt-2 text-2xl font-semibold tracking-tight text-slate-900">{statusCounts["執行中"]}</p>
             </article>
             <article className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
-              <p className="text-[11px] font-semibold tracking-[0.14em] text-slate-500">平均進度</p>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500">平均進度</p>
               <p className="mt-2 text-2xl font-semibold tracking-tight text-slate-900">
                 {Math.round(projects.reduce((total, project) => total + project.progress, 0) / projects.length)}%
               </p>
@@ -137,66 +137,70 @@ export default function ProjectsPage() {
         </div>
 
         <div className="mt-5 overflow-x-auto rounded-2xl border border-slate-200">
-          <table className="min-w-[1280px] divide-y divide-slate-200 text-sm xl:min-w-full">
+          <table className="min-w-[1280px] table-fixed divide-y divide-slate-200 text-left text-sm xl:min-w-full">
             <colgroup>
-              <col className="w-[28%]" />
+              <col className="w-[24%]" />
               <col className="w-[10%]" />
               <col className="w-[12%]" />
               <col className="w-[10%]" />
               <col className="w-[16%]" />
               <col className="w-[10%]" />
-              <col className="w-[8%]" />
-              <col className="w-[8%]" />
-              <col className="w-[12%]" />
+              <col className="w-[8.5%]" />
+              <col className="w-[8.5%]" />
+              <col className="w-[11%]" />
             </colgroup>
             <thead className="bg-slate-50 text-slate-500">
               <tr>
-                <th className="px-5 py-3 text-left font-medium">專案</th>
-                <th className="px-4 py-3 text-left font-medium">活動日期</th>
-                <th className="px-4 py-3 text-left font-medium">客戶</th>
-                <th className="px-4 py-3 text-left font-medium">狀態</th>
-                <th className="px-4 py-3 text-left font-medium">地點</th>
-                <th className="px-4 py-3 text-left font-medium">負責人</th>
+                <th className="px-4 py-3 font-medium">專案 / 代碼</th>
+                <th className="px-4 py-3 font-medium">活動日期</th>
+                <th className="px-4 py-3 font-medium">客戶</th>
+                <th className="px-4 py-3 font-medium">狀態</th>
+                <th className="px-4 py-3 font-medium">地點</th>
+                <th className="px-4 py-3 font-medium">負責人</th>
                 <th className="px-4 py-3 text-right font-medium">預算</th>
                 <th className="px-4 py-3 text-right font-medium">成本</th>
-                <th className="px-5 py-3 text-left font-medium">進度</th>
+                <th className="px-4 py-3 font-medium">進度</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 bg-white">
               {visibleProjects.map((project) => (
                 <tr key={project.id} className="align-middle transition hover:bg-slate-50/70">
-                  <td className="px-5 py-4 align-middle">
-                    <div className="flex items-start gap-3">
-                      <span className="inline-flex min-w-[64px] items-center justify-center rounded-2xl bg-slate-900 px-3 py-2 text-xs font-semibold tracking-[0.12em] text-white">
-                        {project.code}
-                      </span>
-                      <div className="min-w-0">
-                        <Link href={`/projects/${project.id}`} className="line-clamp-2 text-sm font-semibold text-slate-900 underline-offset-4 hover:underline">
-                          {project.name}
-                        </Link>
-                        <p className="mt-1 text-xs text-slate-500">{project.client} ・ {project.owner}</p>
+                  <td className="px-4 py-4 align-middle">
+                    <div className="min-w-0">
+                      <div className="flex items-start gap-3">
+                        <span className="mt-0.5 inline-flex h-8 min-w-8 items-center justify-center rounded-xl bg-slate-900 px-2 text-xs font-semibold text-white">
+                          {project.code.slice(0, 2)}
+                        </span>
+                        <div className="min-w-0">
+                          <Link href={`/projects/${project.id}`} className="line-clamp-2 font-semibold text-slate-900 underline-offset-4 hover:underline">
+                            {project.name}
+                          </Link>
+                          <p className="mt-1 text-xs font-medium tracking-[0.08em] text-slate-500">{project.code}</p>
+                        </div>
                       </div>
                     </div>
                   </td>
-                  <td className="px-4 py-4 align-middle text-left text-sm font-medium text-slate-700">{project.eventDate}</td>
-                  <td className="px-4 py-4 align-middle text-left text-slate-600">{project.client}</td>
-                  <td className="px-4 py-4 align-middle text-left">
-                    <span className={`inline-flex min-w-[84px] items-center justify-center whitespace-nowrap rounded-full px-3 py-1 text-xs font-medium ring-1 ${getStatusClass(project.status)}`}>
+                  <td className="px-4 py-4 align-middle text-slate-600">{project.eventDate}</td>
+                  <td className="px-4 py-4 align-middle text-slate-600">{project.client}</td>
+                  <td className="px-4 py-4 align-middle">
+                    <span className={`inline-flex min-w-[72px] items-center justify-center whitespace-nowrap rounded-full px-3 py-1 text-xs font-medium ring-1 ${getStatusClass(project.status)}`}>
                       {project.status}
                     </span>
                   </td>
-                  <td className="px-4 py-4 align-middle text-left text-slate-600">{project.location}</td>
-                  <td className="px-4 py-4 align-middle text-left text-slate-600">{project.owner}</td>
-                  <td className="px-4 py-4 align-middle text-right font-medium tabular-nums text-slate-700">{project.budget}</td>
-                  <td className="px-4 py-4 align-middle text-right font-medium tabular-nums text-slate-700">{project.cost}</td>
-                  <td className="px-5 py-4 align-middle">
+                  <td className="px-4 py-4 align-middle text-slate-600">
+                    <p className="line-clamp-2">{project.location}</p>
+                  </td>
+                  <td className="px-4 py-4 align-middle text-slate-600">{project.owner}</td>
+                  <td className="px-4 py-4 text-right align-middle font-medium tabular-nums text-slate-700">{project.budget}</td>
+                  <td className="px-4 py-4 text-right align-middle font-medium tabular-nums text-slate-700">{project.cost}</td>
+                  <td className="px-4 py-4 align-middle">
                     <div className="space-y-2">
-                      <div className="flex items-center justify-between gap-3 text-xs font-medium text-slate-500">
+                      <div className="flex items-center justify-between gap-3 text-xs text-slate-500">
                         <span>進度</span>
-                        <span className="tabular-nums text-slate-700">{project.progress}%</span>
+                        <span className="font-semibold tabular-nums text-slate-700">{project.progress}%</span>
                       </div>
-                      <div className="h-2.5 overflow-hidden rounded-full bg-slate-100">
-                        <div className="h-full rounded-full bg-slate-900" style={{ width: `${project.progress}%` }} />
+                      <div className="h-2.5 w-full rounded-full bg-slate-100">
+                        <div className="h-2.5 rounded-full bg-slate-900" style={{ width: `${project.progress}%` }} />
                       </div>
                     </div>
                   </td>

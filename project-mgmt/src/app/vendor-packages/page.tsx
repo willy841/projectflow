@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { AppShell } from "@/components/app-shell";
-import { getVendorDocumentStatusClass, vendorPackages } from "@/components/vendor-data";
+import { getVendorDocumentStatusClass } from "@/components/vendor-data";
+import { getStoredVendorPackages } from "@/components/vendor-package-store";
 
 type DocumentFilter = "全部" | "未生成" | "需更新" | "已生成";
 
@@ -16,11 +17,12 @@ function getDocumentStatusMessage(status: "未生成" | "已生成" | "需更新
 export default function VendorPackagesPage() {
   const [documentFilter, setDocumentFilter] = useState<DocumentFilter>("全部");
   const [searchKeyword, setSearchKeyword] = useState("");
+  const packageRecords = getStoredVendorPackages();
 
   const visiblePackages = useMemo(() => {
     const keyword = searchKeyword.trim().toLowerCase();
 
-    return vendorPackages
+    return packageRecords
       .filter((item) => (documentFilter === "全部" ? true : item.documentStatus === documentFilter))
       .filter((item) => {
         if (!keyword) return true;
@@ -31,13 +33,13 @@ export default function VendorPackagesPage() {
         if (dateDiff !== 0) return dateDiff;
         return a.vendorName.localeCompare(b.vendorName, "zh-Hant");
       });
-  }, [documentFilter, searchKeyword]);
+  }, [documentFilter, packageRecords, searchKeyword]);
 
   const statusCounts = {
-    全部: vendorPackages.length,
-    未生成: vendorPackages.filter((item) => item.documentStatus === "未生成").length,
-    需更新: vendorPackages.filter((item) => item.documentStatus === "需更新").length,
-    已生成: vendorPackages.filter((item) => item.documentStatus === "已生成").length,
+    全部: packageRecords.length,
+    未生成: packageRecords.filter((item) => item.documentStatus === "未生成").length,
+    需更新: packageRecords.filter((item) => item.documentStatus === "需更新").length,
+    已生成: packageRecords.filter((item) => item.documentStatus === "已生成").length,
   } as const;
 
   return (
@@ -55,7 +57,7 @@ export default function VendorPackagesPage() {
           <div className="grid gap-3 sm:grid-cols-3 2xl:min-w-[430px]">
             <article className="rounded-2xl bg-white/80 px-4 py-3 ring-1 ring-blue-100">
               <p className="text-xs font-medium text-slate-500">全部發包單</p>
-              <p className="mt-2 text-2xl font-semibold text-slate-900">{vendorPackages.length}</p>
+              <p className="mt-2 text-2xl font-semibold text-slate-900">{packageRecords.length}</p>
             </article>
             <article className="rounded-2xl bg-white/80 px-4 py-3 ring-1 ring-blue-100">
               <p className="text-xs font-medium text-slate-500">待生成 / 更新</p>

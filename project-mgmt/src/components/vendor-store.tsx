@@ -34,6 +34,7 @@ type VendorStoreContextValue = {
   deleteVendor: (id: string) => void;
   createTrade: (name: string) => CreateTradeResult;
   deleteTrade: (name: string) => DeleteTradeResult;
+  getTradeUsage: (name: string) => VendorBasicProfile[];
   getVendorById: (id: string) => VendorBasicProfile | undefined;
   getVendorByName: (name: string) => VendorBasicProfile | undefined;
 };
@@ -265,6 +266,9 @@ export function VendorStoreProvider({ children }: { children: React.ReactNode })
           return nextTrades;
         });
         return { ok: true as const };
+      },
+      getTradeUsage(name) {
+        return vendors.filter((vendor) => (vendor.tradeLabels ?? []).includes(name));
       },
       getVendorById(id) {
         return vendors.find((vendor) => vendor.id === id);
