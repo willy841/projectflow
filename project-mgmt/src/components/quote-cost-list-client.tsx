@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useMemo, useState } from "react";
 import { AppShell } from "@/components/app-shell";
 import {
   formatCurrency,
@@ -10,11 +11,32 @@ import {
   getQuotationTotal,
   getReconciliationStatusClass,
   type CostSourceType,
+  type QuoteCostProject,
 } from "@/components/quote-cost-data";
-import { getQuoteCostProjectsWithWorkflow } from "@/components/project-workflow-store";
+import {
+  getQuoteCostProjectsWithWorkflow,
+  PROJECTFLOW_WORKFLOW_UPDATED_EVENT,
+} from "@/components/project-workflow-store";
 
 export function QuoteCostListClient({ mode = "active" }: { mode?: "active" | "closed" }) {
-  const activeProjects = getQuoteCostProjectsWithWorkflow()
+  const [projects, setProjects] = useState<QuoteCostProject[]>(() => getQuoteCostProjectsWithWorkflow());
+
+  useEffect(() => {
+    const refreshProjects = () => setProjects(getQuoteCostProjectsWithWorkflow());
+
+    refreshProjects();
+    window.addEventListener(PROJECTFLOW_WORKFLOW_UPDATED_EVENT, refreshProjects);
+    window.addEventListener("focus", refreshProjects);
+    window.addEventListener("storage", refreshProjects);
+
+    return () => {
+      window.removeEventListener(PROJECTFLOW_WORKFLOW_UPDATED_EVENT, refreshProjects);
+      window.removeEventListener("focus", refreshProjects);
+      window.removeEventListener("storage", refreshProjects);
+    };
+  }, []);
+
+  const activeProjects = useMemo(() => projects
     .filter((project) => project.projectStatus === "執行中")
     .map((project) => {
       const quotationTotal = getQuotationTotal(project.quotationItems);
@@ -42,7 +64,7 @@ export function QuoteCostListClient({ mode = "active" }: { mode?: "active" | "cl
     .sort((a, b) => {
       if (b.needsAttentionScore !== a.needsAttentionScore) return b.needsAttentionScore - a.needsAttentionScore;
       return a.project.eventDate.localeCompare(b.project.eventDate);
-    });
+    }), [projects]);
 
   if (mode === "closed") {
     return null;

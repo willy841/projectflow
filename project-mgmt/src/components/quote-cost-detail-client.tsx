@@ -21,7 +21,10 @@ import {
   type CostLineItem,
   type CostSourceType,
 } from "@/components/quote-cost-data";
-import { getQuoteCostProjectsWithWorkflow } from "@/components/project-workflow-store";
+import {
+  getQuoteCostProjectsWithWorkflow,
+  PROJECTFLOW_WORKFLOW_UPDATED_EVENT,
+} from "@/components/project-workflow-store";
 import { getRelationsByProjectId } from "@/components/project-vendor-financial-store";
 
 type DetailMode = "active" | "closed";
@@ -33,9 +36,13 @@ type Props = {
 
 type EditableProjectState = QuoteCostProject;
 
+function getWorkflowProjectById(projectId: string) {
+  return getQuoteCostProjectsWithWorkflow().find((item) => item.id === projectId) ?? null;
+}
+
 export function QuoteCostDetailClient({ projectId, mode = "active" }: Props) {
   const { vendors } = useVendorStore();
-  const workflowProject = getQuoteCostProjectsWithWorkflow().find((item) => item.id === projectId) ?? null;
+  const workflowProject = useMemo(() => getWorkflowProjectById(projectId), [projectId]);
   const [state, setState] = useState<EditableProjectState | null>(() => workflowProject);
   const [quoteImportIndex, setQuoteImportIndex] = useState(0);
   const [quickCreateItemId, setQuickCreateItemId] = useState<string | null>(null);
@@ -45,6 +52,27 @@ export function QuoteCostDetailClient({ projectId, mode = "active" }: Props) {
     if (!state) return;
     upsertStoredQuoteCostProject(state);
   }, [state]);
+
+  useEffect(() => {
+    setState(workflowProject);
+  }, [workflowProject]);
+
+  useEffect(() => {
+    const refreshWorkflowProject = () => {
+      setState(getWorkflowProjectById(projectId));
+    };
+
+    refreshWorkflowProject();
+    window.addEventListener(PROJECTFLOW_WORKFLOW_UPDATED_EVENT, refreshWorkflowProject);
+    window.addEventListener("focus", refreshWorkflowProject);
+    window.addEventListener("storage", refreshWorkflowProject);
+
+    return () => {
+      window.removeEventListener(PROJECTFLOW_WORKFLOW_UPDATED_EVENT, refreshWorkflowProject);
+      window.removeEventListener("focus", refreshWorkflowProject);
+      window.removeEventListener("storage", refreshWorkflowProject);
+    };
+  }, [projectId]);
 
   const quoteImportOptions = state ? sampleQuoteImports[state.id] ?? [state.quotationImport].filter(Boolean) : [];
   const quoteLineItemOptions = state ? sampleQuoteLineItemsByProject[state.id] ?? [state.quotationItems] : [];

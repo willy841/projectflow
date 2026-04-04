@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useMemo, useState } from "react";
 import { AppShell } from "@/components/app-shell";
 import {
   formatCurrency,
@@ -9,12 +10,33 @@ import {
   getGrossProfit,
   getQuotationTotal,
   getReconciliationStatusClass,
+  type QuoteCostProject,
 } from "@/components/quote-cost-data";
-import { getQuoteCostProjectsWithWorkflow } from "@/components/project-workflow-store";
+import {
+  getQuoteCostProjectsWithWorkflow,
+  PROJECTFLOW_WORKFLOW_UPDATED_EVENT,
+} from "@/components/project-workflow-store";
 import { getRelationsByProjectId } from "@/components/project-vendor-financial-store";
 
 export function CloseoutListClient() {
-  const closedProjects = getQuoteCostProjectsWithWorkflow()
+  const [projects, setProjects] = useState<QuoteCostProject[]>(() => getQuoteCostProjectsWithWorkflow());
+
+  useEffect(() => {
+    const refreshProjects = () => setProjects(getQuoteCostProjectsWithWorkflow());
+
+    refreshProjects();
+    window.addEventListener(PROJECTFLOW_WORKFLOW_UPDATED_EVENT, refreshProjects);
+    window.addEventListener("focus", refreshProjects);
+    window.addEventListener("storage", refreshProjects);
+
+    return () => {
+      window.removeEventListener(PROJECTFLOW_WORKFLOW_UPDATED_EVENT, refreshProjects);
+      window.removeEventListener("focus", refreshProjects);
+      window.removeEventListener("storage", refreshProjects);
+    };
+  }, []);
+
+  const closedProjects = useMemo(() => projects
     .filter((project) => project.projectStatus === "已結案")
     .map((project) => {
       const quotationTotal = getQuotationTotal(project.quotationItems);
@@ -37,7 +59,7 @@ export function CloseoutListClient() {
         unpaidAmount,
       };
     })
-    .sort((a, b) => b.project.eventDate.localeCompare(a.project.eventDate));
+    .sort((a, b) => b.project.eventDate.localeCompare(a.project.eventDate)), [projects]);
 
   const fullyReconciled = closedProjects.filter(({ project }) => project.reconciliationStatus === "已完成");
   const latestEventDate = closedProjects[0]?.project.eventDate ?? "-";
