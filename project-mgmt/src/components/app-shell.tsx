@@ -10,9 +10,9 @@ const navItems = [
   { label: "廠商發包清單", href: "/vendor-packages" },
   { label: "報價成本", href: "/quote-costs" },
   { label: "結案", href: "/closeouts" },
-  { label: "帳務中心", href: "#" },
-  { label: "報表分析", href: "#" },
-  { label: "系統設定", href: "#" },
+  { label: "帳務中心", href: null },
+  { label: "報表分析", href: null },
+  { label: "系統設定", href: null },
 ];
 
 export function AppShell({
@@ -36,11 +36,15 @@ export function AppShell({
 
           <nav className="space-y-2 text-sm">
             {navItems.map((item) => {
-              const isActive = item.href !== "#" && activePath === item.href;
+              const isActive = Boolean(item.href) && activePath === item.href;
 
-              if (item.href === "#") {
+              if (!item.href) {
                 return (
-                  <div key={item.label} className="rounded-2xl px-4 py-3 text-slate-300 hover:bg-white/6">
+                  <div
+                    key={item.label}
+                    aria-disabled="true"
+                    className="cursor-not-allowed rounded-2xl px-4 py-3 text-slate-500 opacity-70"
+                  >
                     {item.label}
                   </div>
                 );
