@@ -453,20 +453,6 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
     VendorAssignmentItem[]
   >([]);
   const [openCategory, setOpenCategory] = useState<OpenCategory>("design");
-  const [activeReplyBoxId, setActiveReplyBoxId] = useState<string | null>(null);
-  const [expandedDetailId, setExpandedDetailId] = useState<string | null>(null);
-  const [expandedReplyListId, setExpandedReplyListId] = useState<string | null>(
-    null,
-  );
-  const [expandedReplyDetailId, setExpandedReplyDetailId] = useState<
-    string | null
-  >(null);
-  const [replyForms, setReplyForms] = useState<Record<string, ReplyForm>>({});
-  const [replyOverrides, setReplyOverrides] = useState<
-    Record<string, AssignmentReply[]>
-  >({});
-  const [editingReplyId, setEditingReplyId] = useState<string | null>(null);
-  const [editingReplyMessage, setEditingReplyMessage] = useState("");
   const [generatedDesignDocuments, setGeneratedDesignDocuments] = useState<
     Record<string, number>
   >({});
@@ -487,12 +473,6 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
   >(null);
 
   function resetCategoryExpansions() {
-    setActiveReplyBoxId(null);
-    setExpandedDetailId(null);
-    setExpandedReplyListId(null);
-    setExpandedReplyDetailId(null);
-    setEditingReplyId(null);
-    setEditingReplyMessage("");
     setActiveDesignDocumentVendor(null);
     setActiveDesignDocumentContentVendor(null);
     setActiveProcurementDocument(null);
@@ -502,49 +482,6 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
   function handleOpenCategory(category: OpenCategory) {
     setOpenCategory(category);
     resetCategoryExpansions();
-  }
-
-  function focusItem(itemId: string, target: "replies" | "replyBox" | "detail") {
-    setEditingReplyId(null);
-    setEditingReplyMessage("");
-    setExpandedReplyDetailId(null);
-    setExpandedReplyListId(target === "replies" ? itemId : null);
-    setActiveReplyBoxId(target === "replyBox" ? itemId : null);
-    setExpandedDetailId(target === "detail" ? itemId : null);
-  }
-
-  function toggleReplyList(itemId: string) {
-    const nextId = expandedReplyListId === itemId ? null : itemId;
-    if (!nextId) {
-      setExpandedReplyListId(null);
-      setExpandedReplyDetailId(null);
-      setEditingReplyId(null);
-      setEditingReplyMessage("");
-      return;
-    }
-    focusItem(itemId, "replies");
-  }
-
-  function toggleReplyBox(itemId: string) {
-    if (activeReplyBoxId === itemId) {
-      setActiveReplyBoxId(null);
-      return;
-    }
-    focusItem(itemId, "replyBox");
-  }
-
-  function toggleDetail(itemId: string) {
-    if (expandedDetailId === itemId) {
-      setExpandedDetailId(null);
-      return;
-    }
-    focusItem(itemId, "detail");
-  }
-
-  function toggleReplyDetail(replyId: string) {
-    setEditingReplyId(null);
-    setEditingReplyMessage("");
-    setExpandedReplyDetailId((prev) => (prev === replyId ? null : replyId));
   }
 
   function toggleDesignOrganizeContent(vendor: string) {
@@ -1176,7 +1113,7 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
           title: item.title,
           status: item.badge,
           statusClass: item.badgeClass,
-          href: `/vendor-issues?project=${encodeURIComponent(project.id)}&task=${encodeURIComponent(item.sourceLabel)}`,
+          href: `/vendor-assignments?project=${encodeURIComponent(project.id)}&task=${encodeURIComponent(item.sourceLabel)}`,
           ctaLabel: "前往廠商發包版",
           extraSummary: vendorName && vendorName !== "未填寫" ? `廠商：${vendorName}` : undefined,
         };
