@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { AppShell } from "@/components/app-shell";
 import {
   type ConfirmStatus,
@@ -9,7 +9,10 @@ import {
   type DocumentStatus,
 } from "@/components/design-task-board-data";
 import { projects } from "@/components/project-data";
-import { getDesignBoardRecords } from "@/components/project-workflow-store";
+import {
+  getDesignBoardRecords,
+  PROJECTFLOW_WORKFLOW_UPDATED_EVENT,
+} from "@/components/project-workflow-store";
 
 function getConfirmBadgeClass(status: ConfirmStatus) {
   if (status === "已確認") return "border border-emerald-200 bg-emerald-50 text-emerald-700";
@@ -53,8 +56,22 @@ export default function DesignTasksPage() {
   const [confirmFilter, setConfirmFilter] = useState<"all" | ConfirmStatus>("all");
   const [documentFilter, setDocumentFilter] = useState<"all" | DocumentStatus>("all");
   const [vendorFilter, setVendorFilter] = useState("all");
+  const [records, setRecords] = useState<DesignTaskBoardRecord[]>(() => getDesignBoardRecords(projects));
 
-  const records = useMemo<DesignTaskBoardRecord[]>(() => getDesignBoardRecords(projects), []);
+  useEffect(() => {
+    const refreshRecords = () => setRecords(getDesignBoardRecords(projects));
+
+    refreshRecords();
+    window.addEventListener(PROJECTFLOW_WORKFLOW_UPDATED_EVENT, refreshRecords);
+    window.addEventListener("focus", refreshRecords);
+    window.addEventListener("storage", refreshRecords);
+
+    return () => {
+      window.removeEventListener(PROJECTFLOW_WORKFLOW_UPDATED_EVENT, refreshRecords);
+      window.removeEventListener("focus", refreshRecords);
+      window.removeEventListener("storage", refreshRecords);
+    };
+  }, []);
 
   const vendors = useMemo(
     () => Array.from(new Set(records.map((record) => record.vendorName))).filter(Boolean),

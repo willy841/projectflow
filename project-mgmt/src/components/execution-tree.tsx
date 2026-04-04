@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import {
   getExecutionTreeStorageKey,
+  notifyProjectWorkflowUpdated,
   readStoredExecutionTreeState,
 } from "@/components/project-workflow-store";
 import {
@@ -1014,6 +1015,7 @@ export function ExecutionTree({
         savedVendorAssignments,
       }),
     );
+    notifyProjectWorkflowUpdated(projectId);
   }, [projectId, savedDesignAssignments, savedProcurementAssignments, savedVendorAssignments]);
 
   useEffect(() => {

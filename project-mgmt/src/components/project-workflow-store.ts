@@ -30,6 +30,17 @@ import type { Project } from "@/components/project-data";
 const TREE_STORAGE_PREFIX = "projectflow-execution-tree:";
 const SECTION_STORAGE_PREFIX = "projectflow-execution-section:";
 
+export const PROJECTFLOW_WORKFLOW_UPDATED_EVENT = "projectflow:workflow-updated";
+
+export function notifyProjectWorkflowUpdated(projectId: string) {
+  if (typeof window === "undefined") return;
+  window.dispatchEvent(
+    new CustomEvent(PROJECTFLOW_WORKFLOW_UPDATED_EVENT, {
+      detail: { projectId },
+    }),
+  );
+}
+
 export type StoredExecutionTreeState = {
   savedDesignAssignments: Record<string, DesignAssignmentDraft>;
   savedProcurementAssignments: Record<string, ProcurementAssignmentDraft>;

@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { ProjectVendorSection } from "@/components/project-vendor-section";
 import {
   getExecutionSectionStorageKey,
+  notifyProjectWorkflowUpdated,
   readStoredExecutionSectionState,
 } from "@/components/project-workflow-store";
 import {
@@ -514,6 +515,7 @@ export function ExecutionTreeSection({
         generatedProcurementDocuments,
       }),
     );
+    notifyProjectWorkflowUpdated(project.id);
   }, [
     generatedDesignDocuments,
     generatedProcurementDocuments,
