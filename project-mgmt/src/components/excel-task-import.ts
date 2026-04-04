@@ -82,19 +82,18 @@ function buildHeaderMap(rows: string[][]) {
     const row = rows[index].map(normalizeText);
     if (row.every((cell) => !cell)) continue;
 
-    const explicitNameIndex = findColumnIndex(row, HEADER_KEYWORDS.name);
-    const unitIndex = findColumnIndex(row, HEADER_KEYWORDS.unit);
-    const quantityIndex = findColumnIndex(row, HEADER_KEYWORDS.quantity);
-    const unitPriceIndex = findColumnIndex(row, HEADER_KEYWORDS.unitPrice);
-    const amountIndex = findColumnIndex(row, HEADER_KEYWORDS.amount);
     const codeIndex = findColumnIndex(row, HEADER_KEYWORDS.code);
+    const nameIndex = 1;
+    const unitPriceIndex = 2;
+    const quantityIndex = 3;
+    const unitIndex = 4;
+    const amountIndex = 5;
 
-    const matchedCount = [explicitNameIndex, unitIndex, quantityIndex, unitPriceIndex, amountIndex].filter((value) => value >= 0).length;
-    if (amountIndex >= 0 && matchedCount >= 3) {
+    if (codeIndex >= 0) {
       return {
         headerRowIndex: index,
-        codeIndex: codeIndex >= 0 ? codeIndex : 0,
-        nameIndex: explicitNameIndex >= 0 ? explicitNameIndex : (codeIndex >= 0 ? codeIndex + 1 : 1),
+        codeIndex,
+        nameIndex,
         unitIndex,
         quantityIndex,
         unitPriceIndex,
