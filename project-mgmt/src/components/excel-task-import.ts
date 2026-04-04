@@ -45,15 +45,6 @@ export type ParsedExcelImportPreview = {
   stopRowNumber: number | null;
 };
 
-const HEADER_KEYWORDS = {
-  code: ["項次", "編號", "項目編號", "item", "項目"],
-  name: ["品名", "項目名稱", "名稱", "項目內容", "規格", "內容"],
-  unit: ["單位", "unit"],
-  quantity: ["數量", "qty", "數量/qty"],
-  unitPrice: ["單價", "unit price", "price"],
-  amount: ["金額", "小計", "amount", "total"],
-};
-
 const STOP_KEYWORDS = ["小計", "稅金", "營業稅", "總計", "總金額", "備註", "付款條件", "匯款資訊", "銀行", "帳號", "統編"];
 
 function normalizeText(value: unknown) {
@@ -64,45 +55,34 @@ function normalizeText(value: unknown) {
     .trim();
 }
 
-function normalizeCompare(value: unknown) {
-  return normalizeText(value).toLowerCase();
-}
-
-function includesKeyword(value: string, keywords: string[]) {
-  const normalized = normalizeCompare(value);
-  return keywords.some((keyword) => normalized.includes(keyword.toLowerCase()));
-}
-
-function findColumnIndex(row: string[], keywords: string[]) {
-  return row.findIndex((cell) => includesKeyword(cell, keywords));
-}
-
 function buildHeaderMap(rows: string[][]) {
   for (let index = 0; index < rows.length; index += 1) {
     const row = rows[index].map(normalizeText);
     if (row.every((cell) => !cell)) continue;
 
-    const codeIndex = findColumnIndex(row, HEADER_KEYWORDS.code);
-    const nameIndex = 1;
-    const unitPriceIndex = 2;
-    const quantityIndex = 3;
-    const unitIndex = 4;
-    const amountIndex = 5;
-
-    if (codeIndex >= 0) {
+    const firstCell = row[0] ?? "";
+    if (firstCell.includes("項") || firstCell.includes("編號") || firstCell.includes("item".toLowerCase())) {
       return {
         headerRowIndex: index,
-        codeIndex,
-        nameIndex,
-        unitIndex,
-        quantityIndex,
-        unitPriceIndex,
-        amountIndex,
+        codeIndex: 0,
+        nameIndex: 1,
+        unitPriceIndex: 2,
+        quantityIndex: 3,
+        unitIndex: 4,
+        amountIndex: 5,
       };
     }
   }
 
-  return null;
+  return {
+    headerRowIndex: 0,
+    codeIndex: 0,
+    nameIndex: 1,
+    unitPriceIndex: 2,
+    quantityIndex: 3,
+    unitIndex: 4,
+    amountIndex: 5,
+  };
 }
 
 function isStopRow(cells: string[]) {
@@ -118,22 +98,8 @@ function makeSubItemId(mainOrder: number, code: string, rowNumber: number) {
   return `excel-sub-${mainOrder}-${code.replace(/[^\w-]+/g, "-")}-${rowNumber}`;
 }
 
-function findNameFromRow(raw: string[], codeIndex: number, fallbackIndex: number) {
-  const codeCell = normalizeText(raw[codeIndex]);
-  const mainInlineMatch = codeCell.match(/^\d+\.(.+)$/);
-  if (mainInlineMatch?.[1]?.trim()) return mainInlineMatch[1].trim();
-  const subInlineMatch = codeCell.match(/^\d+-\d+\s+(.+)$/);
-  if (subInlineMatch?.[1]?.trim()) return subInlineMatch[1].trim();
-
-  const direct = normalizeText(raw[fallbackIndex]);
-  if (direct) return direct;
-
-  for (let index = codeIndex + 1; index < raw.length; index += 1) {
-    const candidate = normalizeText(raw[index]);
-    if (candidate) return candidate;
-  }
-
-  return "";
+function findNameFromRow(raw: string[], fallbackIndex: number) {
+  return normalizeText(raw[fallbackIndex]);
 }
 
 export function parseExecutionItemsFromExcelRows(rawRows: unknown[][]): ParsedExcelImportPreview {
@@ -159,7 +125,7 @@ export function parseExecutionItemsFromExcelRows(rawRows: unknown[][]): ParsedEx
   for (let rowIndex = header.headerRowIndex + 1; rowIndex < rows.length; rowIndex += 1) {
     const raw = rows[rowIndex] ?? [];
     const code = normalizeText(raw[header.codeIndex]);
-    const name = findNameFromRow(raw, header.codeIndex, header.nameIndex);
+    const name = findNameFromRow(raw, header.nameIndex);
     const quantity = normalizeText(raw[header.quantityIndex]);
     const unit = normalizeText(raw[header.unitIndex]);
     const unitPrice = normalizeText(raw[header.unitPriceIndex]);
@@ -179,8 +145,8 @@ export function parseExecutionItemsFromExcelRows(rawRows: unknown[][]): ParsedEx
       break;
     }
 
-    const isMain = /^\d+\.$/.test(code) || /^\d+\..+/.test(code);
-    const isSub = /^\d+-\d+$/.test(code) || /^\d+-\d+\s+.+/.test(code);
+    const isMain = /^\d+$/.test(code);
+    const isSub = /^\d+-\d+$/.test(code);
 
     if (isSub) {
       if (!currentMain || !currentItem) {
