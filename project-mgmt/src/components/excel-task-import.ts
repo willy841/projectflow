@@ -56,26 +56,11 @@ function normalizeText(value: unknown) {
 }
 
 function buildHeaderMap(rows: string[][]) {
-  for (let index = 0; index < rows.length; index += 1) {
-    const row = rows[index].map(normalizeText);
-    if (row.every((cell) => !cell)) continue;
-
-    const firstCell = row[0] ?? "";
-    if (firstCell.includes("項") || firstCell.includes("編號") || firstCell.includes("item".toLowerCase())) {
-      return {
-        headerRowIndex: index,
-        codeIndex: 0,
-        nameIndex: 1,
-        unitPriceIndex: 2,
-        quantityIndex: 3,
-        unitIndex: 4,
-        amountIndex: 5,
-      };
-    }
-  }
+  const fixedHeaderRowIndex = rows.findIndex((row) => normalizeText(row[0]).includes("商品名"));
+  const headerRowIndex = fixedHeaderRowIndex >= 0 ? fixedHeaderRowIndex : 1;
 
   return {
-    headerRowIndex: 0,
+    headerRowIndex,
     codeIndex: 0,
     nameIndex: 1,
     unitPriceIndex: 2,
