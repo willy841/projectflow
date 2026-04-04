@@ -68,6 +68,15 @@ function formatCurrency(amount: number) {
   }).format(amount);
 }
 
+function formatEventDate(date?: string) {
+  if (!date) return "檔期待補";
+  return new Intl.DateTimeFormat("zh-TW", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(new Date(date));
+}
+
 function buildProjectTaskHref(record: ProcurementBoardRecord, panel: "detail" | "organize" | "document") {
   const params = new URLSearchParams({ tab: "procurement", panel });
   if (panel === "detail" && record.sourceTargetId) {
@@ -209,8 +218,13 @@ export default function ProcurementTasksPage() {
                   <div className="min-w-0 flex-1 space-y-4">
                     <div className="flex flex-wrap items-start justify-between gap-3">
                       <div>
-                        <p className="text-sm font-medium text-slate-500">{record.projectName}</p>
-                        <h4 className="mt-1 text-lg font-semibold text-slate-900">{record.title}</h4>
+                        <div className="flex flex-wrap items-center gap-2 text-xs text-slate-500">
+                          <span className="inline-flex rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 font-medium text-slate-600">
+                            檔期 {formatEventDate(record.eventDate)}
+                          </span>
+                          <span className="font-medium text-slate-500">{record.projectName}</span>
+                        </div>
+                        <h4 className="mt-2 text-lg font-semibold text-slate-900">{record.title}</h4>
                       </div>
                       <div className="flex flex-wrap gap-2 text-xs">
                         <span className={`inline-flex rounded-full px-3 py-1 font-medium ${getConfirmBadgeClass(record.confirmStatus)}`}>回覆 / 確認：{record.confirmStatus}</span>
