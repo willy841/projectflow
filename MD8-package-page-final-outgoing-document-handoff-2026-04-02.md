@@ -1,3 +1,17 @@
+> ⚠️ **歷史回查文件 / 已非主入口**
+>
+> 本檔已被以下主幹文件大幅吸收或覆蓋：
+> - `MD-MASTER-projectflow-system-source-of-truth.md`
+> - `MD14-projectflow-progress-review-and-next-step-handoff-2026-04-04.md`
+> - `MD15-projectflow-repo-audit-summary-v1-2026-04-04.md`
+> - `MD16-projectflow-current-round-handoff-2026-04-04.md`
+>
+> **新續接請不要先讀本檔。**
+> 正確順序是先讀：`MD16 -> MD15 -> MD14 -> MD-MASTER`。
+> 本檔僅保留作為歷史脈絡 / 細節回查用途。
+
+---
+
 # MD8 - Package Page / Final Outgoing Document 交接摘要（2026-04-02 凌晨版）
 
 > 目的：承接 MD7 的 Vendor Flow 討論結果，整理目前已拍板的 Package Page 與 Final Outgoing Document 產品定義，供 CTO 直接開始執行。

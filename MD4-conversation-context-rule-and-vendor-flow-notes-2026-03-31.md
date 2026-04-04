@@ -1,3 +1,17 @@
+> ⚠️ **歷史回查文件 / 已非主入口**
+>
+> 本檔已被以下主幹文件大幅吸收或覆蓋：
+> - `MD-MASTER-projectflow-system-source-of-truth.md`
+> - `MD14-projectflow-progress-review-and-next-step-handoff-2026-04-04.md`
+> - `MD15-projectflow-repo-audit-summary-v1-2026-04-04.md`
+> - `MD16-projectflow-current-round-handoff-2026-04-04.md`
+>
+> **新續接請不要先讀本檔。**
+> 正確順序是先讀：`MD16 -> MD15 -> MD14 -> MD-MASTER`。
+> 本檔僅保留作為歷史脈絡 / 細節回查用途。
+
+---
+
 # MD4 - Context 提醒規則與 Vendor Flow 討論摘要（2026-03-31）
 
 > 目的：把本輪新增的協作規則，以及目前已談到的 vendor flow 架構方向整理成可續接文件。
