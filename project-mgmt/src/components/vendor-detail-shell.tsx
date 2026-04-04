@@ -10,7 +10,7 @@ import {
   type VendorBasicProfile,
   type VendorProjectRecord,
 } from "@/components/vendor-data";
-import { TRADE_OPTIONS, useVendorStore } from "@/components/vendor-store";
+import { useVendorStore } from "@/components/vendor-store";
 
 const DELETE_CONFIRM_TITLE = "確認刪除這個廠商？";
 const DELETE_CONFIRM_DESCRIPTION = "這是刪除動作，刪除後會從目前的前端 vendor 清單移除。請再次確認是否要刪除這個廠商。";
@@ -135,13 +135,14 @@ function VendorProfileEditor({
 
 export function VendorDetailShell({ vendorId }: Props) {
   const router = useRouter();
-  const { getVendorById, updateVendor, deleteVendor, isReady } = useVendorStore();
+  const { getVendorById, updateVendor, deleteVendor, isReady, tradeOptions, addTradeOption, removeTradeOption } = useVendorStore();
   const vendor = getVendorById(vendorId);
   const [records, setRecords] = useState<VendorProjectRecord[]>(() => getVendorRecordsByVendorId(vendorId));
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [expandedIds, setExpandedIds] = useState<string[]>([]);
   const [isTradeEditorOpen, setIsTradeEditorOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [newTrade, setNewTrade] = useState("");
 
   const unpaidRecords = useMemo(() => records.filter((record) => record.paymentStatus === "未付款"), [records]);
   const selectedRecords = unpaidRecords.filter((record) => selectedIds.includes(record.id));
@@ -182,15 +183,19 @@ export function VendorDetailShell({ vendorId }: Props) {
     setSelectedIds([]);
   }
 
-  function toggleTrade(trade: string) {
-    const currentTrades = currentVendor.tradeLabels ?? [];
-    const nextTrades = currentTrades.includes(trade)
-      ? currentTrades.filter((item) => item !== trade)
-      : [...currentTrades, trade];
+  function selectTrade(trade: string) {
     updateVendor(currentVendor.id, {
-      tradeLabels: nextTrades,
-      category: nextTrades[0] || currentVendor.category || "待補充",
+      tradeLabel: trade,
+      category: trade,
     });
+  }
+
+  function createTrade() {
+    const nextTrade = newTrade.trim();
+    if (!nextTrade) return;
+    addTradeOption(nextTrade);
+    selectTrade(nextTrade);
+    setNewTrade("");
   }
 
   function handleDeleteVendor() {
@@ -208,22 +213,9 @@ export function VendorDetailShell({ vendorId }: Props) {
               <p className="text-sm text-slate-500">Vendor Detail</p>
               <div className="mt-1 flex flex-wrap items-center gap-3">
                 <h2 className="text-3xl font-semibold tracking-tight text-slate-900">{vendor.name}</h2>
-                {(vendor.tradeLabels?.length ?? 0) > 0 ? (
-                  <div className="flex flex-wrap gap-2">
-                    {vendor.tradeLabels?.map((trade) => (
-                      <span
-                        key={trade}
-                        className="inline-flex rounded-full bg-sky-50 px-3 py-1 text-xs font-medium text-sky-700 ring-1 ring-sky-200"
-                      >
-                        {trade}
-                      </span>
-                    ))}
-                  </div>
-                ) : (
-                  <span className="inline-flex rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-500 ring-1 ring-slate-200">
-                    尚未設定工種
-                  </span>
-                )}
+                <span className="inline-flex rounded-full bg-sky-50 px-3 py-1 text-xs font-medium text-sky-700 ring-1 ring-sky-200">
+                  {vendor.tradeLabel || vendor.category || "待補充"}
+                </span>
               </div>
               <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-600">{vendor.note || "此廠商尚未補齊正式說明。"}</p>
             </div>
@@ -233,7 +225,7 @@ export function VendorDetailShell({ vendorId }: Props) {
                 onClick={() => setIsTradeEditorOpen((current) => !current)}
                 className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-800 shadow-sm transition hover:border-slate-400 hover:bg-slate-50"
               >
-                {isTradeEditorOpen ? "收合工種編輯" : "編輯工種"}
+                {isTradeEditorOpen ? "收合工種管理" : "管理工種"}
               </button>
               <button
                 type="button"
@@ -252,27 +244,53 @@ export function VendorDetailShell({ vendorId }: Props) {
             <div className="mt-5 rounded-2xl border border-sky-200 bg-sky-50/60 p-4 ring-1 ring-sky-100">
               <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                 <div>
-                  <p className="text-xs font-semibold tracking-wide text-sky-700">Vendor identity / 工種</p>
-                  <p className="mt-1 text-sm leading-6 text-slate-600">維持既有工種多選規則，只把編輯入口整合回主卡附近，避免獨立主區塊搶走版面。</p>
+                  <p className="text-xs font-semibold tracking-wide text-sky-700">Vendor trade / 工種管理</p>
+                  <p className="mt-1 text-sm leading-6 text-slate-600">工種入口只放在廠商資訊內。一個廠商只能選一個工種；可新增工種，也可刪除工種清單。</p>
                 </div>
                 <div className="rounded-2xl bg-white px-4 py-3 text-sm text-slate-700 ring-1 ring-sky-200">
-                  已選 {vendor.tradeLabels?.length ?? 0} 個工種
+                  目前工種：<span className="font-semibold text-slate-900">{vendor.tradeLabel || vendor.category || "待補充"}</span>
                 </div>
               </div>
+
               <div className="mt-4 flex flex-wrap gap-2">
-                {TRADE_OPTIONS.map((trade) => {
-                  const active = vendor.tradeLabels?.includes(trade) ?? false;
+                {tradeOptions.map((trade) => {
+                  const active = (vendor.tradeLabel || vendor.category) === trade;
                   return (
-                    <button
-                      key={trade}
-                      type="button"
-                      onClick={() => toggleTrade(trade)}
-                      className={`rounded-full px-3 py-2 text-xs font-medium ring-1 transition ${active ? "bg-slate-900 text-white ring-slate-900" : "bg-white text-slate-700 ring-slate-200 hover:bg-slate-50"}`}
-                    >
-                      {trade}
-                    </button>
+                    <div key={trade} className="inline-flex items-center overflow-hidden rounded-full ring-1 ring-slate-200">
+                      <button
+                        type="button"
+                        onClick={() => selectTrade(trade)}
+                        className={`px-3 py-2 text-xs font-medium transition ${active ? "bg-slate-900 text-white" : "bg-white text-slate-700 hover:bg-slate-50"}`}
+                      >
+                        {trade}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => removeTradeOption(trade)}
+                        className="border-l border-slate-200 bg-white px-2.5 py-2 text-xs font-semibold text-rose-600 transition hover:bg-rose-50"
+                        aria-label={`刪除工種 ${trade}`}
+                      >
+                        ×
+                      </button>
+                    </div>
                   );
                 })}
+              </div>
+
+              <div className="mt-4 flex flex-col gap-3 sm:flex-row">
+                <input
+                  value={newTrade}
+                  onChange={(event) => setNewTrade(event.target.value)}
+                  placeholder="新增工種，例如：舞台"
+                  className="h-11 flex-1 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400"
+                />
+                <button
+                  type="button"
+                  onClick={createTrade}
+                  className="inline-flex items-center justify-center rounded-2xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800"
+                >
+                  新增工種
+                </button>
               </div>
             </div>
           ) : null}
@@ -423,7 +441,7 @@ export function VendorDetailShell({ vendorId }: Props) {
             <h3 className="mt-4 text-xl font-semibold text-slate-900">{DELETE_CONFIRM_TITLE}</h3>
             <p className="mt-3 text-sm leading-6 text-slate-600">{DELETE_CONFIRM_DESCRIPTION}</p>
             <div className="mt-4 rounded-2xl border border-rose-100 bg-rose-50/70 px-4 py-3 text-sm text-slate-700">
-              目前準備刪除：<span className="font-semibold text-slate-900">{vendor.name}</span>
+              目前準備刪除：<span className="font-semibold text-slate-900">{currentVendor.name}</span>
             </div>
             <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
               <button
