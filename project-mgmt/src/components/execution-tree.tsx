@@ -1,6 +1,8 @@
 "use client";
 
+import * as XLSX from "xlsx";
 import { useEffect, useRef, useState } from "react";
+import { parseExecutionItemsFromExcelRows, type ParsedExcelImportPreview } from "@/components/excel-task-import";
 import {
   getExecutionTreeStorageKey,
   notifyProjectWorkflowUpdated,
@@ -811,116 +813,6 @@ function AssignmentMenu({
   );
 }
 
-function parseCsvLine(line: string) {
-  const result: string[] = [];
-  let current = "";
-  let inQuotes = false;
-  for (let i = 0; i < line.length; i += 1) {
-    const char = line[i];
-    if (char === '"') {
-      if (inQuotes && line[i + 1] === '"') {
-        current += '"';
-        i += 1;
-      } else {
-        inQuotes = !inQuotes;
-      }
-      continue;
-    }
-    if (char === "," && !inQuotes) {
-      result.push(current.trim());
-      current = "";
-      continue;
-    }
-    current += char;
-  }
-  result.push(current.trim());
-  return result;
-}
-
-function parseCsvText(text: string): string[][] {
-  return text
-    .split(/\r?\n/)
-    .map((line) => line.trim())
-    .filter(Boolean)
-    .map(parseCsvLine);
-}
-
-function normalizeCell(value: unknown) {
-  if (value === null || value === undefined) return "";
-  return String(value).trim();
-}
-
-function parseImportedRows(rows: string[][]): ImportedItem[] {
-  const result: ImportedItem[] = [];
-  let currentMain: ImportedItem | null = null;
-  rows.forEach((row, rowIndex) => {
-    const codeRaw = normalizeCell(row[0]);
-    const titleRaw = normalizeCell(row[1] || row[0]);
-    const quantity = normalizeCell(row[2]);
-    const unit = normalizeCell(row[3]);
-    const amount = normalizeCell(row[4]);
-    const note = normalizeCell(row[5]);
-    if (!codeRaw && !titleRaw) return;
-    const mainMatch = codeRaw.match(/^(\d+)\.?\s*(.*)$/);
-    const childMatch = codeRaw.match(/^(\d+)-(\d+)\s*(.*)$/);
-    if (childMatch && currentMain) {
-      const title = titleRaw || childMatch[3] || codeRaw;
-      currentMain.children = [
-        ...(currentMain.children ?? []),
-        {
-          id: `${currentMain.id}-child-${childMatch[1]}-${childMatch[2]}-${rowIndex}`,
-          title,
-          status: "待交辦",
-          category: currentMain.category,
-          assignee: "未指派",
-          quantity,
-          unit,
-          amount,
-          note,
-        },
-      ];
-      return;
-    }
-    if (mainMatch) {
-      const title = titleRaw || mainMatch[2] || codeRaw;
-      currentMain = {
-        id: `import-main-${mainMatch[1]}-${rowIndex}`,
-        title,
-        status: "待交辦",
-        category: "專案",
-        detail: note || "匯入自 CSV 的主項目",
-        referenceExample: "",
-        designTaskCount: 0,
-        procurementTaskCount: 0,
-        quantity,
-        unit,
-        amount,
-        note,
-        children: [],
-      };
-      result.push(currentMain);
-      return;
-    }
-    currentMain = {
-      id: `import-main-generic-${rowIndex}`,
-      title: titleRaw || codeRaw,
-      status: "待交辦",
-      category: "專案",
-      detail: note || "匯入自 CSV 的主項目",
-      referenceExample: "",
-      designTaskCount: 0,
-      procurementTaskCount: 0,
-      quantity,
-      unit,
-      amount,
-      note,
-      children: [],
-    };
-    result.push(currentMain);
-  });
-  return result;
-}
-
 export function ExecutionTree({
   items,
   projectId,
@@ -1003,6 +895,8 @@ export function ExecutionTree({
       ? readStoredExecutionTreeState(projectId).savedVendorAssignments ?? {}
       : {},
   );
+  const [importPreview, setImportPreview] = useState<ParsedExcelImportPreview | null>(null);
+  const [importError, setImportError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
@@ -1284,13 +1178,46 @@ export function ExecutionTree({
   }
 
   async function handleImport(file: File) {
-    const text = await file.text();
-    const rows = parseCsvText(text);
-    if (!rows.length) return;
-    const imported = parseImportedRows(rows.slice(1));
-    if (!imported.length) return;
-    setLocalItems(imported);
-    setExpandedItemId(imported[0]?.id ?? null);
+    if (!file.name.toLowerCase().endsWith(".xlsx")) {
+      setImportError("只支援 .xlsx 檔案。");
+      setImportPreview(null);
+      return;
+    }
+
+    try {
+      const buffer = await file.arrayBuffer();
+      const workbook = XLSX.read(buffer, { type: "array" });
+      const firstSheetName = workbook.SheetNames[0];
+      if (!firstSheetName) throw new Error("Excel 找不到第一個 sheet。");
+      const worksheet = workbook.Sheets[firstSheetName];
+      const rows = XLSX.utils.sheet_to_json<(string | number | null)[]>(worksheet, {
+        header: 1,
+        raw: false,
+        defval: "",
+      });
+      const preview = parseExecutionItemsFromExcelRows(rows);
+      if (!preview.items.length) {
+        throw new Error("沒有解析到可匯入的主項目 / 子項目。");
+      }
+      setImportPreview(preview);
+      setImportError(null);
+    } catch (error) {
+      setImportPreview(null);
+      setImportError(error instanceof Error ? error.message : "Excel 匯入失敗，請確認檔案內容。");
+    }
+  }
+
+  function confirmImportPreview() {
+    if (!importPreview) return;
+    setLocalItems(importPreview.items);
+    setExpandedItemId(importPreview.items[0]?.id ?? null);
+    setImportPreview(null);
+    setImportError(null);
+  }
+
+  function cancelImportPreview() {
+    setImportPreview(null);
+    setImportError(null);
   }
 
   function addChild(itemId: string) {
@@ -1454,12 +1381,12 @@ export function ExecutionTree({
               onClick={() => fileInputRef.current?.click()}
               className="inline-flex h-11 shrink-0 items-center justify-center rounded-2xl bg-blue-600 px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700"
             >
-              匯入 CSV
+              匯入 Excel
             </button>
             <input
               ref={fileInputRef}
               type="file"
-              accept=".csv,text/csv"
+              accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
               className="hidden"
               onChange={(event) => {
                 const file = event.target.files?.[0];
@@ -1469,6 +1396,78 @@ export function ExecutionTree({
             />
           </div>
         </div>
+        {importError ? (
+          <div className="mt-4 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+            {importError}
+          </div>
+        ) : null}
+
+        {importPreview ? (
+          <div className="mt-4 rounded-3xl border border-sky-200 bg-white p-4 shadow-sm">
+            <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+              <div>
+                <p className="text-sm font-semibold text-slate-900">Excel 匯入預覽</p>
+                <p className="mt-1 text-sm text-slate-600">已鎖定第一個 sheet，並自動從第 {importPreview.headerRowNumber} 列表頭開始解析；確認後才會覆蓋目前任務樹。</p>
+              </div>
+              <div className="flex gap-2">
+                <button type="button" onClick={confirmImportPreview} className="inline-flex items-center justify-center rounded-2xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800">確認匯入</button>
+                <button type="button" onClick={cancelImportPreview} className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 transition hover:bg-slate-50">取消</button>
+              </div>
+            </div>
+
+            <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4"><p className="text-xs text-slate-500">主項目</p><p className="mt-2 text-xl font-semibold text-slate-900">{importPreview.mainItems.length}</p></div>
+              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4"><p className="text-xs text-slate-500">延續列</p><p className="mt-2 text-xl font-semibold text-slate-900">{importPreview.continuationRowNumbers.length}</p></div>
+              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4"><p className="text-xs text-slate-500">忽略列</p><p className="mt-2 text-xl font-semibold text-slate-900">{importPreview.ignoredRowNumbers.length}</p></div>
+              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4"><p className="text-xs text-slate-500">解析失敗</p><p className="mt-2 text-xl font-semibold text-slate-900">{importPreview.failedRowNumbers.length}</p></div>
+            </div>
+
+            <div className="mt-4 grid gap-4 xl:grid-cols-[1.3fr_1fr]">
+              <div className="rounded-2xl border border-slate-200 p-4">
+                <p className="text-sm font-semibold text-slate-900">預計匯入樹狀結果</p>
+                <div className="mt-3 space-y-3">
+                  {importPreview.mainItems.map((mainItem) => (
+                    <div key={mainItem.id} className="rounded-2xl bg-slate-50 p-3">
+                      <div className="flex items-center justify-between gap-3"><p className="font-semibold text-slate-900">{mainItem.title}</p><span className="text-xs text-slate-500">{mainItem.children.length} 個子項目</span></div>
+                      <ul className="mt-2 space-y-2 text-sm text-slate-600">
+                        {mainItem.children.map((child) => (
+                          <li key={child.id} className="rounded-xl bg-white px-3 py-2 ring-1 ring-slate-200">
+                            <div className="flex flex-wrap items-center justify-between gap-2"><span>{child.code} {child.title}</span><span className="text-xs text-slate-500">列 {child.rowNumber}</span></div>
+                            <div className="mt-1 flex flex-wrap gap-3 text-xs text-slate-500">
+                              <span>數量 {child.quantity || "-"}</span><span>單位 {child.unit || "-"}</span><span>單價 {child.unitPrice || "-"}</span><span>金額 {child.amount || "-"}</span>
+                            </div>
+                            {child.continuationRows.length ? <p className="mt-1 text-xs text-amber-700">延續列：{child.continuationRows.join(", ")}</p> : null}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <div className="rounded-2xl border border-slate-200 p-4">
+                  <p className="text-sm font-semibold text-slate-900">列判斷摘要</p>
+                  <div className="mt-3 space-y-2 text-sm text-slate-600">
+                    <p>延續列：{importPreview.continuationRowNumbers.length ? importPreview.continuationRowNumbers.join(", ") : "無"}</p>
+                    <p>忽略列：{importPreview.ignoredRowNumbers.length ? importPreview.ignoredRowNumbers.join(", ") : "無"}</p>
+                    <p>解析失敗：{importPreview.failedRowNumbers.length ? importPreview.failedRowNumbers.join(", ") : "無"}</p>
+                    <p>停止列：{importPreview.stopRowNumber ?? "未觸發"}</p>
+                  </div>
+                </div>
+                <div className="rounded-2xl border border-slate-200 p-4">
+                  <p className="text-sm font-semibold text-slate-900">主項目與子項目數</p>
+                  <div className="mt-3 space-y-2 text-sm text-slate-600">
+                    {importPreview.mainItems.map((mainItem) => (
+                      <div key={`${mainItem.id}-count`} className="flex items-center justify-between gap-3"><span>{mainItem.title}</span><span>{mainItem.children.length} 個子項目</span></div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : null}
+
         {showMainItemCreator ? (
           <div className="mt-4 flex flex-col gap-3 sm:flex-row">
             <input
