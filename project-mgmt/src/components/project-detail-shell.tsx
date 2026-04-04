@@ -2,6 +2,14 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
+
+type ReplySummaryCard = {
+  title: string;
+  owner: string;
+  status: string;
+  meta: string;
+  detail: string;
+};
 import { CopyEventInfoButton } from "@/components/copy-event-info-button";
 import { ExecutionTree } from "@/components/execution-tree";
 import { Project } from "@/components/project-data";
@@ -23,6 +31,7 @@ export function ProjectDetailShell({
   initialFocus?: ProjectDetailInitialFocus;
 }) {
   const [isEditingProject, setIsEditingProject] = useState(false);
+  const [expandedReplyKey, setExpandedReplyKey] = useState<string | null>(null);
   const [projectForm, setProjectForm] = useState({
     name: project.name,
     client: project.client,
@@ -311,11 +320,12 @@ export function ProjectDetailShell({
                   count: project.designTasks.length,
                   description: "先以既有設計任務數量作為回覆區恢復測試基準。",
                   tone: "bg-blue-50 text-blue-700 ring-blue-200",
-                  items: project.designTasks.slice(0, 2).map((task) => ({
+                  items: project.designTasks.slice(0, 2).map((task): ReplySummaryCard => ({
                     title: task.title,
                     owner: task.assignee,
                     status: task.status,
                     meta: `交期：${task.due}`,
+                    detail: `設計回覆詳情（測試版）：${task.title}｜負責人：${task.assignee}｜交期：${task.due}｜目前狀態：${task.status}`,
                   })),
                 },
                 {
@@ -324,11 +334,12 @@ export function ProjectDetailShell({
                   count: project.procurementTasks.length,
                   description: "先以既有備品任務數量作為回覆區恢復測試基準。",
                   tone: "bg-amber-50 text-amber-700 ring-amber-200",
-                  items: project.procurementTasks.slice(0, 2).map((task) => ({
+                  items: project.procurementTasks.slice(0, 2).map((task): ReplySummaryCard => ({
                     title: task.title,
                     owner: task.buyer,
                     status: task.status,
                     meta: `預算：${task.budget}`,
+                    detail: `備品回覆詳情（測試版）：${task.title}｜負責人：${task.buyer}｜預算：${task.budget}｜目前狀態：${task.status}`,
                   })),
                 },
                 {
@@ -365,6 +376,20 @@ export function ProjectDetailShell({
                             <span>負責人：{item.owner}</span>
                             <span>{item.meta}</span>
                           </div>
+                          <div className="pt-1">
+                            <button
+                              type="button"
+                              onClick={() => setExpandedReplyKey((prev) => prev === `${replyGroup.key}-${item.title}` ? null : `${replyGroup.key}-${item.title}`)}
+                              className="inline-flex items-center justify-center rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-100"
+                            >
+                              {expandedReplyKey === `${replyGroup.key}-${item.title}` ? "收合回覆詳情" : "查看回覆詳情"}
+                            </button>
+                          </div>
+                          {expandedReplyKey === `${replyGroup.key}-${item.title}` ? (
+                            <div className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm leading-6 text-slate-600">
+                              {item.detail}
+                            </div>
+                          ) : null}
                         </div>
                       </div>
                     )) : (
