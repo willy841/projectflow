@@ -1181,42 +1181,9 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
           heading="專案執行項目"
           items={project.executionItems}
           projectId={project.id}
-          onDesignAssignmentsChange={(payload) =>
-            setDesignAssignments(
-              payload.map((item) => ({
-                ...item,
-                data: {
-                  ...item.data,
-                  replies:
-                    replyOverrides[item.targetId] ?? item.data.replies ?? [],
-                },
-              })),
-            )
-          }
-          onProcurementAssignmentsChange={(payload) =>
-            setProcurementAssignments(
-              payload.map((item) => ({
-                ...item,
-                data: {
-                  ...item.data,
-                  replies:
-                    replyOverrides[item.targetId] ?? item.data.replies ?? [],
-                },
-              })),
-            )
-          }
-          onVendorAssignmentsChange={(payload) =>
-            setVendorAssignments(
-              payload.map((item) => ({
-                ...item,
-                data: {
-                  ...item.data,
-                  replies:
-                    replyOverrides[item.targetId] ?? item.data.replies ?? [],
-                },
-              })),
-            )
-          }
+          onDesignAssignmentsChange={setDesignAssignments}
+          onProcurementAssignmentsChange={setProcurementAssignments}
+          onVendorAssignmentsChange={setVendorAssignments}
         />
       </section>
 
