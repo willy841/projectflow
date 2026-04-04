@@ -889,6 +889,7 @@ export function ExecutionTree({
   const [mainItemDraft, setMainItemDraft] = useState("");
   const [excelPreview, setExcelPreview] = useState<ParsedExcelImportPreview | null>(null);
   const [excelImportError, setExcelImportError] = useState("");
+  const [excelDebugRows, setExcelDebugRows] = useState<string[][]>([]);
   const [activeDesignFormId, setActiveDesignFormId] = useState<string | null>(
     null,
   );
@@ -1213,6 +1214,7 @@ export function ExecutionTree({
       }
       const worksheet = workbook.Sheets[firstSheetName];
       const rows = XLSX.utils.sheet_to_json(worksheet, { header: 1, raw: false }) as unknown[][];
+      setExcelDebugRows(rows.slice(0, 20).map((row) => row.map((cell) => String(cell ?? "").trim())));
       const preview = parseExecutionItemsFromExcelRows(rows);
       if (!preview.items.length) {
         setExcelImportError("這份 .xlsx 沒有可匯入的主 / 子項目；系統只會納入有編號的列。");
@@ -1410,6 +1412,25 @@ export function ExecutionTree({
         {excelImportError ? (
           <div className="mt-4 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
             {excelImportError}
+          </div>
+        ) : null}
+
+        {excelImportError && excelDebugRows.length ? (
+          <div className="mt-4 rounded-3xl border border-amber-200 bg-amber-50/60 p-4 ring-1 ring-amber-100">
+            <p className="text-xs font-semibold tracking-wide text-amber-700">XLSX DEBUG</p>
+            <p className="mt-2 text-sm text-slate-600">以下是目前實際讀到的前 20 列內容，方便直接對照 A 欄 / B 欄是否如預期。</p>
+            <div className="mt-3 space-y-2 text-xs text-slate-700">
+              {excelDebugRows.map((row, index) => (
+                <div key={`debug-row-${index}`} className="rounded-2xl bg-white px-3 py-2 ring-1 ring-amber-100">
+                  <span className="font-semibold text-slate-900">Row {index + 1}</span>
+                  <span className="ml-2">A={row[0] || ""}</span>
+                  <span className="ml-2">B={row[1] || ""}</span>
+                  <span className="ml-2">C={row[2] || ""}</span>
+                  <span className="ml-2">D={row[3] || ""}</span>
+                  <span className="ml-2">E={row[4] || ""}</span>
+                </div>
+              ))}
+            </div>
           </div>
         ) : null}
 
