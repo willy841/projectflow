@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { CopyEventInfoButton } from "@/components/copy-event-info-button";
-import { ExecutionTreeSection } from "@/components/execution-tree-section";
+import { ExecutionTree } from "@/components/execution-tree";
 import { Project } from "@/components/project-data";
 import { getProjectWorkflowCostSummary } from "@/components/project-workflow-store";
 import { RequirementsPanel } from "@/components/requirements-panel";
@@ -260,7 +260,41 @@ export function ProjectDetailShell({
         <RequirementsPanel initialItems={project.requirements} />
       </section>
 
-      <ExecutionTreeSection project={project} initialFocus={initialFocus} />
+      <section className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+        <ExecutionTree heading="專案執行項目" items={project.executionItems} projectId={project.id} />
+      </section>
+
+      <section className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+        <div className="mb-5">
+          <h3 className="text-xl font-semibold">專案分類檢視</h3>
+        </div>
+
+        <div className="grid gap-3 lg:grid-cols-3">
+          {[
+            { key: "design", title: "專案設計", count: project.designTasks.length, accent: "text-blue-700" },
+            { key: "procurement", title: "專案備品", count: project.procurementTasks.length, accent: "text-amber-700" },
+            { key: "vendor", title: "專案廠商", count: 0, accent: "text-violet-700" },
+          ].map((category) => (
+            <div
+              key={category.key}
+              className="rounded-3xl border border-slate-200 bg-white p-5 text-left shadow-sm"
+            >
+              <div className="flex min-h-[84px] items-center justify-between gap-3">
+                <div className="flex min-h-full flex-1 items-center justify-center text-center">
+                  <p className={`text-lg font-semibold ${category.accent}`}>{category.title}</p>
+                </div>
+                <span className="inline-flex min-w-[36px] items-center justify-center rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
+                  {category.count}
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="mt-6 rounded-3xl border border-dashed border-amber-200 bg-amber-50/60 p-5 text-sm text-slate-600">
+          分類檢視下半部（主卡 / 回覆 / 文件整理）暫時隔離，用來驗證左側導航失效是否發生在分類上半部本身。
+        </div>
+      </section>
     </>
   );
 }
