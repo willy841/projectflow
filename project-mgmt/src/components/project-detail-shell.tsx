@@ -457,17 +457,17 @@ export function ProjectDetailShell({
                               </div>
                             </div>
                           ) : null}
-+                          {(appendedReplies[`${replyGroup.key}-${item.title}`] ?? []).length ? (
-+                            <div className="space-y-2 rounded-2xl border border-slate-200 bg-white p-4">
-+                              <p className="text-xs font-semibold tracking-wide text-slate-500">新增回覆結果（local）</p>
-+                              {(appendedReplies[`${replyGroup.key}-${item.title}`] ?? []).map((reply, index) => (
-+                                <div key={reply.id} className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700">
-+                                  <p className="text-xs font-medium text-slate-500">R{index + 1}</p>
-+                                  <p className="mt-2 whitespace-pre-wrap leading-6">{reply.text}</p>
-+                                </div>
-+                              ))}
-+                            </div>
-+                          ) : null}
+                          {(appendedReplies[`${replyGroup.key}-${item.title}`] ?? []).length ? (
+                            <div className="space-y-2 rounded-2xl border border-slate-200 bg-white p-4">
+                              <p className="text-xs font-semibold tracking-wide text-slate-500">新增回覆結果（local）</p>
+                              {(appendedReplies[`${replyGroup.key}-${item.title}`] ?? []).map((reply, index) => (
+                                <div key={reply.id} className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700">
+                                  <p className="text-xs font-medium text-slate-500">R{index + 1}</p>
+                                  <p className="mt-2 whitespace-pre-wrap leading-6">{reply.text}</p>
+                                </div>
+                              ))}
+                            </div>
+                          ) : null}
                         </div>
                       </div>
                     )) : (
