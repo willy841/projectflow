@@ -1,6 +1,6 @@
 import type { ProjectExecutionItem } from "@/components/project-data";
 
-export type ParsedExcelRowType = "main" | "sub" | "continuation" | "stop" | "ignored" | "failed";
+export type ParsedExcelRowType = "main" | "sub" | "stop" | "ignored" | "failed";
 
 export type ParsedExcelRow = {
   rowNumber: number;
@@ -26,7 +26,6 @@ export type ParsedExcelSubItemPreview = {
   unitPrice: string;
   amount: string;
   rowNumber: number;
-  continuationRows: number[];
 };
 
 export type ParsedExcelMainItemPreview = {
@@ -41,7 +40,6 @@ export type ParsedExcelImportPreview = {
   items: ProjectExecutionItem[];
   mainItems: ParsedExcelMainItemPreview[];
   rows: ParsedExcelRow[];
-  continuationRowNumbers: number[];
   ignoredRowNumbers: number[];
   failedRowNumbers: number[];
   stopRowNumber: number | null;
@@ -132,7 +130,6 @@ export function parseExecutionItemsFromExcelRows(rawRows: unknown[][]): ParsedEx
   const parsedRows: ParsedExcelRow[] = [];
   const mainItems: ParsedExcelMainItemPreview[] = [];
   const items: ProjectExecutionItem[] = [];
-  const continuationRowNumbers: number[] = [];
   const ignoredRowNumbers: number[] = [];
   const failedRowNumbers: number[] = [];
 
@@ -165,10 +162,8 @@ export function parseExecutionItemsFromExcelRows(rawRows: unknown[][]): ParsedEx
       break;
     }
 
+    const isMain = /^\d+\.$/.test(code) || /^\d+\.[^\S\r\n]*/.test(code);
     const isSub = /^\d+-\d+$/.test(code);
-    const isContinuation = !code && Boolean(name) && Boolean(currentSub);
-    const hasNumericColumns = Boolean(quantity || unit || unitPrice || amount);
-    const looksLikeMain = Boolean(name) && !isSub && !hasNumericColumns;
 
     if (isSub) {
       if (!currentMain || !currentItem) {
@@ -187,7 +182,6 @@ export function parseExecutionItemsFromExcelRows(rawRows: unknown[][]): ParsedEx
         unitPrice,
         amount,
         rowNumber,
-        continuationRows: [],
       };
       currentMain.children.push(currentSub);
       currentItem.children = [
@@ -198,20 +192,7 @@ export function parseExecutionItemsFromExcelRows(rawRows: unknown[][]): ParsedEx
       continue;
     }
 
-    if (isContinuation && currentSub) {
-      const activeSub = currentSub;
-      activeSub.title = `${activeSub.title} ${name}`.trim();
-      activeSub.continuationRows.push(rowNumber);
-      if (currentItem?.children?.length) {
-        const lastChild = currentItem.children[currentItem.children.length - 1];
-        currentItem.children[currentItem.children.length - 1] = { ...lastChild, title: activeSub.title };
-      }
-      continuationRowNumbers.push(rowNumber);
-      parsedRows.push({ rowNumber, code, name, quantity, unit, unitPrice, amount, raw, type: "continuation", parentMainTitle: currentMain?.title, targetSubTitle: activeSub.title });
-      continue;
-    }
-
-    if (looksLikeMain) {
+    if (isMain && name) {
       mainOrder += 1;
       currentMain = { id: makeMainItemId(mainOrder, rowNumber), title: name, rowNumber, children: [] };
       currentItem = { id: currentMain.id, title: name, status: "待交辦", category: "專案", detail: `匯入自 Excel 第 ${rowNumber} 列`, referenceExample: "", designTaskCount: 0, procurementTaskCount: 0, children: [] };
@@ -231,7 +212,6 @@ export function parseExecutionItemsFromExcelRows(rawRows: unknown[][]): ParsedEx
     items,
     mainItems,
     rows: parsedRows,
-    continuationRowNumbers,
     ignoredRowNumbers,
     failedRowNumbers,
     stopRowNumber,

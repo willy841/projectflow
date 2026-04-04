@@ -1,10 +1,15 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import * as XLSX from "xlsx";
 import {
   getExecutionTreeStorageKey,
   readStoredExecutionTreeState,
 } from "@/components/project-workflow-store";
+import {
+  parseExecutionItemsFromExcelRows,
+  type ParsedExcelImportPreview,
+} from "@/components/excel-task-import";
 import {
   ProjectExecutionItem,
   getStatusClass,
@@ -836,89 +841,6 @@ function parseCsvLine(line: string) {
   return result;
 }
 
-function parseCsvText(text: string): string[][] {
-  return text
-    .split(/\r?\n/)
-    .map((line) => line.trim())
-    .filter(Boolean)
-    .map(parseCsvLine);
-}
-
-function normalizeCell(value: unknown) {
-  if (value === null || value === undefined) return "";
-  return String(value).trim();
-}
-
-function parseImportedRows(rows: string[][]): ImportedItem[] {
-  const result: ImportedItem[] = [];
-  let currentMain: ImportedItem | null = null;
-  rows.forEach((row, rowIndex) => {
-    const codeRaw = normalizeCell(row[0]);
-    const titleRaw = normalizeCell(row[1] || row[0]);
-    const quantity = normalizeCell(row[2]);
-    const unit = normalizeCell(row[3]);
-    const amount = normalizeCell(row[4]);
-    const note = normalizeCell(row[5]);
-    if (!codeRaw && !titleRaw) return;
-    const mainMatch = codeRaw.match(/^(\d+)\.?\s*(.*)$/);
-    const childMatch = codeRaw.match(/^(\d+)-(\d+)\s*(.*)$/);
-    if (childMatch && currentMain) {
-      const title = titleRaw || childMatch[3] || codeRaw;
-      currentMain.children = [
-        ...(currentMain.children ?? []),
-        {
-          id: `${currentMain.id}-child-${childMatch[1]}-${childMatch[2]}-${rowIndex}`,
-          title,
-          status: "待交辦",
-          category: currentMain.category,
-          assignee: "未指派",
-          quantity,
-          unit,
-          amount,
-          note,
-        },
-      ];
-      return;
-    }
-    if (mainMatch) {
-      const title = titleRaw || mainMatch[2] || codeRaw;
-      currentMain = {
-        id: `import-main-${mainMatch[1]}-${rowIndex}`,
-        title,
-        status: "待交辦",
-        category: "專案",
-        detail: note || "匯入自 CSV 的主項目",
-        referenceExample: "",
-        designTaskCount: 0,
-        procurementTaskCount: 0,
-        quantity,
-        unit,
-        amount,
-        note,
-        children: [],
-      };
-      result.push(currentMain);
-      return;
-    }
-    currentMain = {
-      id: `import-main-generic-${rowIndex}`,
-      title: titleRaw || codeRaw,
-      status: "待交辦",
-      category: "專案",
-      detail: note || "匯入自 CSV 的主項目",
-      referenceExample: "",
-      designTaskCount: 0,
-      procurementTaskCount: 0,
-      quantity,
-      unit,
-      amount,
-      note,
-      children: [],
-    };
-    result.push(currentMain);
-  });
-  return result;
-}
 
 export function ExecutionTree({
   items,
@@ -965,6 +887,8 @@ export function ExecutionTree({
   const [activeAssignMenu, setActiveAssignMenu] = useState<string | null>(null);
   const [showMainItemCreator, setShowMainItemCreator] = useState(false);
   const [mainItemDraft, setMainItemDraft] = useState("");
+  const [excelPreview, setExcelPreview] = useState<ParsedExcelImportPreview | null>(null);
+  const [excelImportError, setExcelImportError] = useState("");
   const [activeDesignFormId, setActiveDesignFormId] = useState<string | null>(
     null,
   );
@@ -1278,13 +1202,33 @@ export function ExecutionTree({
   }
 
   async function handleImport(file: File) {
-    const text = await file.text();
-    const rows = parseCsvText(text);
-    if (!rows.length) return;
-    const imported = parseImportedRows(rows.slice(1));
-    if (!imported.length) return;
-    setLocalItems(imported);
-    setExpandedItemId(imported[0]?.id ?? null);
+    try {
+      setExcelImportError("");
+      const arrayBuffer = await file.arrayBuffer();
+      const workbook = XLSX.read(arrayBuffer, { type: "array" });
+      const firstSheetName = workbook.SheetNames?.[0];
+      if (!firstSheetName) {
+        setExcelImportError("找不到可讀取的工作表。請確認 .xlsx 內容是否正確。");
+        return;
+      }
+      const worksheet = workbook.Sheets[firstSheetName];
+      const rows = XLSX.utils.sheet_to_json(worksheet, { header: 1, raw: false }) as unknown[][];
+      const preview = parseExecutionItemsFromExcelRows(rows);
+      if (!preview.items.length) {
+        setExcelImportError("這份 .xlsx 沒有可匯入的主 / 子項目；系統只會納入有編號的列。");
+        return;
+      }
+      setExcelPreview(preview);
+    } catch (error) {
+      setExcelImportError(error instanceof Error ? error.message : "無法解析這份 .xlsx，請確認格式是否正確。");
+    }
+  }
+
+  function confirmExcelImport() {
+    if (!excelPreview?.items.length) return;
+    setLocalItems(excelPreview.items);
+    setExpandedItemId(excelPreview.items[0]?.id ?? null);
+    setExcelPreview(null);
   }
 
   function addChild(itemId: string) {
@@ -1448,12 +1392,12 @@ export function ExecutionTree({
               onClick={() => fileInputRef.current?.click()}
               className="inline-flex h-11 shrink-0 items-center justify-center rounded-2xl bg-blue-600 px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700"
             >
-              匯入 CSV
+              匯入 .xlsx
             </button>
             <input
               ref={fileInputRef}
               type="file"
-              accept=".csv,text/csv"
+              accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
               className="hidden"
               onChange={(event) => {
                 const file = event.target.files?.[0];
@@ -1463,6 +1407,68 @@ export function ExecutionTree({
             />
           </div>
         </div>
+        {excelImportError ? (
+          <div className="mt-4 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+            {excelImportError}
+          </div>
+        ) : null}
+
+        {excelPreview ? (
+          <div className="mt-4 rounded-3xl border border-blue-200 bg-blue-50/60 p-4 ring-1 ring-blue-100">
+            <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+              <div>
+                <p className="text-xs font-semibold tracking-wide text-blue-700">XLSX PREVIEW</p>
+                <h4 className="mt-1 text-lg font-semibold text-slate-900">匯入預覽</h4>
+                <p className="mt-2 text-sm leading-6 text-slate-600">
+                  第一版只納入有編號的列。主項目：{excelPreview.mainItems.length} 筆，總子項目：{excelPreview.mainItems.reduce((sum, item) => sum + item.children.length, 0)} 筆。
+                </p>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={confirmExcelImport}
+                  className="inline-flex items-center justify-center rounded-2xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800"
+                >
+                  確認匯入
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setExcelPreview(null)}
+                  className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 transition hover:bg-slate-50"
+                >
+                  取消預覽
+                </button>
+              </div>
+            </div>
+
+            <div className="mt-4 space-y-3">
+              {excelPreview.mainItems.map((mainItem) => (
+                <div key={mainItem.id} className="rounded-2xl border border-slate-200 bg-white p-4">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="inline-flex rounded-full bg-slate-900 px-2.5 py-1 text-[11px] font-semibold text-white">主項目</span>
+                    <p className="text-sm font-semibold text-slate-900">{mainItem.title}</p>
+                  </div>
+                  <div className="mt-3 space-y-2">
+                    {mainItem.children.map((child) => (
+                      <div key={child.id} className="rounded-2xl bg-slate-50 px-4 py-3 text-sm text-slate-700">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span className="inline-flex rounded-full bg-white px-2.5 py-1 text-[11px] font-medium text-slate-600 ring-1 ring-slate-200">{child.code}</span>
+                          <span className="font-medium text-slate-900">{child.title}</span>
+                        </div>
+                        <div className="mt-2 flex flex-wrap gap-3 text-xs text-slate-500">
+                          {child.quantity ? <span>數量：{child.quantity}</span> : null}
+                          {child.unit ? <span>單位：{child.unit}</span> : null}
+                          {child.amount ? <span>金額：{child.amount}</span> : null}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : null}
+
         {showMainItemCreator ? (
           <div className="mt-4 flex flex-col gap-3 sm:flex-row">
             <input
