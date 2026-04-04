@@ -231,6 +231,43 @@ function parseProcurementReply(reply: AssignmentReply): ParsedProcurementReply {
   };
 }
 
+function buildReplyMetaFromMessage(message: string, type: OpenCategory) {
+  const tempReply: AssignmentReply = {
+    id: "temp",
+    message,
+    createdAt: "",
+  };
+
+  if (type === "design") {
+    const parsed = parseDesignReply(tempReply);
+    return {
+      title: parsed.title === "未命名回覆" ? "" : parsed.title,
+      quantity: parsed.quantity === "未填寫" ? "" : parsed.quantity,
+      amount: parsed.amount === "未填寫" ? "" : parsed.amount,
+      size: parsed.size === "未填寫" ? "" : parsed.size,
+      materialStructure:
+        parsed.materialStructure === "未填寫" ? "" : parsed.materialStructure,
+      fileUrl: parsed.fileUrl === "未填寫" ? "" : parsed.fileUrl,
+      vendor: parsed.vendor === "未指定廠商" ? "" : parsed.vendor,
+    };
+  }
+
+  if (type === "procurement") {
+    const parsed = parseProcurementReply(tempReply);
+    return {
+      title: parsed.title === "未命名回覆" ? "" : parsed.title,
+      quantity: parsed.quantity === "未填寫" ? "" : parsed.quantity,
+      amount: parsed.amount === "未填寫" ? "" : parsed.amount,
+      size: parsed.size === "未填寫" ? "" : parsed.size,
+      materialStructure: parsed.material === "未填寫" ? "" : parsed.material,
+      fileUrl: parsed.previewUrl === "未填寫" ? "" : parsed.previewUrl,
+      vendor: parsed.vendor === "未指定廠商" ? "" : parsed.vendor,
+    };
+  }
+
+  return undefined;
+}
+
 function ExecutionFieldGrid({ fields }: { fields: DisplayField[] }) {
   return (
     <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
@@ -826,6 +863,7 @@ export function ExecutionTreeSection({
         return {
           ...reply,
           message: nextMessage,
+          meta: buildReplyMetaFromMessage(nextMessage, type),
           createdAt: `${reply.createdAt}（已修改，待重新確認）`,
         };
       }),

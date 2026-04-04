@@ -175,8 +175,8 @@ export function getDesignBoardRecords(projects: Project[]): DesignTaskBoardRecor
     }
 
     const confirmedReplies = new Map<string, number>();
-    entries.forEach(([, assignment]) => {
-      const replies = assignment.replies ?? [];
+    entries.forEach(([targetId, assignment]) => {
+      const replies = section.replyOverrides[targetId] ?? assignment.replies ?? [];
       replies.forEach((reply) => {
         const parsed = parseReplyMessage(reply);
         if (!parsed.confirmed) return;
