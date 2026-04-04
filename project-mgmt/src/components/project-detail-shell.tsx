@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { CopyEventInfoButton } from "@/components/copy-event-info-button";
 import { ExecutionTreeSection } from "@/components/execution-tree-section";
 import { Project } from "@/components/project-data";
@@ -34,6 +34,35 @@ export function ProjectDetailShell({ project, entryContext }: { project: Project
   function updateField(key: keyof typeof projectForm, value: string) {
     setProjectForm((prev) => ({ ...prev, [key]: value }));
   }
+
+  const focusedExecutionTargetId = useMemo(() => {
+    const target = entryContext?.task?.trim();
+    if (!target) return null;
+
+    for (const item of project.executionItems) {
+      if (item.title === target) return item.id;
+      const matchedChild = item.children?.find((child) => child.title === target);
+      if (matchedChild) return item.id;
+    }
+
+    return null;
+  }, [entryContext?.task, project.executionItems]);
+
+  useEffect(() => {
+    if (!focusedExecutionTargetId) return;
+
+    const frame = window.requestAnimationFrame(() => {
+      const target = document.querySelector(`[data-execution-item-id="${focusedExecutionTargetId}"]`) as HTMLElement | null;
+      if (!target) return;
+      target.scrollIntoView({ behavior: "smooth", block: "center" });
+      target.classList.add("ring-2", "ring-blue-300", "border-blue-300", "bg-blue-50/40");
+      window.setTimeout(() => {
+        target.classList.remove("ring-2", "ring-blue-300", "border-blue-300", "bg-blue-50/40");
+      }, 2200);
+    });
+
+    return () => window.cancelAnimationFrame(frame);
+  }, [focusedExecutionTargetId]);
 
   return (
     <>
@@ -165,25 +194,6 @@ export function ProjectDetailShell({ project, entryContext }: { project: Project
           </article>
         ))}
       </section>
-
-      {entryContext?.task ? (
-        <section className="rounded-3xl border border-blue-200 bg-blue-50/70 p-5 shadow-sm ring-1 ring-blue-100">
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-            <div>
-              <p className="text-xs font-semibold tracking-wide text-blue-700">來自跨專案任務版</p>
-              <h3 className="mt-1 text-lg font-semibold text-slate-900">已導回原專案任務區</h3>
-              <p className="mt-2 text-sm leading-6 text-slate-600">
-                目前任務：<span className="font-medium text-slate-900">{entryContext.task}</span>
-                {entryContext.source ? <span> ｜ 來源：{entryContext.source === "design" ? "設計任務版" : entryContext.source === "procurement" ? "備品採購版" : entryContext.source}</span> : null}
-              </p>
-              <p className="mt-2 text-sm text-slate-500">第一版先用導流提示明確標示已進入原專案頁；下一步再補更精準的區塊聚焦。</p>
-            </div>
-            <a href="#project-execution-section" className="inline-flex items-center justify-center rounded-2xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800">
-              前往任務區
-            </a>
-          </div>
-        </section>
-      ) : null}
 
       <section className="grid gap-6 2xl:grid-cols-[minmax(0,1.08fr)_minmax(340px,0.92fr)]">
         <article className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">

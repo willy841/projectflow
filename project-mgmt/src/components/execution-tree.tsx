@@ -1514,6 +1514,7 @@ export function ExecutionTree({
         return (
           <div
             key={item.id}
+            data-execution-item-id={item.id}
             className="rounded-3xl border border-slate-300 bg-white p-5 shadow-sm transition hover:border-slate-400"
           >
             <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
