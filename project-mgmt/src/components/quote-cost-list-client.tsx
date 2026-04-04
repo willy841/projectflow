@@ -8,7 +8,6 @@ import {
   getCloseStatusClass,
   getGrossProfit,
   getQuotationTotal,
-  getReconciliationStatusClass,
   type CostSourceType,
 } from "@/components/quote-cost-data";
 import { getQuoteCostProjectsWithWorkflow } from "@/components/project-workflow-store";
@@ -56,7 +55,7 @@ export function QuoteCostListClient({ mode = "active" }: { mode?: "active" | "cl
   return (
     <AppShell activePath="/quote-costs">
       <header className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200 xl:p-7">
-        <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
           <h2 className="text-3xl font-semibold tracking-tight text-slate-900">報價成本</h2>
           <div className="rounded-2xl bg-slate-50 px-4 py-2 text-sm text-slate-600 ring-1 ring-slate-200">
             共 {activeProjects.length} 筆專案
@@ -74,14 +73,14 @@ export function QuoteCostListClient({ mode = "active" }: { mode?: "active" | "cl
                   <div>
                     <div className="flex flex-wrap items-center gap-2">
                       <h4 className="text-xl font-semibold text-slate-900">{project.projectName}</h4>
-                      <span className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ring-1 ${getReconciliationStatusClass(project.reconciliationStatus)}`}>
-                        {project.reconciliationStatus}
+                      <span className="text-sm text-slate-600">活動日期 {project.eventDate}</span>
+                      <span className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ring-1 ${project.quotationImported ? "bg-emerald-50 text-emerald-700 ring-emerald-200" : "bg-amber-50 text-amber-700 ring-amber-200"}`}>
+                        {project.quotationImported ? "已上傳" : "未上傳"}
                       </span>
                       <span className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ring-1 ${getCloseStatusClass(project.closeStatus)}`}>
                         {project.closeStatus}
                       </span>
                     </div>
-                    <p className="mt-2 text-sm text-slate-600">{project.clientName} ・ 活動日期 {project.eventDate}</p>
                   </div>
 
                   <Link
