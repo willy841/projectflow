@@ -10,6 +10,11 @@ type ReplySummaryCard = {
   meta: string;
   detail: string;
 };
+
+type AppendedReply = {
+  id: string;
+  text: string;
+};
 import { CopyEventInfoButton } from "@/components/copy-event-info-button";
 import { ExecutionTree } from "@/components/execution-tree";
 import { Project } from "@/components/project-data";
@@ -34,6 +39,7 @@ export function ProjectDetailShell({
   const [expandedReplyKey, setExpandedReplyKey] = useState<string | null>(null);
   const [replyDraftKey, setReplyDraftKey] = useState<string | null>(null);
   const [replyDraftText, setReplyDraftText] = useState("");
+  const [appendedReplies, setAppendedReplies] = useState<Record<string, AppendedReply[]>>({});
   const [projectForm, setProjectForm] = useState({
     name: project.name,
     client: project.client,
@@ -53,6 +59,24 @@ export function ProjectDetailShell({
 
   function updateField(key: keyof typeof projectForm, value: string) {
     setProjectForm((prev) => ({ ...prev, [key]: value }));
+  }
+
+  function submitMinimalReply(targetKey: string) {
+    const nextText = replyDraftText.trim();
+    if (!nextText) return;
+
+    setAppendedReplies((prev) => ({
+      ...prev,
+      [targetKey]: [
+        ...(prev[targetKey] ?? []),
+        {
+          id: `${targetKey}-${Date.now()}`,
+          text: nextText,
+        },
+      ],
+    }));
+    setReplyDraftText("");
+    setReplyDraftKey(null);
   }
 
   const workflowCostSummary = useMemo(() => getProjectWorkflowCostSummary(project.id), [project.id]);
@@ -404,8 +428,8 @@ export function ProjectDetailShell({
                           ) : null}
                           {replyDraftKey === `${replyGroup.key}-${item.title}` ? (
                             <div className="rounded-2xl border border-slate-200 bg-white p-4">
-                              <p className="text-sm font-semibold text-slate-900">新增回覆（測試版）</p>
-                              <p className="mt-1 text-xs text-slate-500">先只驗證表單容器與輸入行為，不接真正送出流程。</p>
+                              <p className="text-sm font-semibold text-slate-900">新增回覆（最小真實版）</p>
+                              <p className="mt-1 text-xs text-slate-500">這一輪只驗證 local append，不接編輯、刪除、金額確認等複雜邏輯。</p>
                               <textarea
                                 value={replyDraftText}
                                 onChange={(event) => setReplyDraftText(event.target.value)}
@@ -415,9 +439,10 @@ export function ProjectDetailShell({
                               <div className="mt-3 flex flex-wrap gap-2">
                                 <button
                                   type="button"
+                                  onClick={() => submitMinimalReply(`${replyGroup.key}-${item.title}`)}
                                   className="inline-flex items-center justify-center rounded-xl bg-blue-600 px-3 py-2 text-xs font-semibold text-white transition hover:bg-blue-700"
                                 >
-                                  送出（暫不啟用）
+                                  送出回覆
                                 </button>
                                 <button
                                   type="button"
@@ -432,6 +457,17 @@ export function ProjectDetailShell({
                               </div>
                             </div>
                           ) : null}
++                          {(appendedReplies[`${replyGroup.key}-${item.title}`] ?? []).length ? (
++                            <div className="space-y-2 rounded-2xl border border-slate-200 bg-white p-4">
++                              <p className="text-xs font-semibold tracking-wide text-slate-500">新增回覆結果（local）</p>
++                              {(appendedReplies[`${replyGroup.key}-${item.title}`] ?? []).map((reply, index) => (
++                                <div key={reply.id} className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700">
++                                  <p className="text-xs font-medium text-slate-500">R{index + 1}</p>
++                                  <p className="mt-2 whitespace-pre-wrap leading-6">{reply.text}</p>
++                                </div>
++                              ))}
++                            </div>
++                          ) : null}
                         </div>
                       </div>
                     )) : (
