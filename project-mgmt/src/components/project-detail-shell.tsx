@@ -421,18 +421,31 @@ export function ProjectDetailShell({
                   title: "設計文件",
                   count: project.designTasks.length,
                   description: "後續會接設計回覆整理與文件輸出。",
+                  rows: project.designTasks.slice(0, 2).map((task, index) => ({
+                    no: index + 1,
+                    name: task.title,
+                    owner: task.assignee,
+                    meta: task.due,
+                  })),
                 },
                 {
                   key: "procurement-docs",
                   title: "備品文件",
                   count: project.procurementTasks.length,
                   description: "後續會接採買回覆整理與清單輸出。",
+                  rows: project.procurementTasks.slice(0, 2).map((task, index) => ({
+                    no: index + 1,
+                    name: task.title,
+                    owner: task.buyer,
+                    meta: task.budget,
+                  })),
                 },
                 {
                   key: "vendor-docs",
                   title: "廠商文件",
                   count: 0,
                   description: "後續會接廠商發包整理與文件狀態。",
+                  rows: [],
                 },
               ].map((docGroup) => (
                 <article key={docGroup.key} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
@@ -444,6 +457,24 @@ export function ProjectDetailShell({
                     <span className="inline-flex min-w-[40px] items-center justify-center rounded-full bg-white px-3 py-1 text-xs font-semibold text-slate-700 ring-1 ring-slate-200">
                       {docGroup.count}
                     </span>
+                  </div>
+
+                  <div className="mt-4 overflow-hidden rounded-2xl border border-slate-200 bg-white">
+                    <div className="grid grid-cols-[64px_minmax(0,1.4fr)_minmax(0,0.9fr)_minmax(0,0.9fr)] gap-px bg-slate-200 text-xs font-semibold text-slate-600">
+                      {['編號', '項目', '負責人', '備註'].map((label) => (
+                        <div key={`${docGroup.key}-${label}`} className="bg-slate-50 px-3 py-2.5">{label}</div>
+                      ))}
+                    </div>
+                    {docGroup.rows.length ? docGroup.rows.map((row) => (
+                      <div key={`${docGroup.key}-${row.no}-${row.name}`} className="grid grid-cols-[64px_minmax(0,1.4fr)_minmax(0,0.9fr)_minmax(0,0.9fr)] gap-px border-t border-slate-200 bg-slate-200 text-sm text-slate-700">
+                        <div className="bg-white px-3 py-3">{row.no}</div>
+                        <div className="bg-white px-3 py-3 font-medium text-slate-900">{row.name}</div>
+                        <div className="bg-white px-3 py-3">{row.owner}</div>
+                        <div className="bg-white px-3 py-3">{row.meta}</div>
+                      </div>
+                    )) : (
+                      <div className="px-4 py-6 text-sm text-slate-400">目前尚無可顯示的文件資料。</div>
+                    )}
                   </div>
                 </article>
               ))}
