@@ -1294,8 +1294,8 @@ export function ExecutionTreeSection({
   };
 
   return (
-    <>
-      <section className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+    <div className="min-w-0 overflow-hidden space-y-6">
+      <section className="min-w-0 overflow-hidden rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
         <ExecutionTree
           heading="專案執行項目"
           items={project.executionItems}
@@ -1339,7 +1339,7 @@ export function ExecutionTreeSection({
         />
       </section>
 
-      <section className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+      <section className="min-w-0 overflow-hidden rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
         <div className="mb-5">
           <h3 className="text-xl font-semibold">專案分類檢視</h3>
         </div>
@@ -1379,7 +1379,7 @@ export function ExecutionTreeSection({
           )}
         </div>
 
-        <div className="mt-6 rounded-3xl border border-slate-300 bg-slate-100 p-5 shadow-inner">
+        <div className="mt-6 min-w-0 overflow-hidden rounded-3xl border border-slate-300 bg-slate-100 p-5 shadow-inner">
           <div className="mb-4 flex flex-col gap-3 border-b border-slate-200 pb-4 sm:flex-row sm:items-start sm:justify-between">
             <div className="flex flex-wrap items-center gap-3">
               <h4 className="text-lg font-semibold text-slate-900">
@@ -2426,6 +2426,6 @@ export function ExecutionTreeSection({
           ) : null}
         </div>
       </section>
-    </>
+    </div>
   );
 }
