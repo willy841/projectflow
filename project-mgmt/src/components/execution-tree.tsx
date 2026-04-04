@@ -1216,8 +1216,9 @@ export function ExecutionTree({
       const rows = XLSX.utils.sheet_to_json(worksheet, { header: 1, raw: false }) as unknown[][];
       setExcelDebugRows(rows.slice(0, 20).map((row) => row.map((cell) => String(cell ?? "").trim())));
       const preview = parseExecutionItemsFromExcelRows(rows);
-      if (!preview.items.length) {
+      if (!preview.mainItems.length) {
         setExcelImportError("這份 .xlsx 沒有可匯入的主 / 子項目；系統只會納入有編號的列。");
+        setExcelPreview(preview);
         return;
       }
       setExcelPreview(preview);
@@ -1459,6 +1460,26 @@ export function ExecutionTree({
                 >
                   取消預覽
                 </button>
+              </div>
+            </div>
+
+            <div className="mt-4 rounded-2xl border border-slate-200 bg-white p-4 text-xs text-slate-600">
+              <p className="font-semibold text-slate-900">解析摘要</p>
+              <div className="mt-2 flex flex-wrap gap-3">
+                <span>header row：{excelPreview.headerRowNumber}</span>
+                <span>mainItems：{excelPreview.mainItems.length}</span>
+                <span>items：{excelPreview.items.length}</span>
+                <span>ignored：{excelPreview.ignoredRowNumbers.length}</span>
+                <span>failed：{excelPreview.failedRowNumbers.length}</span>
+                <span>stop row：{excelPreview.stopRowNumber ?? "-"}</span>
+              </div>
+              <div className="mt-3 space-y-2">
+                {excelPreview.rows.slice(0, 20).map((row) => (
+                  <div key={`parsed-${row.rowNumber}`} className="rounded-xl bg-slate-50 px-3 py-2">
+                    Row {row.rowNumber} ｜ type={row.type} ｜ code={row.code || ""} ｜ name={row.name || ""}
+                    {row.reason ? <span> ｜ reason={row.reason}</span> : null}
+                  </div>
+                ))}
               </div>
             </div>
 
