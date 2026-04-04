@@ -119,6 +119,18 @@ function makeSubItemId(mainOrder: number, code: string, rowNumber: number) {
   return `excel-sub-${mainOrder}-${code.replace(/[^\w-]+/g, "-")}-${rowNumber}`;
 }
 
+function findNameFromRow(raw: string[], codeIndex: number, fallbackIndex: number) {
+  const direct = normalizeText(raw[fallbackIndex]);
+  if (direct) return direct;
+
+  for (let index = codeIndex + 1; index < raw.length; index += 1) {
+    const candidate = normalizeText(raw[index]);
+    if (candidate) return candidate;
+  }
+
+  return "";
+}
+
 export function parseExecutionItemsFromExcelRows(rawRows: unknown[][]): ParsedExcelImportPreview {
   const rows = rawRows.map((row) => row.map((cell) => normalizeText(cell)));
   const header = buildHeaderMap(rows);
@@ -142,7 +154,7 @@ export function parseExecutionItemsFromExcelRows(rawRows: unknown[][]): ParsedEx
   for (let rowIndex = header.headerRowIndex + 1; rowIndex < rows.length; rowIndex += 1) {
     const raw = rows[rowIndex] ?? [];
     const code = normalizeText(raw[header.codeIndex]);
-    const name = normalizeText(raw[header.nameIndex]);
+    const name = findNameFromRow(raw, header.codeIndex, header.nameIndex);
     const quantity = normalizeText(raw[header.quantityIndex]);
     const unit = normalizeText(raw[header.unitIndex]);
     const unitPrice = normalizeText(raw[header.unitPriceIndex]);
