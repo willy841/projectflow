@@ -1,12 +1,12 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { TRADE_OPTIONS, useVendorStore } from "@/components/vendor-store";
+import { useVendorStore } from "@/components/vendor-store";
 
 type Props = {
   open: boolean;
   onClose: () => void;
-  onCreated?: (vendor: { id: string; name: string; tradeLabels?: string[] }) => void;
+  onCreated?: (vendor: { id: string; name: string; tradeLabel?: string }) => void;
   title?: string;
   description?: string;
   confirmLabel?: string;
@@ -17,28 +17,23 @@ export function VendorQuickCreateDialog({
   onClose,
   onCreated,
   title = "快速建立廠商",
-  description = "第一輪 MVP：最小必填只有廠商名稱；工種可多選、非必填。",
+  description = "保留最小建立能力：必填只有廠商名稱；工種單選、非必填。",
   confirmLabel = "建立廠商",
 }: Props) {
-  const { createVendor } = useVendorStore();
+  const { createVendor, tradeOptions } = useVendorStore();
   const [name, setName] = useState("");
-  const [tradeLabels, setTradeLabels] = useState<string[]>([]);
+  const [tradeLabel, setTradeLabel] = useState("");
   const [error, setError] = useState("");
 
   useEffect(() => {
     if (!open) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setName("");
-      setTradeLabels([]);
+      setTradeLabel("");
       setError("");
     }
   }, [open]);
 
-  const sortedTrades = useMemo(() => TRADE_OPTIONS, []);
-
-  function toggleTrade(trade: string) {
-    setTradeLabels((current) => (current.includes(trade) ? current.filter((item) => item !== trade) : [...current, trade]));
-  }
+  const sortedTrades = useMemo(() => tradeOptions, [tradeOptions]);
 
   function handleSubmit() {
     const trimmedName = name.trim();
@@ -46,7 +41,7 @@ export function VendorQuickCreateDialog({
       setError("請填寫廠商名稱。");
       return;
     }
-    const result = createVendor({ name: trimmedName, tradeLabels });
+    const result = createVendor({ name: trimmedName, tradeLabel: tradeLabel || undefined });
     if (!result.ok) {
       setError(`廠商「${result.vendor.name}」已存在，禁止重複建立。`);
       return;
@@ -85,24 +80,19 @@ export function VendorQuickCreateDialog({
             />
           </label>
 
-          <div>
-            <p className="mb-2 text-sm font-medium text-slate-700">工種（可多選、非必填）</p>
-            <div className="flex flex-wrap gap-2">
-              {sortedTrades.map((trade) => {
-                const active = tradeLabels.includes(trade);
-                return (
-                  <button
-                    key={trade}
-                    type="button"
-                    onClick={() => toggleTrade(trade)}
-                    className={`rounded-full px-3 py-2 text-xs font-medium ring-1 transition ${active ? "bg-slate-900 text-white ring-slate-900" : "bg-white text-slate-700 ring-slate-200 hover:bg-slate-50"}`}
-                  >
-                    {trade}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
+          <label className="block">
+            <p className="mb-2 text-sm font-medium text-slate-700">工種（單選、非必填）</p>
+            <select
+              value={tradeLabel}
+              onChange={(event) => setTradeLabel(event.target.value)}
+              className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none focus:border-blue-400"
+            >
+              <option value="">暫不指定</option>
+              {sortedTrades.map((trade) => (
+                <option key={trade} value={trade}>{trade}</option>
+              ))}
+            </select>
+          </label>
 
           {error ? <div className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">{error}</div> : null}
         </div>
