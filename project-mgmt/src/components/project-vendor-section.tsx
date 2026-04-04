@@ -10,7 +10,6 @@ import {
 } from "@/components/vendor-data";
 import { useStoredVendorPackages } from "@/components/vendor-package-store";
 import type { VendorAssignmentItem } from "@/components/execution-tree-section";
-import { VendorQuickCreateDialog } from "@/components/vendor-quick-create-dialog";
 import { useVendorStore } from "@/components/vendor-store";
 
 type ProjectVendorInfo = {
@@ -67,7 +66,6 @@ export function ProjectVendorSection({
   const [assignments, setAssignments] = useState<VendorAssignment[]>(() =>
     vendorTaskItems.map((item) => mapVendorTaskItemToAssignment(projectId, item))
   );
-  const [quickCreateAssignmentId, setQuickCreateAssignmentId] = useState<string | null>(null);
   const [inlineErrors, setInlineErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
@@ -232,17 +230,6 @@ export function ProjectVendorSection({
                   <div>
                     <div className="mb-2 flex h-6 items-center justify-between gap-2">
                       <p className="text-sm font-medium text-slate-700">選擇廠商</p>
-                      {!isSubmitted ? (
-                        <button
-                          type="button"
-                          onClick={() => setQuickCreateAssignmentId(assignment.id)}
-                          title="快速建立廠商"
-                          aria-label="快速建立廠商"
-                          className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-dashed border-slate-300 bg-white text-[11px] font-semibold leading-none text-slate-700 transition hover:bg-slate-50"
-                        >
-                          +
-                        </button>
-                      ) : null}
                     </div>
                     <select
                       value={selectedVendorName}
@@ -340,24 +327,6 @@ export function ProjectVendorSection({
         )}
       </article>
 
-      <VendorQuickCreateDialog
-        open={Boolean(quickCreateAssignmentId)}
-        onClose={() => setQuickCreateAssignmentId(null)}
-        title="流程內快速建立廠商"
-        description="入口 B：設計 / 備品 / Vendor 流程匹配不到廠商時，可直接建立；成功後立刻回填當前選單並自動選中。"
-        onCreated={(vendor) => {
-          if (!quickCreateAssignmentId) return;
-          handleAssignmentChange(quickCreateAssignmentId, {
-            selectedVendorName: vendor.name,
-            tradeLabel: assignments.find((item) => item.id === quickCreateAssignmentId)?.tradeLabel || vendor.tradeLabels?.[0] || "",
-          });
-          setInlineErrors((current) => {
-            const next = { ...current };
-            delete next[quickCreateAssignmentId];
-            return next;
-          });
-        }}
-      />
     </section>
   );
 }
