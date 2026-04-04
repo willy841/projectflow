@@ -41,7 +41,7 @@ export default function ProcurementTasksPage() {
         </div>
       </header>
 
-      <section className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+      <section className="rounded-3xl border-0 bg-transparent p-0 shadow-none ring-0">
         <div className="grid gap-3 xl:grid-cols-[minmax(0,1.35fr)_minmax(220px,0.65fr)]">
           <label className="flex flex-col gap-2">
             <span className="text-sm font-medium text-slate-700">搜尋任務</span>
