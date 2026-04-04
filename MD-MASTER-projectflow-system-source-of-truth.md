@@ -2490,6 +2490,102 @@ Vendor 詳情頁第一版採以下三層主結構：
 #### I. 本輪 commit
 - `fe9cb27` — `feat: make vendor trades manageable`
 
+#### J. Vendor 財務承接（2026-04-04 中午更新）
+本段補記 `quote-costs / closeouts` 與 `vendors` 之間新增的共享財務資料主線。若後續續接 vendor 未付款、付款狀態、歷史往來、調整後成本承接，應以本段為準。
+
+##### 1. 產品定位
+已拍板並已落地：
+- 本輪正式把 `quote-costs / closeouts` 與 `vendors` 接成同一條 **`projectId + vendorId`** 的共享財務資料主線。
+- `quote-costs / closeouts` 繼續作為成本金額與調整結果的主來源。
+- `vendors` 改為承接這份有效資料，處理未付款、付款狀態與往來查閱。
+- 目前仍維持 **localStorage MVP**，不做後端、不做分批付款、不開新財務模組。
+
+##### 2. 共享資料單位
+本輪已新增 shared relation layer，主鍵固定為：
+- **`projectId + vendorId`**
+
+承接欄位至少包含：
+- `projectId`
+- `vendorId`
+- `projectName`
+- `vendorName`
+- `projectStatus`
+- `adjustedCostTotal`
+- `rawCostTotal`
+- `paymentStatus`
+- `unpaidAmount`
+- `costItemsSummary`
+- `packageSummary`
+
+##### 3. 頁面責任與讀寫方向
+已拍板並已落地：
+- **`quote-costs / closeouts`**
+  - 成本金額與調整後結果的主來源
+  - 付款狀態需承接共享 relation 結果
+- **`vendors`**
+  - 不再主維護另一套平行成本數字
+  - 改吃共享 relation 顯示未付款與歷史往來
+  - 本輪允許在 vendor detail 端操作付款狀態
+- **付款狀態寫入方向**
+  - 由 `vendors` 端操作
+  - 寫回 shared relation 後，其他頁同步承接
+
+正式語意：
+> 金額主線在 quote-cost / closeout；付款操作主線在 vendors；但有效資料只能有一份。
+
+##### 4. vendors 模組本輪承接結果
+本輪已落地：
+- `vendor list` 的未付款總額改吃 shared relation
+- `vendor detail` 的 **未付款區** 改吃 shared relation
+- `vendor detail` 的 **歷史往來區** 改吃 shared relation
+- `vendor detail` 的 `標記為已付款` 會寫回 shared relation
+
+##### 5. quote-costs / closeouts 本輪承接結果
+本輪已落地：
+- `quote-cost-detail-client.tsx` 的 vendor group header 已新增：
+  - 付款狀態
+  - 未付款金額
+- `closeout-list-client.tsx` 已新增：
+  - 每案的廠商付款承接摘要
+
+##### 6. fallback 規則
+本輪已明確採用：
+- **shared relation 為主**
+- 舊 `vendorProjectRecords` / seed 僅作 fallback
+- 不可重複累加
+
+正式語意：
+> 共享資料已接手的 `projectId + vendorId` 關係，不可再與舊 seed 疊成兩套有效數字。
+
+##### 7. UI / UX 本輪同步收斂
+本輪已同步收斂 `vendors/[id]`：
+- 未付款區改為更明確的 **主工作區**
+- 歷史往來區改為 **次查閱區**
+- 歷史區先按 `執行中 / 已結案` 分組
+- 頁首新增：
+  - 待付款筆數
+  - 待付款總額
+  - 執行中專案數
+  - 已付款 / 已結案累計
+- 主視覺已降低 seed / mock / MVP 感文案
+
+##### 8. 目前邊界
+仍需記住：
+- 目前仍是 localStorage MVP，不是正式後端資料層
+- `quote-cost` 內的 vendor identity 與 vendors 主檔 id 尚未完全是同一套正式身份模型
+- 這一輪已用「shared relation 優先、名稱 / seed fallback」兜住 MVP，但長期仍值得做正式對齊
+
+##### 9. 本輪工程落地與驗證
+已完成：
+1. 新增 shared relation store
+2. vendors list / detail 改吃共享資料
+3. vendors 付款狀態可寫回共享資料
+4. quote-costs / closeouts 開始承接同一份付款狀態
+5. 已完成 build 驗證
+
+##### 10. 本輪 commit
+- `9b1683f` — `feat: bridge vendor financial data with quote costs`
+
 以下整理本輪 vendor / 報價成本 / 結案 相關實作與 hotfix，供之後新對話續接時快速掌握目前 repo 真正已落地到哪裡。
 
 #### A. 報價成本模組已落地到的範圍

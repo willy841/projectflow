@@ -184,6 +184,22 @@
 ### 判斷
 - **這仍是接下來很值得集中處理的一塊，但成熟度已比前一版再往上一步。**
 
+### 2026-04-04 中午補充更新：Vendor 財務承接第一版已落地
+本輪 vendors 模組又往前補了一段關鍵主線：
+- `quote-costs / closeouts` 與 `vendors` 已開始共用 `projectId + vendorId` 的共享財務 relation
+- vendor list 未付款總額已改吃共享 relation
+- vendor detail 的未付款區 / 歷史往來區已改吃共享 relation
+- `標記為已付款` 已可寫回共享 relation
+- `quote-costs / closeouts` 也已開始承接同一份付款狀態結果
+
+正式判讀：
+> vendors 模組目前已不只是 vendor 主檔與工種管理頁，而是開始承接真正的「專案 × 廠商」財務關係。
+
+但仍需記住：
+- 目前仍是 localStorage MVP
+- vendor identity 與正式主檔 id 仍未完全對齊
+- 這是第一版閉環，不代表財務資料層已完全封板
+
 ---
 
 # 3. 整體狀態總判斷
