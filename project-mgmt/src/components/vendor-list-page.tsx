@@ -2,19 +2,14 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
 import { getVendorOutstandingTotal, formatCurrency } from "@/components/vendor-data";
-import { VendorQuickCreateDialog } from "@/components/vendor-quick-create-dialog";
-import { TRADE_OPTIONS, useVendorStore } from "@/components/vendor-store";
+import { useVendorStore } from "@/components/vendor-store";
 
 const DELETE_CONFIRM_TITLE = "確認刪除這個廠商？";
 const DELETE_CONFIRM_DESCRIPTION = "這是刪除動作，刪除後會從目前的前端 vendor 清單移除。請再次確認是否要刪除這個廠商。";
 
 export function VendorListPage() {
-  const router = useRouter();
-  const { vendors, deleteVendor } = useVendorStore();
-  const [quickCreateOpen, setQuickCreateOpen] = useState(false);
-  const [createdVendorName, setCreatedVendorName] = useState("");
+  const { vendors, deleteVendor, tradeOptions } = useVendorStore();
   const [searchKeyword, setSearchKeyword] = useState("");
   const [activeTrade, setActiveTrade] = useState<string | null>(null);
   const [showUnpaidOnly, setShowUnpaidOnly] = useState(false);
@@ -29,11 +24,11 @@ export function VendorListPage() {
     const keyword = searchKeyword.trim().toLowerCase();
 
     return vendorCards.filter((vendor) => {
-      const matchesSearch = !keyword || [vendor.name, vendor.category, ...(vendor.tradeLabels ?? [])]
+      const matchesSearch = !keyword || [vendor.name, vendor.category, vendor.tradeLabel || ""]
         .join(" ")
         .toLowerCase()
         .includes(keyword);
-      const matchesTrade = !activeTrade || (vendor.tradeLabels ?? []).includes(activeTrade) || vendor.category === activeTrade;
+      const matchesTrade = !activeTrade || (vendor.tradeLabel || vendor.category) === activeTrade;
       const matchesUnpaid = !showUnpaidOnly || vendor.outstandingTotal > 0;
       return matchesSearch && matchesTrade && matchesUnpaid;
     });
@@ -55,19 +50,7 @@ export function VendorListPage() {
           <div className="min-w-0 xl:pt-2">
             <div className="flex flex-wrap items-center gap-3">
               <h2 className="text-3xl font-semibold tracking-tight text-slate-900">廠商資料</h2>
-              <button
-                type="button"
-                onClick={() => setQuickCreateOpen(true)}
-                className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-800 shadow-sm transition hover:border-slate-400 hover:bg-slate-50"
-              >
-                + 新增廠商
-              </button>
             </div>
-            {createdVendorName ? (
-              <div className="mt-4 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
-                已建立廠商「{createdVendorName}」，正帶你前往廠商詳情。
-              </div>
-            ) : null}
           </div>
 
           <div className="sm:min-w-[260px] xl:self-stretch">
@@ -88,7 +71,7 @@ export function VendorListPage() {
                   type="search"
                   value={searchKeyword}
                   onChange={(event) => setSearchKeyword(event.target.value)}
-                  placeholder="搜尋廠商名稱、工種或分類"
+                  placeholder="搜尋廠商名稱或工種"
                   className="w-full bg-transparent text-sm text-slate-900 outline-none placeholder:text-slate-400"
                 />
               </div>
@@ -141,7 +124,7 @@ export function VendorListPage() {
                 >
                   全部工種
                 </button>
-                {TRADE_OPTIONS.map((trade) => {
+                {tradeOptions.map((trade) => {
                   const active = activeTrade === trade;
                   return (
                     <button
@@ -171,18 +154,11 @@ export function VendorListPage() {
                 <div className="min-w-0">
                   <p className="text-sm text-slate-500">{vendor.category}</p>
                   <h3 className="mt-2 text-2xl font-semibold tracking-tight text-slate-900">{vendor.name}</h3>
-                  {(vendor.tradeLabels?.length ?? 0) > 0 ? (
-                    <div className="mt-3 flex flex-wrap gap-2">
-                      {vendor.tradeLabels?.map((trade) => (
-                        <span
-                          key={trade}
-                          className="inline-flex rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700 ring-1 ring-slate-200"
-                        >
-                          {trade}
-                        </span>
-                      ))}
-                    </div>
-                  ) : null}
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    <span className="inline-flex rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700 ring-1 ring-slate-200">
+                      {vendor.tradeLabel || vendor.category || "待補充"}
+                    </span>
+                  </div>
                 </div>
                 <span className="inline-flex rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700 ring-1 ring-slate-200">
                   廠商詳情
@@ -218,18 +194,6 @@ export function VendorListPage() {
           <p className="mt-2 text-sm leading-6 text-slate-500">可調整搜尋關鍵字或清除工種篩選後再查看。</p>
         </section>
       )}
-
-      <VendorQuickCreateDialog
-        open={quickCreateOpen}
-        onClose={() => setQuickCreateOpen(false)}
-        title="快速建立廠商"
-        description="沿用既有 quick create 規格：必填只有廠商名稱；工種可多選、非必填；名稱完全相同時禁止重複建立。"
-        confirmLabel="建立並查看廠商"
-        onCreated={(vendor) => {
-          setCreatedVendorName(vendor.name);
-          router.push(`/vendors/${vendor.id}`);
-        }}
-      />
 
       {deletingVendor ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/35 px-4">
