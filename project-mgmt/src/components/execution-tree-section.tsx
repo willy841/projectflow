@@ -16,6 +16,14 @@ import {
 import { Project, getStatusClass } from "@/components/project-data";
 
 type OpenCategory = "design" | "procurement" | "vendor";
+type FocusPanel = "detail" | "replies" | "replyBox" | "organize" | "document";
+
+type InitialFocus = {
+  tab?: string;
+  itemId?: string;
+  panel?: string;
+  vendor?: string;
+};
 
 type ReplyForm = {
   item: string;
@@ -443,7 +451,13 @@ function ProcurementDocumentPreview({
   );
 }
 
-export function ExecutionTreeSection({ project }: { project: Project }) {
+export function ExecutionTreeSection({
+  project,
+  initialFocus,
+}: {
+  project: Project;
+  initialFocus?: InitialFocus;
+}) {
   const [designAssignments, setDesignAssignments] = useState<
     DesignAssignmentItem[]
   >([]);
@@ -524,6 +538,48 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
     setOpenCategory(category);
     resetCategoryExpansions();
   }
+
+  useEffect(() => {
+    const tab = initialFocus?.tab;
+    if (tab !== "design" && tab !== "procurement" && tab !== "vendor") {
+      return;
+    }
+
+    setOpenCategory(tab);
+    resetCategoryExpansions();
+
+    const panel = initialFocus?.panel as FocusPanel | undefined;
+    const focusVendor = initialFocus?.vendor;
+    if (tab === "design") {
+      if (panel === "organize" && focusVendor) {
+        setActiveDesignDocumentContentVendor(focusVendor);
+        return;
+      }
+      if (panel === "document" && focusVendor) {
+        setActiveDesignDocumentVendor(focusVendor);
+        return;
+      }
+    }
+
+    if (tab === "procurement") {
+      if (panel === "organize") {
+        setActiveProcurementContent(project.id);
+        return;
+      }
+      if (panel === "document") {
+        setActiveProcurementDocument(project.id);
+        return;
+      }
+    }
+
+    const focusItemId = initialFocus?.itemId;
+    if (
+      focusItemId &&
+      (panel === "detail" || panel === "replies" || panel === "replyBox")
+    ) {
+      focusItem(focusItemId, panel);
+    }
+  }, [initialFocus, project.id]);
 
   function focusItem(itemId: string, target: "replies" | "replyBox" | "detail") {
     setEditingReplyId(null);

@@ -37,6 +37,14 @@ function formatCurrency(amount: number) {
   }).format(amount);
 }
 
+function buildProjectTaskHref(record: ProcurementBoardRecord, panel: "detail" | "organize" | "document") {
+  const params = new URLSearchParams({ tab: "procurement", panel });
+  if (panel === "detail" && record.sourceTargetId) {
+    params.set("item", record.sourceTargetId);
+  }
+  return `/projects/${record.projectId}?${params.toString()}`;
+}
+
 export default function ProcurementTasksPage() {
   const [query, setQuery] = useState("");
   const [confirmFilter, setConfirmFilter] = useState<"all" | ConfirmStatus>("all");
@@ -170,9 +178,9 @@ export default function ProcurementTasksPage() {
                 </div>
 
                 <div className="flex flex-wrap gap-2 xl:w-[320px] xl:justify-end">
-                  <Link href={`/projects/${record.projectId}`} className="inline-flex items-center justify-center rounded-2xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800">查看任務</Link>
-                  {record.confirmStatus === "已確認" ? <Link href={`/projects/${record.projectId}`} className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 transition hover:bg-slate-50">查看整理內容</Link> : null}
-                  {record.documentStatus !== "未生成" ? <Link href={`/projects/${record.projectId}`} className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 transition hover:bg-slate-50">{getDocumentActionLabel(record.documentStatus)}</Link> : null}
+                  <Link href={buildProjectTaskHref(record, "detail")} className="inline-flex items-center justify-center rounded-2xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800">查看任務</Link>
+                  {record.confirmStatus === "已確認" ? <Link href={buildProjectTaskHref(record, "organize")} className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 transition hover:bg-slate-50">查看整理內容</Link> : null}
+                  {record.documentStatus !== "未生成" ? <Link href={buildProjectTaskHref(record, "document")} className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 transition hover:bg-slate-50">{getDocumentActionLabel(record.documentStatus)}</Link> : null}
                 </div>
               </div>
             </article>

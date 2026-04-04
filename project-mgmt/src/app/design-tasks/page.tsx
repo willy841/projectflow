@@ -37,6 +37,17 @@ function formatCurrency(amount: number) {
   }).format(amount);
 }
 
+function buildProjectTaskHref(record: DesignTaskBoardRecord, panel: "detail" | "organize" | "document") {
+  const params = new URLSearchParams({ tab: "design", panel });
+  if (panel === "detail" && record.sourceTargetId) {
+    params.set("item", record.sourceTargetId);
+  }
+  if ((panel === "organize" || panel === "document") && record.vendorName && record.vendorName !== "未指定") {
+    params.set("vendor", record.vendorName);
+  }
+  return `/projects/${record.projectId}?${params.toString()}`;
+}
+
 export default function DesignTasksPage() {
   const [query, setQuery] = useState("");
   const [confirmFilter, setConfirmFilter] = useState<"all" | ConfirmStatus>("all");
@@ -206,16 +217,16 @@ export default function DesignTasksPage() {
                 </div>
 
                 <div className="flex flex-wrap gap-2 xl:w-[320px] xl:justify-end">
-                  <Link href={`/projects/${record.projectId}`} className="inline-flex items-center justify-center rounded-2xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800">
+                  <Link href={buildProjectTaskHref(record, "detail")} className="inline-flex items-center justify-center rounded-2xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800">
                     查看任務
                   </Link>
                   {record.confirmStatus === "已確認" ? (
-                    <Link href={`/projects/${record.projectId}`} className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 transition hover:bg-slate-50">
+                    <Link href={buildProjectTaskHref(record, "organize")} className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 transition hover:bg-slate-50">
                       查看整理內容
                     </Link>
                   ) : null}
                   {record.documentStatus !== "未生成" ? (
-                    <Link href={`/projects/${record.projectId}`} className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 transition hover:bg-slate-50">
+                    <Link href={buildProjectTaskHref(record, "document")} className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 transition hover:bg-slate-50">
                       {getDocumentActionLabel(record.documentStatus)}
                     </Link>
                   ) : null}

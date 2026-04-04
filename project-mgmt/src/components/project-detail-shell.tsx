@@ -8,7 +8,20 @@ import { Project } from "@/components/project-data";
 import { getProjectWorkflowCostSummary } from "@/components/project-workflow-store";
 import { RequirementsPanel } from "@/components/requirements-panel";
 
-export function ProjectDetailShell({ project }: { project: Project }) {
+type ProjectDetailInitialFocus = {
+  tab?: string;
+  itemId?: string;
+  panel?: string;
+  vendor?: string;
+};
+
+export function ProjectDetailShell({
+  project,
+  initialFocus,
+}: {
+  project: Project;
+  initialFocus?: ProjectDetailInitialFocus;
+}) {
   const [isEditingProject, setIsEditingProject] = useState(false);
   const [projectForm, setProjectForm] = useState({
     name: project.name,
@@ -247,7 +260,7 @@ export function ProjectDetailShell({ project }: { project: Project }) {
         <RequirementsPanel initialItems={project.requirements} />
       </section>
 
-      <ExecutionTreeSection project={project} />
+      <ExecutionTreeSection project={project} initialFocus={initialFocus} />
     </>
   );
 }

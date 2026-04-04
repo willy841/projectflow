@@ -7,6 +7,7 @@ export type DesignTaskBoardRecord = {
   id: string;
   projectId: string;
   projectName: string;
+  sourceTargetId?: string;
   title: string;
   size: string;
   material: string;
