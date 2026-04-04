@@ -145,7 +145,7 @@ export function parseExecutionItemsFromExcelRows(rawRows: unknown[][]): ParsedEx
       break;
     }
 
-    const isMain = /^\d+$/.test(code);
+    const isMain = /^\d+$/.test(code) || /^\d+\.$/.test(code) || /^\d+\..+/.test(code);
     const isSub = /^\d+-\d+$/.test(code);
 
     if (isSub) {
@@ -175,9 +175,15 @@ export function parseExecutionItemsFromExcelRows(rawRows: unknown[][]): ParsedEx
       continue;
     }
 
-    if (isMain && name) {
+    if (isMain) {
+      const mainTitle = name || code.replace(/^\d+\.?/, "").trim();
+      if (!mainTitle) {
+        ignoredRowNumbers.push(rowNumber);
+        parsedRows.push({ rowNumber, code, name, quantity, unit, unitPrice, amount, raw, type: "ignored", reason: "主項目缺少名稱" });
+        continue;
+      }
       mainOrder += 1;
-      currentMain = { id: makeMainItemId(mainOrder, rowNumber), title: name, rowNumber, children: [] };
+      currentMain = { id: makeMainItemId(mainOrder, rowNumber), title: mainTitle, rowNumber, children: [] };
       currentItem = { id: currentMain.id, title: name, status: "待交辦", category: "專案", detail: `匯入自 Excel 第 ${rowNumber} 列`, referenceExample: "", designTaskCount: 0, procurementTaskCount: 0, children: [] };
       currentSub = null;
       mainItems.push(currentMain);
