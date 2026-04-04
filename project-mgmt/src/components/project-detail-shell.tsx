@@ -291,8 +291,60 @@ export function ProjectDetailShell({
           ))}
         </div>
 
-        <div className="mt-6 rounded-3xl border border-dashed border-amber-200 bg-amber-50/60 p-5 text-sm text-slate-600">
-          分類檢視下半部（主卡 / 回覆 / 文件整理）暫時隔離，用來驗證左側導航失效是否發生在分類上半部本身。
+        <div className="mt-6 space-y-4">
+          <div className="rounded-3xl border border-slate-200 bg-slate-50 p-5">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+              <div>
+                <h4 className="text-lg font-semibold text-slate-900">回覆整理（測試版）</h4>
+                <p className="mt-1 text-sm text-slate-500">先只補回回覆區容器與分類摘要，不接主卡、不接文件整理，確認這一層不會再影響左側導航。</p>
+              </div>
+              <span className="inline-flex items-center justify-center rounded-full bg-white px-3 py-1 text-xs font-semibold text-slate-700 ring-1 ring-slate-200">
+                phase 1 / replies only
+              </span>
+            </div>
+
+            <div className="mt-4 grid gap-3 lg:grid-cols-3">
+              {[
+                {
+                  key: "design-replies",
+                  title: "設計回覆",
+                  count: project.designTasks.length,
+                  description: "先以既有設計任務數量作為回覆區恢復測試基準。",
+                  tone: "bg-blue-50 text-blue-700 ring-blue-200",
+                },
+                {
+                  key: "procurement-replies",
+                  title: "備品回覆",
+                  count: project.procurementTasks.length,
+                  description: "先以既有備品任務數量作為回覆區恢復測試基準。",
+                  tone: "bg-amber-50 text-amber-700 ring-amber-200",
+                },
+                {
+                  key: "vendor-replies",
+                  title: "廠商回覆",
+                  count: 0,
+                  description: "廠商回覆區先保留空殼，暫不接文件整理。",
+                  tone: "bg-violet-50 text-violet-700 ring-violet-200",
+                },
+              ].map((replyGroup) => (
+                <article key={replyGroup.key} className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <p className="text-sm font-semibold text-slate-900">{replyGroup.title}</p>
+                      <p className="mt-2 text-sm leading-6 text-slate-500">{replyGroup.description}</p>
+                    </div>
+                    <span className={`inline-flex min-w-[40px] items-center justify-center rounded-full px-3 py-1 text-xs font-semibold ring-1 ${replyGroup.tone}`}>
+                      {replyGroup.count}
+                    </span>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </div>
+
+          <div className="rounded-3xl border border-dashed border-amber-200 bg-amber-50/60 p-5 text-sm text-slate-600">
+            文件整理區仍暫時隔離；這一輪只驗證「補回回覆區容器後，左側導航是否仍正常」。
+          </div>
         </div>
       </section>
     </>
