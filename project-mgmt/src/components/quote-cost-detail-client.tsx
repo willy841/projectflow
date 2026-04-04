@@ -66,11 +66,23 @@ export function QuoteCostDetailClient({ projectId, mode = "active" }: Props) {
         map.get(key)?.items.push(item);
       });
     return Array.from(map.values()).sort((a, b) => {
-      if (a.key === UNSPECIFIED_VENDOR_ID) return -1;
-      if (b.key === UNSPECIFIED_VENDOR_ID) return 1;
-      return b.items.length - a.items.length;
+      const aIsUnspecified = a.key === UNSPECIFIED_VENDOR_ID;
+      const bIsUnspecified = b.key === UNSPECIFIED_VENDOR_ID;
+      if (aIsUnspecified && !bIsUnspecified) return 1;
+      if (!aIsUnspecified && bIsUnspecified) return -1;
+      if (b.items.length !== a.items.length) return b.items.length - a.items.length;
+      return a.name.localeCompare(b.name, "zh-Hant");
     });
   }, [state]);
+
+  const primaryVendorGroups = useMemo(
+    () => vendorGroups.filter((group) => group.key !== UNSPECIFIED_VENDOR_ID),
+    [vendorGroups],
+  );
+  const unspecifiedVendorGroup = useMemo(
+    () => vendorGroups.find((group) => group.key === UNSPECIFIED_VENDOR_ID) ?? null,
+    [vendorGroups],
+  );
 
   const manualItems = (state?.costItems ?? []).filter((item) => item.isManual);
   const includedManualTotal = manualItems.filter((item) => item.includedInCost).reduce((sum, item) => sum + item.adjustedAmount, 0);
@@ -360,9 +372,9 @@ export function QuoteCostDetailClient({ projectId, mode = "active" }: Props) {
             <h4 className={`mt-2 text-xl font-semibold ${isClosedView ? "text-slate-900" : "text-white"}`}>廠商成本區</h4>
             <p className={`mt-2 text-sm leading-6 ${isClosedView ? "text-slate-600" : "text-slate-200"}`}>這裡是成本主線本體：設計 / 備品 / 廠商三條線一旦成立成本，先全部收進這裡，再按廠商分組往下看明細與調整。</p>
             <div className="mt-4 grid gap-3 sm:grid-cols-3">
-              <InfoChip label="廠商群組" value={`${vendorGroups.length} 組`} archived={isClosedView} inverted={!isClosedView} />
+              <InfoChip label="廠商群組" value={`${primaryVendorGroups.length} 組`} archived={isClosedView} inverted={!isClosedView} />
               <InfoChip label="主線計入成本" value={formatCurrency(vendorIncludedTotal)} archived={isClosedView} inverted={!isClosedView} />
-              <InfoChip label="待指定 / 例外" value={`${vendorGroups.find((group) => group.key === UNSPECIFIED_VENDOR_ID)?.items.length ?? 0} 筆`} archived={isClosedView} inverted={!isClosedView} />
+              <InfoChip label="待指定 / 例外" value={`${unspecifiedVendorGroup?.items.length ?? 0} 筆`} archived={isClosedView} inverted={!isClosedView} />
             </div>
           </article>
 
@@ -400,23 +412,17 @@ export function QuoteCostDetailClient({ projectId, mode = "active" }: Props) {
           )}
 
           <div className="space-y-4">
-            {vendorGroups.map((group) => {
+            {primaryVendorGroups.map((group) => {
               const originalSubtotal = group.items.filter((item) => item.includedInCost).reduce((sum, item) => sum + item.originalAmount, 0);
               const adjustedSubtotal = group.items.filter((item) => item.includedInCost).reduce((sum, item) => sum + item.adjustedAmount, 0);
               const excludedCount = group.items.filter((item) => !item.includedInCost).length;
-              const isUnspecifiedGroup = group.key === UNSPECIFIED_VENDOR_ID;
 
               return (
-                <details key={group.key} className={`rounded-3xl border p-4 ${isClosedView ? "border-slate-200 bg-white" : isUnspecifiedGroup ? "border-amber-200 bg-amber-50/60" : "border-slate-200 bg-slate-50/60"}`} open>
+                <details key={group.key} className={`rounded-3xl border p-4 ${isClosedView ? "border-slate-200 bg-white" : "border-slate-200 bg-slate-50/60"}`} open>
                   <summary className="flex cursor-pointer list-none flex-col gap-3 md:flex-row md:items-center md:justify-between">
                     <div>
                       <div className="flex flex-wrap items-center gap-2">
                         <p className="text-base font-semibold text-slate-900">{group.name}</p>
-                        {isUnspecifiedGroup && (
-                          <span className="inline-flex rounded-full border border-amber-200 bg-white px-3 py-1 text-xs font-medium text-amber-800">
-                            待指定廠商
-                          </span>
-                        )}
                         {excludedCount > 0 && (
                           <span className="inline-flex rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-600">
                             {excludedCount} 筆未納入
@@ -501,6 +507,106 @@ export function QuoteCostDetailClient({ projectId, mode = "active" }: Props) {
                 </details>
               );
             })}
+
+            {unspecifiedVendorGroup ? (() => {
+              const originalSubtotal = unspecifiedVendorGroup.items.filter((item) => item.includedInCost).reduce((sum, item) => sum + item.originalAmount, 0);
+              const adjustedSubtotal = unspecifiedVendorGroup.items.filter((item) => item.includedInCost).reduce((sum, item) => sum + item.adjustedAmount, 0);
+              const excludedCount = unspecifiedVendorGroup.items.filter((item) => !item.includedInCost).length;
+
+              return (
+                <details className={`rounded-3xl border p-4 ${isClosedView ? "border-amber-200 bg-amber-50/70" : "border-amber-200 bg-amber-50/60"}`} open>
+                  <summary className="flex cursor-pointer list-none flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                    <div>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <p className="text-base font-semibold text-slate-900">{unspecifiedVendorGroup.name}</p>
+                        <span className="inline-flex rounded-full border border-amber-200 bg-white px-3 py-1 text-xs font-medium text-amber-800">
+                          待指定廠商
+                        </span>
+                        {excludedCount > 0 && (
+                          <span className="inline-flex rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-600">
+                            {excludedCount} 筆未納入
+                          </span>
+                        )}
+                      </div>
+                      <p className="mt-1 text-sm text-amber-900">這裡保留尚未綁定正式廠商的成本項，避免例外資訊打斷主成本閱讀軸。</p>
+                      <p className="mt-1 text-sm text-slate-500">調整後小計 {formatCurrency(adjustedSubtotal)} ・ 原始小計 {formatCurrency(originalSubtotal)}</p>
+                    </div>
+                    <span className="rounded-full bg-white px-3 py-1 text-xs text-slate-500 ring-1 ring-amber-200">{unspecifiedVendorGroup.items.length} 筆</span>
+                  </summary>
+
+                  <div className="mt-4 space-y-3">
+                    {unspecifiedVendorGroup.items.map((item) => (
+                      <div key={item.id} className={`rounded-2xl border p-4 ${!item.includedInCost ? "border-amber-200 bg-white" : "border-amber-200 bg-white"}`}>
+                        <div className="flex flex-wrap items-start justify-between gap-3">
+                          <div>
+                            <div className="flex flex-wrap items-center gap-2">
+                              <p className="font-semibold text-slate-900">{item.itemName}</p>
+                              <span className={`inline-flex rounded-full px-2.5 py-1 text-[11px] font-medium ring-1 ${getSourceBadgeClass(item.sourceType)}`}>{item.sourceType}</span>
+                              {!item.includedInCost && (
+                                <span className="inline-flex rounded-full border border-amber-200 bg-amber-50 px-2.5 py-1 text-[11px] font-medium text-amber-800">不計入成本</span>
+                              )}
+                            </div>
+                            <p className="mt-1 text-sm text-slate-500">{item.sourceRef}</p>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-xs text-slate-500">原始成本</p>
+                            <p className="mt-1 text-sm font-semibold text-slate-900">{formatCurrency(item.originalAmount)}</p>
+                          </div>
+                        </div>
+
+                        <div className="mt-4 grid gap-4 xl:grid-cols-[1fr_1fr_1.1fr]">
+                          <div>
+                            <label className="text-xs font-medium text-slate-500">調整後成本</label>
+                            <input
+                              type="number"
+                              value={item.adjustedAmount}
+                              onChange={(event) => handleAdjustedAmountChange(item.id, event.target.value)}
+                              readOnly={isClosedView}
+                              className="mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-white px-3 text-sm outline-none focus:border-slate-400 read-only:bg-slate-50 read-only:text-slate-600"
+                            />
+                          </div>
+                          <div>
+                            <label className="text-xs font-medium text-slate-500">關聯廠商</label>
+                            <select
+                              value={item.vendorId ?? UNSPECIFIED_VENDOR_ID}
+                              onChange={(event) => handleVendorChange(item.id, event.target.value)}
+                              disabled={isClosedView}
+                              className="mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-white px-3 text-sm outline-none focus:border-slate-400 disabled:bg-slate-50 disabled:text-slate-600"
+                            >
+                              <option value={UNSPECIFIED_VENDOR_ID}>{UNSPECIFIED_VENDOR_NAME}</option>
+                              {availableVendors.map((vendor) => (
+                                <option key={vendor.id} value={vendor.id}>{vendor.name}</option>
+                              ))}
+                            </select>
+                            {!isClosedView ? (
+                              <button
+                                type="button"
+                                onClick={() => setQuickCreateItemId(item.id)}
+                                className="mt-2 inline-flex items-center justify-center rounded-xl border border-dashed border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50"
+                              >
+                                找不到廠商？快速建立
+                              </button>
+                            ) : null}
+                          </div>
+                          <div className="flex items-end">
+                            <label className="flex h-11 w-full items-center gap-2 rounded-2xl border border-slate-200 bg-white px-3 text-sm text-slate-600">
+                              <input
+                                type="checkbox"
+                                checked={item.includedInCost}
+                                onChange={(event) => handleIncludeToggle(item.id, event.target.checked)}
+                                disabled={isClosedView}
+                                className="h-4 w-4 rounded border-slate-300 disabled:cursor-not-allowed"
+                              />
+                              計入成本總額
+                            </label>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </details>
+              );
+            })() : null}
           </div>
 
           <div className="rounded-3xl border border-slate-200 bg-white p-5">
