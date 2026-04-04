@@ -45,7 +45,12 @@ function buildProjectTaskHref(record: DesignTaskBoardRecord, panel: "detail" | "
   if (panel === "detail" && record.sourceTargetId) {
     params.set("item", record.sourceTargetId);
   }
-  if ((panel === "organize" || panel === "document") && record.vendorName && record.vendorName !== "未指定") {
+  if (
+    (panel === "organize" || panel === "document") &&
+    record.vendorName &&
+    record.vendorName !== "未指定" &&
+    record.vendorName !== "未指定廠商"
+  ) {
     params.set("vendor", record.vendorName);
   }
   return `/projects/${record.projectId}?${params.toString()}`;
@@ -189,68 +194,89 @@ export default function DesignTasksPage() {
         </div>
 
         <div className="space-y-3">
-          {filtered.map((record) => (
-            <article key={record.id} className="rounded-2xl border border-slate-200 p-4 transition hover:border-slate-300 hover:bg-slate-50/70">
-              <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
-                <div className="min-w-0 flex-1 space-y-4">
-                  <div className="flex flex-wrap items-start justify-between gap-3">
-                    <div>
-                      <p className="text-sm font-medium text-slate-500">{record.projectName}</p>
-                      <h4 className="mt-1 text-lg font-semibold text-slate-900">{record.title}</h4>
+          {filtered.length > 0 ? (
+            filtered.map((record) => (
+              <article key={record.id} className="rounded-2xl border border-slate-200 p-4 transition hover:border-slate-300 hover:bg-slate-50/70">
+                <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
+                  <div className="min-w-0 flex-1 space-y-4">
+                    <div className="flex flex-wrap items-start justify-between gap-3">
+                      <div>
+                        <p className="text-sm font-medium text-slate-500">{record.projectName}</p>
+                        <h4 className="mt-1 text-lg font-semibold text-slate-900">{record.title}</h4>
+                      </div>
+                      <div className="flex flex-wrap gap-2 text-xs">
+                        <span className={`inline-flex rounded-full px-3 py-1 font-medium ${getConfirmBadgeClass(record.confirmStatus)}`}>
+                          回覆 / 確認：{record.confirmStatus}
+                        </span>
+                        <span className={`inline-flex rounded-full px-3 py-1 font-medium ${getDocumentBadgeClass(record.documentStatus)}`}>
+                          文件：{record.documentStatus}
+                        </span>
+                        <span className="inline-flex rounded-full border border-slate-200 bg-white px-3 py-1 font-medium text-slate-700">
+                          回覆 {record.replyCount} 則
+                        </span>
+                      </div>
                     </div>
-                    <div className="flex flex-wrap gap-2 text-xs">
-                      <span className={`inline-flex rounded-full px-3 py-1 font-medium ${getConfirmBadgeClass(record.confirmStatus)}`}>
-                        回覆 / 確認：{record.confirmStatus}
-                      </span>
-                      <span className={`inline-flex rounded-full px-3 py-1 font-medium ${getDocumentBadgeClass(record.documentStatus)}`}>
-                        文件：{record.documentStatus}
-                      </span>
-                      <span className="inline-flex rounded-full border border-slate-200 bg-white px-3 py-1 font-medium text-slate-700">
-                        回覆 {record.replyCount} 則
-                      </span>
+
+                    <div className="grid gap-3 md:grid-cols-4">
+                      <div className="rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2.5">
+                        <p className="text-[11px] font-medium text-slate-500">尺寸</p>
+                        <p className="mt-1 text-sm font-medium text-slate-900">{record.size}</p>
+                      </div>
+                      <div className="rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2.5">
+                        <p className="text-[11px] font-medium text-slate-500">材質 + 結構</p>
+                        <p className="mt-1 text-sm font-medium text-slate-900">{record.material}</p>
+                      </div>
+                      <div className="rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2.5">
+                        <p className="text-[11px] font-medium text-slate-500">執行廠商</p>
+                        <p className="mt-1 text-sm font-medium text-slate-900">{record.vendorName}</p>
+                      </div>
+                      <div className={`rounded-2xl border px-3 py-2.5 ${record.costLocked ? "border-emerald-200 bg-emerald-50" : "border-slate-200 bg-slate-50"}`}>
+                        <p className={`text-[11px] font-medium ${record.costLocked ? "text-emerald-700" : "text-slate-500"}`}>成本主線</p>
+                        <p className={`mt-1 text-sm font-medium ${record.costLocked ? "text-emerald-900" : "text-slate-900"}`}>
+                          {record.costLocked ? record.costLabel : "待確認後成立"}
+                        </p>
+                      </div>
                     </div>
                   </div>
 
-                  <div className="grid gap-3 md:grid-cols-4">
-                    <div className="rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2.5">
-                      <p className="text-[11px] font-medium text-slate-500">尺寸</p>
-                      <p className="mt-1 text-sm font-medium text-slate-900">{record.size}</p>
-                    </div>
-                    <div className="rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2.5">
-                      <p className="text-[11px] font-medium text-slate-500">材質 + 結構</p>
-                      <p className="mt-1 text-sm font-medium text-slate-900">{record.material}</p>
-                    </div>
-                    <div className="rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2.5">
-                      <p className="text-[11px] font-medium text-slate-500">執行廠商</p>
-                      <p className="mt-1 text-sm font-medium text-slate-900">{record.vendorName}</p>
-                    </div>
-                    <div className={`rounded-2xl border px-3 py-2.5 ${record.costLocked ? "border-emerald-200 bg-emerald-50" : "border-slate-200 bg-slate-50"}`}>
-                      <p className={`text-[11px] font-medium ${record.costLocked ? "text-emerald-700" : "text-slate-500"}`}>成本主線</p>
-                      <p className={`mt-1 text-sm font-medium ${record.costLocked ? "text-emerald-900" : "text-slate-900"}`}>
-                        {record.costLocked ? record.costLabel : "待確認後成立"}
-                      </p>
-                    </div>
+                  <div className="flex flex-wrap gap-2 xl:w-[320px] xl:justify-end">
+                    <Link href={buildProjectTaskHref(record, "detail")} className="inline-flex items-center justify-center rounded-2xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800">
+                      查看任務
+                    </Link>
+                    {record.confirmStatus === "已確認" ? (
+                      <Link href={buildProjectTaskHref(record, "organize")} className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 transition hover:bg-slate-50">
+                        查看整理內容
+                      </Link>
+                    ) : null}
+                    {record.documentStatus !== "未生成" ? (
+                      <Link href={buildProjectTaskHref(record, "document")} className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 transition hover:bg-slate-50">
+                        {getDocumentActionLabel(record.documentStatus)}
+                      </Link>
+                    ) : null}
                   </div>
                 </div>
-
-                <div className="flex flex-wrap gap-2 xl:w-[320px] xl:justify-end">
-                  <Link href={buildProjectTaskHref(record, "detail")} className="inline-flex items-center justify-center rounded-2xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800">
-                    查看任務
-                  </Link>
-                  {record.confirmStatus === "已確認" ? (
-                    <Link href={buildProjectTaskHref(record, "organize")} className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 transition hover:bg-slate-50">
-                      查看整理內容
-                    </Link>
-                  ) : null}
-                  {record.documentStatus !== "未生成" ? (
-                    <Link href={buildProjectTaskHref(record, "document")} className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 transition hover:bg-slate-50">
-                      {getDocumentActionLabel(record.documentStatus)}
-                    </Link>
-                  ) : null}
-                </div>
-              </div>
-            </article>
-          ))}
+              </article>
+            ))
+          ) : (
+            <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-6 py-10 text-center">
+              <p className="text-base font-semibold text-slate-900">目前沒有符合條件的設計任務</p>
+              <p className="mt-2 text-sm leading-6 text-slate-600">
+                請放寬搜尋或篩選條件；若是剛建立任務，也可回到專案主控台確認是否已有回覆與確認資料進主線。
+              </p>
+              <button
+                type="button"
+                onClick={() => {
+                  setQuery("");
+                  setConfirmFilter("all");
+                  setDocumentFilter("all");
+                  setVendorFilter("all");
+                }}
+                className="mt-4 inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 transition hover:bg-slate-100"
+              >
+                清除篩選
+              </button>
+            </div>
+          )}
         </div>
       </section>
     </AppShell>
