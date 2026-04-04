@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { CopyEventInfoButton } from "@/components/copy-event-info-button";
 import { ExecutionTreeSection } from "@/components/execution-tree-section";
 import { Project } from "@/components/project-data";
@@ -34,11 +34,7 @@ export function ProjectDetailShell({ project }: { project: Project }) {
   const workflowCostSummary = useMemo(() => getProjectWorkflowCostSummary(project.id), [project.id]);
   const workflowAdjustedCost = workflowCostSummary?.label ?? null;
   const hasWorkflowCost = Boolean(workflowCostSummary && workflowCostSummary.workflowItemCount > 0);
-
-  useEffect(() => {
-    if (!workflowAdjustedCost) return;
-    setProjectForm((prev) => (prev.cost === workflowAdjustedCost ? prev : { ...prev, cost: workflowAdjustedCost }));
-  }, [workflowAdjustedCost]);
+  const displayCost = workflowAdjustedCost ?? projectForm.cost;
 
   return (
     <>
@@ -101,7 +97,7 @@ export function ProjectDetailShell({ project }: { project: Project }) {
                 <span className="text-sm font-medium text-slate-700">{label}</span>
                 <input
                   type={type}
-                  value={projectForm[key as keyof typeof projectForm]}
+                  value={key === "cost" ? displayCost : projectForm[key as keyof typeof projectForm]}
                   onChange={(event) => updateField(key as keyof typeof projectForm, event.target.value)}
                   placeholder={placeholder}
                   readOnly={key === "cost"}
@@ -189,7 +185,7 @@ export function ProjectDetailShell({ project }: { project: Project }) {
           </div>
           <div className="mt-4 rounded-2xl border border-white/10 bg-white/5 p-4">
             <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-slate-300">目前有效成本</p>
-            <p className="mt-2 text-3xl font-semibold tracking-tight">{workflowAdjustedCost ?? projectForm.cost}</p>
+            <p className="mt-2 text-3xl font-semibold tracking-tight">{displayCost}</p>
           </div>
           <div className="mt-3 rounded-2xl border border-white/10 bg-white/5 p-4">
             <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-slate-300">專案預算</p>

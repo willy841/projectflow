@@ -172,10 +172,10 @@ export default function DesignTasksPage() {
                     </div>
                     <div className="flex flex-wrap gap-2 text-xs">
                       <span className={`inline-flex rounded-full px-3 py-1 font-medium ${getConfirmBadgeClass(record.confirmStatus)}`}>
-                        回覆狀態｜{record.confirmStatus}
+                        回覆 / 確認：{record.confirmStatus}
                       </span>
                       <span className={`inline-flex rounded-full px-3 py-1 font-medium ${getDocumentBadgeClass(record.documentStatus)}`}>
-                        文件狀態｜{record.documentStatus}
+                        文件：{record.documentStatus}
                       </span>
                       <span className="inline-flex rounded-full border border-slate-200 bg-white px-3 py-1 font-medium text-slate-700">
                         回覆 {record.replyCount} 則

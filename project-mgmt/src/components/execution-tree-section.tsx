@@ -463,16 +463,19 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
     string | null
   >(null);
   const [replyForms, setReplyForms] = useState<Record<string, ReplyForm>>({});
+  const storedSectionState = readStoredExecutionSectionState(project.id);
   const [replyOverrides, setReplyOverrides] = useState<
     Record<string, AssignmentReply[]>
-  >({});
+  >(() => storedSectionState.replyOverrides ?? {});
   const [editingReplyId, setEditingReplyId] = useState<string | null>(null);
   const [editingReplyMessage, setEditingReplyMessage] = useState("");
   const [generatedDesignDocuments, setGeneratedDesignDocuments] = useState<
     Record<string, number>
-  >({});
+  >(() => storedSectionState.generatedDesignDocuments ?? {});
   const [generatedProcurementDocuments, setGeneratedProcurementDocuments] =
-    useState<Record<string, number>>({});
+    useState<Record<string, number>>(() =>
+      storedSectionState.generatedProcurementDocuments ?? {},
+    );
   const [activeDesignDocumentVendor, setActiveDesignDocumentVendor] = useState<
     string | null
   >(null);
@@ -486,16 +489,6 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
   const [activeProcurementContent, setActiveProcurementContent] = useState<
     string | null
   >(null);
-
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const stored = readStoredExecutionSectionState(project.id);
-    setReplyOverrides(stored.replyOverrides ?? {});
-    setGeneratedDesignDocuments(stored.generatedDesignDocuments ?? {});
-    setGeneratedProcurementDocuments(
-      stored.generatedProcurementDocuments ?? {},
-    );
-  }, [project.id]);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -772,7 +765,6 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
     updateReplies(targetId, type, (replies) =>
       replies.map((reply) => {
         if (reply.id !== replyId) return reply;
-        const confirmed = /\[已確認金額\]/.test(reply.message);
         return {
           ...reply,
           message: nextMessage,

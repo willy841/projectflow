@@ -979,26 +979,30 @@ export function ExecutionTree({
   >({});
   const [savedDesignAssignments, setSavedDesignAssignments] = useState<
     Record<string, DesignAssignmentDraft>
-  >({});
+  >(() =>
+    projectId
+      ? readStoredExecutionTreeState(projectId).savedDesignAssignments ?? {}
+      : {},
+  );
   const [procurementAssignmentDrafts, setProcurementAssignmentDrafts] =
     useState<Record<string, ProcurementAssignmentDraft>>({});
   const [savedProcurementAssignments, setSavedProcurementAssignments] =
-    useState<Record<string, ProcurementAssignmentDraft>>({});
+    useState<Record<string, ProcurementAssignmentDraft>>(() =>
+      projectId
+        ? readStoredExecutionTreeState(projectId).savedProcurementAssignments ?? {}
+        : {},
+    );
   const [vendorAssignmentDrafts, setVendorAssignmentDrafts] = useState<
     Record<string, VendorAssignmentDraft>
   >({});
   const [savedVendorAssignments, setSavedVendorAssignments] = useState<
     Record<string, VendorAssignmentDraft>
-  >({});
+  >(() =>
+    projectId
+      ? readStoredExecutionTreeState(projectId).savedVendorAssignments ?? {}
+      : {},
+  );
   const fileInputRef = useRef<HTMLInputElement | null>(null);
-
-  useEffect(() => {
-    if (!projectId || typeof window === "undefined") return;
-    const stored = readStoredExecutionTreeState(projectId);
-    setSavedDesignAssignments(stored.savedDesignAssignments ?? {});
-    setSavedProcurementAssignments(stored.savedProcurementAssignments ?? {});
-    setSavedVendorAssignments(stored.savedVendorAssignments ?? {});
-  }, [projectId]);
 
   useEffect(() => {
     if (!projectId || typeof window === "undefined") return;

@@ -141,7 +141,7 @@ export function getDesignBoardRecords(projects: Project[]): DesignTaskBoardRecor
       });
     });
 
-    return entries.map(([targetId, assignment], index) => {
+    return entries.map(([targetId, assignment]) => {
       const replies = section.replyOverrides[targetId] ?? assignment.replies ?? [];
       const confirmed = replies.filter((reply) => parseReplyMessage(reply).confirmed);
       const latestConfirmed = confirmed[confirmed.length - 1];

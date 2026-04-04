@@ -35,14 +35,10 @@ type EditableProjectState = QuoteCostProject;
 export function QuoteCostDetailClient({ projectId, mode = "active" }: Props) {
   const { vendors } = useVendorStore();
   const workflowProject = getQuoteCostProjectsWithWorkflow().find((item) => item.id === projectId) ?? null;
-  const [state, setState] = useState<EditableProjectState | null>(workflowProject);
+  const [state, setState] = useState<EditableProjectState | null>(() => workflowProject);
   const [quoteImportIndex, setQuoteImportIndex] = useState(0);
   const [quickCreateItemId, setQuickCreateItemId] = useState<string | null>(null);
   const isClosedView = mode === "closed";
-
-  useEffect(() => {
-    setState(getQuoteCostProjectsWithWorkflow().find((item) => item.id === projectId) ?? null);
-  }, [projectId]);
 
   useEffect(() => {
     if (!state) return;
