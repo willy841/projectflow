@@ -360,9 +360,11 @@ export function VendorDetailShell({ vendorId }: Props) {
         </section>
 
         <article className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
-          <div className="mb-5">
-            <p className="text-xs font-semibold tracking-wide text-slate-500">D. 往來 / 歷史紀錄區</p>
-            <h3 className="mt-1 text-xl font-semibold text-slate-900">所有有往來的專案紀錄</h3>
+          <div className="mb-5 flex min-h-12 items-center">
+            <div>
+              <p className="text-xs font-semibold tracking-wide text-slate-500">D. 往來 / 歷史紀錄區</p>
+              <h3 className="mt-1 text-xl font-semibold text-slate-900">所有有往來的專案紀錄</h3>
+            </div>
           </div>
 
           <div className="space-y-4">

@@ -30,8 +30,9 @@ export default function ProjectsPage() {
     <AppShell activePath="/projects">
       <header className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200 xl:p-7">
         <div className="flex flex-col gap-5 2xl:flex-row 2xl:items-center 2xl:justify-between">
-          <div>
+          <div className="flex items-center gap-3">
             <h2 className="text-3xl font-semibold tracking-tight">專案列表</h2>
+            <span className="rounded-2xl bg-slate-50 px-4 py-2 text-sm text-slate-600 ring-1 ring-slate-200">共 {projects.length} 筆專案</span>
           </div>
 
           <div className="flex flex-wrap gap-3">
@@ -44,25 +45,6 @@ export default function ProjectsPage() {
           </div>
         </div>
       </header>
-
-      <section className="grid gap-4 md:grid-cols-2 2xl:grid-cols-4">
-        <article className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
-          <p className="text-sm text-slate-500">專案總數</p>
-          <p className="mt-3 text-3xl font-semibold tracking-tight">{projects.length}</p>
-        </article>
-        <article className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
-          <p className="text-sm text-slate-500">執行中</p>
-          <p className="mt-3 text-3xl font-semibold tracking-tight">
-            {projects.filter((project) => project.status === "執行中").length}
-          </p>
-        </article>
-        <article className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
-          <p className="text-sm text-slate-500">待發包 / 採購中</p>
-          <p className="mt-3 text-3xl font-semibold tracking-tight">
-            {projects.filter((project) => ["待發包", "採購中"].includes(project.status)).length}
-          </p>
-        </article>
-      </section>
 
       <section className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
         <div className="mb-5 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
@@ -120,7 +102,6 @@ export default function ProjectsPage() {
                     <Link href={`/projects/${project.id}`} className="font-medium text-slate-900 underline-offset-4 hover:underline">
                       {project.name}
                     </Link>
-                    <p className="mt-1 text-xs text-slate-500">{project.code}</p>
                   </td>
                   <td className="px-4 py-4 align-middle text-slate-600">{project.client}</td>
                   <td className="px-4 py-4 align-middle text-slate-600">{project.eventDate}</td>

@@ -56,15 +56,15 @@ export function QuoteCostListClient({ mode = "active" }: { mode?: "active" | "cl
   return (
     <AppShell activePath="/quote-costs">
       <header className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200 xl:p-7">
-        <h2 className="text-3xl font-semibold tracking-tight text-slate-900">報價成本</h2>
-      </header>
-
-      <section className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
-        <div className="mb-5 flex justify-end">
+        <div className="flex items-center justify-between gap-3">
+          <h2 className="text-3xl font-semibold tracking-tight text-slate-900">報價成本</h2>
           <div className="rounded-2xl bg-slate-50 px-4 py-2 text-sm text-slate-600 ring-1 ring-slate-200">
             共 {activeProjects.length} 筆專案
           </div>
         </div>
+      </header>
+
+      <section className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
 
         <div className="space-y-4">
           {activeProjects.map(({ project, quotationTotal, adjustedCostTotal, grossProfit, excludedCostCount, unassignedVendorCount, manualCostCount, needsAttentionScore, sourceSummary }) => (

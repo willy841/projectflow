@@ -33,7 +33,7 @@ export default function ProcurementTasksPage() {
   return (
     <AppShell activePath="/procurement-tasks">
       <header className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
-        <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
+        <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
           <div>
             <h2 className="text-3xl font-semibold tracking-tight text-slate-900">備品採購版</h2>
           </div>
@@ -86,14 +86,13 @@ export default function ProcurementTasksPage() {
         <div className="space-y-3">
           {filtered.map((record) => (
             <article key={record.id} className="rounded-2xl border border-slate-200 p-4 transition hover:border-slate-300 hover:bg-slate-50/70">
-              <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
+              <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
                 <div className="min-w-0 flex-1 space-y-3">
-                  <div className="flex flex-col gap-3 xl:flex-row xl:items-start xl:justify-between">
-                    <div className="min-w-0">
+                  <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
+                    <div className="flex min-w-0 flex-1 items-center gap-4">
                       <h4 className="text-lg font-semibold text-slate-900">{record.title}</h4>
-                    </div>
 
-                    <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3 xl:min-w-[420px]">
+                      <div className="grid flex-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
                       <div className="rounded-2xl bg-slate-50 px-4 py-3">
                         <p className="text-xs text-slate-500">尺寸</p>
                         <p className="mt-2 text-sm font-medium text-slate-900">{record.size}</p>
@@ -105,6 +104,7 @@ export default function ProcurementTasksPage() {
                       <div className="rounded-2xl bg-slate-50 px-4 py-3">
                         <p className="text-xs text-slate-500">所屬專案</p>
                         <p className="mt-2 text-sm font-medium text-slate-900">{record.projectName}</p>
+                      </div>
                       </div>
                     </div>
                   </div>
@@ -119,7 +119,7 @@ export default function ProcurementTasksPage() {
                 <div className="flex flex-wrap gap-2 xl:justify-end">
                   <Link
                     href={buildTaskHref(record)}
-                    className="inline-flex items-center justify-center rounded-2xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800"
+                    className="inline-flex items-center justify-center rounded-2xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700"
                   >
                     回到原任務區
                   </Link>
