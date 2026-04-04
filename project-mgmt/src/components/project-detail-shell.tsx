@@ -403,8 +403,51 @@ export function ProjectDetailShell({
             </div>
           </div>
 
-          <div className="rounded-3xl border border-dashed border-amber-200 bg-amber-50/60 p-5 text-sm text-slate-600">
-            文件整理區仍暫時隔離；這一輪只驗證「補回回覆區容器後，左側導航是否仍正常」。
+          <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+              <div>
+                <h4 className="text-lg font-semibold text-slate-900">文件整理（測試版）</h4>
+                <p className="mt-1 text-sm text-slate-500">先只補回文件整理區容器與靜態摘要，不接表格生成、不接真正文件流程。</p>
+              </div>
+              <span className="inline-flex items-center justify-center rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700 ring-1 ring-slate-200">
+                phase 2 / documents shell
+              </span>
+            </div>
+
+            <div className="mt-4 grid gap-3 lg:grid-cols-3">
+              {[
+                {
+                  key: "design-docs",
+                  title: "設計文件",
+                  count: project.designTasks.length,
+                  description: "後續會接設計回覆整理與文件輸出。",
+                },
+                {
+                  key: "procurement-docs",
+                  title: "備品文件",
+                  count: project.procurementTasks.length,
+                  description: "後續會接採買回覆整理與清單輸出。",
+                },
+                {
+                  key: "vendor-docs",
+                  title: "廠商文件",
+                  count: 0,
+                  description: "後續會接廠商發包整理與文件狀態。",
+                },
+              ].map((docGroup) => (
+                <article key={docGroup.key} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <p className="text-sm font-semibold text-slate-900">{docGroup.title}</p>
+                      <p className="mt-2 text-sm leading-6 text-slate-500">{docGroup.description}</p>
+                    </div>
+                    <span className="inline-flex min-w-[40px] items-center justify-center rounded-full bg-white px-3 py-1 text-xs font-semibold text-slate-700 ring-1 ring-slate-200">
+                      {docGroup.count}
+                    </span>
+                  </div>
+                </article>
+              ))}
+            </div>
           </div>
         </div>
       </section>
