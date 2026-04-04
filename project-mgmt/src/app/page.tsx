@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { AppShell } from "@/components/app-shell";
-import { projects } from "@/components/project-data";
+import { getStatusClass, projects } from "@/components/project-data";
 
 const stats = [
   { label: "進行中專案", value: "18", change: "+3 本週" },
