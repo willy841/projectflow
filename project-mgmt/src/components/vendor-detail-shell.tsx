@@ -82,7 +82,6 @@ function VendorProfileEditor({
         <div>
           <p className="text-xs font-semibold tracking-wide text-slate-500">A. 廠商資料</p>
           <h3 className="mt-1 text-xl font-semibold text-slate-900">基本資料與匯款資訊</h3>
-          <p className="mt-2 text-sm leading-6 text-slate-600">維持 local state / localStorage MVP，儲存後直接同步 vendor detail 顯示，不碰後端。</p>
         </div>
         <div className="flex flex-col items-start gap-2 lg:items-end">
           <span className="inline-flex rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700 ring-1 ring-emerald-200">
@@ -210,14 +209,12 @@ export function VendorDetailShell({ vendorId }: Props) {
         <header className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
           <div className="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
             <div className="min-w-0 flex-1">
-              <p className="text-sm text-slate-500">Vendor Detail</p>
-              <div className="mt-1 flex flex-wrap items-center gap-3">
+              <div className="flex flex-wrap items-center gap-3">
                 <h2 className="text-3xl font-semibold tracking-tight text-slate-900">{vendor.name}</h2>
                 <span className="inline-flex rounded-full bg-sky-50 px-3 py-1 text-xs font-medium text-sky-700 ring-1 ring-sky-200">
                   {vendor.tradeLabel || vendor.category || "待補充"}
                 </span>
               </div>
-              <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-600">{vendor.note || "此廠商尚未補齊正式說明。"}</p>
             </div>
             <div className="flex flex-wrap gap-3">
               <button
@@ -245,7 +242,6 @@ export function VendorDetailShell({ vendorId }: Props) {
               <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                 <div>
                   <p className="text-xs font-semibold tracking-wide text-sky-700">Vendor trade / 工種管理</p>
-                  <p className="mt-1 text-sm leading-6 text-slate-600">工種入口只放在廠商資訊內。一個廠商只能選一個工種；可新增工種，也可刪除工種清單。</p>
                 </div>
                 <div className="rounded-2xl bg-white px-4 py-3 text-sm text-slate-700 ring-1 ring-sky-200">
                   目前工種：<span className="font-semibold text-slate-900">{vendor.tradeLabel || vendor.category || "待補充"}</span>
@@ -312,7 +308,6 @@ export function VendorDetailShell({ vendorId }: Props) {
               <div>
                 <p className="text-xs font-semibold tracking-wide text-amber-700">C. 未付款專案區</p>
                 <h3 className="mt-1 text-xl font-semibold text-slate-900">專案 × 廠商 付款管理</h3>
-                <p className="mt-2 text-sm leading-6 text-slate-600">每列代表一個「專案 × 廠商」付款單位，第一版未付款金額直接等於該專案對該廠商的調整後成本總額。</p>
               </div>
               <div className="rounded-2xl bg-white px-4 py-3 text-sm text-slate-700 ring-1 ring-amber-200">
                 <p>已勾選 {selectedCount} 筆</p>
@@ -368,7 +363,6 @@ export function VendorDetailShell({ vendorId }: Props) {
           <div className="mb-5">
             <p className="text-xs font-semibold tracking-wide text-slate-500">D. 往來 / 歷史紀錄區</p>
             <h3 className="mt-1 text-xl font-semibold text-slate-900">所有有往來的專案紀錄</h3>
-            <p className="mt-2 text-sm leading-6 text-slate-600">包含執行中與已結案專案。此區不可修正，只提供付款狀態、調整後成本總額、發包摘要與可展開的成本 / 發包明細。</p>
           </div>
 
           <div className="space-y-4">

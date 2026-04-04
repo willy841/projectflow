@@ -35,11 +35,7 @@ export default function ProcurementTasksPage() {
       <header className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
         <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
           <div>
-            <p className="text-sm text-slate-500">輔助入口 / 跨專案總覽</p>
-            <h2 className="mt-1 text-3xl font-semibold tracking-tight text-slate-900">備品採購版</h2>
-            <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-600">
-              這裡只用來集中看跨專案的備品採購任務，並快速導回原本專案任務區，不取代 project detail 主體。
-            </p>
+            <h2 className="text-3xl font-semibold tracking-tight text-slate-900">備品採購版</h2>
           </div>
 
           <div className="grid gap-3 sm:grid-cols-2">
@@ -83,8 +79,7 @@ export default function ProcurementTasksPage() {
       </section>
 
       <section className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
-        <div className="mb-4 flex items-center justify-between gap-3">
-          <h3 className="text-xl font-semibold text-slate-900">跨專案備品任務清單</h3>
+        <div className="mb-4 flex items-center justify-end gap-3">
           <span className="text-sm text-slate-500">共 {filtered.length} 筆</span>
         </div>
 
@@ -93,30 +88,31 @@ export default function ProcurementTasksPage() {
             <article key={record.id} className="rounded-2xl border border-slate-200 p-4 transition hover:border-slate-300 hover:bg-slate-50/70">
               <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
                 <div className="min-w-0 flex-1 space-y-3">
-                  <div>
-                    <p className="text-xs text-slate-500">{record.projectName}</p>
-                    <h4 className="mt-1 text-lg font-semibold text-slate-900">{record.title}</h4>
+                  <div className="flex flex-col gap-3 xl:flex-row xl:items-start xl:justify-between">
+                    <div className="min-w-0">
+                      <h4 className="text-lg font-semibold text-slate-900">{record.title}</h4>
+                    </div>
+
+                    <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3 xl:min-w-[420px]">
+                      <div className="rounded-2xl bg-slate-50 px-4 py-3">
+                        <p className="text-xs text-slate-500">尺寸</p>
+                        <p className="mt-2 text-sm font-medium text-slate-900">{record.size}</p>
+                      </div>
+                      <div className="rounded-2xl bg-slate-50 px-4 py-3">
+                        <p className="text-xs text-slate-500">材質</p>
+                        <p className="mt-2 text-sm font-medium text-slate-900">{record.material}</p>
+                      </div>
+                      <div className="rounded-2xl bg-slate-50 px-4 py-3">
+                        <p className="text-xs text-slate-500">所屬專案</p>
+                        <p className="mt-2 text-sm font-medium text-slate-900">{record.projectName}</p>
+                      </div>
+                    </div>
                   </div>
 
                   <div className="flex flex-wrap gap-2 text-xs">
                     <span className={`inline-flex rounded-full px-3 py-1 font-medium ring-1 ${getStatusClass(record.confirmStatus)}`}>
                       {record.confirmStatus}
                     </span>
-                  </div>
-
-                  <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-                    <div className="rounded-2xl bg-slate-50 px-4 py-3">
-                      <p className="text-xs text-slate-500">尺寸</p>
-                      <p className="mt-2 text-sm font-medium text-slate-900">{record.size}</p>
-                    </div>
-                    <div className="rounded-2xl bg-slate-50 px-4 py-3">
-                      <p className="text-xs text-slate-500">材質</p>
-                      <p className="mt-2 text-sm font-medium text-slate-900">{record.material}</p>
-                    </div>
-                    <div className="rounded-2xl bg-slate-50 px-4 py-3">
-                      <p className="text-xs text-slate-500">所屬專案</p>
-                      <p className="mt-2 text-sm font-medium text-slate-900">{record.projectName}</p>
-                    </div>
                   </div>
                 </div>
 

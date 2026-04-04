@@ -65,7 +65,12 @@ export function VendorPackageDetail({ vendorPackage }: { vendorPackage: VendorPa
   const primaryActionLabel = documentStatus === "未生成" ? "生成文件" : documentStatus === "需更新" ? "重新生成文件" : null;
 
   async function handleCopy() {
-    await navigator.clipboard.writeText(documentText);
+    try {
+      await navigator.clipboard.writeText(documentText);
+      window.alert("已複製內容");
+    } catch {
+      window.alert("複製失敗，請再試一次");
+    }
   }
 
   function handleExport() {
@@ -92,7 +97,6 @@ export function VendorPackageDetail({ vendorPackage }: { vendorPackage: VendorPa
         <div className="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
           <div>
             <h2 className="text-3xl font-semibold tracking-tight text-slate-900">{vendorPackage.vendorName}</h2>
-            <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-600">{getDocumentStatusMessage(documentStatus)}</p>
           </div>
           <span className={`inline-flex self-start rounded-full px-3 py-1 text-xs font-medium ring-1 ${getVendorDocumentStatusClass(documentStatus)}`}>
             文件 {documentStatus}
@@ -105,7 +109,6 @@ export function VendorPackageDetail({ vendorPackage }: { vendorPackage: VendorPa
           <section>
             <div className="mb-5">
               <h3 className="text-xl font-semibold text-slate-900">背景資訊</h3>
-              <p className="mt-1 text-sm text-slate-500">這一區只維護文件背景資訊副本，不回寫 project 主資料。</p>
             </div>
 
           <div className="grid gap-4 md:grid-cols-2">
@@ -131,7 +134,6 @@ export function VendorPackageDetail({ vendorPackage }: { vendorPackage: VendorPa
           <section>
             <div className="mb-5">
               <h3 className="text-xl font-semibold text-slate-900">發包項目整理</h3>
-              <p className="mt-1 text-sm text-slate-500">這一區是整理主場，只保留項目名稱與需求內容。</p>
             </div>
 
             <div className="space-y-4">
@@ -169,7 +171,6 @@ export function VendorPackageDetail({ vendorPackage }: { vendorPackage: VendorPa
                 {documentStatus}
               </span>
             </div>
-            <p className="mt-2 text-sm leading-6 text-slate-600">{getDocumentStatusMessage(documentStatus)}</p>
           </div>
 
           {primaryActionLabel ? (
