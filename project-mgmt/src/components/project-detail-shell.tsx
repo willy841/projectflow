@@ -311,6 +311,12 @@ export function ProjectDetailShell({
                   count: project.designTasks.length,
                   description: "先以既有設計任務數量作為回覆區恢復測試基準。",
                   tone: "bg-blue-50 text-blue-700 ring-blue-200",
+                  items: project.designTasks.slice(0, 2).map((task) => ({
+                    title: task.title,
+                    owner: task.assignee,
+                    status: task.status,
+                    meta: `交期：${task.due}`,
+                  })),
                 },
                 {
                   key: "procurement-replies",
@@ -318,6 +324,12 @@ export function ProjectDetailShell({
                   count: project.procurementTasks.length,
                   description: "先以既有備品任務數量作為回覆區恢復測試基準。",
                   tone: "bg-amber-50 text-amber-700 ring-amber-200",
+                  items: project.procurementTasks.slice(0, 2).map((task) => ({
+                    title: task.title,
+                    owner: task.buyer,
+                    status: task.status,
+                    meta: `預算：${task.budget}`,
+                  })),
                 },
                 {
                   key: "vendor-replies",
@@ -325,6 +337,7 @@ export function ProjectDetailShell({
                   count: 0,
                   description: "廠商回覆區先保留空殼，暫不接文件整理。",
                   tone: "bg-violet-50 text-violet-700 ring-violet-200",
+                  items: [],
                 },
               ].map((replyGroup) => (
                 <article key={replyGroup.key} className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
@@ -336,6 +349,29 @@ export function ProjectDetailShell({
                     <span className={`inline-flex min-w-[40px] items-center justify-center rounded-full px-3 py-1 text-xs font-semibold ring-1 ${replyGroup.tone}`}>
                       {replyGroup.count}
                     </span>
+                  </div>
+
+                  <div className="mt-4 space-y-2">
+                    {replyGroup.items.length ? replyGroup.items.map((item) => (
+                      <div key={`${replyGroup.key}-${item.title}`} className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
+                        <div className="flex flex-col gap-2">
+                          <div className="flex items-start justify-between gap-3">
+                            <p className="text-sm font-semibold text-slate-900">{item.title}</p>
+                            <span className="inline-flex items-center justify-center rounded-full bg-white px-3 py-1 text-[11px] font-medium text-slate-600 ring-1 ring-slate-200">
+                              {item.status}
+                            </span>
+                          </div>
+                          <div className="flex flex-wrap gap-3 text-xs text-slate-500">
+                            <span>負責人：{item.owner}</span>
+                            <span>{item.meta}</span>
+                          </div>
+                        </div>
+                      </div>
+                    )) : (
+                      <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-6 text-sm text-slate-400">
+                        目前尚無可顯示的回覆摘要。
+                      </div>
+                    )}
                   </div>
                 </article>
               ))}
