@@ -210,6 +210,11 @@ export function getProcurementBoardRecords(projects: Project[]): ProcurementBoar
       return procurementTaskBoardRecords.filter((record) => record.projectId === project.id);
     }
 
+    const confirmedRepliesByProject = entries.reduce((count, [targetId, assignment]) => {
+      const replies = section.replyOverrides[targetId] ?? assignment.replies ?? [];
+      return count + replies.filter((reply) => parseReplyMessage(reply).confirmed).length;
+    }, 0);
+
     return entries.map(([targetId, assignment]) => {
       const replies = section.replyOverrides[targetId] ?? assignment.replies ?? [];
       const confirmed = replies.filter((reply) => parseReplyMessage(reply).confirmed);
@@ -222,7 +227,7 @@ export function getProcurementBoardRecords(projects: Project[]): ProcurementBoar
           ? "未生成"
           : generatedCount === 0
             ? "未生成"
-            : generatedCount === confirmed.length
+            : generatedCount === confirmedRepliesByProject
               ? "已生成"
               : "需更新";
 
