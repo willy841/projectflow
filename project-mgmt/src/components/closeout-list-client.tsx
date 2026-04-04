@@ -11,6 +11,7 @@ import {
   getReconciliationStatusClass,
 } from "@/components/quote-cost-data";
 import { getQuoteCostProjectsWithWorkflow } from "@/components/project-workflow-store";
+import { getRelationsByProjectId } from "@/components/project-vendor-financial-store";
 
 export function CloseoutListClient() {
   const closedProjects = getQuoteCostProjectsWithWorkflow()
@@ -21,6 +22,9 @@ export function CloseoutListClient() {
       const grossProfit = getGrossProfit(quotationTotal, adjustedCostTotal);
       const manualCostCount = project.costItems.filter((item) => item.isManual).length;
       const excludedCostCount = project.costItems.filter((item) => !item.includedInCost).length;
+      const relations = getRelationsByProjectId(project.id);
+      const unpaidRelationCount = relations.filter((relation) => relation.paymentStatus === "未付款").length;
+      const unpaidAmount = relations.reduce((sum, relation) => sum + relation.unpaidAmount, 0);
 
       return {
         project,
@@ -29,6 +33,8 @@ export function CloseoutListClient() {
         grossProfit,
         manualCostCount,
         excludedCostCount,
+        unpaidRelationCount,
+        unpaidAmount,
       };
     })
     .sort((a, b) => b.project.eventDate.localeCompare(a.project.eventDate));
@@ -101,7 +107,7 @@ export function CloseoutListClient() {
         </div>
 
         <div className="space-y-4">
-          {closedProjects.map(({ project, quotationTotal, adjustedCostTotal, grossProfit, manualCostCount, excludedCostCount }) => (
+          {closedProjects.map(({ project, quotationTotal, adjustedCostTotal, grossProfit, manualCostCount, excludedCostCount, unpaidRelationCount, unpaidAmount }) => (
             <article key={project.id} className="rounded-3xl border border-slate-200 p-5">
               <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
                 <div>
@@ -127,11 +133,12 @@ export function CloseoutListClient() {
                 </Link>
               </div>
 
-              <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+              <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-5">
                 <ArchiveValueCard label="對外報價總額" value={formatCurrency(quotationTotal)} />
                 <ArchiveValueCard label="調整後成本總額" value={formatCurrency(adjustedCostTotal)} />
                 <ArchiveValueCard label="毛利" value={formatCurrency(grossProfit)} />
                 <ArchiveValueCard label="留存備註" value={excludedCostCount > 0 || manualCostCount > 0 ? `${excludedCostCount} 筆未計入 / ${manualCostCount} 筆人工` : "無額外例外"} />
+                <ArchiveValueCard label="廠商付款承接" value={unpaidRelationCount > 0 ? `${unpaidRelationCount} 筆未付款 / ${formatCurrency(unpaidAmount)}` : "已無未付款"} />
               </div>
             </article>
           ))}

@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { getVendorOutstandingTotal, formatCurrency } from "@/components/vendor-data";
+import { formatCurrency } from "@/components/vendor-data";
+import { getVendorOutstandingTotal } from "@/components/project-vendor-financial-store";
 import { VendorQuickCreateDialog } from "@/components/vendor-quick-create-dialog";
 import { useVendorStore } from "@/components/vendor-store";
 
@@ -25,7 +26,7 @@ export function VendorListPage() {
 
   const vendorCards = useMemo(() => vendors.map((vendor) => ({
     ...vendor,
-    outstandingTotal: getVendorOutstandingTotal(vendor.id),
+    outstandingTotal: getVendorOutstandingTotal(vendor.id, vendor.name),
   })), [vendors]);
 
   const filteredVendorCards = useMemo(() => {

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   formatCurrency,
@@ -10,6 +10,10 @@ import {
   type VendorBasicProfile,
   type VendorProjectRecord,
 } from "@/components/vendor-data";
+import {
+  getRelationsByVendor,
+  writeProjectVendorFinancialPaymentStatus,
+} from "@/components/project-vendor-financial-store";
 import { useVendorStore } from "@/components/vendor-store";
 
 const DELETE_CONFIRM_TITLE = "確認刪除這個廠商？";
@@ -43,6 +47,46 @@ function buildVendorEditableForm(vendor: VendorBasicProfile): VendorEditableForm
   };
 }
 
+function SectionBadge({ children, tone = "slate" }: { children: React.ReactNode; tone?: "slate" | "amber" | "sky" | "emerald" }) {
+  const toneClass =
+    tone === "amber"
+      ? "bg-amber-50 text-amber-700 ring-amber-200"
+      : tone === "sky"
+        ? "bg-sky-50 text-sky-700 ring-sky-200"
+        : tone === "emerald"
+          ? "bg-emerald-50 text-emerald-700 ring-emerald-200"
+          : "bg-slate-100 text-slate-600 ring-slate-200";
+
+  return <span className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold tracking-wide ring-1 ${toneClass}`}>{children}</span>;
+}
+
+function buildVendorFinancialRecords(vendorId: string, vendorName?: string): VendorProjectRecord[] {
+  const relations = getRelationsByVendor({ vendorId, vendorName });
+  if (relations.length) {
+    return relations.map((relation) => ({
+      id: relation.relationKey,
+      vendorId: relation.vendorId,
+      vendorName: relation.vendorName,
+      projectId: relation.projectId,
+      projectName: relation.projectName,
+      projectStatus: relation.projectStatus,
+      adjustedCost: relation.adjustedCostTotal,
+      adjustedCostLabel: formatCurrency(relation.adjustedCostTotal),
+      procurementSummary: relation.packageSummary[0] || relation.costItemsSummary[0] || "尚無摘要",
+      procurementDetails: relation.packageSummary.length ? relation.packageSummary : relation.costItemsSummary,
+      costBreakdown: [
+        { label: "Raw Cost", amount: formatCurrency(relation.rawCostTotal) },
+        { label: "Adjusted Cost", amount: formatCurrency(relation.adjustedCostTotal) },
+        { label: "Unpaid", amount: formatCurrency(relation.unpaidAmount) },
+      ],
+      paymentStatus: relation.paymentStatus,
+      packageId: relation.packageCount > 0 ? relation.packageSummary[0] : undefined,
+    }));
+  }
+
+  return getVendorRecordsByVendorId(vendorId).filter((record) => record.vendorId === vendorId || (vendorName ? record.vendorName === vendorName : false));
+}
+
 function VendorProfileEditor({
   vendor,
   onSave,
@@ -73,16 +117,16 @@ function VendorProfileEditor({
     };
     setEditableForm(patch);
     onSave(patch);
-    setSaveMessage("已儲存，vendor detail 已同步更新。");
+    setSaveMessage("已儲存，廠商基本資料與匯款資訊已更新。");
   }
 
   return (
     <article className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
       <div className="mb-5 flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
         <div>
-          <p className="text-xs font-semibold tracking-wide text-slate-500">A. 廠商資料</p>
-          <h3 className="mt-1 text-xl font-semibold text-slate-900">基本資料與匯款資訊</h3>
-          <p className="mt-2 text-sm leading-6 text-slate-600">維持 local state / localStorage MVP，儲存後直接同步 vendor detail 顯示，不碰後端。</p>
+          <SectionBadge>A. 廠商資料</SectionBadge>
+          <h3 className="mt-3 text-xl font-semibold text-slate-900">基本資料與匯款資訊</h3>
+          <p className="mt-2 text-sm leading-6 text-slate-600">維持既有欄位骨架，集中整理聯絡方式與匯款資訊，讓財務承接時可直接回看。</p>
         </div>
         <div className="flex flex-col items-start gap-2 lg:items-end">
           <span className="inline-flex rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700 ring-1 ring-emerald-200">
@@ -120,7 +164,7 @@ function VendorProfileEditor({
       </div>
 
       <div className="mt-5 flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-slate-50 px-4 py-4">
-        <p className="text-sm text-slate-500">銀行代碼目前維持既有資料顯示：{vendor.bankCode || "未填"}</p>
+        <p className="text-sm text-slate-500">銀行代碼：<span className="font-medium text-slate-700">{vendor.bankCode || "未填"}</span></p>
         <button
           type="button"
           onClick={saveVendorProfile}
@@ -133,38 +177,60 @@ function VendorProfileEditor({
   );
 }
 
+function RecordSummaryCard({ label, value, emphasis = false }: { label: string; value: string; emphasis?: boolean }) {
+  return (
+    <div className={`rounded-2xl border px-4 py-3 ${emphasis ? "border-amber-200 bg-white" : "border-slate-200 bg-slate-50/80"}`}>
+      <p className="text-xs font-medium tracking-wide text-slate-500">{label}</p>
+      <p className={`mt-1 text-lg font-semibold ${emphasis ? "text-slate-900" : "text-slate-800"}`}>{value}</p>
+    </div>
+  );
+}
+
 export function VendorDetailShell({ vendorId }: Props) {
   const router = useRouter();
   const { getVendorById, updateVendor, deleteVendor, isReady, trades } = useVendorStore();
   const vendor = getVendorById(vendorId);
-  const [records, setRecords] = useState<VendorProjectRecord[]>(() => getVendorRecordsByVendorId(vendorId));
+  const [records, setRecords] = useState<VendorProjectRecord[]>(() => {
+    const currentVendor = getVendorById(vendorId);
+    return buildVendorFinancialRecords(vendorId, currentVendor?.name);
+  });
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [expandedIds, setExpandedIds] = useState<string[]>([]);
   const [isTradeEditorOpen, setIsTradeEditorOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
   const unpaidRecords = useMemo(() => records.filter((record) => record.paymentStatus === "未付款"), [records]);
+  const activeRecords = useMemo(() => records.filter((record) => record.projectStatus === "執行中"), [records]);
+  const closedRecords = useMemo(() => records.filter((record) => record.projectStatus === "已結案"), [records]);
   const selectedRecords = unpaidRecords.filter((record) => selectedIds.includes(record.id));
   const selectedCount = selectedRecords.length;
   const selectedTotal = selectedRecords.reduce((sum, record) => sum + record.adjustedCost, 0);
+  const unpaidTotal = unpaidRecords.reduce((sum, record) => sum + record.adjustedCost, 0);
+  const paidTotal = records
+    .filter((record) => record.paymentStatus === "已付款")
+    .reduce((sum, record) => sum + record.adjustedCost, 0);
 
   if (!vendor) {
     if (!isReady) {
       return (
         <div className="rounded-3xl border border-dashed border-slate-300 bg-white p-8 text-sm text-slate-500">
-          廠商資料載入中，正在同步前端 local state / localStorage…
+          廠商資料載入中，正在同步目前可用資料…
         </div>
       );
     }
 
     return (
       <div className="rounded-3xl border border-dashed border-slate-300 bg-white p-8 text-sm text-slate-500">
-        找不到此廠商。前端資料同步已完成，但目前 store 內沒有這筆 vendor。
+        找不到此廠商。請回列表確認目前資料是否仍存在。
       </div>
     );
   }
 
   const currentVendor = vendor;
+
+  useEffect(() => {
+    setRecords(buildVendorFinancialRecords(vendorId, currentVendor.name));
+  }, [currentVendor.name, vendorId]);
 
   function toggleSelect(id: string) {
     setSelectedIds((current) => (current.includes(id) ? current.filter((item) => item !== id) : [...current, id]));
@@ -176,8 +242,15 @@ export function VendorDetailShell({ vendorId }: Props) {
 
   function markSelectedAsPaid() {
     if (!selectedIds.length) return;
+
+    selectedIds.forEach((relationKey) => {
+      const targetRecord = records.find((record) => record.id === relationKey);
+      if (!targetRecord) return;
+      writeProjectVendorFinancialPaymentStatus(targetRecord.projectId, targetRecord.vendorId, "已付款");
+    });
+
     setRecords((current) =>
-      current.map((record) => (selectedIds.includes(record.id) ? { ...record, paymentStatus: "已付款" } : record)),
+      current.map((record) => (selectedIds.includes(record.id) ? { ...record, paymentStatus: "已付款", adjustedCostLabel: formatCurrency(record.adjustedCost) } : record)),
     );
     setSelectedIds([]);
   }
@@ -248,6 +321,13 @@ export function VendorDetailShell({ vendorId }: Props) {
             </div>
           </div>
 
+          <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+            <RecordSummaryCard label="待付款筆數" value={`${unpaidRecords.length} 筆`} emphasis />
+            <RecordSummaryCard label="待付款總額" value={formatCurrency(unpaidTotal)} emphasis />
+            <RecordSummaryCard label="執行中專案" value={`${activeRecords.length} 筆`} />
+            <RecordSummaryCard label="已付款 / 已結案累計" value={formatCurrency(paidTotal)} />
+          </div>
+
           {isTradeEditorOpen ? (
             <div className="mt-5 rounded-2xl border border-sky-200 bg-sky-50/60 p-4 ring-1 ring-sky-100">
               <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
@@ -300,34 +380,37 @@ export function VendorDetailShell({ vendorId }: Props) {
           <article className="rounded-3xl border border-amber-200 bg-amber-50/60 p-6 shadow-sm ring-1 ring-amber-100">
             <div className="mb-5 flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
               <div>
-                <p className="text-xs font-semibold tracking-wide text-amber-700">C. 未付款專案區</p>
-                <h3 className="mt-1 text-xl font-semibold text-slate-900">專案 × 廠商 付款管理</h3>
-                <p className="mt-2 text-sm leading-6 text-slate-600">每列代表一個「專案 × 廠商」付款單位，第一版未付款金額直接等於該專案對該廠商的調整後成本總額。</p>
+                <SectionBadge tone="amber">B. 待付款工作區</SectionBadge>
+                <h3 className="mt-3 text-xl font-semibold text-slate-900">待處理付款項目</h3>
+                <p className="mt-2 text-sm leading-6 text-slate-600">以目前仍待付款的專案 × 廠商紀錄為主工作區，先處理本輪需要推進的付款，再回看完整往來紀錄。</p>
               </div>
-              <div className="rounded-2xl bg-white px-4 py-3 text-sm text-slate-700 ring-1 ring-amber-200">
-                <p>已勾選 {selectedCount} 筆</p>
-                <p className="mt-1 font-semibold text-slate-900">勾選總額 {formatCurrency(selectedTotal)}</p>
+              <div className="min-w-[220px] rounded-2xl bg-white px-4 py-3 text-sm text-slate-700 ring-1 ring-amber-200">
+                <p>已勾選 {selectedCount} 筆待處理項目</p>
+                <p className="mt-1 font-semibold text-slate-900">本次付款總額 {formatCurrency(selectedTotal)}</p>
               </div>
             </div>
 
             {unpaidRecords.length ? (
               <div className="space-y-3">
                 {unpaidRecords.map((record) => (
-                  <label key={record.id} className="flex flex-col gap-3 rounded-2xl border border-amber-200 bg-white p-4 ring-1 ring-amber-100 sm:flex-row sm:items-center sm:justify-between">
-                    <div className="flex items-start gap-3">
+                  <label key={record.id} className="grid gap-3 rounded-2xl border border-amber-200 bg-white p-4 ring-1 ring-amber-100 lg:grid-cols-[auto_minmax(0,1fr)_auto] lg:items-center">
+                    <div className="flex items-start pt-1">
                       <input
                         type="checkbox"
                         checked={selectedIds.includes(record.id)}
                         onChange={() => toggleSelect(record.id)}
-                        className="mt-1 h-4 w-4 rounded border-slate-300 text-slate-900 focus:ring-slate-400"
+                        className="h-4 w-4 rounded border-slate-300 text-slate-900 focus:ring-slate-400"
                       />
-                      <div>
-                        <p className="font-semibold text-slate-900">{record.projectName}</p>
-                        <p className="mt-1 text-sm text-slate-500">{record.procurementSummary}</p>
-                      </div>
                     </div>
-                    <div className="text-left sm:text-right">
-                      <p className="text-sm text-slate-500">未付款金額</p>
+                    <div className="min-w-0">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <p className="font-semibold text-slate-900">{record.projectName}</p>
+                        <span className="inline-flex rounded-full bg-sky-50 px-3 py-1 text-xs font-medium text-sky-700 ring-1 ring-sky-200">{record.projectStatus}</span>
+                      </div>
+                      <p className="mt-2 text-sm text-slate-500">{record.procurementSummary}</p>
+                    </div>
+                    <div className="text-left lg:text-right">
+                      <p className="text-sm text-slate-500">本次待付款</p>
                       <p className="mt-1 text-xl font-semibold text-slate-900">{record.adjustedCostLabel}</p>
                     </div>
                   </label>
@@ -335,89 +418,128 @@ export function VendorDetailShell({ vendorId }: Props) {
 
                 <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-slate-900 px-4 py-4 text-white">
                   <div>
-                    <p className="text-sm text-slate-300">即時計算</p>
-                    <p className="mt-1 font-semibold">已勾選 {selectedCount} 個專案 × 廠商，合計 {formatCurrency(selectedTotal)}</p>
+                    <p className="text-sm text-slate-300">主操作</p>
+                    <p className="mt-1 font-semibold">已勾選 {selectedCount} 筆，合計 {formatCurrency(selectedTotal)}</p>
                   </div>
                   <button
                     type="button"
                     onClick={markSelectedAsPaid}
                     disabled={!selectedCount}
-                    className="inline-flex items-center justify-center rounded-2xl bg-white px-5 py-3 text-sm font-semibold text-slate-900 transition disabled:cursor-not-allowed disabled:bg-slate-300 disabled:text-slate-500"
+                    className="inline-flex items-center justify-center rounded-2xl bg-white px-5 py-3 text-sm font-semibold text-slate-900 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:bg-slate-300 disabled:text-slate-500"
                   >
                     標記為已付款
                   </button>
                 </div>
               </div>
             ) : (
-              <div className="rounded-2xl border border-dashed border-amber-300 bg-white px-5 py-6 text-sm text-slate-500">目前沒有未付款專案。</div>
+              <div className="rounded-2xl border border-dashed border-amber-300 bg-white px-5 py-6 text-sm text-slate-500">目前沒有待付款項目。</div>
             )}
           </article>
         </section>
 
         <article className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
-          <div className="mb-5">
-            <p className="text-xs font-semibold tracking-wide text-slate-500">D. 往來 / 歷史紀錄區</p>
-            <h3 className="mt-1 text-xl font-semibold text-slate-900">所有有往來的專案紀錄</h3>
-            <p className="mt-2 text-sm leading-6 text-slate-600">包含執行中與已結案專案。此區不可修正，只提供付款狀態、調整後成本總額、發包摘要與可展開的成本 / 發包明細。</p>
+          <div className="mb-5 flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+            <div>
+              <SectionBadge tone="slate">C. 歷史往來區</SectionBadge>
+              <h3 className="mt-3 text-xl font-semibold text-slate-900">往來紀錄與留存查閱</h3>
+              <p className="mt-2 text-sm leading-6 text-slate-600">保留執行中與已結案紀錄，主用途是回看付款狀態、承接內容與成本明細；不在此區進行主要操作。</p>
+            </div>
+            <div className="grid gap-2 sm:grid-cols-2">
+              <div className="rounded-2xl bg-slate-50 px-4 py-3 text-sm text-slate-600 ring-1 ring-slate-200">執行中：<span className="font-semibold text-slate-900">{activeRecords.length}</span></div>
+              <div className="rounded-2xl bg-slate-50 px-4 py-3 text-sm text-slate-600 ring-1 ring-slate-200">已結案：<span className="font-semibold text-slate-900">{closedRecords.length}</span></div>
+            </div>
           </div>
 
-          <div className="space-y-4">
-            {records.map((record) => {
-              const isExpanded = expandedIds.includes(record.id);
-              return (
-                <div key={record.id} className="rounded-3xl border border-slate-200 bg-slate-50/70 p-5">
-                  <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
-                    <div className="min-w-0">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <h4 className="text-lg font-semibold text-slate-900">{record.projectName}</h4>
-                        <span className="inline-flex rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700 ring-1 ring-slate-200">{record.projectStatus}</span>
-                        <span className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ring-1 ${getVendorPaymentStatusClass(record.paymentStatus)}`}>
-                          {record.paymentStatus}
-                        </span>
-                      </div>
-                      <p className="mt-3 text-sm leading-6 text-slate-600">{record.procurementSummary}</p>
+          <div className="space-y-6">
+            {[
+              {
+                key: "active",
+                title: "執行中",
+                description: "目前仍在推進中的專案，付款與成本狀態需要持續追蹤。",
+                records: activeRecords,
+                tone: "sky" as const,
+              },
+              {
+                key: "closed",
+                title: "已結案",
+                description: "已完成的專案留存在此，供後續對帳、比對與經驗回看。",
+                records: closedRecords,
+                tone: "slate" as const,
+              },
+            ].map((group) => (
+              <section key={group.key} className="space-y-3">
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <SectionBadge tone={group.tone}>{group.title}</SectionBadge>
+                      <span className="text-sm text-slate-500">{group.records.length} 筆</span>
                     </div>
-                    <div className="flex flex-col gap-3 xl:items-end">
-                      <div className="text-left xl:text-right">
-                        <p className="text-sm text-slate-500">調整後成本總額</p>
-                        <p className="mt-1 text-2xl font-semibold tracking-tight text-slate-900">{record.adjustedCostLabel}</p>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => toggleExpanded(record.id)}
-                        className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 transition hover:bg-slate-100"
-                      >
-                        {isExpanded ? "收合明細" : "展開看成本 / 發包明細"}
-                      </button>
-                    </div>
+                    <p className="mt-2 text-sm text-slate-500">{group.description}</p>
                   </div>
-
-                  {isExpanded ? (
-                    <div className="mt-5 grid gap-4 xl:grid-cols-2">
-                      <div className="rounded-2xl bg-white p-4 ring-1 ring-slate-200">
-                        <p className="text-sm font-semibold text-slate-900">成本明細</p>
-                        <div className="mt-3 space-y-3">
-                          {record.costBreakdown.map((item) => (
-                            <div key={`${record.id}-${item.label}`} className="flex items-center justify-between gap-3 text-sm">
-                              <span className="text-slate-600">{item.label}</span>
-                              <span className="font-medium text-slate-900">{item.amount}</span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                      <div className="rounded-2xl bg-white p-4 ring-1 ring-slate-200">
-                        <p className="text-sm font-semibold text-slate-900">發包內容明細</p>
-                        <ul className="mt-3 space-y-2 text-sm text-slate-600">
-                          {record.procurementDetails.map((item) => (
-                            <li key={`${record.id}-${item}`} className="rounded-2xl bg-slate-50 px-3 py-2">• {item}</li>
-                          ))}
-                        </ul>
-                      </div>
-                    </div>
-                  ) : null}
                 </div>
-              );
-            })}
+
+                {group.records.length ? (
+                  group.records.map((record) => {
+                    const isExpanded = expandedIds.includes(record.id);
+                    return (
+                      <div key={record.id} className={`rounded-3xl border p-5 ${group.key === "active" ? "border-sky-100 bg-sky-50/35" : "border-slate-200 bg-slate-50/70"}`}>
+                        <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
+                          <div className="min-w-0">
+                            <div className="flex flex-wrap items-center gap-2">
+                              <h4 className="text-lg font-semibold text-slate-900">{record.projectName}</h4>
+                              <span className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ring-1 ${group.key === "active" ? "bg-sky-50 text-sky-700 ring-sky-200" : "bg-slate-100 text-slate-700 ring-slate-200"}`}>{record.projectStatus}</span>
+                              <span className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ring-1 ${getVendorPaymentStatusClass(record.paymentStatus)}`}>
+                                {record.paymentStatus}
+                              </span>
+                            </div>
+                            <p className="mt-3 text-sm leading-6 text-slate-600">{record.procurementSummary}</p>
+                          </div>
+                          <div className="flex flex-col gap-3 xl:items-end">
+                            <div className="text-left xl:text-right">
+                              <p className="text-sm text-slate-500">承接金額</p>
+                              <p className="mt-1 text-2xl font-semibold tracking-tight text-slate-900">{record.adjustedCostLabel}</p>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => toggleExpanded(record.id)}
+                              className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 transition hover:bg-slate-100"
+                            >
+                              {isExpanded ? "收合明細" : "展開明細"}
+                            </button>
+                          </div>
+                        </div>
+
+                        {isExpanded ? (
+                          <div className="mt-5 grid gap-4 xl:grid-cols-2">
+                            <div className="rounded-2xl bg-white p-4 ring-1 ring-slate-200">
+                              <p className="text-sm font-semibold text-slate-900">成本明細</p>
+                              <div className="mt-3 space-y-3">
+                                {record.costBreakdown.map((item) => (
+                                  <div key={`${record.id}-${item.label}`} className="flex items-center justify-between gap-3 text-sm">
+                                    <span className="text-slate-600">{item.label}</span>
+                                    <span className="font-medium text-slate-900">{item.amount}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                            <div className="rounded-2xl bg-white p-4 ring-1 ring-slate-200">
+                              <p className="text-sm font-semibold text-slate-900">承接內容</p>
+                              <ul className="mt-3 space-y-2 text-sm text-slate-600">
+                                {record.procurementDetails.map((item) => (
+                                  <li key={`${record.id}-${item}`} className="rounded-2xl bg-slate-50 px-3 py-2">• {item}</li>
+                                ))}
+                              </ul>
+                            </div>
+                          </div>
+                        ) : null}
+                      </div>
+                    );
+                  })
+                ) : (
+                  <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-5 text-sm text-slate-500">目前沒有{group.title}紀錄。</div>
+                )}
+              </section>
+            ))}
           </div>
         </article>
       </div>

@@ -22,6 +22,7 @@ import {
   type CostSourceType,
 } from "@/components/quote-cost-data";
 import { getQuoteCostProjectsWithWorkflow } from "@/components/project-workflow-store";
+import { getRelationsByProjectId } from "@/components/project-vendor-financial-store";
 
 type DetailMode = "active" | "closed";
 
@@ -93,6 +94,9 @@ export function QuoteCostDetailClient({ projectId, mode = "active" }: Props) {
     vendors.forEach((vendor) => merged.set(vendor.id, { id: vendor.id, name: vendor.name }));
     return Array.from(merged.values());
   }, [vendors]);
+  const financialRelationMap = useMemo(() => {
+    return new Map(getRelationsByProjectId(projectId).map((relation) => [relation.vendorId, relation]));
+  }, [projectId, state]);
 
   function mutateCosts(mutator: (prev: EditableProjectState) => EditableProjectState) {
     setState((prev) => {
@@ -417,19 +421,26 @@ export function QuoteCostDetailClient({ projectId, mode = "active" }: Props) {
               const adjustedSubtotal = group.items.filter((item) => item.includedInCost).reduce((sum, item) => sum + item.adjustedAmount, 0);
               const excludedCount = group.items.filter((item) => !item.includedInCost).length;
 
+              const financialRelation = financialRelationMap.get(group.key);
+
               return (
                 <details key={group.key} className={`rounded-3xl border p-4 ${isClosedView ? "border-slate-200 bg-white" : "border-slate-200 bg-slate-50/60"}`} open>
                   <summary className="flex cursor-pointer list-none flex-col gap-3 md:flex-row md:items-center md:justify-between">
                     <div>
                       <div className="flex flex-wrap items-center gap-2">
                         <p className="text-base font-semibold text-slate-900">{group.name}</p>
+                        {financialRelation ? (
+                          <span className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ring-1 ${financialRelation.paymentStatus === "已付款" ? "border-emerald-200 bg-emerald-50 text-emerald-700" : "border-amber-200 bg-amber-50 text-amber-700"}`}>
+                            付款 {financialRelation.paymentStatus}
+                          </span>
+                        ) : null}
                         {excludedCount > 0 && (
                           <span className="inline-flex rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-600">
                             {excludedCount} 筆未納入
                           </span>
                         )}
                       </div>
-                      <p className="mt-1 text-sm text-slate-500">調整後小計 {formatCurrency(adjustedSubtotal)} ・ 原始小計 {formatCurrency(originalSubtotal)}</p>
+                      <p className="mt-1 text-sm text-slate-500">調整後小計 {formatCurrency(adjustedSubtotal)} ・ 原始小計 {formatCurrency(originalSubtotal)}{financialRelation ? ` ・ 未付款 ${formatCurrency(financialRelation.unpaidAmount)}` : ""}</p>
                     </div>
                     <span className="rounded-full bg-white px-3 py-1 text-xs text-slate-500 ring-1 ring-slate-200">{group.items.length} 筆</span>
                   </summary>
