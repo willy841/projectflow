@@ -87,7 +87,6 @@ export default function Home() {
                   <th className="w-[12%] px-4 py-3 font-medium">客戶</th>
                   <th className="w-[14%] px-4 py-3 font-medium">日期</th>
                   <th className="w-[14%] px-4 py-3 font-medium">狀態</th>
-                  <th className="w-[18%] px-4 py-3 font-medium">進度</th>
                   <th className="w-[10%] px-4 py-3 font-medium">負責人</th>
                 </tr>
               </thead>
@@ -101,7 +100,6 @@ export default function Home() {
                       >
                         {project.name}
                       </Link>
-                      <p className="mt-1 break-all text-xs text-slate-500">{project.code}</p>
                     </td>
                     <td className="break-words px-4 py-4 align-top text-slate-600">{project.client}</td>
                     <td className="px-4 py-4 align-top text-slate-600 break-words">{project.eventDate}</td>
@@ -111,12 +109,6 @@ export default function Home() {
                       >
                         {project.status}
                       </span>
-                    </td>
-                    <td className="px-4 py-4">
-                      <div className="w-28 rounded-full bg-slate-100">
-                        <div className="h-2 rounded-full bg-slate-900" style={{ width: `${project.progress}%` }} />
-                      </div>
-                      <p className="mt-2 text-xs text-slate-500">{project.progress}%</p>
                     </td>
                     <td className="px-4 py-4 text-slate-600">{project.owner}</td>
                   </tr>
