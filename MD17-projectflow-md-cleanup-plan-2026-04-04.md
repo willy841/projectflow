@@ -193,26 +193,25 @@
 
 ---
 
-# 5. 待檢查是否合併 / 淘汰的文件
-
-## 5.1 `MD12-projectflow-this-page-ui-followup-2026-04-03.md`
+## 4.10 `MD12-projectflow-this-page-ui-followup-2026-04-03.md`
 ### 判斷
-- **優先檢查是否合併 / 淘汰**
+- **建議標記過時 / 僅供歷史回查**
 
 ### 原因
-- 檔名顯示高度單點、頁面級 follow-up
-- 這類內容最容易被後續手續收斂、母檔更新、MD14/MD16 概括性吸收
-- 若內容已被主幹文件完整吸收，獨立保留價值可能不高
+- 範圍高度單點，僅聚焦 `execution-tree-section.tsx` 的頁面級 UI / 互動補強
+- 內容仍有歷史脈絡價值，但不再適合作為主幹閱讀入口
+- 高階結論已被母檔 / MD14 / MD16 後續狀態吸收
 
 ### 建議處理方式
-- 先人工檢查內容
-- 若已被吸收，可：
-  1. 標記過時
-  2. 或摘要搬入主幹後淘汰
+- 不刪
+- 不合併進主幹
+- 改列為歷史回查檔，並加過時標頭
 
 ---
 
-## 5.2 其他未來新增的單頁 follow-up / 微調型 MD
+# 5. 待檢查是否合併 / 淘汰的文件
+
+## 5.1 其他未來新增的單頁 follow-up / 微調型 MD
 ### 判斷
 - 原則上都應進這一類
 
@@ -283,9 +282,9 @@
 - `MD9-project-detail-vendor-information-architecture-handoff-2026-04-02.md`
 - `MD10-projectflow-deployment-debug-and-integration-reset-handoff-2026-04-02.md`
 - `MD11-projectflow-integration-progress-and-next-planning-handoff-2026-04-02.md`
+- `MD12-projectflow-this-page-ui-followup-2026-04-03.md`
 
 ## 應優先檢查是否合併 / 淘汰
-- `MD12-projectflow-this-page-ui-followup-2026-04-03.md`
 - 未來任何單頁 / 單點 / 局部微調型 follow-up MD
 
 ---
