@@ -14,6 +14,34 @@ import {
   PROJECTFLOW_WORKFLOW_UPDATED_EVENT,
 } from "@/components/project-workflow-store";
 
+function getConfirmPriority(status: ConfirmStatus) {
+  if (status === "待確認") return 0;
+  if (status === "尚無回覆") return 1;
+  return 2;
+}
+
+function getDocumentPriority(status: DocumentStatus) {
+  if (status === "需更新") return 0;
+  if (status === "未生成") return 1;
+  return 2;
+}
+
+function compareRecords(a: ProcurementBoardRecord, b: ProcurementBoardRecord) {
+  const confirmDiff = getConfirmPriority(a.confirmStatus) - getConfirmPriority(b.confirmStatus);
+  if (confirmDiff !== 0) return confirmDiff;
+
+  const documentDiff = getDocumentPriority(a.documentStatus) - getDocumentPriority(b.documentStatus);
+  if (documentDiff !== 0) return documentDiff;
+
+  const dateDiff = (a.eventDate ?? "9999-12-31").localeCompare(b.eventDate ?? "9999-12-31");
+  if (dateDiff !== 0) return dateDiff;
+
+  const projectDiff = a.projectName.localeCompare(b.projectName, "zh-Hant");
+  if (projectDiff !== 0) return projectDiff;
+
+  return a.title.localeCompare(b.title, "zh-Hant");
+}
+
 function getConfirmBadgeClass(status: ConfirmStatus) {
   if (status === "已確認") return "border border-emerald-200 bg-emerald-50 text-emerald-700";
   if (status === "待確認") return "border border-amber-200 bg-amber-50 text-amber-700";
@@ -76,14 +104,16 @@ export default function ProcurementTasksPage() {
   );
 
   const filtered = useMemo(() => {
-    return records.filter((record) => {
-      const haystack = `${record.projectName} ${record.title}`.toLowerCase();
-      const matchesQuery = !query.trim() || haystack.includes(query.trim().toLowerCase());
-      const matchesConfirm = confirmFilter === "all" || record.confirmStatus === confirmFilter;
-      const matchesDocument = documentFilter === "all" || record.documentStatus === documentFilter;
-      const matchesVendor = vendorFilter === "all" || record.vendorName === vendorFilter;
-      return matchesQuery && matchesConfirm && matchesDocument && matchesVendor;
-    });
+    return records
+      .filter((record) => {
+        const haystack = `${record.projectName} ${record.title}`.toLowerCase();
+        const matchesQuery = !query.trim() || haystack.includes(query.trim().toLowerCase());
+        const matchesConfirm = confirmFilter === "all" || record.confirmStatus === confirmFilter;
+        const matchesDocument = documentFilter === "all" || record.documentStatus === documentFilter;
+        const matchesVendor = vendorFilter === "all" || record.vendorName === vendorFilter;
+        return matchesQuery && matchesConfirm && matchesDocument && matchesVendor;
+      })
+      .sort(compareRecords);
   }, [records, query, confirmFilter, documentFilter, vendorFilter]);
 
   const stats = useMemo(() => ({
@@ -164,7 +194,10 @@ export default function ProcurementTasksPage() {
 
       <section className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
         <div className="mb-4 flex items-center justify-between gap-3">
-          <h3 className="text-xl font-semibold text-slate-900">跨專案備品任務總表</h3>
+          <div>
+            <h3 className="text-xl font-semibold text-slate-900">跨專案備品任務總表</h3>
+            <p className="mt-1 text-xs text-slate-500">排序優先看待確認，再看需更新文件，最後看較近檔期。</p>
+          </div>
           <span className="text-sm text-slate-500">共 {filtered.length} 筆</span>
         </div>
 

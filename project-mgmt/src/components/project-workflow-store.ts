@@ -124,6 +124,39 @@ function parseCurrency(value: string) {
   return Number.isFinite(numeric) ? numeric : 0;
 }
 
+function getConfirmPriority(status: DesignConfirmStatus | ProcurementConfirmStatus) {
+  if (status === "待確認") return 0;
+  if (status === "尚無回覆") return 1;
+  return 2;
+}
+
+function getDocumentPriority(status: DesignDocumentStatus | ProcurementDocumentStatus) {
+  if (status === "需更新") return 0;
+  if (status === "未生成") return 1;
+  return 2;
+}
+
+function compareBoardRecords(
+  a: Pick<DesignTaskBoardRecord | ProcurementBoardRecord, "confirmStatus" | "documentStatus" | "eventDate" | "projectName" | "title">,
+  b: Pick<DesignTaskBoardRecord | ProcurementBoardRecord, "confirmStatus" | "documentStatus" | "eventDate" | "projectName" | "title">,
+) {
+  const confirmDiff = getConfirmPriority(a.confirmStatus) - getConfirmPriority(b.confirmStatus);
+  if (confirmDiff !== 0) return confirmDiff;
+
+  const documentDiff = getDocumentPriority(a.documentStatus) - getDocumentPriority(b.documentStatus);
+  if (documentDiff !== 0) return documentDiff;
+
+  const aDate = a.eventDate ?? "9999-12-31";
+  const bDate = b.eventDate ?? "9999-12-31";
+  const dateDiff = aDate.localeCompare(bDate);
+  if (dateDiff !== 0) return dateDiff;
+
+  const projectDiff = a.projectName.localeCompare(b.projectName, "zh-Hant");
+  if (projectDiff !== 0) return projectDiff;
+
+  return a.title.localeCompare(b.title, "zh-Hant");
+}
+
 export function getDesignBoardRecords(projects: Project[]): DesignTaskBoardRecord[] {
   if (typeof window === "undefined") return designTaskBoardRecords;
 
@@ -175,6 +208,7 @@ export function getDesignBoardRecords(projects: Project[]): DesignTaskBoardRecor
         id: `${project.id}-${targetId}`,
         projectId: project.id,
         projectName: project.name,
+        eventDate: project.eventDate,
         sourceTargetId: targetId,
         title: titleMap.get(targetId) ?? targetId,
         size: assignment.size || "未填寫",
@@ -190,7 +224,7 @@ export function getDesignBoardRecords(projects: Project[]): DesignTaskBoardRecor
     });
   });
 
-  return records;
+  return records.sort(compareBoardRecords);
 }
 
 export function getProcurementBoardRecords(projects: Project[]): ProcurementBoardRecord[] {
@@ -235,6 +269,7 @@ export function getProcurementBoardRecords(projects: Project[]): ProcurementBoar
         id: `${project.id}-${targetId}`,
         projectId: project.id,
         projectName: project.name,
+        eventDate: project.eventDate,
         sourceTargetId: targetId,
         title: assignment.item || titleMap.get(targetId) || targetId,
         size: assignment.size || "未填寫",
@@ -249,7 +284,7 @@ export function getProcurementBoardRecords(projects: Project[]): ProcurementBoar
         costLocked: confirmStatus === "已確認",
       };
     });
-  });
+  }).sort(compareBoardRecords);
 }
 
 function getWorkflowManagedSourceTypes(items: CostLineItem[]) {
