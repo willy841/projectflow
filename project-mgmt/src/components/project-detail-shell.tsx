@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { CopyEventInfoButton } from "@/components/copy-event-info-button";
-import { ExecutionTreeSection } from "@/components/execution-tree-section";
+import { ExecutionTree } from "@/components/execution-tree";
 import { Project } from "@/components/project-data";
 import { getProjectWorkflowCostSummary } from "@/components/project-workflow-store";
 import { RequirementsPanel } from "@/components/requirements-panel";
@@ -260,12 +260,16 @@ export function ProjectDetailShell({
         <RequirementsPanel initialItems={project.requirements} />
       </section>
 
+      <section className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+        <ExecutionTree heading="專案執行項目" items={project.executionItems} projectId={project.id} />
+      </section>
+
       <section className="rounded-3xl border border-amber-200 bg-amber-50 p-6 shadow-sm ring-1 ring-amber-100">
         <div className="flex flex-col gap-2">
           <p className="text-xs font-semibold tracking-wide text-amber-700">Temporary isolation check</p>
-          <h3 className="text-xl font-semibold text-slate-900">專案工作流區塊暫時隔離</h3>
+          <h3 className="text-xl font-semibold text-slate-900">其餘工作流區塊暫時隔離</h3>
           <p className="text-sm leading-6 text-slate-600">
-            這一版先暫時移除 Project Detail 內最重的工作流互動區，目的是驗證左側導航失效是否由這塊內容覆蓋造成。
+            這一版先只加回專案執行項目，其他分類檢視、回覆整理、廠商區與文件整理仍暫時隔離，用來定位哪一段會讓左側導航失效。
           </p>
         </div>
       </section>
