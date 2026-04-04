@@ -37,10 +37,6 @@ export function getStoredVendorPackageById(id: string) {
   return readStoredPackages().find((pkg) => pkg.id === id);
 }
 
-export function getStoredVendorPackages() {
-  return readStoredPackages();
-}
-
 export function getStoredPackagesByProjectId(projectId: string) {
   return readStoredPackages().filter((pkg) => pkg.projectId === projectId);
 }

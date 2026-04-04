@@ -3,30 +3,26 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { formatCurrency } from "@/components/vendor-data";
-import { getVendorOutstandingTotal } from "@/components/project-vendor-financial-store";
+import { getVendorOutstandingTotal, formatCurrency } from "@/components/vendor-data";
 import { VendorQuickCreateDialog } from "@/components/vendor-quick-create-dialog";
-import { useVendorStore } from "@/components/vendor-store";
+import { TRADE_OPTIONS, useVendorStore } from "@/components/vendor-store";
 
 const DELETE_CONFIRM_TITLE = "確認刪除這個廠商？";
 const DELETE_CONFIRM_DESCRIPTION = "這是刪除動作，刪除後會從目前的前端 vendor 清單移除。請再次確認是否要刪除這個廠商。";
 
 export function VendorListPage() {
   const router = useRouter();
-  const { vendors, deleteVendor, trades, createTrade, deleteTrade, getTradeUsage } = useVendorStore();
+  const { vendors, deleteVendor } = useVendorStore();
   const [quickCreateOpen, setQuickCreateOpen] = useState(false);
   const [createdVendorName, setCreatedVendorName] = useState("");
   const [searchKeyword, setSearchKeyword] = useState("");
   const [activeTrade, setActiveTrade] = useState<string | null>(null);
   const [showUnpaidOnly, setShowUnpaidOnly] = useState(false);
   const [deletingVendorId, setDeletingVendorId] = useState<string | null>(null);
-  const [isTradeManagerOpen, setIsTradeManagerOpen] = useState(false);
-  const [newTradeName, setNewTradeName] = useState("");
-  const [tradeFeedback, setTradeFeedback] = useState<{ type: "success" | "error"; message: string } | null>(null);
 
   const vendorCards = useMemo(() => vendors.map((vendor) => ({
     ...vendor,
-    outstandingTotal: getVendorOutstandingTotal(vendor.id, vendor.name),
+    outstandingTotal: getVendorOutstandingTotal(vendor.id),
   })), [vendors]);
 
   const filteredVendorCards = useMemo(() => {
@@ -52,38 +48,6 @@ export function VendorListPage() {
     setDeletingVendorId(null);
   }
 
-  function handleCreateTrade() {
-    const result = createTrade(newTradeName);
-    if (!result.ok) {
-      setTradeFeedback({
-        type: "error",
-        message: result.reason === "empty" ? "工種名稱不能為空白。" : `工種「${result.trade ?? newTradeName.trim()}」已存在，禁止重複新增。`,
-      });
-      return;
-    }
-
-    setNewTradeName("");
-    setTradeFeedback({ type: "success", message: `已新增工種「${result.trade}」。` });
-  }
-
-  function handleDeleteTrade(trade: string) {
-    const result = deleteTrade(trade);
-    if (!result.ok) {
-      setTradeFeedback({
-        type: "error",
-        message: result.reason === "in-use"
-          ? `工種「${trade}」已有廠商使用中，暫時不可刪除：${result.vendorNames?.join("、")}`
-          : `找不到工種「${trade}」。`,
-      });
-      return;
-    }
-
-    if (activeTrade === trade) {
-      setActiveTrade(null);
-    }
-    setTradeFeedback({ type: "success", message: `已刪除工種「${trade}」。` });
-  }
-
   return (
     <>
       <header className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200 xl:p-7">
@@ -107,7 +71,7 @@ export function VendorListPage() {
           </div>
 
           <div className="sm:min-w-[260px] xl:self-stretch">
-            <div className="rounded-3xl border border-amber-200 bg-amber-50 px-5 py-4 text-sm text-amber-900 xl:flex xl:h-full xl:min-h-[104px] xl:flex-col xl:justify-center">
+            <div className="rounded-3xl border border-amber-200 bg-amber-50 px-5 py-4 text-sm text-amber-900 xl:h-full xl:min-h-[104px] xl:flex xl:flex-col xl:justify-center">
               <p className="font-semibold">目前篩選結果未付款總額</p>
               <p className="mt-2 text-2xl font-semibold">{formatCurrency(totalOutstanding)}</p>
             </div>
@@ -165,18 +129,9 @@ export function VendorListPage() {
             </div>
 
             <div className="rounded-2xl border border-slate-200 bg-white px-4 py-3">
-              <div className="flex flex-wrap items-center justify-between gap-2">
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="text-[11px] font-semibold tracking-wide text-slate-500">工種篩選</span>
-                  <span className="text-xs text-slate-400">單選</span>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setIsTradeManagerOpen((current) => !current)}
-                  className={`inline-flex items-center justify-center rounded-full px-3 py-1.5 text-xs font-semibold ring-1 transition ${isTradeManagerOpen ? "bg-slate-900 text-white ring-slate-900" : "bg-white text-slate-700 ring-slate-200 hover:bg-slate-50"}`}
-                >
-                  {isTradeManagerOpen ? "收合工種管理" : "管理工種"}
-                </button>
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="text-[11px] font-semibold tracking-wide text-slate-500">工種篩選</span>
+                <span className="text-xs text-slate-400">單選</span>
               </div>
               <div className="mt-2 flex min-w-0 flex-wrap items-center gap-2">
                 <button
@@ -186,7 +141,7 @@ export function VendorListPage() {
                 >
                   全部工種
                 </button>
-                {trades.map((trade) => {
+                {TRADE_OPTIONS.map((trade) => {
                   const active = activeTrade === trade;
                   return (
                     <button
@@ -200,71 +155,6 @@ export function VendorListPage() {
                   );
                 })}
               </div>
-
-              {isTradeManagerOpen ? (
-                <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                  <div className="grid gap-4 xl:grid-cols-[minmax(0,280px)_minmax(0,1fr)] xl:items-start">
-                    <div className="space-y-3">
-                      <div>
-                        <p className="text-sm font-semibold text-slate-900">新增工種</p>
-                        <p className="mt-1 text-xs leading-5 text-slate-500">只在廠商資料模組管理；新增後會同步供列表篩選、廠商詳情編輯與建立流程選擇。</p>
-                      </div>
-                      <div className="flex gap-2">
-                        <input
-                          value={newTradeName}
-                          onChange={(event) => {
-                            setNewTradeName(event.target.value);
-                            if (tradeFeedback) setTradeFeedback(null);
-                          }}
-                          placeholder="輸入工種名稱"
-                          className="h-11 flex-1 rounded-2xl border border-slate-300 bg-white px-4 text-sm text-slate-900 outline-none transition focus:border-slate-400"
-                        />
-                        <button
-                          type="button"
-                          onClick={handleCreateTrade}
-                          className="inline-flex h-11 items-center justify-center rounded-2xl bg-slate-900 px-4 text-sm font-semibold text-white transition hover:bg-slate-800"
-                        >
-                          新增
-                        </button>
-                      </div>
-                      {tradeFeedback ? (
-                        <div className={`rounded-2xl px-4 py-3 text-sm ${tradeFeedback.type === "success" ? "border border-emerald-200 bg-emerald-50 text-emerald-800" : "border border-rose-200 bg-rose-50 text-rose-700"}`}>
-                          {tradeFeedback.message}
-                        </div>
-                      ) : null}
-                    </div>
-
-                    <div>
-                      <div className="mb-2 flex items-center justify-between gap-2">
-                        <p className="text-sm font-semibold text-slate-900">目前工種</p>
-                        <p className="text-xs text-slate-400">已被使用中的工種不可刪除</p>
-                      </div>
-                      <div className="flex flex-wrap gap-2">
-                        {trades.map((trade) => {
-                          const usage = getTradeUsage(trade);
-                          const inUse = usage.length > 0;
-                          return (
-                            <div key={trade} className={`inline-flex items-center gap-2 rounded-full px-3 py-2 text-xs ring-1 ${inUse ? "bg-white text-slate-700 ring-slate-200" : "bg-slate-50 text-slate-600 ring-slate-200"}`}>
-                              <span className="font-medium text-slate-900">{trade}</span>
-                              <span className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${inUse ? "bg-sky-50 text-sky-700" : "bg-slate-200/70 text-slate-600"}`}>
-                                {inUse ? `${usage.length} 間使用中` : "未使用"}
-                              </span>
-                              <button
-                                type="button"
-                                onClick={() => handleDeleteTrade(trade)}
-                                disabled={inUse}
-                                className={`inline-flex items-center justify-center rounded-full px-2 py-0.5 text-[11px] font-semibold transition ${inUse ? "cursor-not-allowed bg-slate-100 text-slate-400" : "bg-rose-50 text-rose-700 hover:bg-rose-100"}`}
-                              >
-                                刪除
-                              </button>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ) : null}
             </div>
           </div>
         </div>

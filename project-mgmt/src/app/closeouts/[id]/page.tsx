@@ -1,7 +1,6 @@
-import { QuoteCostDetailClient } from "@/components/quote-cost-detail-client";
+import { redirect } from "next/navigation";
 
-export default async function CloseoutsDetailPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function CloseoutsAliasDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-
-  return <QuoteCostDetailClient projectId={id} mode="closed" />;
+  redirect(`/closeout/${id}`);
 }

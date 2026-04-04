@@ -183,7 +183,7 @@ export function ProjectVendorSection({
       <article className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
         <div className="mb-5 flex items-center justify-between gap-3">
           <div>
-            <p className="text-xs font-semibold tracking-wide text-sky-700">發包前處理</p>
+            <p className="text-xs font-semibold tracking-wide text-sky-700">PRE-ISSUE</p>
             <h3 className="mt-1 text-xl font-semibold text-slate-900">廠商需求</h3>
           </div>
         </div>
@@ -279,20 +279,20 @@ export function ProjectVendorSection({
                   </label>
 
                   <div className="flex h-full flex-col">
-                    <p className="mb-2 flex h-6 items-center text-sm font-medium text-slate-700">主動作</p>
+                    <p className="mb-2 flex h-6 items-center text-sm font-medium text-slate-700">送出</p>
                     <button
                       type="button"
                       disabled={!canSubmit}
                       onClick={() => handleSend({ ...assignment, selectedVendorName })}
                       className="inline-flex h-12 w-full items-center justify-center rounded-2xl bg-slate-900 px-4 text-sm font-semibold text-white shadow-sm transition disabled:cursor-not-allowed disabled:bg-slate-300"
                     >
-                      {isSubmitted ? "已送出" : "送出至發包單"}
+                      {isSubmitted ? "已送出" : "送出"}
                     </button>
                     <div className="mt-3 min-h-10">
                       {inlineErrors[assignment.id] ? (
                         <p className="text-xs leading-5 text-rose-600">{inlineErrors[assignment.id]}</p>
                       ) : isSubmitted ? (
-                        <p className="text-xs leading-5 text-slate-500">已送出後主欄位會鎖定；後續整理請到發包主線處理。</p>
+                        <p className="text-xs leading-5 text-slate-500">已送出後主欄位已鎖定；後續整理請到 package 內進行。</p>
                       ) : null}
                     </div>
                   </div>
@@ -306,37 +306,49 @@ export function ProjectVendorSection({
       <article className="rounded-3xl border border-blue-200 bg-blue-50/60 p-6 shadow-sm ring-1 ring-blue-100">
         <div className="mb-5 flex items-center justify-between gap-3">
           <div>
-            <p className="text-xs font-semibold tracking-wide text-blue-700">已送出發包單</p>
+            <p className="text-xs font-semibold tracking-wide text-blue-700">POST-ISSUE</p>
             <h3 className="mt-1 text-xl font-semibold text-slate-900">廠商發包清單</h3>
           </div>
         </div>
 
         {packages.length ? (
-          <div className="space-y-3">
-            {packages.map((vendorPackage) => (
-              <article key={vendorPackage.id} className="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-blue-100">
-                <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
-                  <div className="min-w-0 flex-1">
-                    <div className="flex flex-wrap items-center gap-3">
-                      <h4 className="text-lg font-semibold text-slate-900">{vendorPackage.vendorName}</h4>
+          <div className="overflow-x-auto rounded-2xl bg-white ring-1 ring-blue-100">
+            <table className="min-w-[720px] divide-y divide-slate-200 text-sm xl:min-w-full">
+              <thead>
+                <tr className="text-left text-slate-500">
+                  <th className="px-4 py-3 font-medium">廠商名稱</th>
+                  <th className="px-4 py-3 font-medium">項目數</th>
+                  <th className="px-4 py-3 font-medium">文件狀態</th>
+                  <th className="px-4 py-3 font-medium">操作</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {packages.map((vendorPackage) => (
+                  <tr key={vendorPackage.id}>
+                    <td className="px-4 py-4">
+                      <div>
+                        <p className="font-semibold text-slate-900">{vendorPackage.vendorName}</p>
+                        <p className="mt-1 text-xs text-slate-500">{vendorPackage.code}</p>
+                      </div>
+                    </td>
+                    <td className="px-4 py-4 font-medium text-slate-700">{vendorPackage.items.length} 筆</td>
+                    <td className="px-4 py-4">
                       <span className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ring-1 ${getVendorDocumentStatusClass(vendorPackage.documentStatus)}`}>
                         {vendorPackage.documentStatus}
                       </span>
-                    </div>
-                    <div className="mt-3 flex flex-wrap items-center gap-4 text-sm text-slate-600">
-                      <p>項目數：<span className="font-medium text-slate-800">{vendorPackage.items.length} 筆</span></p>
-                      <p className="text-slate-500">{vendorPackage.code}</p>
-                    </div>
-                  </div>
-                  <Link href={`/vendor-packages/${vendorPackage.id}`} className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 transition hover:bg-slate-50">
-                    查看發包單
-                  </Link>
-                </div>
-              </article>
-            ))}
+                    </td>
+                    <td className="px-4 py-4">
+                      <Link href={`/vendor-packages/${vendorPackage.id}`} className="inline-flex items-center justify-center rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-800 transition hover:bg-slate-50">
+                        查看 Package
+                      </Link>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         ) : (
-          <div className="rounded-2xl border border-dashed border-blue-200 bg-white p-6 text-sm text-slate-500">目前還沒有已送出的發包單。</div>
+          <div className="rounded-2xl border border-dashed border-blue-200 bg-white p-6 text-sm text-slate-500">目前尚未建立廠商發包清單。</div>
         )}
       </article>
 
@@ -344,7 +356,7 @@ export function ProjectVendorSection({
         open={Boolean(quickCreateAssignmentId)}
         onClose={() => setQuickCreateAssignmentId(null)}
         title="流程內快速建立廠商"
-        description="這裡只快速建立廠商並回填選單；工種新增 / 刪除統一回廠商資料模組管理。"
+        description="入口 B：設計 / 備品 / Vendor 流程匹配不到廠商時，可直接建立；成功後立刻回填當前選單並自動選中。"
         onCreated={(vendor) => {
           if (!quickCreateAssignmentId) return;
           handleAssignmentChange(quickCreateAssignmentId, {

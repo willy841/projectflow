@@ -1,12 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { ProjectVendorSection } from "@/components/project-vendor-section";
-import {
-  getExecutionSectionStorageKey,
-  notifyProjectWorkflowUpdated,
-  readStoredExecutionSectionState,
-} from "@/components/project-workflow-store";
 import {
   AssignmentReply,
   DesignAssignmentDraft,
@@ -17,14 +12,6 @@ import {
 import { Project, getStatusClass } from "@/components/project-data";
 
 type OpenCategory = "design" | "procurement" | "vendor";
-type FocusPanel = "detail" | "replies" | "replyBox" | "organize" | "document";
-
-type InitialFocus = {
-  tab?: string;
-  itemId?: string;
-  panel?: string;
-  vendor?: string;
-};
 
 type ReplyForm = {
   item: string;
@@ -97,7 +84,6 @@ type ParsedProcurementReply = {
   size: string;
   material: string;
   previewUrl: string;
-  vendor: string;
 };
 
 type ProcurementDocumentGroup = {
@@ -198,7 +184,6 @@ function parseDesignReply(reply: AssignmentReply): ParsedDesignReply {
 }
 
 function parseProcurementReply(reply: AssignmentReply): ParsedProcurementReply {
-  const meta = reply.meta;
   const getFromMessage = (label: string) => {
     const lines = reply.message
       .split("\n")
@@ -218,54 +203,13 @@ function parseProcurementReply(reply: AssignmentReply): ParsedProcurementReply {
   };
 
   return {
-    title:
-      meta?.title || getFromMessage("回覆標題") || getFromMessage("項目") || "未命名回覆",
-    quantity: meta?.quantity || getFromMessage("數量") || "未填寫",
-    amount: meta?.amount || getFromMessage("金額") || "未填寫",
-    size: meta?.size || getFromMessage("尺寸") || "未填寫",
-    material:
-      meta?.materialStructure || getFromMessage("材質") || "未填寫",
-    previewUrl:
-      meta?.fileUrl || getFromMessage("預覽圖 URL") || "未填寫",
-    vendor: meta?.vendor || getFromMessage("廠商") || "未指定廠商",
+    title: getFromMessage("回覆標題") || getFromMessage("項目") || "未命名回覆",
+    quantity: getFromMessage("數量") || "未填寫",
+    amount: getFromMessage("金額") || "未填寫",
+    size: getFromMessage("尺寸") || "未填寫",
+    material: getFromMessage("材質") || "未填寫",
+    previewUrl: getFromMessage("預覽圖 URL") || "未填寫",
   };
-}
-
-function buildReplyMetaFromMessage(message: string, type: OpenCategory) {
-  const tempReply: AssignmentReply = {
-    id: "temp",
-    message,
-    createdAt: "",
-  };
-
-  if (type === "design") {
-    const parsed = parseDesignReply(tempReply);
-    return {
-      title: parsed.title === "未命名回覆" ? "" : parsed.title,
-      quantity: parsed.quantity === "未填寫" ? "" : parsed.quantity,
-      amount: parsed.amount === "未填寫" ? "" : parsed.amount,
-      size: parsed.size === "未填寫" ? "" : parsed.size,
-      materialStructure:
-        parsed.materialStructure === "未填寫" ? "" : parsed.materialStructure,
-      fileUrl: parsed.fileUrl === "未填寫" ? "" : parsed.fileUrl,
-      vendor: parsed.vendor === "未指定廠商" ? "" : parsed.vendor,
-    };
-  }
-
-  if (type === "procurement") {
-    const parsed = parseProcurementReply(tempReply);
-    return {
-      title: parsed.title === "未命名回覆" ? "" : parsed.title,
-      quantity: parsed.quantity === "未填寫" ? "" : parsed.quantity,
-      amount: parsed.amount === "未填寫" ? "" : parsed.amount,
-      size: parsed.size === "未填寫" ? "" : parsed.size,
-      materialStructure: parsed.material === "未填寫" ? "" : parsed.material,
-      fileUrl: parsed.previewUrl === "未填寫" ? "" : parsed.previewUrl,
-      vendor: parsed.vendor === "未指定廠商" ? "" : parsed.vendor,
-    };
-  }
-
-  return undefined;
 }
 
 function ExecutionFieldGrid({ fields }: { fields: DisplayField[] }) {
@@ -489,13 +433,7 @@ function ProcurementDocumentPreview({
   );
 }
 
-export function ExecutionTreeSection({
-  project,
-  initialFocus,
-}: {
-  project: Project;
-  initialFocus?: InitialFocus;
-}) {
+export function ExecutionTreeSection({ project }: { project: Project }) {
   const [designAssignments, setDesignAssignments] = useState<
     DesignAssignmentItem[]
   >([]);
@@ -515,19 +453,16 @@ export function ExecutionTreeSection({
     string | null
   >(null);
   const [replyForms, setReplyForms] = useState<Record<string, ReplyForm>>({});
-  const storedSectionState = readStoredExecutionSectionState(project.id);
   const [replyOverrides, setReplyOverrides] = useState<
     Record<string, AssignmentReply[]>
-  >(() => storedSectionState.replyOverrides ?? {});
+  >({});
   const [editingReplyId, setEditingReplyId] = useState<string | null>(null);
   const [editingReplyMessage, setEditingReplyMessage] = useState("");
   const [generatedDesignDocuments, setGeneratedDesignDocuments] = useState<
-    Record<string, number>
-  >(() => storedSectionState.generatedDesignDocuments ?? {});
+    Record<string, boolean>
+  >({});
   const [generatedProcurementDocuments, setGeneratedProcurementDocuments] =
-    useState<Record<string, number>>(() =>
-      storedSectionState.generatedProcurementDocuments ?? {},
-    );
+    useState<Record<string, boolean>>({});
   const [activeDesignDocumentVendor, setActiveDesignDocumentVendor] = useState<
     string | null
   >(null);
@@ -541,24 +476,6 @@ export function ExecutionTreeSection({
   const [activeProcurementContent, setActiveProcurementContent] = useState<
     string | null
   >(null);
-
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    window.localStorage.setItem(
-      getExecutionSectionStorageKey(project.id),
-      JSON.stringify({
-        replyOverrides,
-        generatedDesignDocuments,
-        generatedProcurementDocuments,
-      }),
-    );
-    notifyProjectWorkflowUpdated(project.id);
-  }, [
-    generatedDesignDocuments,
-    generatedProcurementDocuments,
-    project.id,
-    replyOverrides,
-  ]);
 
   function resetCategoryExpansions() {
     setActiveReplyBoxId(null);
@@ -577,48 +494,6 @@ export function ExecutionTreeSection({
     setOpenCategory(category);
     resetCategoryExpansions();
   }
-
-  useEffect(() => {
-    const tab = initialFocus?.tab;
-    if (tab !== "design" && tab !== "procurement" && tab !== "vendor") {
-      return;
-    }
-
-    setOpenCategory(tab);
-    resetCategoryExpansions();
-
-    const panel = initialFocus?.panel as FocusPanel | undefined;
-    const focusVendor = initialFocus?.vendor;
-    if (tab === "design") {
-      if (panel === "organize" && focusVendor) {
-        setActiveDesignDocumentContentVendor(focusVendor);
-        return;
-      }
-      if (panel === "document" && focusVendor) {
-        setActiveDesignDocumentVendor(focusVendor);
-        return;
-      }
-    }
-
-    if (tab === "procurement") {
-      if (panel === "organize") {
-        setActiveProcurementContent(project.id);
-        return;
-      }
-      if (panel === "document") {
-        setActiveProcurementDocument(project.id);
-        return;
-      }
-    }
-
-    const focusItemId = initialFocus?.itemId;
-    if (
-      focusItemId &&
-      (panel === "detail" || panel === "replies" || panel === "replyBox")
-    ) {
-      focusItem(focusItemId, panel);
-    }
-  }, [initialFocus, project.id]);
 
   function focusItem(itemId: string, target: "replies" | "replyBox" | "detail") {
     setEditingReplyId(null);
@@ -797,7 +672,6 @@ export function ExecutionTreeSection({
       form.material ? `材質：${form.material}` : null,
       form.previewUrl ? `預覽圖 URL：${form.previewUrl}` : null,
       form.cost ? `金額：${form.cost}` : null,
-      form.vendor ? `廠商：${form.vendor}` : null,
     ]
       .filter(Boolean)
       .join("｜");
@@ -832,7 +706,6 @@ export function ExecutionTreeSection({
                 size: form.size,
                 materialStructure: form.material,
                 fileUrl: form.previewUrl,
-                vendor: form.vendor,
               },
             }
           : {}),
@@ -860,11 +733,11 @@ export function ExecutionTreeSection({
     updateReplies(targetId, type, (replies) =>
       replies.map((reply) => {
         if (reply.id !== replyId) return reply;
+        const confirmed = /\[已確認金額\]/.test(reply.message);
         return {
           ...reply,
-          message: nextMessage,
-          meta: buildReplyMetaFromMessage(nextMessage, type),
-          createdAt: `${reply.createdAt}（已修改，待重新確認）`,
+          message: `${nextMessage}${confirmed ? "\n[已確認金額]" : ""}`,
+          createdAt: `${reply.createdAt}（已修改）`,
         };
       }),
     );
@@ -892,22 +765,6 @@ export function ExecutionTreeSection({
       replies.map((reply) => {
         if (reply.id !== replyId) return reply;
         const confirmed = /\[已確認金額\]/.test(reply.message);
-        if (!confirmed) {
-          const parsedReply =
-            type === "design"
-              ? parseDesignReply(reply)
-              : type === "procurement"
-                ? parseProcurementReply(reply)
-                : null;
-
-          if (
-            (type === "design" || type === "procurement") &&
-            (!parsedReply?.vendor || parsedReply.vendor === "未指定廠商")
-          ) {
-            window.alert("要先指定廠商並儲存回覆，才能正式確認進入文件與成本主線。");
-            return reply;
-          }
-        }
         return {
           ...reply,
           message: confirmed
@@ -1188,8 +1045,6 @@ export function ExecutionTreeSection({
 
     designList.forEach((item) => {
       item.replies.forEach((reply, replyIndex) => {
-        const summary = parseReplyMessage(reply);
-        if (!summary.confirmed) return;
         const parsed = parseDesignReply(reply);
         const vendorName = parsed.vendor || "未指定廠商";
         const existing = groups.get(vendorName);
@@ -1200,17 +1055,19 @@ export function ExecutionTreeSection({
           sequence: replyIndex + 1,
         };
 
-        const generatedCount = generatedDesignDocuments[vendorName] ?? 0;
-        const nextReplies = existing ? [...existing.replies, nextReply] : [nextReply];
+        if (!existing) {
+          groups.set(vendorName, {
+            vendor: vendorName,
+            status: generatedDesignDocuments[vendorName] ? "已生成" : "未生成",
+            replies: [nextReply],
+          });
+          return;
+        }
+
         groups.set(vendorName, {
-          vendor: vendorName,
-          status:
-            generatedCount === 0
-              ? "未生成"
-              : generatedCount === nextReplies.length
-                ? "已生成"
-                : "需更新",
-          replies: nextReplies,
+          ...existing,
+          status: generatedDesignDocuments[vendorName] ? "需更新" : "未生成",
+          replies: [...existing.replies, nextReply],
         });
       });
     });
@@ -1224,8 +1081,6 @@ export function ExecutionTreeSection({
 
       procurementList.forEach((item) => {
         item.replies.forEach((reply, replyIndex) => {
-          const summary = parseReplyMessage(reply);
-          if (!summary.confirmed) return;
           replies.push({
             ...parseProcurementReply(reply),
             sourceTitle: item.title,
@@ -1239,16 +1094,9 @@ export function ExecutionTreeSection({
         return null;
       }
 
-      const generatedCount = generatedProcurementDocuments[project.id] ?? 0;
-
       return {
         id: project.id,
-        status:
-          generatedCount === 0
-            ? "未生成"
-            : generatedCount === replies.length
-              ? "已生成"
-              : "需更新",
+        status: generatedProcurementDocuments[project.id] ? "已生成" : "未生成",
         replies,
       };
     }, [generatedProcurementDocuments, procurementList, project.id]);
@@ -1294,52 +1142,18 @@ export function ExecutionTreeSection({
   };
 
   return (
-    <div className="min-w-0 overflow-hidden space-y-6">
-      <section className="min-w-0 overflow-hidden rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+    <>
+      <section className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
         <ExecutionTree
           heading="專案執行項目"
           items={project.executionItems}
-          projectId={project.id}
-          onDesignAssignmentsChange={(payload) =>
-            setDesignAssignments(
-              payload.map((item) => ({
-                ...item,
-                data: {
-                  ...item.data,
-                  replies:
-                    replyOverrides[item.targetId] ?? item.data.replies ?? [],
-                },
-              })),
-            )
-          }
-          onProcurementAssignmentsChange={(payload) =>
-            setProcurementAssignments(
-              payload.map((item) => ({
-                ...item,
-                data: {
-                  ...item.data,
-                  replies:
-                    replyOverrides[item.targetId] ?? item.data.replies ?? [],
-                },
-              })),
-            )
-          }
-          onVendorAssignmentsChange={(payload) =>
-            setVendorAssignments(
-              payload.map((item) => ({
-                ...item,
-                data: {
-                  ...item.data,
-                  replies:
-                    replyOverrides[item.targetId] ?? item.data.replies ?? [],
-                },
-              })),
-            )
-          }
+          onDesignAssignmentsChange={setDesignAssignments}
+          onProcurementAssignmentsChange={setProcurementAssignments}
+          onVendorAssignmentsChange={setVendorAssignments}
         />
       </section>
 
-      <section className="min-w-0 overflow-hidden rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+      <section className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
         <div className="mb-5">
           <h3 className="text-xl font-semibold">專案分類檢視</h3>
         </div>
@@ -1379,7 +1193,7 @@ export function ExecutionTreeSection({
           )}
         </div>
 
-        <div className="mt-6 min-w-0 overflow-hidden rounded-3xl border border-slate-300 bg-slate-100 p-5 shadow-inner">
+        <div className="mt-6 rounded-3xl border border-slate-300 bg-slate-100 p-5 shadow-inner">
           <div className="mb-4 flex flex-col gap-3 border-b border-slate-200 pb-4 sm:flex-row sm:items-start sm:justify-between">
             <div className="flex flex-wrap items-center gap-3">
               <h4 className="text-lg font-semibold text-slate-900">
@@ -1680,8 +1494,8 @@ export function ExecutionTreeSection({
                                           className={`inline-flex min-w-[120px] items-center justify-center rounded-xl px-3 py-2 text-xs font-semibold transition ${summary.confirmed ? "border border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100" : "border border-amber-200 bg-amber-50 text-amber-700 hover:bg-amber-100"}`}
                                         >
                                           {summary.confirmed
-                                            ? "取消確認"
-                                            : "確認進主線"}
+                                            ? "取消確認金額"
+                                            : "確認金額"}
                                         </button>
                                       </div>
                                     </div>
@@ -2066,7 +1880,7 @@ export function ExecutionTreeSection({
                               }
                               className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400"
                             />
-                            {openCategory === "design" || openCategory === "procurement" ? (
+                            {openCategory === "design" ? (
                               <input
                                 value={replyForm.vendor}
                                 onChange={(e) =>
@@ -2076,7 +1890,7 @@ export function ExecutionTreeSection({
                                     e.target.value,
                                   )
                                 }
-                                placeholder={openCategory === "design" ? "執行廠商" : "廠商"}
+                                placeholder="執行廠商"
                                 className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400 md:col-span-2 xl:col-span-3"
                               />
                             ) : null}
@@ -2117,7 +1931,7 @@ export function ExecutionTreeSection({
                   設計文件整理
                 </h5>
                 <p className="mt-1 text-sm text-slate-500">
-                  只吃已確認回覆，依執行廠商分組整理；一個執行廠商 = 一組整理單位 =
+                  依執行廠商分組吃所有設計回覆；一個執行廠商 = 一組整理單位 =
                   一份設計文件。
                 </p>
               </div>
@@ -2143,14 +1957,28 @@ export function ExecutionTreeSection({
                               <span
                                 className={`inline-flex items-center justify-center rounded-full px-3 py-1 text-xs font-medium ring-1 ${getDocumentStatusClass(group.status)}`}
                               >
-                                文件狀態｜{group.status}
+                                {group.status}
                               </span>
                             </div>
                             <p className="mt-2 text-sm text-slate-500">
-                              已確認回覆：{group.replies.length} 筆
+                              項目數量：{group.replies.length}
                             </p>
                           </div>
                           <div className="flex flex-wrap gap-2">
+                            <button
+                              type="button"
+                              onClick={() =>
+                                setGeneratedDesignDocuments((prev) => ({
+                                  ...prev,
+                                  [group.vendor]: true,
+                                }))
+                              }
+                              className="inline-flex items-center justify-center rounded-xl bg-slate-900 px-3 py-2 text-xs font-semibold text-white transition hover:bg-slate-800"
+                            >
+                              {group.status === "未生成"
+                                ? "生成文件"
+                                : "重新生成文件"}
+                            </button>
                             <button
                               type="button"
                               onClick={() =>
@@ -2160,30 +1988,14 @@ export function ExecutionTreeSection({
                             >
                               {isContentOpen ? "收合整理內容" : "查看整理內容"}
                             </button>
-                            {group.status !== "未生成" ? (
-                              <button
-                                type="button"
-                                onClick={() =>
-                                  toggleDesignOrganizeDocument(group.vendor)
-                                }
-                                className={`inline-flex items-center justify-center rounded-xl border px-3 py-2 text-xs font-semibold transition ${isDocumentOpen ? "border-slate-900 bg-slate-900 text-white" : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50"}`}
-                              >
-                                {isDocumentOpen ? "收合文件" : group.status === "需更新" ? "查看舊文件" : "查看文件"}
-                              </button>
-                            ) : null}
                             <button
                               type="button"
                               onClick={() =>
-                                setGeneratedDesignDocuments((prev) => ({
-                                  ...prev,
-                                  [group.vendor]: group.replies.length,
-                                }))
+                                toggleDesignOrganizeDocument(group.vendor)
                               }
-                              className="inline-flex items-center justify-center rounded-xl bg-slate-900 px-3 py-2 text-xs font-semibold text-white transition hover:bg-slate-800"
+                              className={`inline-flex items-center justify-center rounded-xl border px-3 py-2 text-xs font-semibold transition ${isDocumentOpen ? "border-slate-900 bg-slate-900 text-white" : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50"}`}
                             >
-                              {group.status === "未生成"
-                                ? "生成文件"
-                                : "重新生成文件"}
+                              {isDocumentOpen ? "收合文件" : "查看文件"}
                             </button>
                           </div>
                         </div>
@@ -2197,7 +2009,6 @@ export function ExecutionTreeSection({
                                     "來源任務",
                                     "回覆序號",
                                     "回覆標題",
-                                    "執行廠商",
                                     "數量",
                                     "金額",
                                     "尺寸",
@@ -2227,9 +2038,6 @@ export function ExecutionTreeSection({
                                     </td>
                                     <td className="border-b border-slate-200 px-4 py-3">
                                       {reply.title}
-                                    </td>
-                                    <td className="border-b border-slate-200 px-4 py-3">
-                                      {reply.vendor}
                                     </td>
                                     <td className="border-b border-slate-200 px-4 py-3">
                                       {reply.quantity}
@@ -2267,7 +2075,7 @@ export function ExecutionTreeSection({
                 </div>
               ) : (
                 <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-5 text-sm text-slate-500">
-                  目前尚無可整理的設計回覆；先在上方設計任務新增回覆，指定執行廠商並完成確認。
+                  目前尚無可整理的設計回覆；先在上方設計任務新增回覆，並填入執行廠商。
                 </div>
               )}
             </div>
@@ -2280,7 +2088,7 @@ export function ExecutionTreeSection({
                   備品整理
                 </h5>
                 <p className="mt-1 text-sm text-slate-500">
-                  只吃已確認回覆，不覆蓋版本；先作為採購 /
+                  吃所有回覆 R1 / R2 / R3，不覆蓋版本；先作為採購 /
                   備品文件輸出前整理層。
                 </p>
               </div>
@@ -2296,14 +2104,28 @@ export function ExecutionTreeSection({
                         <span
                           className={`inline-flex items-center justify-center rounded-full px-3 py-1 text-xs font-medium ring-1 ${getDocumentStatusClass(procurementDocumentGroup.status)}`}
                         >
-                          文件狀態｜{procurementDocumentGroup.status}
+                          {procurementDocumentGroup.status}
                         </span>
                       </div>
                       <p className="mt-2 text-sm text-slate-500">
-                        已確認回覆：{procurementDocumentGroup.replies.length} 筆
+                        回覆筆數：{procurementDocumentGroup.replies.length}
                       </p>
                     </div>
                     <div className="flex flex-wrap gap-2">
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setGeneratedProcurementDocuments((prev) => ({
+                            ...prev,
+                            [project.id]: true,
+                          }))
+                        }
+                        className="inline-flex items-center justify-center rounded-xl bg-slate-900 px-3 py-2 text-xs font-semibold text-white transition hover:bg-slate-800"
+                      >
+                        {procurementDocumentGroup.status === "未生成"
+                          ? "生成文件"
+                          : "重新生成文件"}
+                      </button>
                       <button
                         type="button"
                         onClick={() => toggleProcurementOrganizeContent(project.id)}
@@ -2313,32 +2135,14 @@ export function ExecutionTreeSection({
                           ? "收合整理內容"
                           : "查看整理內容"}
                       </button>
-                      {procurementDocumentGroup.status !== "未生成" ? (
-                        <button
-                          type="button"
-                          onClick={() => toggleProcurementOrganizeDocument(project.id)}
-                          className={`inline-flex items-center justify-center rounded-xl border px-3 py-2 text-xs font-semibold transition ${activeProcurementDocument === project.id ? "border-slate-900 bg-slate-900 text-white" : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50"}`}
-                        >
-                          {activeProcurementDocument === project.id
-                            ? "收合文件"
-                            : procurementDocumentGroup.status === "需更新"
-                              ? "查看舊文件"
-                              : "查看文件"}
-                        </button>
-                      ) : null}
                       <button
                         type="button"
-                        onClick={() =>
-                          setGeneratedProcurementDocuments((prev) => ({
-                            ...prev,
-                            [project.id]: procurementDocumentGroup.replies.length,
-                          }))
-                        }
-                        className="inline-flex items-center justify-center rounded-xl bg-slate-900 px-3 py-2 text-xs font-semibold text-white transition hover:bg-slate-800"
+                        onClick={() => toggleProcurementOrganizeDocument(project.id)}
+                        className={`inline-flex items-center justify-center rounded-xl border px-3 py-2 text-xs font-semibold transition ${activeProcurementDocument === project.id ? "border-slate-900 bg-slate-900 text-white" : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50"}`}
                       >
-                        {procurementDocumentGroup.status === "未生成"
-                          ? "生成文件"
-                          : "重新生成文件"}
+                        {activeProcurementDocument === project.id
+                          ? "收合文件"
+                          : "查看文件"}
                       </button>
                     </div>
                   </div>
@@ -2352,7 +2156,6 @@ export function ExecutionTreeSection({
                               "來源任務",
                               "回覆序號",
                               "回覆標題",
-                              "廠商",
                               "數量",
                               "金額",
                               "尺寸",
@@ -2382,9 +2185,6 @@ export function ExecutionTreeSection({
                               </td>
                               <td className="border-b border-slate-200 px-4 py-3">
                                 {reply.title}
-                              </td>
-                              <td className="border-b border-slate-200 px-4 py-3">
-                                {reply.vendor}
                               </td>
                               <td className="border-b border-slate-200 px-4 py-3">
                                 {reply.quantity}
@@ -2426,6 +2226,6 @@ export function ExecutionTreeSection({
           ) : null}
         </div>
       </section>
-    </div>
+    </>
   );
 }

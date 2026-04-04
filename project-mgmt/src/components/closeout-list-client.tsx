@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
 import { AppShell } from "@/components/app-shell";
 import {
   formatCurrency,
@@ -10,33 +9,11 @@ import {
   getGrossProfit,
   getQuotationTotal,
   getReconciliationStatusClass,
-  type QuoteCostProject,
+  quoteCostProjects,
 } from "@/components/quote-cost-data";
-import {
-  getQuoteCostProjectsWithWorkflow,
-  PROJECTFLOW_WORKFLOW_UPDATED_EVENT,
-} from "@/components/project-workflow-store";
-import { getRelationsByProjectId } from "@/components/project-vendor-financial-store";
 
 export function CloseoutListClient() {
-  const [projects, setProjects] = useState<QuoteCostProject[]>(() => getQuoteCostProjectsWithWorkflow());
-
-  useEffect(() => {
-    const refreshProjects = () => setProjects(getQuoteCostProjectsWithWorkflow());
-
-    refreshProjects();
-    window.addEventListener(PROJECTFLOW_WORKFLOW_UPDATED_EVENT, refreshProjects);
-    window.addEventListener("focus", refreshProjects);
-    window.addEventListener("storage", refreshProjects);
-
-    return () => {
-      window.removeEventListener(PROJECTFLOW_WORKFLOW_UPDATED_EVENT, refreshProjects);
-      window.removeEventListener("focus", refreshProjects);
-      window.removeEventListener("storage", refreshProjects);
-    };
-  }, []);
-
-  const closedProjects = useMemo(() => projects
+  const closedProjects = quoteCostProjects
     .filter((project) => project.projectStatus === "已結案")
     .map((project) => {
       const quotationTotal = getQuotationTotal(project.quotationItems);
@@ -44,9 +21,6 @@ export function CloseoutListClient() {
       const grossProfit = getGrossProfit(quotationTotal, adjustedCostTotal);
       const manualCostCount = project.costItems.filter((item) => item.isManual).length;
       const excludedCostCount = project.costItems.filter((item) => !item.includedInCost).length;
-      const relations = getRelationsByProjectId(project.id);
-      const unpaidRelationCount = relations.filter((relation) => relation.paymentStatus === "未付款").length;
-      const unpaidAmount = relations.reduce((sum, relation) => sum + relation.unpaidAmount, 0);
 
       return {
         project,
@@ -55,23 +29,21 @@ export function CloseoutListClient() {
         grossProfit,
         manualCostCount,
         excludedCostCount,
-        unpaidRelationCount,
-        unpaidAmount,
       };
     })
-    .sort((a, b) => b.project.eventDate.localeCompare(a.project.eventDate)), [projects]);
+    .sort((a, b) => b.project.eventDate.localeCompare(a.project.eventDate));
 
   const fullyReconciled = closedProjects.filter(({ project }) => project.reconciliationStatus === "已完成");
   const latestEventDate = closedProjects[0]?.project.eventDate ?? "-";
   const archivedGrossProfit = closedProjects.reduce((sum, item) => sum + item.grossProfit, 0);
 
   return (
-    <AppShell activePath="/closeouts">
+    <AppShell activePath="/closeout">
       <header className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200 xl:p-7">
-        <p className="text-sm text-slate-500">結案留存</p>
+        <p className="text-sm text-slate-500">Closeout Archive</p>
         <h2 className="mt-1 text-3xl font-semibold tracking-tight text-slate-900">結案</h2>
         <p className="mt-3 max-w-4xl text-sm leading-6 text-slate-600">
-          這裡只處理已結案專案的留存查閱：先看結案結果，再看報價、成本與例外註記，不再延續進行中管理頁的工作語氣。
+          這裡不是把執行中列表換資料來源而已，而是把已結案專案整理成可回查的專案池：看當下結果、看留存版本，也看哪些案子在結案時保留了例外備註。
         </p>
       </header>
 
@@ -96,7 +68,7 @@ export function CloseoutListClient() {
 
       <section className="grid gap-4 xl:grid-cols-[1.3fr_1fr]">
         <article className="rounded-3xl border border-slate-200 bg-slate-50/70 p-5 shadow-sm">
-          <p className="text-sm font-medium text-slate-500">留存頁定位</p>
+          <p className="text-sm font-medium text-slate-500">結案池定位</p>
           <div className="mt-3 grid gap-3 md:grid-cols-3">
             <ArchiveMetric label="查閱重點" value="留存版本" helper="保留有效報價、成本與毛利結果，後續回頭查不用重建脈絡。" />
             <ArchiveMetric label="確認重點" value="結案結果" helper="維持結案當下的狀態與對帳結果，不再回到進行中操作語境。" />
@@ -105,7 +77,7 @@ export function CloseoutListClient() {
         </article>
 
         <article className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
-          <p className="text-sm font-medium text-slate-500">查閱節奏</p>
+          <p className="text-sm font-medium text-slate-500">檢索節奏</p>
           <div className="mt-3 space-y-3 text-sm text-slate-600">
             <p>先按最新檔期查閱，再快速掃描每案的留存摘要與例外筆數。</p>
             <div className="flex flex-wrap gap-2">
@@ -120,8 +92,8 @@ export function CloseoutListClient() {
       <section className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
         <div className="mb-5 flex flex-col gap-2 lg:flex-row lg:items-center lg:justify-between">
           <div>
-            <h3 className="text-xl font-semibold text-slate-900">已結案專案</h3>
-            <p className="mt-1 text-sm text-slate-500">每筆只保留查閱需要的結果資訊，避免看起來像進行中頁面換資料來源。</p>
+            <h3 className="text-xl font-semibold text-slate-900">已結案專案池</h3>
+            <p className="mt-1 text-sm text-slate-500">把每個結案專案當成留存卡片，而不是進行中專案的縮小版。</p>
           </div>
           <div className="rounded-2xl bg-slate-50 px-4 py-2 text-sm text-slate-600 ring-1 ring-slate-200">
             共 {closedProjects.length} 筆專案
@@ -129,7 +101,7 @@ export function CloseoutListClient() {
         </div>
 
         <div className="space-y-4">
-          {closedProjects.map(({ project, quotationTotal, adjustedCostTotal, grossProfit, manualCostCount, excludedCostCount, unpaidRelationCount, unpaidAmount }) => (
+          {closedProjects.map(({ project, quotationTotal, adjustedCostTotal, grossProfit, manualCostCount, excludedCostCount }) => (
             <article key={project.id} className="rounded-3xl border border-slate-200 p-5">
               <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
                 <div>
@@ -148,19 +120,18 @@ export function CloseoutListClient() {
                 </div>
 
                 <Link
-                  href={`/closeouts/${project.id}`}
+                  href={`/closeout/${project.id}`}
                   className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-800 transition hover:border-slate-400 hover:bg-slate-50"
                 >
                   查看留存
                 </Link>
               </div>
 
-              <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-5">
+              <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
                 <ArchiveValueCard label="對外報價總額" value={formatCurrency(quotationTotal)} />
                 <ArchiveValueCard label="調整後成本總額" value={formatCurrency(adjustedCostTotal)} />
                 <ArchiveValueCard label="毛利" value={formatCurrency(grossProfit)} />
                 <ArchiveValueCard label="留存備註" value={excludedCostCount > 0 || manualCostCount > 0 ? `${excludedCostCount} 筆未計入 / ${manualCostCount} 筆人工` : "無額外例外"} />
-                <ArchiveValueCard label="廠商付款承接" value={unpaidRelationCount > 0 ? `${unpaidRelationCount} 筆未付款 / ${formatCurrency(unpaidAmount)}` : "已無未付款"} />
               </div>
             </article>
           ))}

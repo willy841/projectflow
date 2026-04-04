@@ -1,12 +1,11 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useState } from "react";
 import {
   type VendorDocumentStatus,
   type VendorPackage,
   getVendorDocumentStatusClass,
 } from "@/components/vendor-data";
-import { upsertStoredVendorPackage } from "@/components/vendor-package-store";
 
 function getDocumentStatusMessage(status: VendorDocumentStatus) {
   if (status === "已生成") return "目前文件為最新版本";
@@ -51,27 +50,19 @@ export function VendorPackageDetail({ vendorPackage }: { vendorPackage: VendorPa
     markDirty();
   }
 
-  const currentPackage: VendorPackage = useMemo(
-    () => ({
-      ...vendorPackage,
-      projectName,
-      eventDate,
-      location,
-      loadInTime,
-      items,
-      note,
-      documentStatus,
-    }),
-    [documentStatus, eventDate, items, loadInTime, location, note, projectName, vendorPackage],
-  );
-
-  useEffect(() => {
-    upsertStoredVendorPackage(currentPackage);
-  }, [currentPackage]);
+  const currentPackage: VendorPackage = {
+    ...vendorPackage,
+    projectName,
+    eventDate,
+    location,
+    loadInTime,
+    items,
+    note,
+    documentStatus,
+  };
 
   const documentText = buildDocumentText(currentPackage);
   const primaryActionLabel = documentStatus === "未生成" ? "生成文件" : documentStatus === "需更新" ? "重新生成文件" : null;
-  const generatedCountLabel = `${items.length} 項`;
 
   async function handleCopy() {
     await navigator.clipboard.writeText(documentText);
@@ -100,138 +91,86 @@ export function VendorPackageDetail({ vendorPackage }: { vendorPackage: VendorPa
       <header className="rounded-3xl border border-blue-200 bg-blue-50/70 p-6 shadow-sm ring-1 ring-blue-100">
         <div className="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
           <div>
-            <p className="text-sm text-slate-500">發包主線</p>
-            <div className="mt-2 flex flex-wrap items-center gap-2">
-              <h2 className="text-3xl font-semibold tracking-tight text-slate-900">{vendorPackage.vendorName}</h2>
-              <span className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ring-1 ${getVendorDocumentStatusClass(documentStatus)}`}>
-                文件 {documentStatus}
-              </span>
-            </div>
-            <p className="mt-2 text-sm text-slate-600">
-              {projectName} ・ {eventDate}
-            </p>
-            <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-600">先整理這張發包單真正要對外發出的內容，再決定是否生成最新文件。</p>
+            <p className="text-sm text-slate-500">{vendorPackage.code}</p>
+            <h2 className="mt-1 text-3xl font-semibold tracking-tight text-slate-900">{vendorPackage.vendorName}</h2>
+            <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-600">{getDocumentStatusMessage(documentStatus)}</p>
           </div>
-
-          <div className="grid gap-3 sm:grid-cols-3 xl:min-w-[360px]">
-            <article className="rounded-2xl bg-white/80 px-4 py-3 ring-1 ring-blue-100">
-              <p className="text-[11px] font-semibold tracking-[0.14em] text-slate-500">發包單代碼</p>
-              <p className="mt-2 text-sm font-semibold text-slate-900">{vendorPackage.code}</p>
-            </article>
-            <article className="rounded-2xl bg-white/80 px-4 py-3 ring-1 ring-blue-100">
-              <p className="text-[11px] font-semibold tracking-[0.14em] text-slate-500">項目數</p>
-              <p className="mt-2 text-2xl font-semibold tracking-tight text-slate-900">{items.length}</p>
-            </article>
-            <article className="rounded-2xl bg-white/80 px-4 py-3 ring-1 ring-blue-100">
-              <p className="text-[11px] font-semibold tracking-[0.14em] text-slate-500">目前狀態</p>
-              <p className="mt-2 text-sm font-semibold text-slate-900">{getDocumentStatusMessage(documentStatus)}</p>
-            </article>
-          </div>
+          <span className={`inline-flex self-start rounded-full px-3 py-1 text-xs font-medium ring-1 ${getVendorDocumentStatusClass(documentStatus)}`}>
+            文件 {documentStatus}
+          </span>
         </div>
       </header>
 
-      <section className="grid gap-6 2xl:grid-cols-[minmax(0,1.5fr)_360px]">
-        <article className="space-y-6 rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
-          <section className="rounded-3xl border border-slate-200 bg-slate-50/70 p-5">
-            <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
-              <div>
-                <p className="text-xs font-semibold tracking-[0.16em] text-slate-400">背景副本</p>
-                <h3 className="mt-2 text-xl font-semibold text-slate-900">文件背景</h3>
-                <p className="mt-1 text-sm text-slate-500">保留發包單自己的背景副本，讓整理文件時不需要回頭改專案主資料。</p>
-              </div>
-            </div>
-
-            <div className="grid gap-4 md:grid-cols-2">
-              <label className="flex flex-col gap-2">
-                <span className="text-sm font-medium text-slate-700">專案名稱</span>
-                <input value={projectName} onChange={(event) => { setProjectName(event.target.value); markDirty(); }} className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-blue-400" />
-              </label>
-              <label className="flex flex-col gap-2">
-                <span className="text-sm font-medium text-slate-700">活動日期</span>
-                <input type="date" value={eventDate} onChange={(event) => { setEventDate(event.target.value); markDirty(); }} className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-blue-400" />
-              </label>
-              <label className="flex flex-col gap-2">
-                <span className="text-sm font-medium text-slate-700">地點</span>
-                <input value={location} onChange={(event) => { setLocation(event.target.value); markDirty(); }} className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-blue-400" />
-              </label>
-              <label className="flex flex-col gap-2">
-                <span className="text-sm font-medium text-slate-700">進場時間</span>
-                <input type="time" value={loadInTime} onChange={(event) => { setLoadInTime(event.target.value); markDirty(); }} className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-blue-400" />
-              </label>
-            </div>
-          </section>
-
-          <section className="rounded-3xl border border-slate-200 p-5">
-            <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
-              <div>
-                <p className="text-xs font-semibold tracking-[0.16em] text-slate-400">主線整理</p>
-                <h3 className="mt-2 text-xl font-semibold text-slate-900">發包內容整理</h3>
-                <p className="mt-1 text-sm text-slate-500">主線只整理項目名稱與需求內容，避免又回到任務管理頁語氣。</p>
-              </div>
-              <div className="rounded-2xl bg-slate-50 px-4 py-2 text-sm text-slate-600 ring-1 ring-slate-200">目前共 {generatedCountLabel}</div>
-            </div>
-
-            <div className="space-y-4">
-              {items.map((item, index) => (
-                <div key={item.id} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                  <div className="flex flex-wrap items-center justify-between gap-2">
-                    <p className="text-sm font-semibold text-slate-900">項目 {index + 1}</p>
-                    <span className="rounded-full bg-white px-3 py-1 text-xs font-medium text-slate-600 ring-1 ring-slate-200">對外列項</span>
-                  </div>
-                  <div className="mt-3 grid gap-4 xl:grid-cols-[320px_minmax(0,1fr)]">
-                    <label className="flex flex-col gap-2">
-                      <span className="text-sm font-medium text-slate-700">項目名稱</span>
-                      <input value={item.itemName} onChange={(event) => updateItemName(item.id, event.target.value)} className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-blue-400" />
-                    </label>
-                    <label className="flex flex-col gap-2">
-                      <span className="text-sm font-medium text-slate-700">需求內容</span>
-                      <textarea value={item.requirementText} onChange={(event) => updateRequirement(item.id, event.target.value)} rows={3} className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-blue-400" />
-                    </label>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          <section className="rounded-3xl border border-slate-200 p-5">
-            <label className="flex flex-col gap-2">
-              <span className="text-sm font-medium text-slate-700">整體備註</span>
-              <textarea value={note} onChange={(event) => { setNote(event.target.value); markDirty(); }} rows={4} className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-blue-400" />
-            </label>
-          </section>
-        </article>
-
-        <aside className="space-y-4 self-start rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200 2xl:sticky 2xl:top-6">
-          <div className="rounded-3xl border border-slate-200 bg-slate-50/80 p-4">
-            <div className="flex flex-wrap items-center gap-2">
-              <h3 className="text-lg font-semibold text-slate-900">文件狀態</h3>
-              <span className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ring-1 ${getVendorDocumentStatusClass(documentStatus)}`}>
-                {documentStatus}
-              </span>
-            </div>
-            <p className="mt-2 text-sm leading-6 text-slate-600">{getDocumentStatusMessage(documentStatus)}</p>
+      <section className="grid gap-6 2xl:grid-cols-[minmax(0,1.05fr)_minmax(340px,0.95fr)]">
+        <article className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+          <div className="mb-5">
+            <h3 className="text-xl font-semibold text-slate-900">Package 基本資料</h3>
+            <p className="mt-1 text-sm text-slate-500">這一層只整理文件背景、發包項目與整體備註。</p>
           </div>
 
-          <div className="rounded-3xl border border-slate-200 p-4">
-            <div className="flex items-center justify-between gap-3">
-              <h3 className="text-lg font-semibold text-slate-900">對外文件預覽</h3>
-              <span className="text-xs font-medium text-slate-500">TXT 文字稿</span>
-            </div>
+          <div className="grid gap-4 md:grid-cols-2">
+            <label className="flex flex-col gap-2">
+              <span className="text-sm font-medium text-slate-700">專案名稱</span>
+              <input value={projectName} onChange={(event) => { setProjectName(event.target.value); markDirty(); }} className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-blue-400" />
+            </label>
+            <label className="flex flex-col gap-2">
+              <span className="text-sm font-medium text-slate-700">活動日期</span>
+              <input type="date" value={eventDate} onChange={(event) => { setEventDate(event.target.value); markDirty(); }} className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-blue-400" />
+            </label>
+            <label className="flex flex-col gap-2">
+              <span className="text-sm font-medium text-slate-700">地點</span>
+              <input value={location} onChange={(event) => { setLocation(event.target.value); markDirty(); }} className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-blue-400" />
+            </label>
+            <label className="flex flex-col gap-2">
+              <span className="text-sm font-medium text-slate-700">進場時間</span>
+              <input type="time" value={loadInTime} onChange={(event) => { setLoadInTime(event.target.value); markDirty(); }} className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-blue-400" />
+            </label>
+          </div>
 
+          <div className="mt-6 space-y-4">
+            {items.map((item, index) => (
+              <div key={item.id} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                <p className="text-sm font-semibold text-slate-700">項目 {index + 1}</p>
+                <div className="mt-3 grid gap-4 xl:grid-cols-[320px_minmax(0,1fr)]">
+                  <label className="flex flex-col gap-2">
+                    <span className="text-sm font-medium text-slate-700">項目名稱</span>
+                    <input value={item.itemName} onChange={(event) => updateItemName(item.id, event.target.value)} className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-blue-400" />
+                  </label>
+                  <label className="flex flex-col gap-2">
+                    <span className="text-sm font-medium text-slate-700">需求內容</span>
+                    <textarea value={item.requirementText} onChange={(event) => updateRequirement(item.id, event.target.value)} rows={3} className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-blue-400" />
+                  </label>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <label className="mt-6 flex flex-col gap-2">
+            <span className="text-sm font-medium text-slate-700">文件整體備註</span>
+            <textarea value={note} onChange={(event) => { setNote(event.target.value); markDirty(); }} rows={4} className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-blue-400" />
+          </label>
+        </article>
+
+        <article className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+          <div className="mb-5 flex items-center justify-between gap-3">
+            <div>
+              <h3 className="text-xl font-semibold text-slate-900">最終對外文件預覽</h3>
+              <p className="mt-1 text-sm text-slate-500">條列式模板，不顯示金額。</p>
+            </div>
             {primaryActionLabel ? (
-              <button type="button" onClick={handleGenerate} className="mt-4 inline-flex w-full items-center justify-center rounded-2xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700">
+              <button type="button" onClick={handleGenerate} className="inline-flex items-center justify-center rounded-2xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700">
                 {primaryActionLabel}
               </button>
             ) : null}
-
-            <pre className="mt-4 min-h-[420px] whitespace-pre-wrap rounded-2xl bg-slate-950 p-5 text-sm leading-7 text-slate-100">{documentText}</pre>
-
-            <div className="mt-4 grid gap-3 sm:grid-cols-2 2xl:grid-cols-1">
-              <button type="button" onClick={handleCopy} className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 transition hover:bg-slate-50">複製內容</button>
-              <button type="button" onClick={handleExport} className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 transition hover:bg-slate-50">匯出 TXT</button>
-            </div>
           </div>
-        </aside>
+
+          <pre className="min-h-[360px] whitespace-pre-wrap rounded-2xl bg-slate-950 p-5 text-sm leading-7 text-slate-100">{documentText}</pre>
+
+          <div className="mt-5 flex flex-wrap gap-3">
+            <button type="button" onClick={handleCopy} className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 transition hover:bg-slate-50">複製內容</button>
+            <button type="button" onClick={handleExport} className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 transition hover:bg-slate-50">匯出 TXT</button>
+          </div>
+        </article>
       </section>
     </div>
   );

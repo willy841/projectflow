@@ -1,7 +1,14 @@
+import { notFound } from "next/navigation";
 import { QuoteCostDetailClient } from "@/components/quote-cost-detail-client";
+import { getQuoteCostProjectById } from "@/components/quote-cost-data";
 
 export default async function QuoteCostDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
+  const project = getQuoteCostProjectById(id);
 
-  return <QuoteCostDetailClient projectId={id} mode="active" />;
+  if (!project || project.projectStatus !== "執行中") {
+    notFound();
+  }
+
+  return <QuoteCostDetailClient project={project} mode="active" />;
 }
