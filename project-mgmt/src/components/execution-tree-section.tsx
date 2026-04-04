@@ -1,7 +1,10 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { ProjectVendorSection } from "@/components/project-vendor-section";
+import {
+  ProjectTaskSummaryList,
+  type ProjectTaskSummaryItem,
+} from "@/components/project-task-summary-list";
 import {
   AssignmentReply,
   DesignAssignmentDraft,
@@ -1134,43 +1137,90 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
       };
     }, [generatedProcurementDocuments, procurementList, project.id]);
 
+  const designSummaryList = useMemo<ProjectTaskSummaryItem[]>(
+    () =>
+      designList.map((item) => ({
+        id: item.id,
+        title: item.title,
+        quantity:
+          item.fields.find((field) => field.label === "數量")?.value || "未填寫",
+        status: item.badge,
+        statusClass: item.badgeClass,
+        href: `/design-tasks?project=${encodeURIComponent(project.id)}&task=${encodeURIComponent(item.sourceLabel)}`,
+        ctaLabel: "查看任務",
+      })),
+    [designList, project.id],
+  );
+
+  const procurementSummaryList = useMemo<ProjectTaskSummaryItem[]>(
+    () =>
+      procurementList.map((item) => ({
+        id: item.id,
+        title: item.title,
+        quantity:
+          item.fields.find((field) => field.label === "數量")?.value || "未填寫",
+        status: item.badge,
+        statusClass: item.badgeClass,
+        href: `/procurement-tasks?project=${encodeURIComponent(project.id)}&task=${encodeURIComponent(item.sourceLabel)}`,
+        ctaLabel: "查看任務",
+      })),
+    [procurementList, project.id],
+  );
+
+  const vendorSummaryList = useMemo<ProjectTaskSummaryItem[]>(
+    () =>
+      vendorList.map((item) => {
+        const vendorName = item.fields.find((field) => field.label === "廠商名稱")?.value;
+        return {
+          id: item.id,
+          title: item.title,
+          status: item.badge,
+          statusClass: item.badgeClass,
+          href: `/vendor-issues?project=${encodeURIComponent(project.id)}&task=${encodeURIComponent(item.sourceLabel)}`,
+          ctaLabel: "前往廠商發包版",
+          extraSummary: vendorName && vendorName !== "未填寫" ? `廠商：${vendorName}` : undefined,
+        };
+      }),
+    [vendorList, project.id],
+  );
+
   const currentList =
     openCategory === "design"
-      ? designList
+      ? designSummaryList
       : openCategory === "procurement"
-        ? procurementList
-        : [];
+        ? procurementSummaryList
+        : vendorSummaryList;
 
   const categoryMeta = {
     design: {
       title: "專案設計",
       description: "交辦設計 → 回覆 → 設計文件整理與文件預覽。",
-      count: designList.length,
+      count: designSummaryList.length,
       accent: "text-blue-700",
       ring: "ring-blue-200",
       activeSurface: "bg-blue-50/80",
       activeBadge: "bg-blue-100 text-blue-700",
-      sectionHint: "目前聚焦設計交辦與設計文件整理。",
+      sectionHint: "每筆任務只保留數量、任務名稱、狀態與導流。",
     },
     procurement: {
       title: "專案備品",
       description: "交辦備品 → 回覆 → 備品整理與備品文件預覽。",
-      count: procurementList.length,
+      count: procurementSummaryList.length,
       accent: "text-amber-700",
       ring: "ring-amber-200",
       activeSurface: "bg-amber-50/80",
       activeBadge: "bg-amber-100 text-amber-700",
-      sectionHint: "目前聚焦備品交辦與輸出前整理。",
+      sectionHint: "每筆任務只保留數量、任務名稱、狀態與導流。",
     },
     vendor: {
       title: "專案廠商",
       description: "廠商主卡只保留識別與入口，不再當完整工作台。",
-      count: vendorList.length,
+      count: vendorSummaryList.length,
       accent: "text-violet-700",
       ring: "ring-violet-200",
       activeSurface: "bg-violet-50/80",
       activeBadge: "bg-violet-100 text-violet-700",
-      sectionHint: "目前聚焦廠商需求與發包清單主線。",
+      sectionHint: "每筆任務只保留任務名稱、狀態與導往廠商發包版入口。",
     },
   };
 
@@ -1229,733 +1279,23 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
 
         <div className="mt-6 rounded-3xl border border-slate-300 bg-slate-100 p-5 shadow-inner">
           <div className="mb-4 flex flex-col gap-3 border-b border-slate-200 pb-4 sm:flex-row sm:items-start sm:justify-between">
-            <div className="flex flex-wrap items-center gap-3">
-              <h4 className="text-lg font-semibold text-slate-900">
-                {categoryMeta[openCategory].title}
-              </h4>
-              {openCategory !== "vendor" ? (
+            <div>
+              <div className="flex flex-wrap items-center gap-3">
+                <h4 className="text-lg font-semibold text-slate-900">
+                  {categoryMeta[openCategory].title}
+                </h4>
                 <span className="text-sm font-medium text-slate-500">
                   共 {currentList.length} 筆
                 </span>
-              ) : null}
-            </div>
-            <div className="flex flex-wrap gap-2">
-              <span className="inline-flex items-center justify-center rounded-full bg-white px-3 py-1 text-xs font-semibold text-slate-700 ring-1 ring-slate-200">
-                Step 1：選分類
-              </span>
-              <span className="inline-flex items-center justify-center rounded-full bg-white px-3 py-1 text-xs font-semibold text-slate-700 ring-1 ring-slate-200">
-                Step 2：看主卡 / 回覆 / 整理層
-              </span>
+              </div>
+              <p className="mt-1 text-sm text-slate-500">
+                {categoryMeta[openCategory].sectionHint}
+              </p>
             </div>
           </div>
 
           <div className="space-y-3">
-            {openCategory === "vendor" ? (
-              <ProjectVendorSection
-                projectId={project.id}
-                projectInfo={{
-                  name: project.name,
-                  eventDate: project.eventDate,
-                  location: project.location,
-                  loadInTime: project.loadInTime,
-                }}
-                visible
-                vendorTaskItems={vendorAssignments}
-              />
-            ) : currentList.length ? (
-              currentList.map((item, itemIndex) => {
-                const replyForm = replyForms[item.id] ?? defaultReplyForm;
-                const isReplyListOpen = expandedReplyListId === item.id;
-                const isReplyOpen = activeReplyBoxId === item.id;
-                const isDetailOpen = expandedDetailId === item.id;
-                const isDesignCard = openCategory === "design";
-                const isProcurementCard = openCategory === "procurement";
-                const latestReply = item.replies[item.replies.length - 1];
-                const latestReplySummary = latestReply
-                  ? parseReplyMessage(latestReply)
-                  : null;
-                const activePanelLabel = isReplyOpen
-                  ? "回覆中"
-                  : isReplyListOpen
-                    ? "回覆列表展開"
-                    : isDetailOpen
-                      ? "主卡資訊展開"
-                      : null;
-
-                return (
-                  <div
-                    key={item.id}
-                    className={`rounded-2xl border p-4 shadow-sm transition ${activePanelLabel ? "border-slate-900 bg-slate-50/70 ring-1 ring-slate-200" : "border-slate-300 bg-white"}`}
-                  >
-                    <div className="flex flex-col gap-4">
-                      <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
-                        <div className="min-w-0 flex-1">
-                          <div className="flex flex-wrap items-center gap-2">
-                            <span className="inline-flex items-center justify-center rounded-full bg-slate-900 px-3 py-1 text-xs font-semibold text-white">
-                              #{itemIndex + 1}
-                            </span>
-                            {!isDesignCard && !isProcurementCard ? (
-                              <>
-                                <span className="inline-flex items-center justify-center rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
-                                  {item.categoryLabel}
-                                </span>
-                                <span
-                                  className={`inline-flex items-center justify-center rounded-full px-3 py-1 text-xs font-medium ${item.badgeClass}`}
-                                >
-                                  {item.badge}
-                                </span>
-                              </>
-                            ) : null}
-                            {activePanelLabel ? (
-                              <span className="inline-flex items-center justify-center rounded-full bg-slate-900/8 px-3 py-1 text-xs font-semibold text-slate-700 ring-1 ring-slate-300">
-                                {activePanelLabel}
-                              </span>
-                            ) : null}
-                          </div>
-
-                          <div className="mt-3 flex flex-col gap-3 xl:flex-row xl:items-start xl:justify-between">
-                            <div className="min-w-0 flex-1">
-                              <h5 className="text-base font-semibold text-slate-900">
-                                {item.title}
-                              </h5>
-                              <p className="mt-1 text-sm text-slate-500">
-                                {item.sourceLabel}
-                              </p>
-                            </div>
-                            <div className="flex flex-wrap gap-2 xl:justify-end">
-                              <span className="inline-flex items-center rounded-full bg-white px-3 py-1 text-xs font-medium text-slate-700 ring-1 ring-slate-200">
-                                回覆 {item.replies.length} 則
-                              </span>
-                              {latestReplySummary ? (
-                                <>
-                                  <span className="inline-flex max-w-full items-center rounded-full bg-white px-3 py-1 text-xs font-medium text-slate-700 ring-1 ring-slate-200">
-                                    最新：{latestReplySummary.title}
-                                  </span>
-                                  <span className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-medium ring-1 ${latestReplySummary.confirmed ? "bg-emerald-50 text-emerald-700 ring-emerald-200" : "bg-amber-50 text-amber-700 ring-amber-200"}`}>
-                                    {latestReplySummary.statusLabel}
-                                  </span>
-                                </>
-                              ) : (
-                                <span className="inline-flex items-center rounded-full bg-white px-3 py-1 text-xs font-medium text-slate-500 ring-1 ring-slate-200">
-                                  尚無回覆
-                                </span>
-                              )}
-                            </div>
-                          </div>
-
-                          <div className="mt-3 rounded-2xl border border-slate-200 bg-slate-50/80 px-4 py-3">
-                            <p className="text-[11px] font-semibold tracking-wide text-slate-500">
-                              第一層摘要
-                            </p>
-                            {item.cardSummary.length ? (
-                              <div className="mt-2 flex flex-wrap gap-2">
-                                {item.cardSummary.map((line) => (
-                                  <span
-                                    key={`${item.id}-${line}`}
-                                    className="inline-flex items-center rounded-full bg-white px-3 py-1 text-xs font-medium text-slate-700 ring-1 ring-slate-200"
-                                  >
-                                    {line}
-                                  </span>
-                                ))}
-                              </div>
-                            ) : isDesignCard ? (
-                              <div className="mt-2 flex flex-wrap gap-2">
-                                <span className="inline-flex items-center rounded-full bg-white px-3 py-1 text-xs font-medium text-slate-500 ring-1 ring-slate-200">
-                                  尺寸：未填寫
-                                </span>
-                                <span className="inline-flex items-center rounded-full bg-white px-3 py-1 text-xs font-medium text-slate-500 ring-1 ring-slate-200">
-                                  材質 + 結構：未填寫
-                                </span>
-                              </div>
-                            ) : isProcurementCard ? (
-                              <div className="mt-2 flex flex-wrap gap-2">
-                                <span className="inline-flex items-center rounded-full bg-white px-3 py-1 text-xs font-medium text-slate-500 ring-1 ring-slate-200">
-                                  尺寸：未填寫
-                                </span>
-                                <span className="inline-flex items-center rounded-full bg-white px-3 py-1 text-xs font-medium text-slate-500 ring-1 ring-slate-200">
-                                  材質：未填寫
-                                </span>
-                              </div>
-                            ) : null}
-                          </div>
-                        </div>
-
-                        <div className="flex flex-col gap-2 xl:w-[220px] xl:items-stretch">
-                          <button
-                            type="button"
-                            onClick={() => toggleReplyBox(item.id)}
-                            className={`inline-flex items-center gap-2 justify-center rounded-xl border px-3 py-2.5 text-xs font-semibold transition ${isReplyOpen ? "border-slate-900 bg-slate-900 text-white shadow-sm" : "border-slate-900 bg-slate-900 text-white hover:bg-slate-800"}`}
-                          >
-                            <span className={`text-[10px] transition ${isReplyOpen ? "rotate-90" : ""}`}>›</span>
-                            {isReplyOpen ? "收合回覆表單" : "新增回覆"}
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => toggleReplyList(item.id)}
-                            className={`inline-flex items-center gap-2 justify-center rounded-xl border px-3 py-2.5 text-xs font-semibold transition ${isReplyListOpen ? "border-slate-900 bg-slate-900 text-white shadow-sm" : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50"}`}
-                          >
-                            <span className={`text-[10px] transition ${isReplyListOpen ? "rotate-90" : ""}`}>›</span>
-                            {isReplyListOpen ? "收合回覆" : `查看回覆（${item.replies.length}）`}
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => toggleDetail(item.id)}
-                            className={`inline-flex items-center gap-2 justify-center rounded-xl border px-3 py-2.5 text-xs font-semibold transition ${isDetailOpen ? "border-slate-900 bg-slate-900 text-white shadow-sm" : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50"}`}
-                          >
-                            <span className={`text-[10px] transition ${isDetailOpen ? "rotate-90" : ""}`}>›</span>
-                            {isDetailOpen ? "收合主卡資訊" : "查看主卡資訊"}
-                          </button>
-                        </div>
-                      </div>
-
-                      {isDetailOpen ? (
-                        <div className="space-y-3 rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                          <ExecutionFieldGrid fields={item.fields} />
-                          {item.collapsedFields?.length ? (
-                            <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-4">
-                              <p className="text-xs font-semibold tracking-wide text-slate-500">
-                                折疊資訊
-                              </p>
-                              <div className="mt-3 grid gap-3 md:grid-cols-2">
-                                {item.collapsedFields.map((field) => (
-                                  <div
-                                    key={`${item.id}-${field.label}-collapsed`}
-                                    className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3"
-                                  >
-                                    <p className="text-xs font-medium text-slate-500">
-                                      {field.label}
-                                    </p>
-                                    <p className="mt-2 break-words text-sm font-medium text-slate-900">
-                                      {field.value}
-                                    </p>
-                                  </div>
-                                ))}
-                              </div>
-                            </div>
-                          ) : null}
-                        </div>
-                      ) : null}
-
-                      {isReplyListOpen ? (
-                        <div className="rounded-2xl border border-slate-300 bg-white p-4 shadow-sm">
-                          <div className="flex items-center justify-between gap-3">
-                            <div>
-                              <p className="text-sm font-semibold text-slate-800">
-                                回覆列表
-                              </p>
-                              <p className="mt-1 text-xs text-slate-500">
-                                按需展開查看回覆摘要與詳細內容。
-                              </p>
-                            </div>
-                            <span className="inline-flex items-center justify-center rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700 ring-1 ring-slate-200">
-                              {item.replies.length} 則
-                            </span>
-                          </div>
-
-                          <div className="mt-4 space-y-2">
-                            {item.replies.length ? (
-                              item.replies.map((reply, replyIndex) => {
-                                const isExpanded =
-                                  expandedReplyDetailId === reply.id;
-                                const isEditing = editingReplyId === reply.id;
-                                const summary = parseReplyMessage(reply);
-                                const parsedDesign =
-                                  openCategory === "design"
-                                    ? parseDesignReply(reply)
-                                    : null;
-                                const parsedProcurement =
-                                  openCategory === "procurement"
-                                    ? parseProcurementReply(reply)
-                                    : null;
-                                return (
-                                  <div
-                                    key={reply.id}
-                                    className="rounded-2xl border border-slate-200 bg-white p-3"
-                                  >
-                                    <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
-                                      <div className="grid min-w-0 flex-1 gap-3 md:grid-cols-[minmax(0,1.4fr)_minmax(140px,0.6fr)_auto]">
-                                        <div className="min-w-0 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
-                                          <p className="text-[11px] font-semibold tracking-wide text-slate-500">
-                                            標題
-                                          </p>
-                                          <div className="mt-2 flex items-center gap-2">
-                                            <span className="inline-flex items-center justify-center rounded-full bg-slate-900 px-2.5 py-1 text-[11px] font-semibold text-white">
-                                              R{replyIndex + 1}
-                                            </span>
-                                            <p className="truncate text-sm font-semibold text-slate-900">
-                                              {summary.title}
-                                            </p>
-                                          </div>
-                                        </div>
-                                        <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
-                                          <p className="text-[11px] font-semibold tracking-wide text-slate-500">
-                                            金額
-                                          </p>
-                                          <p className="mt-2 text-sm font-semibold text-slate-900">
-                                            {summary.amount}
-                                          </p>
-                                        </div>
-                                        <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
-                                          <p className="text-[11px] font-semibold tracking-wide text-slate-500">
-                                            狀態
-                                          </p>
-                                          <div className="mt-2">
-                                            <span
-                                              className={`inline-flex items-center justify-center rounded-full px-3 py-1 text-xs font-medium ${summary.confirmed ? "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200" : "bg-amber-50 text-amber-700 ring-1 ring-amber-200"}`}
-                                            >
-                                              {summary.statusLabel}
-                                            </span>
-                                          </div>
-                                        </div>
-                                      </div>
-                                      <div className="flex flex-wrap gap-2 xl:justify-end">
-                                        <button
-                                          type="button"
-                                          onClick={() => toggleReplyDetail(reply.id)}
-                                          className="inline-flex min-w-[104px] items-center justify-center rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-50"
-                                        >
-                                          {isExpanded ? "收合資訊" : "回覆資訊"}
-                                        </button>
-                                        <button
-                                          type="button"
-                                          onClick={() =>
-                                            toggleReplyConfirmed(
-                                              item.id,
-                                              openCategory,
-                                              reply.id,
-                                            )
-                                          }
-                                          className={`inline-flex min-w-[120px] items-center justify-center rounded-xl px-3 py-2 text-xs font-semibold transition ${summary.confirmed ? "border border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100" : "border border-amber-200 bg-amber-50 text-amber-700 hover:bg-amber-100"}`}
-                                        >
-                                          {summary.confirmed
-                                            ? "取消確認"
-                                            : "確認進主線"}
-                                        </button>
-                                      </div>
-                                    </div>
-
-                                    {isExpanded ? (
-                                      <div className="mt-3 rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                                        {isEditing ? (
-                                          <>
-                                            <textarea
-                                              value={editingReplyMessage}
-                                              onChange={(event) =>
-                                                setEditingReplyMessage(
-                                                  event.target.value,
-                                                )
-                                              }
-                                              className="min-h-24 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-slate-400"
-                                            />
-                                            <div className="mt-3 flex flex-wrap gap-2">
-                                              <button
-                                                type="button"
-                                                onClick={() =>
-                                                  saveEditedReply(
-                                                    item.id,
-                                                    openCategory,
-                                                    reply.id,
-                                                  )
-                                                }
-                                                className="inline-flex items-center justify-center rounded-xl bg-slate-900 px-3 py-2 text-xs font-semibold text-white transition hover:bg-slate-800"
-                                              >
-                                                儲存修改
-                                              </button>
-                                              <button
-                                                type="button"
-                                                onClick={() => {
-                                                  setEditingReplyId(null);
-                                                  setEditingReplyMessage("");
-                                                }}
-                                                className="inline-flex items-center justify-center rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-50"
-                                              >
-                                                取消
-                                              </button>
-                                            </div>
-                                          </>
-                                        ) : openCategory === "design" &&
-                                          parsedDesign ? (
-                                          <>
-                                            <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-                                              <div className="rounded-2xl border border-slate-200 bg-white px-4 py-3">
-                                                <p className="text-xs text-slate-500">
-                                                  回覆標題
-                                                </p>
-                                                <p className="mt-2 text-sm font-medium text-slate-900">
-                                                  {parsedDesign.title}
-                                                </p>
-                                              </div>
-                                              <div className="rounded-2xl border border-slate-200 bg-white px-4 py-3">
-                                                <p className="text-xs text-slate-500">
-                                                  數量
-                                                </p>
-                                                <p className="mt-2 text-sm font-medium text-slate-900">
-                                                  {parsedDesign.quantity}
-                                                </p>
-                                              </div>
-                                              <div className="rounded-2xl border border-slate-200 bg-white px-4 py-3">
-                                                <p className="text-xs text-slate-500">
-                                                  金額
-                                                </p>
-                                                <p className="mt-2 text-sm font-medium text-slate-900">
-                                                  {parsedDesign.amount}
-                                                </p>
-                                              </div>
-                                              <div className="rounded-2xl border border-slate-200 bg-white px-4 py-3">
-                                                <p className="text-xs text-slate-500">
-                                                  尺寸
-                                                </p>
-                                                <p className="mt-2 text-sm font-medium text-slate-900">
-                                                  {parsedDesign.size}
-                                                </p>
-                                              </div>
-                                              <div className="rounded-2xl border border-slate-200 bg-white px-4 py-3">
-                                                <p className="text-xs text-slate-500">
-                                                  材質 + 結構
-                                                </p>
-                                                <p className="mt-2 text-sm font-medium text-slate-900">
-                                                  {
-                                                    parsedDesign.materialStructure
-                                                  }
-                                                </p>
-                                              </div>
-                                              <div className="rounded-2xl border border-slate-200 bg-white px-4 py-3">
-                                                <p className="text-xs text-slate-500">
-                                                  執行廠商
-                                                </p>
-                                                <p className="mt-2 text-sm font-medium text-slate-900">
-                                                  {parsedDesign.vendor}
-                                                </p>
-                                              </div>
-                                              <div className="rounded-2xl border border-slate-200 bg-white px-4 py-3 md:col-span-2 xl:col-span-3">
-                                                <p className="text-xs text-slate-500">
-                                                  檔案位置（URL）
-                                                </p>
-                                                <p className="mt-2 break-all text-sm font-medium text-slate-900">
-                                                  {parsedDesign.fileUrl !==
-                                                  "未填寫" ? (
-                                                    <a
-                                                      href={
-                                                        parsedDesign.fileUrl
-                                                      }
-                                                      target="_blank"
-                                                      rel="noreferrer"
-                                                      className="text-blue-600 underline-offset-4 hover:underline"
-                                                    >
-                                                      {parsedDesign.fileUrl}
-                                                    </a>
-                                                  ) : (
-                                                    parsedDesign.fileUrl
-                                                  )}
-                                                </p>
-                                              </div>
-                                            </div>
-                                            <div className="mt-3 flex flex-wrap gap-2">
-                                              <button
-                                                type="button"
-                                                onClick={() =>
-                                                  startEditReply(reply)
-                                                }
-                                                className="inline-flex items-center justify-center rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-50"
-                                              >
-                                                修改
-                                              </button>
-                                              <button
-                                                type="button"
-                                                onClick={() =>
-                                                  removeReply(
-                                                    item.id,
-                                                    openCategory,
-                                                    reply.id,
-                                                  )
-                                                }
-                                                className="inline-flex items-center justify-center rounded-xl border border-rose-200 bg-white px-3 py-2 text-xs font-semibold text-rose-600 transition hover:bg-rose-50"
-                                              >
-                                                刪除
-                                              </button>
-                                            </div>
-                                          </>
-                                        ) : openCategory === "procurement" &&
-                                          parsedProcurement ? (
-                                          <>
-                                            <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-                                              <div className="rounded-2xl border border-slate-200 bg-white px-4 py-3">
-                                                <p className="text-xs text-slate-500">
-                                                  回覆標題
-                                                </p>
-                                                <p className="mt-2 text-sm font-medium text-slate-900">
-                                                  {parsedProcurement.title}
-                                                </p>
-                                              </div>
-                                              <div className="rounded-2xl border border-slate-200 bg-white px-4 py-3">
-                                                <p className="text-xs text-slate-500">
-                                                  數量
-                                                </p>
-                                                <p className="mt-2 text-sm font-medium text-slate-900">
-                                                  {parsedProcurement.quantity}
-                                                </p>
-                                              </div>
-                                              <div className="rounded-2xl border border-slate-200 bg-white px-4 py-3">
-                                                <p className="text-xs text-slate-500">
-                                                  金額
-                                                </p>
-                                                <p className="mt-2 text-sm font-medium text-slate-900">
-                                                  {parsedProcurement.amount}
-                                                </p>
-                                              </div>
-                                              <div className="rounded-2xl border border-slate-200 bg-white px-4 py-3">
-                                                <p className="text-xs text-slate-500">
-                                                  尺寸
-                                                </p>
-                                                <p className="mt-2 text-sm font-medium text-slate-900">
-                                                  {parsedProcurement.size}
-                                                </p>
-                                              </div>
-                                              <div className="rounded-2xl border border-slate-200 bg-white px-4 py-3">
-                                                <p className="text-xs text-slate-500">
-                                                  材質
-                                                </p>
-                                                <p className="mt-2 text-sm font-medium text-slate-900">
-                                                  {parsedProcurement.material}
-                                                </p>
-                                              </div>
-                                              <div className="rounded-2xl border border-slate-200 bg-white px-4 py-3 md:col-span-2 xl:col-span-3">
-                                                <p className="text-xs text-slate-500">
-                                                  預覽圖 URL
-                                                </p>
-                                                <p className="mt-2 break-all text-sm font-medium text-slate-900">
-                                                  {parsedProcurement.previewUrl !==
-                                                  "未填寫" ? (
-                                                    <a
-                                                      href={
-                                                        parsedProcurement.previewUrl
-                                                      }
-                                                      target="_blank"
-                                                      rel="noreferrer"
-                                                      className="text-blue-600 underline-offset-4 hover:underline"
-                                                    >
-                                                      {
-                                                        parsedProcurement.previewUrl
-                                                      }
-                                                    </a>
-                                                  ) : (
-                                                    parsedProcurement.previewUrl
-                                                  )}
-                                                </p>
-                                              </div>
-                                            </div>
-                                            <div className="mt-3 flex flex-wrap gap-2">
-                                              <button
-                                                type="button"
-                                                onClick={() =>
-                                                  startEditReply(reply)
-                                                }
-                                                className="inline-flex items-center justify-center rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-50"
-                                              >
-                                                修改
-                                              </button>
-                                              <button
-                                                type="button"
-                                                onClick={() =>
-                                                  removeReply(
-                                                    item.id,
-                                                    openCategory,
-                                                    reply.id,
-                                                  )
-                                                }
-                                                className="inline-flex items-center justify-center rounded-xl border border-rose-200 bg-white px-3 py-2 text-xs font-semibold text-rose-600 transition hover:bg-rose-50"
-                                              >
-                                                刪除
-                                              </button>
-                                            </div>
-                                          </>
-                                        ) : (
-                                          <>
-                                            <div className="space-y-2 text-sm text-slate-600">
-                                              {summary.contentLines.map(
-                                                (line, index) => (
-                                                  <p
-                                                    key={`${reply.id}-${index}`}
-                                                    className={
-                                                      index === 0
-                                                        ? "font-semibold text-slate-700"
-                                                        : "pl-4"
-                                                    }
-                                                  >
-                                                    {line}
-                                                  </p>
-                                                ),
-                                              )}
-                                            </div>
-                                            <div className="mt-3 flex flex-wrap gap-2">
-                                              <button
-                                                type="button"
-                                                onClick={() =>
-                                                  startEditReply(reply)
-                                                }
-                                                className="inline-flex items-center justify-center rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-50"
-                                              >
-                                                修改
-                                              </button>
-                                              <button
-                                                type="button"
-                                                onClick={() =>
-                                                  removeReply(
-                                                    item.id,
-                                                    openCategory,
-                                                    reply.id,
-                                                  )
-                                                }
-                                                className="inline-flex items-center justify-center rounded-xl border border-rose-200 bg-white px-3 py-2 text-xs font-semibold text-rose-600 transition hover:bg-rose-50"
-                                              >
-                                                刪除
-                                              </button>
-                                            </div>
-                                          </>
-                                        )}
-                                      </div>
-                                    ) : null}
-                                  </div>
-                                );
-                              })
-                            ) : (
-                              <p className="text-sm text-slate-400">
-                                目前尚無回覆。
-                              </p>
-                            )}
-                          </div>
-                        </div>
-                      ) : null}
-
-                      {isReplyOpen ? (
-                        <div className="rounded-2xl border border-slate-300 bg-slate-200/70 p-4">
-                          <div className="flex flex-wrap items-center justify-between gap-3">
-                            <div>
-                              <p className="text-sm font-semibold text-slate-800">
-                                新增回覆
-                              </p>
-                              <p className="mt-1 text-xs text-slate-500">
-                                每次送出會 append
-                                成新的單層回覆，不會再往下掛子回覆。
-                              </p>
-                            </div>
-                            <span className="inline-flex items-center justify-center rounded-full bg-white px-3 py-1 text-xs font-semibold text-slate-700 ring-1 ring-slate-200">
-                              下一筆：R{item.replies.length + 1}
-                            </span>
-                          </div>
-                          <div className="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-                            <input
-                              value={replyForm.item}
-                              onChange={(e) =>
-                                updateReplyForm(item.id, "item", e.target.value)
-                              }
-                              placeholder={
-                                isProcurementCard ? "回覆標題" : "回覆標題"
-                              }
-                              className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400"
-                            />
-                            <input
-                              value={replyForm.quantity}
-                              onChange={(e) =>
-                                updateReplyForm(
-                                  item.id,
-                                  "quantity",
-                                  e.target.value,
-                                )
-                              }
-                              placeholder="數量"
-                              className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400"
-                            />
-                            <input
-                              value={replyForm.cost}
-                              onChange={(e) =>
-                                updateReplyForm(item.id, "cost", e.target.value)
-                              }
-                              placeholder="金額"
-                              className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400"
-                            />
-                            <input
-                              value={replyForm.size}
-                              onChange={(e) =>
-                                updateReplyForm(item.id, "size", e.target.value)
-                              }
-                              placeholder="尺寸"
-                              className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400"
-                            />
-                            <input
-                              value={replyForm.material}
-                              onChange={(e) =>
-                                updateReplyForm(
-                                  item.id,
-                                  "material",
-                                  e.target.value,
-                                )
-                              }
-                              placeholder={
-                                openCategory === "design"
-                                  ? "材質 + 結構"
-                                  : "材質"
-                              }
-                              className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400"
-                            />
-                            <input
-                              value={replyForm.previewUrl}
-                              onChange={(e) =>
-                                updateReplyForm(
-                                  item.id,
-                                  "previewUrl",
-                                  e.target.value,
-                                )
-                              }
-                              placeholder={
-                                openCategory === "design"
-                                  ? "檔案位置（URL）"
-                                  : "預覽圖 URL"
-                              }
-                              className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400"
-                            />
-                            {openCategory === "design" || openCategory === "procurement" ? (
-                              <input
-                                value={replyForm.vendor}
-                                onChange={(e) =>
-                                  updateReplyForm(
-                                    item.id,
-                                    "vendor",
-                                    e.target.value,
-                                  )
-                                }
-                                placeholder={openCategory === "design" ? "執行廠商" : "廠商"}
-                                className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400 md:col-span-2 xl:col-span-3"
-                              />
-                            ) : null}
-                          </div>
-                          <div className="mt-4 flex flex-wrap gap-2">
-                            <button
-                              type="button"
-                              onClick={() => submitReply(item.id, openCategory)}
-                              className="inline-flex items-center justify-center rounded-2xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800"
-                            >
-                              送出回覆
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => setActiveReplyBoxId(null)}
-                              className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 transition hover:bg-slate-50"
-                            >
-                              取消
-                            </button>
-                          </div>
-                        </div>
-                      ) : null}
-                    </div>
-                  </div>
-                );
-              })
-            ) : (
-              <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-5 text-sm text-slate-500">
-                目前此分類尚未建立資料。
-              </div>
-            )}
+            <ProjectTaskSummaryList items={currentList} />
           </div>
 
           {openCategory === "design" ? (
