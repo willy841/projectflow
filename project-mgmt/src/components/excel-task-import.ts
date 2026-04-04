@@ -119,6 +119,12 @@ function makeSubItemId(mainOrder: number, code: string, rowNumber: number) {
 }
 
 function findNameFromRow(raw: string[], codeIndex: number, fallbackIndex: number) {
+  const codeCell = normalizeText(raw[codeIndex]);
+  const mainInlineMatch = codeCell.match(/^\d+\.(.+)$/);
+  if (mainInlineMatch?.[1]?.trim()) return mainInlineMatch[1].trim();
+  const subInlineMatch = codeCell.match(/^\d+-\d+\s+(.+)$/);
+  if (subInlineMatch?.[1]?.trim()) return subInlineMatch[1].trim();
+
   const direct = normalizeText(raw[fallbackIndex]);
   if (direct) return direct;
 
@@ -173,8 +179,8 @@ export function parseExecutionItemsFromExcelRows(rawRows: unknown[][]): ParsedEx
       break;
     }
 
-    const isMain = /^\d+\.$/.test(code) || /^\d+\.[^\S\r\n]*/.test(code);
-    const isSub = /^\d+-\d+$/.test(code);
+    const isMain = /^\d+\.$/.test(code) || /^\d+\..+/.test(code);
+    const isSub = /^\d+-\d+$/.test(code) || /^\d+-\d+\s+.+/.test(code);
 
     if (isSub) {
       if (!currentMain || !currentItem) {
