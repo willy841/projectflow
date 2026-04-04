@@ -17,7 +17,10 @@ import {
   UNSPECIFIED_VENDOR_ID,
   UNSPECIFIED_VENDOR_NAME,
   vendorDirectory,
+  type CostLineItem,
+  type CostSourceType,
 } from "@/components/quote-cost-data";
+import { getQuoteCostProjectsWithWorkflow } from "@/components/project-workflow-store";
 
 type DetailMode = "active" | "closed";
 
@@ -30,7 +33,8 @@ type EditableProjectState = QuoteCostProject;
 
 export function QuoteCostDetailClient({ project, mode = "active" }: Props) {
   const { vendors } = useVendorStore();
-  const [state, setState] = useState<EditableProjectState>(project);
+  const workflowProject = getQuoteCostProjectsWithWorkflow().find((item) => item.id === project.id) ?? project;
+  const [state, setState] = useState<EditableProjectState>(workflowProject);
   const [quoteImportIndex, setQuoteImportIndex] = useState(0);
   const [quickCreateItemId, setQuickCreateItemId] = useState<string | null>(null);
   const quoteImportOptions = sampleQuoteImports[project.id] ?? [project.quotationImport].filter(Boolean);
@@ -42,6 +46,7 @@ export function QuoteCostDetailClient({ project, mode = "active" }: Props) {
   const originalCostTotal = useMemo(() => getOriginalCostTotal(state.costItems), [state.costItems]);
   const grossProfit = useMemo(() => getGrossProfit(quotationTotal, adjustedCostTotal), [quotationTotal, adjustedCostTotal]);
   const excludedCostItems = useMemo(() => state.costItems.filter((item) => !item.includedInCost), [state.costItems]);
+  const costSourceSummary = useMemo(() => getCostSourceSummary(state.costItems), [state.costItems]);
 
   const vendorGroups = useMemo(() => {
     const map = new Map<string, { key: string; name: string; items: EditableProjectState["costItems"] }>();
@@ -296,6 +301,19 @@ export function QuoteCostDetailClient({ project, mode = "active" }: Props) {
           )}
         </div>
 
+        <div className="mt-5 grid gap-3 md:grid-cols-3">
+          {costSourceSummary.map((item) => (
+            <article key={item.label} className="rounded-3xl border border-slate-200 bg-white p-4">
+              <div className="flex items-center justify-between gap-2">
+                <span className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ring-1 ${item.badgeClass}`}>{item.label}</span>
+                <span className="text-xs text-slate-500">{item.count} 筆</span>
+              </div>
+              <p className="mt-3 text-lg font-semibold text-slate-900">{formatCurrency(item.adjustedTotal)}</p>
+              <p className="mt-1 text-xs text-slate-500">原始 {formatCurrency(item.originalTotal)} ・ 承接到成本主線的有效小計</p>
+            </article>
+          ))}
+        </div>
+
         <div className="mt-5 grid gap-4 xl:grid-cols-[1.6fr_1fr]">
           <article className={`rounded-3xl border p-5 ${isClosedView ? "border-slate-200 bg-white" : "border-slate-900 bg-slate-900 text-white"}`}>
             <p className={`text-xs font-medium tracking-[0.16em] uppercase ${isClosedView ? "text-slate-400" : "text-slate-300"}`}>Primary Cost Area</p>
@@ -377,7 +395,7 @@ export function QuoteCostDetailClient({ project, mode = "active" }: Props) {
                           <div>
                             <div className="flex flex-wrap items-center gap-2">
                               <p className="font-semibold text-slate-900">{item.itemName}</p>
-                              <span className="inline-flex rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-medium text-slate-600 ring-1 ring-slate-200">{item.sourceType}</span>
+                              <span className={`inline-flex rounded-full px-2.5 py-1 text-[11px] font-medium ring-1 ${getSourceBadgeClass(item.sourceType)}`}>{item.sourceType}</span>
                               {!item.includedInCost && (
                                 <span className="inline-flex rounded-full border border-amber-200 bg-white px-2.5 py-1 text-[11px] font-medium text-amber-800">不計入成本</span>
                               )}
@@ -544,6 +562,36 @@ export function QuoteCostDetailClient({ project, mode = "active" }: Props) {
       />
     </>
   );
+}
+
+function getCostSourceSummary(costItems: CostLineItem[]) {
+  const sourceOrder: CostSourceType[] = ["設計", "備品", "廠商"];
+  const sourceTone: Record<CostSourceType, string> = {
+    設計: "bg-blue-50 text-blue-700 ring-blue-200",
+    備品: "bg-amber-50 text-amber-700 ring-amber-200",
+    廠商: "bg-violet-50 text-violet-700 ring-violet-200",
+    人工: "bg-slate-100 text-slate-700 ring-slate-200",
+  };
+
+  return sourceOrder.map((sourceType) => {
+    const items = costItems.filter((item) => item.sourceType === sourceType && item.includedInCost);
+    return {
+      label: sourceType,
+      count: items.length,
+      originalTotal: items.reduce((sum, item) => sum + item.originalAmount, 0),
+      adjustedTotal: items.reduce((sum, item) => sum + item.adjustedAmount, 0),
+      badgeClass: sourceTone[sourceType],
+    };
+  });
+}
+
+function getSourceBadgeClass(sourceType: CostSourceType) {
+  return {
+    設計: "bg-blue-50 text-blue-700 ring-blue-200",
+    備品: "bg-amber-50 text-amber-700 ring-amber-200",
+    廠商: "bg-violet-50 text-violet-700 ring-violet-200",
+    人工: "bg-slate-100 text-slate-700 ring-slate-200",
+  }[sourceType];
 }
 
 function QuickPanel({ value, label, archived }: { value: string; label: string; archived: boolean }) {

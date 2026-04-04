@@ -84,6 +84,7 @@ type ParsedProcurementReply = {
   size: string;
   material: string;
   previewUrl: string;
+  vendor: string;
 };
 
 type ProcurementDocumentGroup = {
@@ -184,6 +185,7 @@ function parseDesignReply(reply: AssignmentReply): ParsedDesignReply {
 }
 
 function parseProcurementReply(reply: AssignmentReply): ParsedProcurementReply {
+  const meta = reply.meta;
   const getFromMessage = (label: string) => {
     const lines = reply.message
       .split("\n")
@@ -203,12 +205,16 @@ function parseProcurementReply(reply: AssignmentReply): ParsedProcurementReply {
   };
 
   return {
-    title: getFromMessage("回覆標題") || getFromMessage("項目") || "未命名回覆",
-    quantity: getFromMessage("數量") || "未填寫",
-    amount: getFromMessage("金額") || "未填寫",
-    size: getFromMessage("尺寸") || "未填寫",
-    material: getFromMessage("材質") || "未填寫",
-    previewUrl: getFromMessage("預覽圖 URL") || "未填寫",
+    title:
+      meta?.title || getFromMessage("回覆標題") || getFromMessage("項目") || "未命名回覆",
+    quantity: meta?.quantity || getFromMessage("數量") || "未填寫",
+    amount: meta?.amount || getFromMessage("金額") || "未填寫",
+    size: meta?.size || getFromMessage("尺寸") || "未填寫",
+    material:
+      meta?.materialStructure || getFromMessage("材質") || "未填寫",
+    previewUrl:
+      meta?.fileUrl || getFromMessage("預覽圖 URL") || "未填寫",
+    vendor: meta?.vendor || getFromMessage("廠商") || "未指定廠商",
   };
 }
 
@@ -459,10 +465,10 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
   const [editingReplyId, setEditingReplyId] = useState<string | null>(null);
   const [editingReplyMessage, setEditingReplyMessage] = useState("");
   const [generatedDesignDocuments, setGeneratedDesignDocuments] = useState<
-    Record<string, boolean>
+    Record<string, number>
   >({});
   const [generatedProcurementDocuments, setGeneratedProcurementDocuments] =
-    useState<Record<string, boolean>>({});
+    useState<Record<string, number>>({});
   const [activeDesignDocumentVendor, setActiveDesignDocumentVendor] = useState<
     string | null
   >(null);
@@ -672,6 +678,7 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
       form.material ? `材質：${form.material}` : null,
       form.previewUrl ? `預覽圖 URL：${form.previewUrl}` : null,
       form.cost ? `金額：${form.cost}` : null,
+      form.vendor ? `廠商：${form.vendor}` : null,
     ]
       .filter(Boolean)
       .join("｜");
@@ -706,6 +713,7 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
                 size: form.size,
                 materialStructure: form.material,
                 fileUrl: form.previewUrl,
+                vendor: form.vendor,
               },
             }
           : {}),
@@ -736,8 +744,8 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
         const confirmed = /\[已確認金額\]/.test(reply.message);
         return {
           ...reply,
-          message: `${nextMessage}${confirmed ? "\n[已確認金額]" : ""}`,
-          createdAt: `${reply.createdAt}（已修改）`,
+          message: nextMessage,
+          createdAt: `${reply.createdAt}（已修改，待重新確認）`,
         };
       }),
     );
@@ -765,6 +773,22 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
       replies.map((reply) => {
         if (reply.id !== replyId) return reply;
         const confirmed = /\[已確認金額\]/.test(reply.message);
+        if (!confirmed) {
+          const parsedReply =
+            type === "design"
+              ? parseDesignReply(reply)
+              : type === "procurement"
+                ? parseProcurementReply(reply)
+                : null;
+
+          if (
+            (type === "design" || type === "procurement") &&
+            (!parsedReply?.vendor || parsedReply.vendor === "未指定廠商")
+          ) {
+            window.alert("要先指定廠商並儲存回覆，才能正式確認進入文件與成本主線。");
+            return reply;
+          }
+        }
         return {
           ...reply,
           message: confirmed
@@ -1045,6 +1069,8 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
 
     designList.forEach((item) => {
       item.replies.forEach((reply, replyIndex) => {
+        const summary = parseReplyMessage(reply);
+        if (!summary.confirmed) return;
         const parsed = parseDesignReply(reply);
         const vendorName = parsed.vendor || "未指定廠商";
         const existing = groups.get(vendorName);
@@ -1055,19 +1081,17 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
           sequence: replyIndex + 1,
         };
 
-        if (!existing) {
-          groups.set(vendorName, {
-            vendor: vendorName,
-            status: generatedDesignDocuments[vendorName] ? "已生成" : "未生成",
-            replies: [nextReply],
-          });
-          return;
-        }
-
+        const generatedCount = generatedDesignDocuments[vendorName] ?? 0;
+        const nextReplies = existing ? [...existing.replies, nextReply] : [nextReply];
         groups.set(vendorName, {
-          ...existing,
-          status: generatedDesignDocuments[vendorName] ? "需更新" : "未生成",
-          replies: [...existing.replies, nextReply],
+          vendor: vendorName,
+          status:
+            generatedCount === 0
+              ? "未生成"
+              : generatedCount === nextReplies.length
+                ? "已生成"
+                : "需更新",
+          replies: nextReplies,
         });
       });
     });
@@ -1081,6 +1105,8 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
 
       procurementList.forEach((item) => {
         item.replies.forEach((reply, replyIndex) => {
+          const summary = parseReplyMessage(reply);
+          if (!summary.confirmed) return;
           replies.push({
             ...parseProcurementReply(reply),
             sourceTitle: item.title,
@@ -1094,9 +1120,16 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
         return null;
       }
 
+      const generatedCount = generatedProcurementDocuments[project.id] ?? 0;
+
       return {
         id: project.id,
-        status: generatedProcurementDocuments[project.id] ? "已生成" : "未生成",
+        status:
+          generatedCount === 0
+            ? "未生成"
+            : generatedCount === replies.length
+              ? "已生成"
+              : "需更新",
         replies,
       };
     }, [generatedProcurementDocuments, procurementList, project.id]);
@@ -1147,9 +1180,43 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
         <ExecutionTree
           heading="專案執行項目"
           items={project.executionItems}
-          onDesignAssignmentsChange={setDesignAssignments}
-          onProcurementAssignmentsChange={setProcurementAssignments}
-          onVendorAssignmentsChange={setVendorAssignments}
+          projectId={project.id}
+          onDesignAssignmentsChange={(payload) =>
+            setDesignAssignments(
+              payload.map((item) => ({
+                ...item,
+                data: {
+                  ...item.data,
+                  replies:
+                    replyOverrides[item.targetId] ?? item.data.replies ?? [],
+                },
+              })),
+            )
+          }
+          onProcurementAssignmentsChange={(payload) =>
+            setProcurementAssignments(
+              payload.map((item) => ({
+                ...item,
+                data: {
+                  ...item.data,
+                  replies:
+                    replyOverrides[item.targetId] ?? item.data.replies ?? [],
+                },
+              })),
+            )
+          }
+          onVendorAssignmentsChange={(payload) =>
+            setVendorAssignments(
+              payload.map((item) => ({
+                ...item,
+                data: {
+                  ...item.data,
+                  replies:
+                    replyOverrides[item.targetId] ?? item.data.replies ?? [],
+                },
+              })),
+            )
+          }
         />
       </section>
 
@@ -1494,8 +1561,8 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
                                           className={`inline-flex min-w-[120px] items-center justify-center rounded-xl px-3 py-2 text-xs font-semibold transition ${summary.confirmed ? "border border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100" : "border border-amber-200 bg-amber-50 text-amber-700 hover:bg-amber-100"}`}
                                         >
                                           {summary.confirmed
-                                            ? "取消確認金額"
-                                            : "確認金額"}
+                                            ? "取消確認"
+                                            : "確認進主線"}
                                         </button>
                                       </div>
                                     </div>
@@ -1880,7 +1947,7 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
                               }
                               className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400"
                             />
-                            {openCategory === "design" ? (
+                            {openCategory === "design" || openCategory === "procurement" ? (
                               <input
                                 value={replyForm.vendor}
                                 onChange={(e) =>
@@ -1890,7 +1957,7 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
                                     e.target.value,
                                   )
                                 }
-                                placeholder="執行廠商"
+                                placeholder={openCategory === "design" ? "執行廠商" : "廠商"}
                                 className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400 md:col-span-2 xl:col-span-3"
                               />
                             ) : null}
@@ -1931,7 +1998,7 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
                   設計文件整理
                 </h5>
                 <p className="mt-1 text-sm text-slate-500">
-                  依執行廠商分組吃所有設計回覆；一個執行廠商 = 一組整理單位 =
+                  只吃已確認回覆，依執行廠商分組整理；一個執行廠商 = 一組整理單位 =
                   一份設計文件。
                 </p>
               </div>
@@ -1970,7 +2037,7 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
                               onClick={() =>
                                 setGeneratedDesignDocuments((prev) => ({
                                   ...prev,
-                                  [group.vendor]: true,
+                                  [group.vendor]: group.replies.length,
                                 }))
                               }
                               className="inline-flex items-center justify-center rounded-xl bg-slate-900 px-3 py-2 text-xs font-semibold text-white transition hover:bg-slate-800"
@@ -2009,6 +2076,7 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
                                     "來源任務",
                                     "回覆序號",
                                     "回覆標題",
+                                    "執行廠商",
                                     "數量",
                                     "金額",
                                     "尺寸",
@@ -2038,6 +2106,9 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
                                     </td>
                                     <td className="border-b border-slate-200 px-4 py-3">
                                       {reply.title}
+                                    </td>
+                                    <td className="border-b border-slate-200 px-4 py-3">
+                                      {reply.vendor}
                                     </td>
                                     <td className="border-b border-slate-200 px-4 py-3">
                                       {reply.quantity}
@@ -2075,7 +2146,7 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
                 </div>
               ) : (
                 <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-5 text-sm text-slate-500">
-                  目前尚無可整理的設計回覆；先在上方設計任務新增回覆，並填入執行廠商。
+                  目前尚無可整理的設計回覆；先在上方設計任務新增回覆，指定執行廠商並完成確認。
                 </div>
               )}
             </div>
@@ -2088,7 +2159,7 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
                   備品整理
                 </h5>
                 <p className="mt-1 text-sm text-slate-500">
-                  吃所有回覆 R1 / R2 / R3，不覆蓋版本；先作為採購 /
+                  只吃已確認回覆，不覆蓋版本；先作為採購 /
                   備品文件輸出前整理層。
                 </p>
               </div>
@@ -2117,7 +2188,7 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
                         onClick={() =>
                           setGeneratedProcurementDocuments((prev) => ({
                             ...prev,
-                            [project.id]: true,
+                            [project.id]: procurementDocumentGroup.replies.length,
                           }))
                         }
                         className="inline-flex items-center justify-center rounded-xl bg-slate-900 px-3 py-2 text-xs font-semibold text-white transition hover:bg-slate-800"
@@ -2156,6 +2227,7 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
                               "來源任務",
                               "回覆序號",
                               "回覆標題",
+                              "廠商",
                               "數量",
                               "金額",
                               "尺寸",
@@ -2185,6 +2257,9 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
                               </td>
                               <td className="border-b border-slate-200 px-4 py-3">
                                 {reply.title}
+                              </td>
+                              <td className="border-b border-slate-200 px-4 py-3">
+                                {reply.vendor}
                               </td>
                               <td className="border-b border-slate-200 px-4 py-3">
                                 {reply.quantity}

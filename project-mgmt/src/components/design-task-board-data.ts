@@ -1,5 +1,4 @@
 import { designTaskGroups } from "@/components/design-task-data";
-import { projects } from "@/components/project-data";
 
 export type ConfirmStatus = "尚無回覆" | "待確認" | "已確認";
 export type DocumentStatus = "未生成" | "已生成" | "需更新";
@@ -8,8 +7,6 @@ export type DesignTaskBoardRecord = {
   id: string;
   projectId: string;
   projectName: string;
-  eventDate?: string;
-  sourceTargetId?: string;
   title: string;
   size: string;
   material: string;
@@ -46,8 +43,6 @@ function parseCurrency(value: string) {
   return Number.isFinite(numeric) ? numeric : 0;
 }
 
-const projectEventDateMap = new Map(projects.map((project) => [project.id, project.eventDate]));
-
 export const designTaskBoardRecords: DesignTaskBoardRecord[] = designTaskGroups.map((task) => {
   const confirmStatus = getConfirmStatus(task.status, task.outsourceStatus);
   const costAmount = parseCurrency(task.cost);
@@ -57,7 +52,6 @@ export const designTaskBoardRecords: DesignTaskBoardRecord[] = designTaskGroups.
     id: task.id,
     projectId: task.projectId,
     projectName: task.projectName,
-    eventDate: projectEventDateMap.get(task.projectId),
     title: task.title,
     size: task.size,
     material: task.material,

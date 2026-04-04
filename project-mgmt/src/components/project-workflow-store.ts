@@ -17,29 +17,15 @@ import {
   type DocumentStatus as ProcurementDocumentStatus,
 } from "@/components/procurement-task-board-data";
 import {
-  formatCurrency,
-  getAdjustedCostTotal,
-  readStoredQuoteCostProjects,
   type CostLineItem,
+  quoteCostProjects,
   type QuoteCostProject,
-  type CostSourceType,
 } from "@/components/quote-cost-data";
 import { getStoredPackagesByProjectId } from "@/components/vendor-package-store";
 import type { Project } from "@/components/project-data";
 
 const TREE_STORAGE_PREFIX = "projectflow-execution-tree:";
 const SECTION_STORAGE_PREFIX = "projectflow-execution-section:";
-
-export const PROJECTFLOW_WORKFLOW_UPDATED_EVENT = "projectflow:workflow-updated";
-
-export function notifyProjectWorkflowUpdated(projectId: string) {
-  if (typeof window === "undefined") return;
-  window.dispatchEvent(
-    new CustomEvent(PROJECTFLOW_WORKFLOW_UPDATED_EVENT, {
-      detail: { projectId },
-    }),
-  );
-}
 
 export type StoredExecutionTreeState = {
   savedDesignAssignments: Record<string, DesignAssignmentDraft>;
@@ -124,39 +110,6 @@ function parseCurrency(value: string) {
   return Number.isFinite(numeric) ? numeric : 0;
 }
 
-function getConfirmPriority(status: DesignConfirmStatus | ProcurementConfirmStatus) {
-  if (status === "待確認") return 0;
-  if (status === "尚無回覆") return 1;
-  return 2;
-}
-
-function getDocumentPriority(status: DesignDocumentStatus | ProcurementDocumentStatus) {
-  if (status === "需更新") return 0;
-  if (status === "未生成") return 1;
-  return 2;
-}
-
-function compareBoardRecords(
-  a: Pick<DesignTaskBoardRecord | ProcurementBoardRecord, "confirmStatus" | "documentStatus" | "eventDate" | "projectName" | "title">,
-  b: Pick<DesignTaskBoardRecord | ProcurementBoardRecord, "confirmStatus" | "documentStatus" | "eventDate" | "projectName" | "title">,
-) {
-  const confirmDiff = getConfirmPriority(a.confirmStatus) - getConfirmPriority(b.confirmStatus);
-  if (confirmDiff !== 0) return confirmDiff;
-
-  const documentDiff = getDocumentPriority(a.documentStatus) - getDocumentPriority(b.documentStatus);
-  if (documentDiff !== 0) return documentDiff;
-
-  const aDate = a.eventDate ?? "9999-12-31";
-  const bDate = b.eventDate ?? "9999-12-31";
-  const dateDiff = aDate.localeCompare(bDate);
-  if (dateDiff !== 0) return dateDiff;
-
-  const projectDiff = a.projectName.localeCompare(b.projectName, "zh-Hant");
-  if (projectDiff !== 0) return projectDiff;
-
-  return a.title.localeCompare(b.title, "zh-Hant");
-}
-
 export function getDesignBoardRecords(projects: Project[]): DesignTaskBoardRecord[] {
   if (typeof window === "undefined") return designTaskBoardRecords;
 
@@ -164,19 +117,14 @@ export function getDesignBoardRecords(projects: Project[]): DesignTaskBoardRecor
     const tree = readStoredExecutionTreeState(project.id);
     const section = readStoredExecutionSectionState(project.id);
     const entries = Object.entries(tree.savedDesignAssignments);
-    const titleMap = new Map<string, string>();
-    project.executionItems.forEach((item) => {
-      titleMap.set(item.id, item.title);
-      (item.children ?? []).forEach((child) => titleMap.set(child.id, child.title));
-    });
 
     if (!entries.length) {
       return designTaskBoardRecords.filter((record) => record.projectId === project.id);
     }
 
     const confirmedReplies = new Map<string, number>();
-    entries.forEach(([targetId, assignment]) => {
-      const replies = section.replyOverrides[targetId] ?? assignment.replies ?? [];
+    entries.forEach(([, assignment]) => {
+      const replies = assignment.replies ?? [];
       replies.forEach((reply) => {
         const parsed = parseReplyMessage(reply);
         if (!parsed.confirmed) return;
@@ -185,7 +133,7 @@ export function getDesignBoardRecords(projects: Project[]): DesignTaskBoardRecor
       });
     });
 
-    return entries.map(([targetId, assignment]) => {
+    return entries.map(([targetId, assignment], index) => {
       const replies = section.replyOverrides[targetId] ?? assignment.replies ?? [];
       const confirmed = replies.filter((reply) => parseReplyMessage(reply).confirmed);
       const latestConfirmed = confirmed[confirmed.length - 1];
@@ -208,9 +156,7 @@ export function getDesignBoardRecords(projects: Project[]): DesignTaskBoardRecor
         id: `${project.id}-${targetId}`,
         projectId: project.id,
         projectName: project.name,
-        eventDate: project.eventDate,
-        sourceTargetId: targetId,
-        title: titleMap.get(targetId) ?? targetId,
+        title: assignment.note || assignment.assignee ? project.executionItems.find((item) => item.id === targetId)?.title ?? targetId : targetId,
         size: assignment.size || "未填寫",
         material: assignment.material || "未填寫",
         replyCount: replies.length,
@@ -224,7 +170,7 @@ export function getDesignBoardRecords(projects: Project[]): DesignTaskBoardRecor
     });
   });
 
-  return records.sort(compareBoardRecords);
+  return records;
 }
 
 export function getProcurementBoardRecords(projects: Project[]): ProcurementBoardRecord[] {
@@ -234,20 +180,10 @@ export function getProcurementBoardRecords(projects: Project[]): ProcurementBoar
     const tree = readStoredExecutionTreeState(project.id);
     const section = readStoredExecutionSectionState(project.id);
     const entries = Object.entries(tree.savedProcurementAssignments);
-    const titleMap = new Map<string, string>();
-    project.executionItems.forEach((item) => {
-      titleMap.set(item.id, item.title);
-      (item.children ?? []).forEach((child) => titleMap.set(child.id, child.title));
-    });
 
     if (!entries.length) {
       return procurementTaskBoardRecords.filter((record) => record.projectId === project.id);
     }
-
-    const confirmedRepliesByProject = entries.reduce((count, [targetId, assignment]) => {
-      const replies = section.replyOverrides[targetId] ?? assignment.replies ?? [];
-      return count + replies.filter((reply) => parseReplyMessage(reply).confirmed).length;
-    }, 0);
 
     return entries.map(([targetId, assignment]) => {
       const replies = section.replyOverrides[targetId] ?? assignment.replies ?? [];
@@ -261,7 +197,7 @@ export function getProcurementBoardRecords(projects: Project[]): ProcurementBoar
           ? "未生成"
           : generatedCount === 0
             ? "未生成"
-            : generatedCount === confirmedRepliesByProject
+            : generatedCount === confirmed.length
               ? "已生成"
               : "需更新";
 
@@ -269,9 +205,7 @@ export function getProcurementBoardRecords(projects: Project[]): ProcurementBoar
         id: `${project.id}-${targetId}`,
         projectId: project.id,
         projectName: project.name,
-        eventDate: project.eventDate,
-        sourceTargetId: targetId,
-        title: assignment.item || titleMap.get(targetId) || targetId,
+        title: assignment.item || project.executionItems.find((item) => item.id === targetId)?.title || targetId,
         size: assignment.size || "未填寫",
         material: assignment.material || "未填寫",
         quantity: assignment.quantity || "未填寫",
@@ -284,42 +218,7 @@ export function getProcurementBoardRecords(projects: Project[]): ProcurementBoar
         costLocked: confirmStatus === "已確認",
       };
     });
-  }).sort(compareBoardRecords);
-}
-
-function getWorkflowManagedSourceTypes(items: CostLineItem[]) {
-  return new Set(items.map((item) => item.sourceType));
-}
-
-function mergeQuoteCostSeedWithWorkflow(project: QuoteCostProject, workflowItems: CostLineItem[]) {
-  if (!workflowItems.length) return project;
-
-  const workflowManagedSources = getWorkflowManagedSourceTypes(workflowItems);
-  const baseSeedItems = project.costItems.filter((item) => item.isManual || !workflowManagedSources.has(item.sourceType));
-  const merged = new Map<string, CostLineItem>(baseSeedItems.map((item) => [item.id, item]));
-
-  workflowItems.forEach((item) => merged.set(item.id, item));
-
-  return {
-    ...project,
-    costItems: Array.from(merged.values()),
-  };
-}
-
-export function getProjectWorkflowCostSummary(projectId: string) {
-  const workflowProject = getQuoteCostProjectsWithWorkflow().find((item) => item.id === projectId);
-  if (!workflowProject) return null;
-
-  const workflowCostTotal = getAdjustedCostTotal(workflowProject.costItems);
-  const workflowItems = buildWorkflowCostItems(projectId);
-
-  return {
-    projectId,
-    total: workflowCostTotal,
-    label: formatCurrency(workflowCostTotal),
-    workflowItemCount: workflowItems.length,
-    workflowManagedSourceTypes: Array.from(getWorkflowManagedSourceTypes(workflowItems)) as CostSourceType[],
-  };
+  });
 }
 
 function buildWorkflowCostItems(projectId: string): CostLineItem[] {
@@ -396,10 +295,16 @@ function buildWorkflowCostItems(projectId: string): CostLineItem[] {
 }
 
 export function getQuoteCostProjectsWithWorkflow(): QuoteCostProject[] {
-  const baseProjects = readStoredQuoteCostProjects();
+  if (typeof window === "undefined") return quoteCostProjects;
 
-  return baseProjects.map((project) => {
+  return quoteCostProjects.map((project) => {
     const workflowItems = buildWorkflowCostItems(project.id);
-    return mergeQuoteCostSeedWithWorkflow(project, workflowItems);
+    if (!workflowItems.length) return project;
+    const merged = new Map(project.costItems.map((item) => [item.id, item]));
+    workflowItems.forEach((item) => merged.set(item.id, item));
+    return {
+      ...project,
+      costItems: Array.from(merged.values()),
+    };
   });
 }

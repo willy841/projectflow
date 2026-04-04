@@ -7,8 +7,6 @@ export type ProcurementBoardRecord = {
   id: string;
   projectId: string;
   projectName: string;
-  eventDate?: string;
-  sourceTargetId?: string;
   title: string;
   size: string;
   material: string;
@@ -55,7 +53,6 @@ export const procurementTaskBoardRecords: ProcurementBoardRecord[] = projects.fl
       id: `${project.id}-procurement-${index}`,
       projectId: project.id,
       projectName: project.name,
-      eventDate: project.eventDate,
       title: task.title,
       size: index % 2 === 0 ? "W60 x D60 x H110 cm" : "未填寫",
       material: index % 2 === 0 ? "壓克力 / 金屬" : "紙材 / 印刷",
