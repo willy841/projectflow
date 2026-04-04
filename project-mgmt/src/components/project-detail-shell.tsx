@@ -32,6 +32,8 @@ export function ProjectDetailShell({
 }) {
   const [isEditingProject, setIsEditingProject] = useState(false);
   const [expandedReplyKey, setExpandedReplyKey] = useState<string | null>(null);
+  const [replyDraftKey, setReplyDraftKey] = useState<string | null>(null);
+  const [replyDraftText, setReplyDraftText] = useState("");
   const [projectForm, setProjectForm] = useState({
     name: project.name,
     client: project.client,
@@ -376,7 +378,7 @@ export function ProjectDetailShell({
                             <span>負責人：{item.owner}</span>
                             <span>{item.meta}</span>
                           </div>
-                          <div className="pt-1">
+                          <div className="flex flex-wrap gap-2 pt-1">
                             <button
                               type="button"
                               onClick={() => setExpandedReplyKey((prev) => prev === `${replyGroup.key}-${item.title}` ? null : `${replyGroup.key}-${item.title}`)}
@@ -384,10 +386,50 @@ export function ProjectDetailShell({
                             >
                               {expandedReplyKey === `${replyGroup.key}-${item.title}` ? "收合回覆詳情" : "查看回覆詳情"}
                             </button>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setReplyDraftKey((prev) => prev === `${replyGroup.key}-${item.title}` ? null : `${replyGroup.key}-${item.title}`);
+                                setReplyDraftText("");
+                              }}
+                              className="inline-flex items-center justify-center rounded-xl bg-slate-900 px-3 py-2 text-xs font-semibold text-white transition hover:bg-slate-800"
+                            >
+                              {replyDraftKey === `${replyGroup.key}-${item.title}` ? "取消新增" : "新增回覆"}
+                            </button>
                           </div>
                           {expandedReplyKey === `${replyGroup.key}-${item.title}` ? (
                             <div className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm leading-6 text-slate-600">
                               {item.detail}
+                            </div>
+                          ) : null}
+                          {replyDraftKey === `${replyGroup.key}-${item.title}` ? (
+                            <div className="rounded-2xl border border-slate-200 bg-white p-4">
+                              <p className="text-sm font-semibold text-slate-900">新增回覆（測試版）</p>
+                              <p className="mt-1 text-xs text-slate-500">先只驗證表單容器與輸入行為，不接真正送出流程。</p>
+                              <textarea
+                                value={replyDraftText}
+                                onChange={(event) => setReplyDraftText(event.target.value)}
+                                placeholder="輸入回覆內容..."
+                                className="mt-3 min-h-24 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none transition focus:border-slate-400"
+                              />
+                              <div className="mt-3 flex flex-wrap gap-2">
+                                <button
+                                  type="button"
+                                  className="inline-flex items-center justify-center rounded-xl bg-blue-600 px-3 py-2 text-xs font-semibold text-white transition hover:bg-blue-700"
+                                >
+                                  送出（暫不啟用）
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setReplyDraftKey(null);
+                                    setReplyDraftText("");
+                                  }}
+                                  className="inline-flex items-center justify-center rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-50"
+                                >
+                                  關閉
+                                </button>
+                              </div>
                             </div>
                           ) : null}
                         </div>
