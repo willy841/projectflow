@@ -1176,7 +1176,7 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
 
   return (
     <>
-      <section className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+      <section id="project-execution-section" className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
         <ExecutionTree
           heading="專案執行項目"
           items={project.executionItems}

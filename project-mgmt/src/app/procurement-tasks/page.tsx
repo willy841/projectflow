@@ -7,7 +7,7 @@ import { type ProcurementBoardRecord, procurementTaskBoardRecords } from "@/comp
 import { getStatusClass } from "@/components/project-data";
 
 function buildTaskHref(record: ProcurementBoardRecord) {
-  return `/projects/${record.projectId}`;
+  return `/projects/${record.projectId}?source=procurement&task=${encodeURIComponent(record.title)}`;
 }
 
 export default function ProcurementTasksPage() {

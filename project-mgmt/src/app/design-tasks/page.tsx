@@ -7,7 +7,7 @@ import { type DesignTaskBoardRecord, designTaskBoardRecords } from "@/components
 import { getStatusClass } from "@/components/project-data";
 
 function buildTaskHref(record: DesignTaskBoardRecord) {
-  return `/projects/${record.projectId}`;
+  return `/projects/${record.projectId}?source=design&task=${encodeURIComponent(record.title)}`;
 }
 
 export default function DesignTasksPage() {
