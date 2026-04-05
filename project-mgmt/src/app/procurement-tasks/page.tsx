@@ -1,7 +1,4 @@
-"use client";
-
 import Link from "next/link";
-import { useMemo } from "react";
 import { AppShell } from "@/components/app-shell";
 import { procurementTaskBoardRecords } from "@/components/procurement-task-board-data";
 import { projects as projectSeeds } from "@/components/project-data";
@@ -13,35 +10,34 @@ type ProjectEntry = {
   taskCount: number;
 };
 
-export default function ProcurementTasksPage({
+export default async function ProcurementTasksPage({
   searchParams,
 }: {
-  searchParams?: { project?: string };
+  searchParams?: Promise<{ project?: string }>;
 }) {
-  const activeProjectId = searchParams?.project;
+  const resolvedSearch = searchParams ? await searchParams : undefined;
+  const activeProjectId = resolvedSearch?.project;
 
-  const projects = useMemo<ProjectEntry[]>(() => {
-    const map = new Map<string, ProjectEntry>();
+  const map = new Map<string, ProjectEntry>();
 
-    procurementTaskBoardRecords.forEach((record) => {
-      const existing = map.get(record.projectId);
-      if (existing) {
-        existing.taskCount += 1;
-        return;
-      }
+  procurementTaskBoardRecords.forEach((record) => {
+    const existing = map.get(record.projectId);
+    if (existing) {
+      existing.taskCount += 1;
+      return;
+    }
 
-      const projectMeta = projectSeeds.find((project) => project.id === record.projectId);
+    const projectMeta = projectSeeds.find((project) => project.id === record.projectId);
 
-      map.set(record.projectId, {
-        projectId: record.projectId,
-        projectName: record.projectName,
-        eventDate: projectMeta?.eventDate || "未設定",
-        taskCount: 1,
-      });
+    map.set(record.projectId, {
+      projectId: record.projectId,
+      projectName: record.projectName,
+      eventDate: projectMeta?.eventDate || "未設定",
+      taskCount: 1,
     });
+  });
 
-    return Array.from(map.values());
-  }, []);
+  const projects = Array.from(map.values());
 
   const activeProject = projects.find((project) => project.projectId === activeProjectId);
   const projectTasks = activeProjectId

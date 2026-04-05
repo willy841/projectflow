@@ -1,7 +1,4 @@
-"use client";
-
 import Link from "next/link";
-import { useMemo } from "react";
 import { AppShell } from "@/components/app-shell";
 import { vendorAssignments } from "@/components/vendor-data";
 import { projects as projectSeeds } from "@/components/project-data";
@@ -19,48 +16,45 @@ type VendorEntry = {
   taskCount: number;
 };
 
-export default function VendorAssignmentsPage({
+export default async function VendorAssignmentsPage({
   searchParams,
 }: {
-  searchParams?: { project?: string };
+  searchParams?: Promise<{ project?: string }>;
 }) {
-  const activeProjectId = searchParams?.project;
+  const resolvedSearch = searchParams ? await searchParams : undefined;
+  const activeProjectId = resolvedSearch?.project;
 
-  const projects = useMemo<ProjectEntry[]>(() => {
-    const map = new Map<string, ProjectEntry>();
+  const map = new Map<string, ProjectEntry>();
 
-    vendorAssignments.forEach((assignment) => {
-      const existing = map.get(assignment.projectId);
-      if (existing) {
-        existing.taskCount += 1;
-        return;
-      }
+  vendorAssignments.forEach((assignment) => {
+    const existing = map.get(assignment.projectId);
+    if (existing) {
+      existing.taskCount += 1;
+      return;
+    }
 
-      const projectMeta = projectSeeds.find((project) => project.id === assignment.projectId);
+    const projectMeta = projectSeeds.find((project) => project.id === assignment.projectId);
 
-      map.set(assignment.projectId, {
-        projectId: assignment.projectId,
-        projectName: projectMeta?.name || assignment.projectId,
-        eventDate: projectMeta?.eventDate || "未設定",
-        taskCount: 1,
-      });
+    map.set(assignment.projectId, {
+      projectId: assignment.projectId,
+      projectName: projectMeta?.name || assignment.projectId,
+      eventDate: projectMeta?.eventDate || "未設定",
+      taskCount: 1,
     });
+  });
 
-    return Array.from(map.values());
-  }, []);
+  const projects = Array.from(map.values());
 
   const activeProject = projects.find((project) => project.projectId === activeProjectId);
 
-  const vendors = useMemo<VendorEntry[]>(() => {
-    if (!activeProjectId) return [];
+  const vendorMap = new Map<string, VendorEntry>();
 
-    const map = new Map<string, VendorEntry>();
-
+  if (activeProjectId) {
     vendorAssignments
       .filter((assignment) => assignment.projectId === activeProjectId)
       .forEach((assignment) => {
         const vendorName = assignment.selectedVendorName || "未指定廠商";
-        const existing = map.get(vendorName);
+        const existing = vendorMap.get(vendorName);
         if (existing) {
           existing.taskCount += 1;
           return;
@@ -68,15 +62,15 @@ export default function VendorAssignmentsPage({
 
         const projectMeta = projectSeeds.find((project) => project.id === assignment.projectId);
 
-        map.set(vendorName, {
+        vendorMap.set(vendorName, {
           vendorName,
           eventDate: projectMeta?.eventDate || "未設定",
           taskCount: 1,
         });
       });
+  }
 
-    return Array.from(map.values());
-  }, [activeProjectId]);
+  const vendors = Array.from(vendorMap.values());
 
   return (
     <AppShell activePath="/vendor-assignments">
