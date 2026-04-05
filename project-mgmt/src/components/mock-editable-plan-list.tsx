@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { saveMockTaskDocument, type MockDocumentRow } from "@/components/mock-workflow-document-store";
 
 type FieldType = "text" | "textarea" | "link";
@@ -30,6 +30,7 @@ type MockEditablePlanListProps = {
   addLabel?: string;
   addTemplate: EditableField[];
   documentLink?: string;
+  externalAddButtonId?: string;
 };
 
 export function MockEditablePlanList({
@@ -42,6 +43,7 @@ export function MockEditablePlanList({
   addLabel = "新增執行處理",
   addTemplate,
   documentLink,
+  externalAddButtonId,
 }: MockEditablePlanListProps) {
   const [draftPlans, setDraftPlans] = useState(plans);
 
@@ -72,6 +74,17 @@ export function MockEditablePlanList({
     setDraftPlans((current) => current.filter((plan) => plan.id !== planId));
   }
 
+  useEffect(() => {
+    if (!externalAddButtonId) return;
+
+    const element = document.getElementById(externalAddButtonId);
+    if (!element) return;
+
+    const handleClick = () => addPlan();
+    element.addEventListener("click", handleClick);
+    return () => element.removeEventListener("click", handleClick);
+  }, [externalAddButtonId]);
+
   function getValue(plan: EditablePlan, key: string) {
     return plan.fields.find((field) => field.key === key)?.value || "";
   }
@@ -98,18 +111,6 @@ export function MockEditablePlanList({
 
   return (
     <div className="space-y-4">
-      <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4 shadow-sm">
-        <div className="flex flex-wrap items-center justify-end gap-3">
-          <button
-            type="button"
-            onClick={addPlan}
-            className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
-          >
-            {addLabel}
-          </button>
-        </div>
-      </div>
-
       {draftPlans.length ? draftPlans.map((plan) => (
         <article key={plan.id} className="rounded-2xl border border-slate-200 p-5">
           <div className={`grid gap-3 ${columnsClassName}`}>

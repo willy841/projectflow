@@ -72,8 +72,15 @@ export default async function VendorAssignmentVendorPage({
 
       <section className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
         <div className="mb-5 flex flex-col gap-3 border-b border-slate-200 pb-4 xl:flex-row xl:items-center xl:justify-between">
-          <div>
+          <div className="flex flex-wrap items-center gap-3">
             <h3 className="text-xl font-semibold text-slate-900">執行處理</h3>
+            <button
+              id={`vendor-add-plan-${vendorName}-${projectId || "default"}`}
+              type="button"
+              className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+            >
+              新增執行處理
+            </button>
           </div>
           <FeedbackActionButtons
             hideSave
@@ -133,6 +140,7 @@ export default async function VendorAssignmentVendorPage({
                   saveMessage="已儲存這筆 vendor 處理方案。"
                   confirmMessage="已確認目前 vendor 處理內容；後續承接會以這次確認結果為準。"
                   columnsClassName="md:grid-cols-3"
+                  externalAddButtonId={`vendor-add-plan-${vendorName}-${projectId || "default"}`}
                 />
               </div>
             </article>

@@ -74,8 +74,15 @@ export default async function ProcurementTaskDetailPage({
 
       <section className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
         <div className="mb-5 flex flex-col gap-3 border-b border-slate-200 pb-4 xl:flex-row xl:items-center xl:justify-between">
-          <div>
+          <div className="flex flex-wrap items-center gap-3">
             <h3 className="text-xl font-semibold text-slate-900">執行處理</h3>
+            <button
+              id={`procurement-add-plan-${task.id}`}
+              type="button"
+              className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+            >
+              新增執行處理
+            </button>
           </div>
           <FeedbackActionButtons
             hideSave
@@ -107,6 +114,7 @@ export default async function ProcurementTaskDetailPage({
           saveMessage="已儲存這筆備品處理方案。"
           confirmMessage="已確認目前備品處理內容；文件頁將承接這次確認的結果。"
           columnsClassName="md:grid-cols-2 xl:grid-cols-5"
+          externalAddButtonId={`procurement-add-plan-${task.id}`}
         />
       </section>
     </AppShell>
