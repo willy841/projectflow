@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { AppShell } from "@/components/app-shell";
 import { vendorAssignments, vendorPackages } from "@/components/vendor-data";
 import { projects as projectSeeds } from "@/components/project-data";
-import { FeedbackActionButtons, QuickFeedbackButtons } from "@/components/mock-workflow-feedback";
+import { FeedbackActionButtons } from "@/components/mock-workflow-feedback";
 import { MockEditablePlanList } from "@/components/mock-editable-plan-list";
 
 const mockPlans = [
@@ -60,12 +60,6 @@ export default async function VendorAssignmentVendorPage({
             >
               返回廠商列表
             </Link>
-            <QuickFeedbackButtons
-              secondaryLabel="輸出文件"
-              secondaryMessage="已輸出目前 mock 發包文件預覽；正式版之後會承接到文件生成流程。"
-              primaryLabel="複製文字"
-              primaryMessage="已複製目前 mock 發包內容文字。"
-            />
           </div>
         </div>
       </header>
@@ -85,7 +79,7 @@ export default async function VendorAssignmentVendorPage({
           <FeedbackActionButtons
             hideSave
             confirmLabel="全部確認"
-            confirmMessage="目前這個廠商的執行處理區已確認；此動作在 mock 語意上等於正式發包，並導向 package 主線。"
+            confirmMessage="目前這個廠商的執行處理區已全部確認；此動作在 mock 語意上等於正式發包，並導向最終文件承接頁。"
           />
         </div>
 
@@ -93,14 +87,14 @@ export default async function VendorAssignmentVendorPage({
           <div className="mb-5 rounded-2xl border border-blue-200 bg-blue-50 px-4 py-4 text-sm text-blue-900">
             <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
               <div>
-                <p className="font-semibold">此廠商已有承接中的 Package</p>
-                <p className="mt-1 text-blue-800">確認（正式發包）後，這批內容在 mock 閉環中會承接到 {relatedPackage.code}。</p>
+                <p className="font-semibold">此廠商已有承接中的最終文件</p>
+                <p className="mt-1 text-blue-800">全部確認後，這批內容在 mock 閉環中會承接到 {relatedPackage.code}。</p>
               </div>
               <Link
                 href={`/vendor-packages/${relatedPackage.id}`}
                 className="inline-flex items-center justify-center rounded-2xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700"
               >
-                前往 Package 承接頁
+                前往最終文件
               </Link>
             </div>
           </div>
