@@ -1,5 +1,6 @@
 "use client";
 
+import { utils, writeFile } from "xlsx";
 import { useMemo } from "react";
 import { getMockTaskDocument } from "@/components/mock-workflow-document-store";
 import type { ProcurementDocumentRow } from "@/components/procurement-task-board-data";
@@ -14,15 +15,18 @@ export function MockProcurementDocumentView({
   const stored = useMemo(() => getMockTaskDocument(taskId), [taskId]);
   const rows = stored?.rows?.length ? stored.rows : fallbackRows;
 
-  const copyText = rows.map((row) => `${row.id}. ${row.item}｜數量：${row.quantity}`).join("\n");
+  function handleExportExcel() {
+    const worksheet = utils.json_to_sheet(
+      rows.map((row) => ({
+        編號: row.id,
+        項目: row.item,
+        數量: row.quantity,
+      })),
+    );
 
-  async function handleCopy() {
-    try {
-      await navigator.clipboard.writeText(copyText);
-      window.alert("已複製文字");
-    } catch {
-      window.alert("複製失敗，請再試一次");
-    }
+    const workbook = utils.book_new();
+    utils.book_append_sheet(workbook, worksheet, "備品文件");
+    writeFile(workbook, `${taskId}-procurement-document.xlsx`);
   }
 
   return (
@@ -30,10 +34,10 @@ export function MockProcurementDocumentView({
       <div className="mb-4 flex justify-end">
         <button
           type="button"
-          onClick={handleCopy}
+          onClick={handleExportExcel}
           className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
         >
-          複製文字
+          匯出 Excel
         </button>
       </div>
 
