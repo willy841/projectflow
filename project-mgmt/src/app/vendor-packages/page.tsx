@@ -1,6 +1,10 @@
+"use client";
+
 import Link from "next/link";
+import { useMemo } from "react";
 import { AppShell } from "@/components/app-shell";
-import { getVendorDocumentStatusClass, vendorPackages } from "@/components/vendor-data";
+import { getVendorDocumentStatusClass } from "@/components/vendor-data";
+import { getStoredVendorPackages } from "@/components/vendor-package-store";
 
 function getDocumentStatusMessage(status: "未生成" | "已生成" | "需更新") {
   if (status === "已生成") return "目前文件為最新版本";
@@ -9,6 +13,8 @@ function getDocumentStatusMessage(status: "未生成" | "已生成" | "需更新
 }
 
 export default function VendorPackagesPage() {
+  const packages = useMemo(() => getStoredVendorPackages(), []);
+
   return (
     <AppShell activePath="/vendor-packages">
       <header className="rounded-3xl border border-blue-200 bg-blue-50/70 p-6 shadow-sm ring-1 ring-blue-100">
@@ -18,7 +24,7 @@ export default function VendorPackagesPage() {
       </header>
 
       <section className="space-y-4">
-        {vendorPackages.map((vendorPackage) => (
+        {packages.length ? packages.map((vendorPackage) => (
           <article key={vendorPackage.id} className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm ring-1 ring-slate-200">
             <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
               <div>
@@ -43,7 +49,11 @@ export default function VendorPackagesPage() {
               <p>文件整體備註：{vendorPackage.note || "-"}</p>
             </div>
           </article>
-        ))}
+        )) : (
+          <div className="rounded-3xl border border-dashed border-slate-300 bg-white p-8 text-sm text-slate-500 shadow-sm ring-1 ring-slate-200">
+            目前尚無可承接的 package，請先回到廠商發包板完成 mock 發包流程。
+          </div>
+        )}
       </section>
     </AppShell>
   );

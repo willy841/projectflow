@@ -41,6 +41,10 @@ export function getStoredPackagesByProjectId(projectId: string) {
   return readStoredPackages().filter((pkg) => pkg.projectId === projectId);
 }
 
+export function getStoredVendorPackages() {
+  return readStoredPackages();
+}
+
 export function upsertStoredVendorPackage(nextPackage: VendorPackage) {
   const current = readStoredPackages();
   const existed = current.some((pkg) => pkg.id === nextPackage.id);
