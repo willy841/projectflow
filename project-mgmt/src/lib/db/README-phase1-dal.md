@@ -37,6 +37,7 @@
   - `procurementTaskPlans.listByTask`
   - `vendorTaskPlans.listByTask`
   - `taskConfirmations.listByTask`
+  - `taskConfirmations.listSnapshots`
 - 已實作第一批 write path：
   - `projects.insert/update`
   - `vendors.insert/update`
@@ -59,6 +60,7 @@
 - live plan 正式資料承接
 - 全部確認 -> confirmation row
 - snapshot rows 建立
+- 文件頁可改為讀 latest confirmation snapshot，而不是只讀 live plans
 
 ## 下一步
 1. 補最小 integration test / smoke script for repo + service layer

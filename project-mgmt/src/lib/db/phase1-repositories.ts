@@ -105,6 +105,7 @@ export interface VendorTaskPlanRepository {
 
 export interface TaskConfirmationRepository {
   listByTask(flowType: FlowType, taskId: UUID): Promise<TaskConfirmationRow[]>;
+  listSnapshots(taskConfirmationId: UUID): Promise<TaskConfirmationPlanSnapshotRow[]>;
   insert(input: InsertTaskConfirmationInput): Promise<TaskConfirmationRow>;
   insertSnapshot<TFlow extends FlowType>(
     flowType: TFlow,
@@ -477,6 +478,18 @@ export function createPhase1Repositories(db: Phase1DbClient): Phase1Repositories
             order by confirmation_no desc, confirmed_at desc
           `,
           [flowType, taskId],
+        );
+        return result.rows;
+      },
+      async listSnapshots(taskConfirmationId) {
+        const result = await db.query<TaskConfirmationPlanSnapshotRow>(
+          `
+            select *
+            from task_confirmation_plan_snapshots
+            where task_confirmation_id = $1
+            order by sort_order asc, created_at asc
+          `,
+          [taskConfirmationId],
         );
         return result.rows;
       },

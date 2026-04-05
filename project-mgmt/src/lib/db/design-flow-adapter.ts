@@ -100,7 +100,29 @@ export async function getDbDesignTaskById(id: string): Promise<DbBackedDesignTas
   ]);
 
   const latestConfirmation = confirmations[0] ?? null;
-  const documentRows = buildDocumentRowsFromPlans(plans);
+  const snapshots = latestConfirmation
+    ? await repositories.taskConfirmations.listSnapshots(latestConfirmation.id)
+    : [];
+
+  const documentRows = snapshots.length
+    ? snapshots.map((snapshot, index) => {
+        const payload = snapshot.payload_json as {
+          title?: string;
+          size?: string | null;
+          material?: string | null;
+          structure?: string | null;
+          quantity?: string | null;
+        };
+
+        return {
+          id: index + 1,
+          item: payload.title || `處理方案 ${index + 1}`,
+          size: payload.size ?? '未填寫',
+          materialStructure: `${payload.material ?? '未填寫'} + ${payload.structure ?? '未填寫'}`,
+          quantity: payload.quantity ?? '未填寫',
+        };
+      })
+    : buildDocumentRowsFromPlans(plans);
 
   return {
     id: task.id,
