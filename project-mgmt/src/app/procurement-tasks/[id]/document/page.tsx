@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AppShell } from "@/components/app-shell";
 import { procurementTaskBoardRecords } from "@/components/procurement-task-board-data";
+import { MockProcurementDocumentView } from "@/components/mock-procurement-document-view";
 
 export default async function ProcurementTaskDocumentPage({
   params,
@@ -38,28 +39,10 @@ export default async function ProcurementTaskDocumentPage({
           <p className="mt-1 text-sm text-slate-500">此頁即備品最終文件頁，不再另外延伸下一層文件頁。</p>
         </div>
 
-        <div className="overflow-x-auto rounded-2xl border border-slate-200">
-          <table className="min-w-full border-collapse text-left text-sm">
-            <thead className="bg-slate-50 text-slate-600">
-              <tr>
-                {["編號", "項目", "數量"].map((label) => (
-                  <th key={label} className="border-b border-slate-200 px-4 py-3 font-medium">
-                    {label}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {task.documentRows.map((row) => (
-                <tr key={row.id} className="align-top text-slate-700">
-                  <td className="border-b border-slate-200 px-4 py-3">{row.id}</td>
-                  <td className="border-b border-slate-200 px-4 py-3">{row.item}</td>
-                  <td className="border-b border-slate-200 px-4 py-3">{row.quantity}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <MockProcurementDocumentView
+          taskId={task.id}
+          fallbackRows={task.documentRows}
+        />
       </section>
     </AppShell>
   );

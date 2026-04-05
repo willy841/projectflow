@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { FeedbackActionButtons } from "@/components/mock-workflow-feedback";
+import { saveMockTaskDocument, type MockDocumentRow } from "@/components/mock-workflow-document-store";
 
 type FieldType = "text" | "textarea" | "link";
 
@@ -19,21 +19,27 @@ type EditablePlan = {
 };
 
 type MockEditablePlanListProps = {
+  taskId: string;
   plans: EditablePlan[];
   saveMessage: string;
   confirmMessage: string;
   columnsClassName?: string;
   addLabel?: string;
   addTemplate: EditableField[];
+  toDocumentRows: (plans: EditablePlan[]) => MockDocumentRow[];
+  documentLink?: string;
 };
 
 export function MockEditablePlanList({
+  taskId,
   plans,
   saveMessage,
   confirmMessage,
   columnsClassName = "md:grid-cols-2 xl:grid-cols-4",
   addLabel = "新增執行處理",
   addTemplate,
+  toDocumentRows,
+  documentLink,
 }: MockEditablePlanListProps) {
   const [draftPlans, setDraftPlans] = useState(plans);
 
@@ -115,12 +121,31 @@ export function MockEditablePlanList({
               刪除這筆處理
             </button>
 
-            <FeedbackActionButtons
-              saveLabel="儲存"
-              saveMessage={saveMessage}
-              confirmLabel="確認"
-              confirmMessage={confirmMessage}
-            />
+            <div>
+              <div className="flex flex-wrap items-center justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => window.alert(saveMessage)}
+                  className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700"
+                >
+                  儲存
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    saveMockTaskDocument(taskId, {
+                      rows: toDocumentRows(draftPlans),
+                      documentLink,
+                      updatedAt: Date.now(),
+                    });
+                    window.alert(confirmMessage);
+                  }}
+                  className="inline-flex items-center justify-center rounded-2xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white"
+                >
+                  確認
+                </button>
+              </div>
+            </div>
           </div>
         </article>
       )) : (

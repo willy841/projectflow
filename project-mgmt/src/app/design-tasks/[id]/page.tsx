@@ -93,6 +93,7 @@ export default async function DesignTaskDetailPage({
         </div>
 
         <MockEditablePlanList
+          taskId={task.id}
           plans={task.plans.map((plan) => ({
             id: plan.id,
             fields: [
@@ -117,7 +118,20 @@ export default async function DesignTaskDetailPage({
             { key: "vendor", label: "執行廠商", value: "", span: "xl:col-span-2" },
           ]}
           saveMessage="已儲存這筆設計處理方案。"
-          confirmMessage="這筆設計處理方案已標記為目前版本的一部分；整區仍需再確認一次才正式進文件。"
+          confirmMessage="已確認目前設計處理內容；文件頁將承接這次確認的結果。"
+          toDocumentRows={(plans) =>
+            plans.map((plan, index) => {
+              const getValue = (key: string) => plan.fields.find((field) => field.key === key)?.value || "";
+              return {
+                id: index + 1,
+                item: getValue("title") || `處理方案 ${index + 1}`,
+                size: getValue("size") || "未填寫",
+                materialStructure: `${getValue("material") || "未填寫"} + ${getValue("structure") || "未填寫"}`,
+                quantity: getValue("quantity") || "未填寫",
+              };
+            })
+          }
+          documentLink={task.documentLink}
         />
       </section>
     </AppShell>

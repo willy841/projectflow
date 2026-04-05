@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AppShell } from "@/components/app-shell";
 import { getDesignTaskById } from "@/components/design-task-data";
+import { MockDesignDocumentView } from "@/components/mock-design-document-view";
 
 export default async function DesignTaskDocumentPage({
   params,
@@ -40,37 +41,11 @@ export default async function DesignTaskDocumentPage({
           </div>
         </div>
 
-        <div className="overflow-x-auto rounded-2xl border border-slate-200">
-          <table className="min-w-full border-collapse text-left text-sm">
-            <thead className="bg-slate-50 text-slate-600">
-              <tr>
-                {["編號", "項目", "尺寸", "材質與結構", "數量"].map((label) => (
-                  <th key={label} className="border-b border-slate-200 px-4 py-3 font-medium">
-                    {label}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {task.documentRows.map((row) => (
-                <tr key={row.id} className="align-top text-slate-700">
-                  <td className="border-b border-slate-200 px-4 py-3">{row.id}</td>
-                  <td className="border-b border-slate-200 px-4 py-3">{row.item}</td>
-                  <td className="border-b border-slate-200 px-4 py-3">{row.size}</td>
-                  <td className="border-b border-slate-200 px-4 py-3">{row.materialStructure}</td>
-                  <td className="border-b border-slate-200 px-4 py-3">{row.quantity}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        <div className="mt-6 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4">
-          <p className="text-xs text-slate-500">檔案位置連結</p>
-          <div className="mt-2 rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-700">
-            {task.documentLink}
-          </div>
-        </div>
+        <MockDesignDocumentView
+          taskId={task.id}
+          fallbackRows={task.documentRows}
+          fallbackLink={task.documentLink}
+        />
       </section>
     </AppShell>
   );

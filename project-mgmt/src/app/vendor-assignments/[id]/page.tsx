@@ -115,6 +115,7 @@ export default async function VendorAssignmentVendorPage({
 
               <div className="mt-4">
                 <MockEditablePlanList
+                  taskId={task.id}
                   plans={mockPlans.map((plan) => ({
                     id: `${task.id}-${plan.id}`,
                     fields: [
@@ -129,8 +130,18 @@ export default async function VendorAssignmentVendorPage({
                     { key: "amount", label: "金額", value: "" },
                   ]}
                   saveMessage="已儲存這筆 vendor 處理方案。"
-                  confirmMessage="這筆 vendor 處理方案已標記為目前版本的一部分；整區仍需再確認一次才正式發包。"
+                  confirmMessage="已確認目前 vendor 處理內容；後續承接會以這次確認結果為準。"
                   columnsClassName="md:grid-cols-3"
+                  toDocumentRows={(plans) =>
+                    plans.map((plan, index) => {
+                      const getValue = (key: string) => plan.fields.find((field) => field.key === key)?.value || "";
+                      return {
+                        id: index + 1,
+                        item: getValue("title") || `處理方案 ${index + 1}`,
+                        quantity: getValue("amount") || "未填寫",
+                      };
+                    })
+                  }
                 />
               </div>
             </article>
