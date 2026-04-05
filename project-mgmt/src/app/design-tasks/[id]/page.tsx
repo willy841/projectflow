@@ -4,6 +4,8 @@ import { AppShell } from "@/components/app-shell";
 import { getDesignTaskById } from "@/components/design-task-data";
 import { FeedbackActionButtons } from "@/components/mock-workflow-feedback";
 import { MockEditablePlanList } from "@/components/mock-editable-plan-list";
+import { getDbDesignTaskById } from "@/lib/db/design-flow-adapter";
+import { shouldUseDbDesignFlow } from "@/lib/db/design-flow-toggle";
 
 export default async function DesignTaskDetailPage({
   params,
@@ -11,7 +13,7 @@ export default async function DesignTaskDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const task = getDesignTaskById(id);
+  const task = shouldUseDbDesignFlow() ? await getDbDesignTaskById(id) : getDesignTaskById(id);
 
   if (!task) {
     notFound();
@@ -73,9 +75,13 @@ export default async function DesignTaskDetailPage({
           </div>
           <div className="rounded-2xl bg-slate-50 px-4 py-3 xl:col-span-2">
             <p className="text-xs text-slate-500">參考連結</p>
-            <a href={task.referenceUrl} className="mt-2 block break-all text-sm font-medium text-blue-600 underline-offset-4 hover:underline">
-              {task.referenceUrl}
-            </a>
+            {task.referenceUrl ? (
+              <a href={task.referenceUrl} className="mt-2 block break-all text-sm font-medium text-blue-600 underline-offset-4 hover:underline">
+                {task.referenceUrl}
+              </a>
+            ) : (
+              <p className="mt-2 text-sm font-medium text-slate-400">未填寫</p>
+            )}
           </div>
         </div>
       </section>

@@ -4,6 +4,8 @@ import { AppShell } from "@/components/app-shell";
 import { getDesignTaskById } from "@/components/design-task-data";
 import { MockDesignDocumentView } from "@/components/mock-design-document-view";
 import { DesignDocumentExportButton } from "@/components/document-export-button";
+import { getDbDesignTaskById } from "@/lib/db/design-flow-adapter";
+import { shouldUseDbDesignFlow } from "@/lib/db/design-flow-toggle";
 
 export default async function DesignTaskDocumentPage({
   params,
@@ -11,7 +13,7 @@ export default async function DesignTaskDocumentPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const task = getDesignTaskById(id);
+  const task = shouldUseDbDesignFlow() ? await getDbDesignTaskById(id) : getDesignTaskById(id);
 
   if (!task) {
     notFound();
@@ -44,10 +46,7 @@ export default async function DesignTaskDocumentPage({
           </div>
         </div>
 
-        <MockDesignDocumentView
-          taskId={task.id}
-          fallbackRows={task.documentRows}
-        />
+        <MockDesignDocumentView taskId={task.id} fallbackRows={task.documentRows} />
       </section>
     </AppShell>
   );
