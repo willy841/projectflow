@@ -71,7 +71,7 @@ export default async function VendorAssignmentVendorPage({
       </header>
 
       <section className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
-        <div className="mb-4 flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
+        <div className="mb-5 flex flex-col gap-3 border-b border-slate-200 pb-4 xl:flex-row xl:items-center xl:justify-between">
           <div>
             <h3 className="text-xl font-semibold text-slate-900">執行處理</h3>
           </div>
