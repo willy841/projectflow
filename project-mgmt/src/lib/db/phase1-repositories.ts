@@ -121,18 +121,38 @@ export interface Phase1Repositories {
 }
 
 function notImplemented(name: string): never {
-  throw new Error(`${name} is not implemented yet. Wire SQL execution after DB runtime client is chosen.`);
+  throw new Error(`${name} is not implemented yet. Complete this repository method when write path is needed.`);
 }
 
-export function createPhase1Repositories(_db: Phase1DbClient): Phase1Repositories {
-  void _db;
+async function firstRowOrNull<TRow>(promise: Promise<{ rows: TRow[] }>): Promise<TRow | null> {
+  const result = await promise;
+  return result.rows[0] ?? null;
+}
+
+export function createPhase1Repositories(db: Phase1DbClient): Phase1Repositories {
   return {
     projects: {
-      async findById() {
-        return notImplemented('projects.findById');
+      async findById(id) {
+        return firstRowOrNull<ProjectRow>(
+          db.query<ProjectRow>(
+            `
+              select *
+              from projects
+              where id = $1
+            `,
+            [id],
+          ),
+        );
       },
       async list() {
-        return notImplemented('projects.list');
+        const result = await db.query<ProjectRow>(
+          `
+            select *
+            from projects
+            order by event_date nulls last, created_at desc
+          `,
+        );
+        return result.rows;
       },
       async insert() {
         return notImplemented('projects.insert');
@@ -142,14 +162,39 @@ export function createPhase1Repositories(_db: Phase1DbClient): Phase1Repositorie
       },
     },
     vendors: {
-      async findById() {
-        return notImplemented('vendors.findById');
+      async findById(id) {
+        return firstRowOrNull<VendorRow>(
+          db.query<VendorRow>(
+            `
+              select *
+              from vendors
+              where id = $1
+            `,
+            [id],
+          ),
+        );
       },
-      async findByNormalizedName() {
-        return notImplemented('vendors.findByNormalizedName');
+      async findByNormalizedName(normalizedName) {
+        return firstRowOrNull<VendorRow>(
+          db.query<VendorRow>(
+            `
+              select *
+              from vendors
+              where normalized_name = $1
+            `,
+            [normalizedName],
+          ),
+        );
       },
       async list() {
-        return notImplemented('vendors.list');
+        const result = await db.query<VendorRow>(
+          `
+            select *
+            from vendors
+            order by name asc
+          `,
+        );
+        return result.rows;
       },
       async insert() {
         return notImplemented('vendors.insert');
@@ -159,8 +204,17 @@ export function createPhase1Repositories(_db: Phase1DbClient): Phase1Repositorie
       },
     },
     executionItems: {
-      async listByProject() {
-        return notImplemented('executionItems.listByProject');
+      async listByProject(projectId) {
+        const result = await db.query<ProjectExecutionItemRow>(
+          `
+            select *
+            from project_execution_items
+            where project_id = $1
+            order by sort_order asc, created_at asc
+          `,
+          [projectId],
+        );
+        return result.rows;
       },
       async insert() {
         return notImplemented('executionItems.insert');
@@ -170,11 +224,29 @@ export function createPhase1Repositories(_db: Phase1DbClient): Phase1Repositorie
       },
     },
     designTasks: {
-      async listByProject() {
-        return notImplemented('designTasks.listByProject');
+      async listByProject(projectId) {
+        const result = await db.query<DesignTaskRow>(
+          `
+            select *
+            from design_tasks
+            where project_id = $1
+            order by created_at desc
+          `,
+          [projectId],
+        );
+        return result.rows;
       },
-      async findById() {
-        return notImplemented('designTasks.findById');
+      async findById(id) {
+        return firstRowOrNull<DesignTaskRow>(
+          db.query<DesignTaskRow>(
+            `
+              select *
+              from design_tasks
+              where id = $1
+            `,
+            [id],
+          ),
+        );
       },
       async insert() {
         return notImplemented('designTasks.insert');
@@ -184,11 +256,29 @@ export function createPhase1Repositories(_db: Phase1DbClient): Phase1Repositorie
       },
     },
     procurementTasks: {
-      async listByProject() {
-        return notImplemented('procurementTasks.listByProject');
+      async listByProject(projectId) {
+        const result = await db.query<ProcurementTaskRow>(
+          `
+            select *
+            from procurement_tasks
+            where project_id = $1
+            order by created_at desc
+          `,
+          [projectId],
+        );
+        return result.rows;
       },
-      async findById() {
-        return notImplemented('procurementTasks.findById');
+      async findById(id) {
+        return firstRowOrNull<ProcurementTaskRow>(
+          db.query<ProcurementTaskRow>(
+            `
+              select *
+              from procurement_tasks
+              where id = $1
+            `,
+            [id],
+          ),
+        );
       },
       async insert() {
         return notImplemented('procurementTasks.insert');
@@ -198,14 +288,41 @@ export function createPhase1Repositories(_db: Phase1DbClient): Phase1Repositorie
       },
     },
     vendorTasks: {
-      async listByProject() {
-        return notImplemented('vendorTasks.listByProject');
+      async listByProject(projectId) {
+        const result = await db.query<VendorTaskRow>(
+          `
+            select *
+            from vendor_tasks
+            where project_id = $1
+            order by created_at desc
+          `,
+          [projectId],
+        );
+        return result.rows;
       },
-      async listByProjectAndVendor() {
-        return notImplemented('vendorTasks.listByProjectAndVendor');
+      async listByProjectAndVendor(projectId, vendorId) {
+        const result = await db.query<VendorTaskRow>(
+          `
+            select *
+            from vendor_tasks
+            where project_id = $1 and vendor_id = $2
+            order by created_at desc
+          `,
+          [projectId, vendorId],
+        );
+        return result.rows;
       },
-      async findById() {
-        return notImplemented('vendorTasks.findById');
+      async findById(id) {
+        return firstRowOrNull<VendorTaskRow>(
+          db.query<VendorTaskRow>(
+            `
+              select *
+              from vendor_tasks
+              where id = $1
+            `,
+            [id],
+          ),
+        );
       },
       async insert() {
         return notImplemented('vendorTasks.insert');
@@ -248,8 +365,17 @@ export function createPhase1Repositories(_db: Phase1DbClient): Phase1Repositorie
       },
     },
     taskConfirmations: {
-      async listByTask() {
-        return notImplemented('taskConfirmations.listByTask');
+      async listByTask(flowType, taskId) {
+        const result = await db.query<TaskConfirmationRow>(
+          `
+            select *
+            from task_confirmations
+            where flow_type = $1 and task_id = $2
+            order by confirmation_no desc, confirmed_at desc
+          `,
+          [flowType, taskId],
+        );
+        return result.rows;
       },
       async insert() {
         return notImplemented('taskConfirmations.insert');
@@ -260,5 +386,3 @@ export function createPhase1Repositories(_db: Phase1DbClient): Phase1Repositorie
     },
   };
 }
-
-export type Phase1RepositoryRow = QueryResultRow;
