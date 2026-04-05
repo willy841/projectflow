@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "db:phase1:check": "bash db/scripts/check-phase1-sql.sh",
+    "db:phase1:smoke": "bash db/scripts/smoke-check-phase1.sh"
   },
   "dependencies": {
     "next": "16.2.1",
@@ -15,7 +17,7 @@
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
-    "@tailwindcss/postcss": "^4",
+    "@tailwindcss/postcss": "^4.2.2",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
