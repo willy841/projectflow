@@ -76,29 +76,22 @@ export default async function VendorAssignmentVendorPage({
               新增執行處理
             </button>
           </div>
-          <FeedbackActionButtons
-            hideSave
-            confirmLabel="全部確認"
-            confirmMessage="目前這個廠商的執行處理區已全部確認；此動作在 mock 語意上等於正式發包，並導向最終文件承接頁。"
-          />
-        </div>
-
-        {relatedPackage ? (
-          <div className="mb-5 rounded-2xl border border-blue-200 bg-blue-50 px-4 py-4 text-sm text-blue-900">
-            <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
-              <div>
-                <p className="font-semibold">此廠商已有承接中的最終文件</p>
-                <p className="mt-1 text-blue-800">全部確認後，這批內容在 mock 閉環中會承接到 {relatedPackage.code}。</p>
-              </div>
+          <div className="flex flex-wrap items-center gap-2">
+            {relatedPackage ? (
               <Link
                 href={`/vendor-packages/${relatedPackage.id}`}
-                className="inline-flex items-center justify-center rounded-2xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700"
+                className="inline-flex items-center justify-center rounded-2xl border border-violet-300 bg-violet-50 px-4 py-2.5 text-sm font-semibold text-violet-700 transition hover:bg-violet-100"
               >
                 前往最終文件
               </Link>
-            </div>
+            ) : null}
+            <FeedbackActionButtons
+              hideSave
+              confirmLabel="全部確認"
+              confirmMessage="目前這個廠商的執行處理區已全部確認；此動作在 mock 語意上等於正式發包，並導向最終文件承接頁。"
+            />
           </div>
-        ) : null}
+        </div>
 
         <div className="space-y-4">
           {tasks.map((task) => (
