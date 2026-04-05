@@ -63,11 +63,11 @@ export function MockEditablePlanList({
 
   function addPlan() {
     setDraftPlans((current) => [
-      ...current,
       {
         id: `mock-plan-${Date.now()}-${current.length + 1}`,
         fields: addTemplate.map((field) => ({ ...field })),
       },
+      ...current,
     ]);
   }
 
