@@ -9,7 +9,7 @@ export default async function VendorPackageDetailPage({
   const { id } = await params;
 
   return (
-    <AppShell activePath="/projects">
+    <AppShell activePath="/vendor-packages">
       <VendorPackageDetailRoute id={id} />
     </AppShell>
   );

@@ -10,7 +10,7 @@ function getDocumentStatusMessage(status: "未生成" | "已生成" | "需更新
 
 export default function VendorPackagesPage() {
   return (
-    <AppShell activePath="/projects">
+    <AppShell activePath="/vendor-packages">
       <header className="rounded-3xl border border-blue-200 bg-blue-50/70 p-6 shadow-sm ring-1 ring-blue-100">
         <p className="text-sm text-slate-500">Vendor Flow / 廠商發包清單</p>
         <h2 className="mt-1 text-3xl font-semibold tracking-tight text-slate-900">廠商發包清單</h2>

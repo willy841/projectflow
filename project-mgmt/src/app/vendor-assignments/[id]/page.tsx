@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AppShell } from "@/components/app-shell";
-import { vendorAssignments } from "@/components/vendor-data";
+import { vendorAssignments, vendorPackages } from "@/components/vendor-data";
 import { projects as projectSeeds } from "@/components/project-data";
 import { FeedbackActionButtons, QuickFeedbackButtons } from "@/components/mock-workflow-feedback";
 
@@ -41,6 +41,7 @@ export default async function VendorAssignmentVendorPage({
   }
 
   const projectName = projectSeeds.find((project) => project.id === tasks[0].projectId)?.name || tasks[0].projectId;
+  const relatedPackage = vendorPackages.find((pkg) => pkg.projectId === projectId && pkg.vendorName === vendorName);
 
   return (
     <AppShell activePath="/vendor-assignments">
@@ -79,6 +80,23 @@ export default async function VendorAssignmentVendorPage({
             confirmMessage="目前這個廠商的執行處理區已確認；此動作在 mock 語意上等於正式發包，並導向 package 主線。"
           />
         </div>
+
+        {relatedPackage ? (
+          <div className="mb-5 rounded-2xl border border-blue-200 bg-blue-50 px-4 py-4 text-sm text-blue-900">
+            <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
+              <div>
+                <p className="font-semibold">此廠商已有承接中的 Package</p>
+                <p className="mt-1 text-blue-800">確認（正式發包）後，這批內容在 mock 閉環中會承接到 {relatedPackage.code}。</p>
+              </div>
+              <Link
+                href={`/vendor-packages/${relatedPackage.id}`}
+                className="inline-flex items-center justify-center rounded-2xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700"
+              >
+                前往 Package 承接頁
+              </Link>
+            </div>
+          </div>
+        ) : null}
 
         <div className="space-y-4">
           {tasks.map((task) => (
