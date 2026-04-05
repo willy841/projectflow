@@ -95,6 +95,13 @@ export default async function ProcurementTaskDetailPage({
               { key: "vendor", label: "執行廠商", value: plan.vendor, span: "xl:col-span-2" },
             ],
           }))}
+          addTemplate={[
+            { key: "title", label: "標題", value: "", span: "xl:col-span-2" },
+            { key: "quantity", label: "數量", value: "" },
+            { key: "amount", label: "金額", value: "" },
+            { key: "previewUrl", label: "預覽位置", value: "", span: "xl:col-span-2" },
+            { key: "vendor", label: "執行廠商", value: "", span: "xl:col-span-2" },
+          ]}
           saveMessage="已儲存這筆備品處理方案。"
           confirmMessage="這筆備品處理方案已標記為目前版本的一部分；整區仍需再確認一次才正式進文件。"
           columnsClassName="md:grid-cols-2 xl:grid-cols-5"

@@ -106,6 +106,16 @@ export default async function DesignTaskDetailPage({
               { key: "vendor", label: "執行廠商", value: plan.vendor, span: "xl:col-span-2" },
             ],
           }))}
+          addTemplate={[
+            { key: "title", label: "標題", value: "", span: "xl:col-span-2" },
+            { key: "size", label: "尺寸", value: "" },
+            { key: "material", label: "材質", value: "" },
+            { key: "structure", label: "結構", value: "" },
+            { key: "quantity", label: "數量", value: "" },
+            { key: "amount", label: "金額", value: "" },
+            { key: "previewUrl", label: "預覽位置", value: "", span: "xl:col-span-2" },
+            { key: "vendor", label: "執行廠商", value: "", span: "xl:col-span-2" },
+          ]}
           saveMessage="已儲存這筆設計處理方案。"
           confirmMessage="這筆設計處理方案已標記為目前版本的一部分；整區仍需再確認一次才正式進文件。"
         />

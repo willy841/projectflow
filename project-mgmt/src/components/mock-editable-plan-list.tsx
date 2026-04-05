@@ -23,6 +23,8 @@ type MockEditablePlanListProps = {
   saveMessage: string;
   confirmMessage: string;
   columnsClassName?: string;
+  addLabel?: string;
+  addTemplate: EditableField[];
 };
 
 export function MockEditablePlanList({
@@ -30,6 +32,8 @@ export function MockEditablePlanList({
   saveMessage,
   confirmMessage,
   columnsClassName = "md:grid-cols-2 xl:grid-cols-4",
+  addLabel = "新增執行處理",
+  addTemplate,
 }: MockEditablePlanListProps) {
   const [draftPlans, setDraftPlans] = useState(plans);
 
@@ -46,9 +50,33 @@ export function MockEditablePlanList({
     );
   }
 
+  function addPlan() {
+    setDraftPlans((current) => [
+      ...current,
+      {
+        id: `mock-plan-${Date.now()}-${current.length + 1}`,
+        fields: addTemplate.map((field) => ({ ...field })),
+      },
+    ]);
+  }
+
+  function removePlan(planId: string) {
+    setDraftPlans((current) => current.filter((plan) => plan.id !== planId));
+  }
+
   return (
     <div className="space-y-4">
-      {draftPlans.map((plan) => (
+      <div className="flex justify-end">
+        <button
+          type="button"
+          onClick={addPlan}
+          className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+        >
+          {addLabel}
+        </button>
+      </div>
+
+      {draftPlans.length ? draftPlans.map((plan) => (
         <article key={plan.id} className="rounded-2xl border border-slate-200 p-5">
           <div className={`grid gap-3 ${columnsClassName}`}>
             {plan.fields.map((field) => {
@@ -78,7 +106,15 @@ export function MockEditablePlanList({
             })}
           </div>
 
-          <div className="mt-4 flex justify-end">
+          <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+            <button
+              type="button"
+              onClick={() => removePlan(plan.id)}
+              className="inline-flex items-center justify-center rounded-2xl border border-rose-200 bg-rose-50 px-4 py-2 text-sm font-medium text-rose-700 transition hover:bg-rose-100"
+            >
+              刪除這筆處理
+            </button>
+
             <FeedbackActionButtons
               saveLabel="儲存"
               saveMessage={saveMessage}
@@ -87,7 +123,11 @@ export function MockEditablePlanList({
             />
           </div>
         </article>
-      ))}
+      )) : (
+        <div className="rounded-2xl border border-dashed border-slate-300 bg-white px-5 py-6 text-sm text-slate-500">
+          目前尚無執行處理方案，請先新增一筆處理內容。
+        </div>
+      )}
     </div>
   );
 }

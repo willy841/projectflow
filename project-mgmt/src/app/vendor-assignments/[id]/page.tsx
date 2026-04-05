@@ -123,6 +123,11 @@ export default async function VendorAssignmentVendorPage({
                       { key: "amount", label: "金額", value: plan.amount },
                     ],
                   }))}
+                  addTemplate={[
+                    { key: "title", label: "標題", value: "" },
+                    { key: "requirement", label: "需求說明", value: "", type: "textarea" },
+                    { key: "amount", label: "金額", value: "" },
+                  ]}
                   saveMessage="已儲存這筆 vendor 處理方案。"
                   confirmMessage="這筆 vendor 處理方案已標記為目前版本的一部分；整區仍需再確認一次才正式發包。"
                   columnsClassName="md:grid-cols-3"
