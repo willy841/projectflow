@@ -18,27 +18,29 @@ type EditablePlan = {
   fields: EditableField[];
 };
 
+type DocumentMode = "design" | "procurement" | "vendor";
+
 type MockEditablePlanListProps = {
   taskId: string;
+  mode: DocumentMode;
   plans: EditablePlan[];
   saveMessage: string;
   confirmMessage: string;
   columnsClassName?: string;
   addLabel?: string;
   addTemplate: EditableField[];
-  toDocumentRows: (plans: EditablePlan[]) => MockDocumentRow[];
   documentLink?: string;
 };
 
 export function MockEditablePlanList({
   taskId,
+  mode,
   plans,
   saveMessage,
   confirmMessage,
   columnsClassName = "md:grid-cols-2 xl:grid-cols-4",
   addLabel = "新增執行處理",
   addTemplate,
-  toDocumentRows,
   documentLink,
 }: MockEditablePlanListProps) {
   const [draftPlans, setDraftPlans] = useState(plans);
@@ -68,6 +70,30 @@ export function MockEditablePlanList({
 
   function removePlan(planId: string) {
     setDraftPlans((current) => current.filter((plan) => plan.id !== planId));
+  }
+
+  function getValue(plan: EditablePlan, key: string) {
+    return plan.fields.find((field) => field.key === key)?.value || "";
+  }
+
+  function buildDocumentRows(plans: EditablePlan[]): MockDocumentRow[] {
+    return plans.map((plan, index) => {
+      if (mode === "design") {
+        return {
+          id: index + 1,
+          item: getValue(plan, "title") || `處理方案 ${index + 1}`,
+          size: getValue(plan, "size") || "未填寫",
+          materialStructure: `${getValue(plan, "material") || "未填寫"} + ${getValue(plan, "structure") || "未填寫"}`,
+          quantity: getValue(plan, "quantity") || "未填寫",
+        };
+      }
+
+      return {
+        id: index + 1,
+        item: getValue(plan, "title") || `處理方案 ${index + 1}`,
+        quantity: mode === "vendor" ? getValue(plan, "amount") || "未填寫" : getValue(plan, "quantity") || "未填寫",
+      };
+    });
   }
 
   return (
@@ -134,7 +160,7 @@ export function MockEditablePlanList({
                   type="button"
                   onClick={() => {
                     saveMockTaskDocument(taskId, {
-                      rows: toDocumentRows(draftPlans),
+                      rows: buildDocumentRows(draftPlans),
                       documentLink,
                       updatedAt: Date.now(),
                     });

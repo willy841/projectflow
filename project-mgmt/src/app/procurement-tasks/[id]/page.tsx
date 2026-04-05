@@ -86,6 +86,7 @@ export default async function ProcurementTaskDetailPage({
 
         <MockEditablePlanList
           taskId={task.id}
+          mode="procurement"
           plans={task.plans.map((plan) => ({
             id: plan.id,
             fields: [
@@ -106,16 +107,6 @@ export default async function ProcurementTaskDetailPage({
           saveMessage="已儲存這筆備品處理方案。"
           confirmMessage="已確認目前備品處理內容；文件頁將承接這次確認的結果。"
           columnsClassName="md:grid-cols-2 xl:grid-cols-5"
-          toDocumentRows={(plans) =>
-            plans.map((plan, index) => {
-              const getValue = (key: string) => plan.fields.find((field) => field.key === key)?.value || "";
-              return {
-                id: index + 1,
-                item: getValue("title") || `處理方案 ${index + 1}`,
-                quantity: getValue("quantity") || "未填寫",
-              };
-            })
-          }
         />
       </section>
     </AppShell>
