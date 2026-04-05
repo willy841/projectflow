@@ -98,28 +98,13 @@ export function MockEditablePlanList({
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-center justify-between gap-3">
+      <div className="flex justify-end">
         <button
           type="button"
           onClick={addPlan}
           className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
         >
           {addLabel}
-        </button>
-
-        <button
-          type="button"
-          onClick={() => {
-            saveMockTaskDocument(taskId, {
-              rows: buildDocumentRows(draftPlans),
-              documentLink,
-              updatedAt: Date.now(),
-            });
-            window.alert(confirmMessage);
-          }}
-          className="inline-flex items-center justify-center rounded-2xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white"
-        >
-          確認
         </button>
       </div>
 
@@ -162,13 +147,31 @@ export function MockEditablePlanList({
               刪除這筆處理
             </button>
 
-            <button
-              type="button"
-              onClick={() => window.alert(saveMessage)}
-              className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700"
-            >
-              儲存
-            </button>
+            <div>
+              <div className="flex flex-wrap items-center justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => window.alert(saveMessage)}
+                  className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700"
+                >
+                  儲存
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    saveMockTaskDocument(taskId, {
+                      rows: buildDocumentRows(draftPlans),
+                      documentLink,
+                      updatedAt: Date.now(),
+                    });
+                    window.alert(confirmMessage);
+                  }}
+                  className="inline-flex items-center justify-center rounded-2xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white"
+                >
+                  確認
+                </button>
+              </div>
+            </div>
           </div>
         </article>
       )) : (
