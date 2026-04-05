@@ -17,8 +17,31 @@ export function MockDesignDocumentView({
   const rows = stored?.rows?.length ? stored.rows : fallbackRows;
   const documentLink = stored?.documentLink || fallbackLink;
 
+  const copyText = rows
+    .map((row) => `${row.id}. ${row.item}｜尺寸：${"size" in row ? row.size || "未填寫" : "未填寫"}｜材質與結構：${"materialStructure" in row ? row.materialStructure || "未填寫" : "未填寫"}｜數量：${row.quantity}`)
+    .join("\n");
+
+  async function handleCopy() {
+    try {
+      await navigator.clipboard.writeText(copyText);
+      window.alert("已複製文字");
+    } catch {
+      window.alert("複製失敗，請再試一次");
+    }
+  }
+
   return (
     <>
+      <div className="mb-4 flex justify-end">
+        <button
+          type="button"
+          onClick={handleCopy}
+          className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+        >
+          複製文字
+        </button>
+      </div>
+
       <div className="overflow-x-auto rounded-2xl border border-slate-200">
         <table className="min-w-full border-collapse text-left text-sm">
           <thead className="bg-slate-50 text-slate-600">

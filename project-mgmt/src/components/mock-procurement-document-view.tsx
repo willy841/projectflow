@@ -14,8 +14,30 @@ export function MockProcurementDocumentView({
   const stored = useMemo(() => getMockTaskDocument(taskId), [taskId]);
   const rows = stored?.rows?.length ? stored.rows : fallbackRows;
 
+  const copyText = rows.map((row) => `${row.id}. ${row.item}｜數量：${row.quantity}`).join("\n");
+
+  async function handleCopy() {
+    try {
+      await navigator.clipboard.writeText(copyText);
+      window.alert("已複製文字");
+    } catch {
+      window.alert("複製失敗，請再試一次");
+    }
+  }
+
   return (
-    <div className="overflow-x-auto rounded-2xl border border-slate-200">
+    <>
+      <div className="mb-4 flex justify-end">
+        <button
+          type="button"
+          onClick={handleCopy}
+          className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+        >
+          複製文字
+        </button>
+      </div>
+
+      <div className="overflow-x-auto rounded-2xl border border-slate-200">
       <table className="min-w-full border-collapse text-left text-sm">
         <thead className="bg-slate-50 text-slate-600">
           <tr>
@@ -36,6 +58,7 @@ export function MockProcurementDocumentView({
           ))}
         </tbody>
       </table>
-    </div>
+      </div>
+    </>
   );
 }
