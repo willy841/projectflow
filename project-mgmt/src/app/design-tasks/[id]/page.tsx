@@ -2,8 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AppShell } from "@/components/app-shell";
 import { getDesignTaskById } from "@/components/design-task-data";
-import { FeedbackActionButtons } from "@/components/mock-workflow-feedback";
-import { MockEditablePlanList } from "@/components/mock-editable-plan-list";
+import { DesignPlanEditorClient } from "@/components/design-plan-editor-client";
 import { getDbDesignTaskById } from "@/lib/db/design-flow-adapter";
 import { shouldUseDbDesignFlow } from "@/lib/db/design-flow-toggle";
 
@@ -87,54 +86,19 @@ export default async function DesignTaskDetailPage({
       </section>
 
       <section className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
-        <div className="mb-5 flex flex-col gap-3 border-b border-slate-200 pb-4 xl:flex-row xl:items-center xl:justify-between">
-          <div className="flex flex-wrap items-center gap-3">
-            <h3 className="text-xl font-semibold text-slate-900">執行處理</h3>
-            <button
-              id={`design-add-plan-${task.id}`}
-              type="button"
-              className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
-            >
-              新增執行處理
-            </button>
-          </div>
-          <FeedbackActionButtons
-            hideSave
-            confirmLabel="全部確認"
-            confirmMessage="這個設計任務的執行處理區已確認；目前區內方案視為正式成立，可進入最終文件頁。"
-          />
-        </div>
-
-        <MockEditablePlanList
+        <DesignPlanEditorClient
           taskId={task.id}
-          mode="design"
-          plans={task.plans.map((plan) => ({
+          initialPlans={task.plans.map((plan) => ({
             id: plan.id,
-            fields: [
-              { key: "title", label: "標題", value: plan.title, span: "xl:col-span-2" },
-              { key: "size", label: "尺寸", value: plan.size },
-              { key: "material", label: "材質", value: plan.material },
-              { key: "structure", label: "結構", value: plan.structure },
-              { key: "quantity", label: "數量", value: plan.quantity },
-              { key: "amount", label: "金額", value: plan.amount },
-              { key: "previewUrl", label: "預覽位置", value: plan.previewUrl, span: "xl:col-span-2" },
-              { key: "vendor", label: "執行廠商", value: plan.vendor, span: "xl:col-span-2" },
-            ],
+            title: plan.title,
+            size: plan.size,
+            material: plan.material,
+            structure: plan.structure,
+            quantity: plan.quantity,
+            amount: plan.amount,
+            previewUrl: plan.previewUrl,
+            vendor: plan.vendor,
           }))}
-          addTemplate={[
-            { key: "title", label: "標題", value: "", span: "xl:col-span-2" },
-            { key: "size", label: "尺寸", value: "" },
-            { key: "material", label: "材質", value: "" },
-            { key: "structure", label: "結構", value: "" },
-            { key: "quantity", label: "數量", value: "" },
-            { key: "amount", label: "金額", value: "" },
-            { key: "previewUrl", label: "預覽位置", value: "", span: "xl:col-span-2" },
-            { key: "vendor", label: "執行廠商", value: "", span: "xl:col-span-2" },
-          ]}
-          saveMessage="已儲存這筆設計處理方案。"
-          confirmMessage="已確認目前設計處理內容；文件頁將承接這次確認的結果。"
-          documentLink={task.documentLink}
-          externalAddButtonId={`design-add-plan-${task.id}`}
         />
       </section>
     </AppShell>
