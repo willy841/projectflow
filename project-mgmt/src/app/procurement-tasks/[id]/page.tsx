@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { AppShell } from "@/components/app-shell";
 import { procurementTaskBoardRecords } from "@/components/procurement-task-board-data";
 import { FeedbackActionButtons } from "@/components/mock-workflow-feedback";
+import { MockEditablePlanList } from "@/components/mock-editable-plan-list";
 
 export default async function ProcurementTaskDetailPage({
   params,
@@ -83,45 +84,21 @@ export default async function ProcurementTaskDetailPage({
           />
         </div>
 
-        <div className="space-y-4">
-          {task.plans.map((plan) => (
-            <article key={plan.id} className="rounded-2xl border border-slate-200 p-5">
-              <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-5">
-                <div className="rounded-2xl bg-slate-50 px-4 py-3 xl:col-span-2">
-                  <p className="text-xs text-slate-500">標題</p>
-                  <p className="mt-2 text-sm font-medium text-slate-900">{plan.title}</p>
-                </div>
-                <div className="rounded-2xl bg-slate-50 px-4 py-3">
-                  <p className="text-xs text-slate-500">數量</p>
-                  <p className="mt-2 text-sm font-medium text-slate-900">{plan.quantity}</p>
-                </div>
-                <div className="rounded-2xl bg-slate-50 px-4 py-3">
-                  <p className="text-xs text-slate-500">金額</p>
-                  <p className="mt-2 text-sm font-medium text-slate-900">{plan.amount}</p>
-                </div>
-                <div className="rounded-2xl bg-slate-50 px-4 py-3 xl:col-span-2">
-                  <p className="text-xs text-slate-500">預覽位置</p>
-                  <a href={plan.previewUrl} className="mt-2 block break-all text-sm font-medium text-blue-600 underline-offset-4 hover:underline">
-                    {plan.previewUrl}
-                  </a>
-                </div>
-                <div className="rounded-2xl bg-slate-50 px-4 py-3 xl:col-span-2">
-                  <p className="text-xs text-slate-500">執行廠商</p>
-                  <p className="mt-2 text-sm font-medium text-slate-900">{plan.vendor}</p>
-                </div>
-              </div>
-
-              <div className="mt-4 flex justify-end">
-                <FeedbackActionButtons
-                  saveLabel="儲存"
-                  saveMessage="已儲存這筆備品處理方案。"
-                  confirmLabel="確認"
-                  confirmMessage="這筆備品處理方案已標記為目前版本的一部分；整區仍需再確認一次才正式進文件。"
-                />
-              </div>
-            </article>
-          ))}
-        </div>
+        <MockEditablePlanList
+          plans={task.plans.map((plan) => ({
+            id: plan.id,
+            fields: [
+              { key: "title", label: "標題", value: plan.title, span: "xl:col-span-2" },
+              { key: "quantity", label: "數量", value: plan.quantity },
+              { key: "amount", label: "金額", value: plan.amount },
+              { key: "previewUrl", label: "預覽位置", value: plan.previewUrl, span: "xl:col-span-2" },
+              { key: "vendor", label: "執行廠商", value: plan.vendor, span: "xl:col-span-2" },
+            ],
+          }))}
+          saveMessage="已儲存這筆備品處理方案。"
+          confirmMessage="這筆備品處理方案已標記為目前版本的一部分；整區仍需再確認一次才正式進文件。"
+          columnsClassName="md:grid-cols-2 xl:grid-cols-5"
+        />
       </section>
     </AppShell>
   );

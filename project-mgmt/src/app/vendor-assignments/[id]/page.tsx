@@ -4,6 +4,7 @@ import { AppShell } from "@/components/app-shell";
 import { vendorAssignments, vendorPackages } from "@/components/vendor-data";
 import { projects as projectSeeds } from "@/components/project-data";
 import { FeedbackActionButtons, QuickFeedbackButtons } from "@/components/mock-workflow-feedback";
+import { MockEditablePlanList } from "@/components/mock-editable-plan-list";
 
 const mockPlans = [
   {
@@ -112,33 +113,20 @@ export default async function VendorAssignmentVendorPage({
                 </div>
               </div>
 
-              <div className="mt-4 space-y-3">
-                {mockPlans.map((plan) => (
-                  <div key={`${task.id}-${plan.id}`} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                    <div className="grid gap-3 md:grid-cols-3">
-                      <div className="rounded-2xl bg-white px-4 py-3">
-                        <p className="text-xs text-slate-500">標題</p>
-                        <p className="mt-2 text-sm font-medium text-slate-900">{plan.title}</p>
-                      </div>
-                      <div className="rounded-2xl bg-white px-4 py-3 md:col-span-1">
-                        <p className="text-xs text-slate-500">需求說明</p>
-                        <p className="mt-2 text-sm font-medium text-slate-900">{plan.requirement}</p>
-                      </div>
-                      <div className="rounded-2xl bg-white px-4 py-3">
-                        <p className="text-xs text-slate-500">金額</p>
-                        <p className="mt-2 text-sm font-medium text-slate-900">{plan.amount}</p>
-                      </div>
-                    </div>
-                    <div className="mt-4 flex justify-end">
-                      <FeedbackActionButtons
-                        saveLabel="儲存"
-                        saveMessage="已儲存這筆 vendor 處理方案。"
-                        confirmLabel="確認"
-                        confirmMessage="這筆 vendor 處理方案已標記為目前版本的一部分；整區仍需再確認一次才正式發包。"
-                      />
-                    </div>
-                  </div>
-                ))}
+              <div className="mt-4">
+                <MockEditablePlanList
+                  plans={mockPlans.map((plan) => ({
+                    id: `${task.id}-${plan.id}`,
+                    fields: [
+                      { key: "title", label: "標題", value: plan.title },
+                      { key: "requirement", label: "需求說明", value: plan.requirement, type: "textarea" },
+                      { key: "amount", label: "金額", value: plan.amount },
+                    ],
+                  }))}
+                  saveMessage="已儲存這筆 vendor 處理方案。"
+                  confirmMessage="這筆 vendor 處理方案已標記為目前版本的一部分；整區仍需再確認一次才正式發包。"
+                  columnsClassName="md:grid-cols-3"
+                />
               </div>
             </article>
           ))}
