@@ -86,7 +86,7 @@ export default async function ProcurementTaskDetailPage({
           </div>
           <FeedbackActionButtons
             hideSave
-            confirmLabel="確認"
+            confirmLabel="全部確認"
             confirmMessage="這個備品任務的執行處理區已確認；目前區內方案視為正式成立，可進入最終文件頁。"
           />
         </div>

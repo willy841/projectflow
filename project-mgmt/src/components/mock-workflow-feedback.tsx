@@ -4,20 +4,22 @@ import { useState } from "react";
 
 type FeedbackActionButtonsProps = {
   saveLabel?: string;
-  confirmLabel: string;
-  confirmMessage: string;
+  confirmLabel?: string;
+  confirmMessage?: string;
   saveMessage?: string;
   className?: string;
   hideSave?: boolean;
+  hideConfirm?: boolean;
 };
 
 export function FeedbackActionButtons({
   saveLabel = "儲存",
-  confirmLabel,
-  confirmMessage,
+  confirmLabel = "確認",
+  confirmMessage = "已確認目前內容。",
   saveMessage = "已儲存目前方案內容。",
   className = "",
   hideSave = false,
+  hideConfirm = false,
 }: FeedbackActionButtonsProps) {
   const [message, setMessage] = useState<string>("");
   const [confirmed, setConfirmed] = useState(false);
@@ -34,16 +36,18 @@ export function FeedbackActionButtons({
             {saveLabel}
           </button>
         ) : null}
-        <button
-          type="button"
-          onClick={() => {
-            setConfirmed(true);
-            setMessage(confirmMessage);
-          }}
-          className="inline-flex items-center justify-center rounded-2xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white"
-        >
-          {confirmed ? "已確認" : confirmLabel}
-        </button>
+        {!hideConfirm ? (
+          <button
+            type="button"
+            onClick={() => {
+              setConfirmed(true);
+              setMessage(confirmMessage);
+            }}
+            className="inline-flex items-center justify-center rounded-2xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white"
+          >
+            {confirmed ? "已確認" : confirmLabel}
+          </button>
+        ) : null}
       </div>
       {message ? (
         <div className="mt-3 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">

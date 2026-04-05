@@ -84,7 +84,7 @@ export default async function VendorAssignmentVendorPage({
           </div>
           <FeedbackActionButtons
             hideSave
-            confirmLabel="確認（正式發包）"
+            confirmLabel="全部確認"
             confirmMessage="目前這個廠商的執行處理區已確認；此動作在 mock 語意上等於正式發包，並導向 package 主線。"
           />
         </div>
