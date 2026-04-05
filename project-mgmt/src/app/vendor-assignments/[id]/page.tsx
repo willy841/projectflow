@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { AppShell } from "@/components/app-shell";
 import { vendorAssignments } from "@/components/vendor-data";
 import { projects as projectSeeds } from "@/components/project-data";
+import { FeedbackActionButtons, QuickFeedbackButtons } from "@/components/mock-workflow-feedback";
 
 const mockPlans = [
   {
@@ -57,25 +58,26 @@ export default async function VendorAssignmentVendorPage({
             >
               返回廠商列表
             </Link>
-            <button className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700">
-              輸出文件
-            </button>
-            <button className="inline-flex items-center justify-center rounded-2xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white">
-              複製文字
-            </button>
+            <QuickFeedbackButtons
+              secondaryLabel="輸出文件"
+              secondaryMessage="已輸出目前 mock 發包文件預覽；正式版之後會承接到文件生成流程。"
+              primaryLabel="複製文字"
+              primaryMessage="已複製目前 mock 發包內容文字。"
+            />
           </div>
         </div>
       </header>
 
       <section className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
-        <div className="mb-4 flex items-center justify-between">
+        <div className="mb-4 flex flex-col gap-3 xl:flex-row xl:items-start xl:justify-between">
           <div>
             <h3 className="text-xl font-semibold text-slate-900">執行處理</h3>
             <p className="mt-1 text-sm text-slate-500">此層直接列出該廠商底下所有任務，並在這一頁完成發包前處理。</p>
           </div>
-          <button className="inline-flex items-center justify-center rounded-2xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white">
-            確認（正式發包）
-          </button>
+          <FeedbackActionButtons
+            confirmLabel="確認（正式發包）"
+            confirmMessage="目前這個廠商的執行處理區已確認；此動作在 mock 語意上等於正式發包，並導向 package 主線。"
+          />
         </div>
 
         <div className="space-y-4">
@@ -110,9 +112,12 @@ export default async function VendorAssignmentVendorPage({
                       </div>
                     </div>
                     <div className="mt-4 flex justify-end">
-                      <button className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700">
-                        儲存
-                      </button>
+                      <FeedbackActionButtons
+                        saveLabel="儲存"
+                        saveMessage="已儲存這筆 vendor 處理方案。"
+                        confirmLabel="確認"
+                        confirmMessage="這筆 vendor 處理方案已標記為目前版本的一部分；整區仍需再確認一次才正式發包。"
+                      />
                     </div>
                   </div>
                 ))}

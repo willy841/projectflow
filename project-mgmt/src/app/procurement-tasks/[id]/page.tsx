@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AppShell } from "@/components/app-shell";
 import { procurementTaskBoardRecords } from "@/components/procurement-task-board-data";
+import { FeedbackActionButtons } from "@/components/mock-workflow-feedback";
 
 const mockPlans = [
   {
@@ -90,14 +91,15 @@ export default async function ProcurementTaskDetailPage({
       </section>
 
       <section className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
-        <div className="mb-4 flex items-center justify-between">
+        <div className="mb-4 flex flex-col gap-3 xl:flex-row xl:items-start xl:justify-between">
           <div>
             <h3 className="text-xl font-semibold text-slate-900">執行處理</h3>
             <p className="mt-1 text-sm text-slate-500">每筆處理方案彼此獨立，單筆儲存後，再由整區確認正式成立。</p>
           </div>
-          <button className="inline-flex items-center justify-center rounded-2xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white">
-            確認
-          </button>
+          <FeedbackActionButtons
+            confirmLabel="確認"
+            confirmMessage="這個備品任務的執行處理區已確認；目前區內方案視為正式成立，可進入最終文件頁。"
+          />
         </div>
 
         <div className="space-y-4">
@@ -129,9 +131,12 @@ export default async function ProcurementTaskDetailPage({
               </div>
 
               <div className="mt-4 flex justify-end">
-                <button className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700">
-                  儲存
-                </button>
+                <FeedbackActionButtons
+                  saveLabel="儲存"
+                  saveMessage="已儲存這筆備品處理方案。"
+                  confirmLabel="確認"
+                  confirmMessage="這筆備品處理方案已標記為目前版本的一部分；整區仍需再確認一次才正式進文件。"
+                />
               </div>
             </article>
           ))}
