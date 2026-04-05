@@ -6,6 +6,25 @@ export type DbBackedDesignTaskRecord = DesignTaskRecord & {
   source: 'db' | 'mock';
 };
 
+type DbDesignTaskSummary = {
+  id: string;
+  projectId: string;
+  projectName: string;
+  eventDate: string;
+  title: string;
+  size: string;
+  material: string;
+  structureRequired: string;
+  quantity: string;
+};
+
+type DbDesignProjectSummary = {
+  projectId: string;
+  projectName: string;
+  eventDate: string;
+  taskCount: number;
+};
+
 function buildDocumentRowsFromPlans(
   plans: Array<{
     id: string;
@@ -23,6 +42,48 @@ function buildDocumentRowsFromPlans(
     materialStructure: `${plan.material ?? '未填寫'} + ${plan.structure ?? '未填寫'}`,
     quantity: plan.quantity ?? '未填寫',
   }));
+}
+
+export async function listDbDesignTaskProjects(): Promise<DbDesignProjectSummary[]> {
+  const db = createPhase1DbClient();
+  const rows = await db.query<DbDesignProjectSummary>(`
+    select
+      p.id as "projectId",
+      p.name as "projectName",
+      coalesce(p.event_date::text, '-') as "eventDate",
+      count(dt.id)::int as "taskCount"
+    from design_tasks dt
+    inner join projects p on p.id = dt.project_id
+    group by p.id, p.name, p.event_date
+    order by p.event_date nulls last, p.created_at desc
+  `);
+
+  return rows.rows;
+}
+
+export async function listDbDesignTasksByProject(projectId: string): Promise<DbDesignTaskSummary[]> {
+  const db = createPhase1DbClient();
+  const rows = await db.query<DbDesignTaskSummary>(
+    `
+      select
+        dt.id,
+        dt.project_id as "projectId",
+        p.name as "projectName",
+        coalesce(p.event_date::text, '-') as "eventDate",
+        dt.title,
+        coalesce(dt.size, '未填寫') as size,
+        coalesce(dt.material, '未填寫') as material,
+        coalesce(dt.structure, '未填寫') as "structureRequired",
+        coalesce(dt.quantity, '未填寫') as quantity
+      from design_tasks dt
+      inner join projects p on p.id = dt.project_id
+      where dt.project_id = $1
+      order by dt.created_at desc
+    `,
+    [projectId],
+  );
+
+  return rows.rows;
 }
 
 export async function getDbDesignTaskById(id: string): Promise<DbBackedDesignTaskRecord | null> {

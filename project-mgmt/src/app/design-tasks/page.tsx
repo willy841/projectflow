@@ -1,12 +1,26 @@
 import Link from "next/link";
 import { AppShell } from "@/components/app-shell";
 import { designTaskGroups } from "@/components/design-task-data";
+import {
+  listDbDesignTaskProjects,
+  listDbDesignTasksByProject,
+} from "@/lib/db/design-flow-adapter";
+import { shouldUseDbDesignFlow } from "@/lib/db/design-flow-toggle";
 
 type ProjectEntry = {
   projectId: string;
   projectName: string;
   eventDate: string;
   taskCount: number;
+};
+
+type ProjectTaskEntry = {
+  id: string;
+  title: string;
+  size: string;
+  material: string;
+  structureRequired: string;
+  quantity: string;
 };
 
 export default async function DesignTasksPage({
@@ -17,29 +31,46 @@ export default async function DesignTasksPage({
   const resolvedSearch = searchParams ? await searchParams : undefined;
   const activeProjectId = resolvedSearch?.project;
 
-  const map = new Map<string, ProjectEntry>();
+  let projects: ProjectEntry[] = [];
+  let projectTasks: ProjectTaskEntry[] = [];
 
-  designTaskGroups.forEach((record) => {
-    const existing = map.get(record.projectId);
-    if (existing) {
-      existing.taskCount += 1;
-      return;
-    }
+  if (shouldUseDbDesignFlow()) {
+    projects = await listDbDesignTaskProjects();
+    projectTasks = activeProjectId ? await listDbDesignTasksByProject(activeProjectId) : [];
+  } else {
+    const map = new Map<string, ProjectEntry>();
 
-    map.set(record.projectId, {
-      projectId: record.projectId,
-      projectName: record.projectName,
-      eventDate: record.due,
-      taskCount: 1,
+    designTaskGroups.forEach((record) => {
+      const existing = map.get(record.projectId);
+      if (existing) {
+        existing.taskCount += 1;
+        return;
+      }
+
+      map.set(record.projectId, {
+        projectId: record.projectId,
+        projectName: record.projectName,
+        eventDate: record.due,
+        taskCount: 1,
+      });
     });
-  });
 
-  const projects = Array.from(map.values());
+    projects = Array.from(map.values());
+    projectTasks = activeProjectId
+      ? designTaskGroups
+          .filter((task) => task.projectId === activeProjectId)
+          .map((task) => ({
+            id: task.id,
+            title: task.title,
+            size: task.size,
+            material: task.material,
+            structureRequired: task.structureRequired,
+            quantity: task.quantity,
+          }))
+      : [];
+  }
 
   const activeProject = projects.find((project) => project.projectId === activeProjectId);
-  const projectTasks = activeProjectId
-    ? designTaskGroups.filter((task) => task.projectId === activeProjectId)
-    : [];
 
   return (
     <AppShell activePath="/design-tasks">
