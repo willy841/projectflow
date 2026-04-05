@@ -1,6 +1,6 @@
 # Phase 1 DAL skeleton
 
-這一層目前已進到 **types + runtime client + 第一批 read/write repositories**。
+這一層目前已進到 **types + runtime client + repositories + 最小 service layer**。
 
 ## 目的
 - 讓 DB Phase 1 不停在 migration 檔案
@@ -13,6 +13,7 @@
 - `phase1-client.ts`
 - `phase1-sql.ts`
 - `phase1-repositories.ts`
+- `phase1-services.ts`
 
 ## 目前狀態
 - 已對齊 migration tables 與主要欄位
@@ -32,6 +33,9 @@
   - `vendorTasks.listByProject`
   - `vendorTasks.listByProjectAndVendor`
   - `vendorTasks.findById`
+  - `designTaskPlans.listByTask`
+  - `procurementTaskPlans.listByTask`
+  - `vendorTaskPlans.listByTask`
   - `taskConfirmations.listByTask`
 - 已實作第一批 write path：
   - `projects.insert/update`
@@ -40,10 +44,24 @@
   - `designTasks.insert/update`
   - `procurementTasks.insert/update`
   - `vendorTasks.insert/update`
-- plans / confirmations / snapshot writes 仍維持 skeleton
+  - `designTaskPlans.insert/update`
+  - `procurementTaskPlans.insert/update`
+  - `vendorTaskPlans.insert/update`
+  - `taskConfirmations.insert`
+  - `taskConfirmations.insertSnapshot`
+- 已補最小 workflow service layer：
+  - publish design/procurement/vendor task
+  - save design/procurement/vendor plan
+  - confirm design/procurement/vendor task plans
+
+## 目前意義
+這表示 Phase 1 已不只停在 task 主表 read/write，而是已具備：
+- live plan 正式資料承接
+- 全部確認 -> confirmation row
+- snapshot rows 建立
 
 ## 下一步
-1. 補 plans read/write path
-2. 補 confirmations / snapshot writes
-3. 補最小 service layer，封裝「任務發布 -> task 主表」流程
-4. 最後才把 app 某些 mock data source 改為可切換 DB read path
+1. 補最小 integration test / smoke script for repo + service layer
+2. 先挑設計線，把前端從 mock source 切到正式 DB service
+3. 再把設計文件頁改為讀 confirmation snapshot
+4. 設計線驗通後，再複製模式到備品線

@@ -125,10 +125,6 @@ export interface Phase1Repositories {
   taskConfirmations: TaskConfirmationRepository;
 }
 
-function notImplemented(name: string): never {
-  throw new Error(`${name} is not implemented yet. Complete this repository method when write path is needed.`);
-}
-
 async function firstRowOrNull<TRow>(promise: Promise<{ rows: TRow[] }>): Promise<TRow | null> {
   const result = await promise;
   return result.rows[0] ?? null;
@@ -393,36 +389,82 @@ export function createPhase1Repositories(db: Phase1DbClient): Phase1Repositories
       },
     },
     designTaskPlans: {
-      async listByTask() {
-        return notImplemented('designTaskPlans.listByTask');
+      async listByTask(designTaskId) {
+        const result = await db.query<DesignTaskPlanRow>(
+          `
+            select *
+            from design_task_plans
+            where design_task_id = $1
+            order by sort_order asc, created_at asc
+          `,
+          [designTaskId],
+        );
+        return result.rows;
       },
-      async insert() {
-        return notImplemented('designTaskPlans.insert');
+      async insert(input) {
+        return insertRow<DesignTaskPlanRow, InsertDesignTaskPlanInput>(db, 'design_task_plans', input);
       },
-      async update() {
-        return notImplemented('designTaskPlans.update');
+      async update(id, input) {
+        return updateRow<DesignTaskPlanRow, UpdateDesignTaskPlanInput>(
+          db,
+          'design_task_plans',
+          id,
+          input,
+        );
       },
     },
     procurementTaskPlans: {
-      async listByTask() {
-        return notImplemented('procurementTaskPlans.listByTask');
+      async listByTask(procurementTaskId) {
+        const result = await db.query<ProcurementTaskPlanRow>(
+          `
+            select *
+            from procurement_task_plans
+            where procurement_task_id = $1
+            order by sort_order asc, created_at asc
+          `,
+          [procurementTaskId],
+        );
+        return result.rows;
       },
-      async insert() {
-        return notImplemented('procurementTaskPlans.insert');
+      async insert(input) {
+        return insertRow<ProcurementTaskPlanRow, InsertProcurementTaskPlanInput>(
+          db,
+          'procurement_task_plans',
+          input,
+        );
       },
-      async update() {
-        return notImplemented('procurementTaskPlans.update');
+      async update(id, input) {
+        return updateRow<ProcurementTaskPlanRow, UpdateProcurementTaskPlanInput>(
+          db,
+          'procurement_task_plans',
+          id,
+          input,
+        );
       },
     },
     vendorTaskPlans: {
-      async listByTask() {
-        return notImplemented('vendorTaskPlans.listByTask');
+      async listByTask(vendorTaskId) {
+        const result = await db.query<VendorTaskPlanRow>(
+          `
+            select *
+            from vendor_task_plans
+            where vendor_task_id = $1
+            order by sort_order asc, created_at asc
+          `,
+          [vendorTaskId],
+        );
+        return result.rows;
       },
-      async insert() {
-        return notImplemented('vendorTaskPlans.insert');
+      async insert(input) {
+        return insertRow<VendorTaskPlanRow, InsertVendorTaskPlanInput>(db, 'vendor_task_plans', input);
       },
-      async update() {
-        return notImplemented('vendorTaskPlans.update');
+      async update(id, input) {
+        return updateRow<VendorTaskPlanRow, UpdateVendorTaskPlanInput>(
+          db,
+          'vendor_task_plans',
+          id,
+          input,
+        );
       },
     },
     taskConfirmations: {
@@ -438,11 +480,23 @@ export function createPhase1Repositories(db: Phase1DbClient): Phase1Repositories
         );
         return result.rows;
       },
-      async insert() {
-        return notImplemented('taskConfirmations.insert');
+      async insert(input) {
+        const confirmationInput = {
+          ...input,
+          confirmed_at: input.confirmed_at ?? new Date().toISOString(),
+        };
+
+        return insertRow<
+          TaskConfirmationRow,
+          InsertTaskConfirmationInput & { confirmed_at: string }
+        >(db, 'task_confirmations', confirmationInput);
       },
-      async insertSnapshot() {
-        return notImplemented('taskConfirmations.insertSnapshot');
+      async insertSnapshot(_flowType, input) {
+        return insertRow<TaskConfirmationPlanSnapshotRow, typeof input>(
+          db,
+          'task_confirmation_plan_snapshots',
+          input,
+        );
       },
     },
   };
