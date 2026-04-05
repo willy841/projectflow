@@ -36,6 +36,11 @@ import type {
   VendorTaskRow,
 } from '@/lib/db/phase1-types';
 import type { Phase1DbClient } from '@/lib/db/phase1-client';
+import {
+  buildInsertStatement,
+  buildUpdateStatement,
+  entriesFromInput,
+} from '@/lib/db/phase1-sql';
 
 export interface ProjectRepository {
   findById(id: UUID): Promise<ProjectRow | null>;
@@ -129,6 +134,48 @@ async function firstRowOrNull<TRow>(promise: Promise<{ rows: TRow[] }>): Promise
   return result.rows[0] ?? null;
 }
 
+async function insertRow<TRow, TInput extends Record<string, unknown>>(
+  db: Phase1DbClient,
+  table: string,
+  input: TInput,
+): Promise<TRow> {
+  const entries = entriesFromInput(input);
+  const columns = entries.map(([key]) => String(key));
+  const values = entries.map(([, value]) => value);
+  const result = await db.query<TRow>(buildInsertStatement(table, columns), values);
+  const row = result.rows[0];
+
+  if (!row) {
+    throw new Error(`Insert into ${table} returned no rows.`);
+  }
+
+  return row;
+}
+
+async function updateRow<TRow, TInput extends Record<string, unknown>>(
+  db: Phase1DbClient,
+  table: string,
+  id: UUID,
+  input: TInput,
+): Promise<TRow> {
+  const entries = entriesFromInput(input);
+
+  if (entries.length === 0) {
+    throw new Error(`Update on ${table} requires at least one field.`);
+  }
+
+  const columns = entries.map(([key]) => String(key));
+  const values = entries.map(([, value]) => value);
+  const result = await db.query<TRow>(buildUpdateStatement(table, columns, 'id'), [...values, id]);
+  const row = result.rows[0];
+
+  if (!row) {
+    throw new Error(`Update on ${table} returned no rows for id=${id}.`);
+  }
+
+  return row;
+}
+
 export function createPhase1Repositories(db: Phase1DbClient): Phase1Repositories {
   return {
     projects: {
@@ -154,11 +201,11 @@ export function createPhase1Repositories(db: Phase1DbClient): Phase1Repositories
         );
         return result.rows;
       },
-      async insert() {
-        return notImplemented('projects.insert');
+      async insert(input) {
+        return insertRow<ProjectRow, InsertProjectInput>(db, 'projects', input);
       },
-      async update() {
-        return notImplemented('projects.update');
+      async update(id, input) {
+        return updateRow<ProjectRow, UpdateProjectInput>(db, 'projects', id, input);
       },
     },
     vendors: {
@@ -196,11 +243,11 @@ export function createPhase1Repositories(db: Phase1DbClient): Phase1Repositories
         );
         return result.rows;
       },
-      async insert() {
-        return notImplemented('vendors.insert');
+      async insert(input) {
+        return insertRow<VendorRow, InsertVendorInput>(db, 'vendors', input);
       },
-      async update() {
-        return notImplemented('vendors.update');
+      async update(id, input) {
+        return updateRow<VendorRow, UpdateVendorInput>(db, 'vendors', id, input);
       },
     },
     executionItems: {
@@ -216,11 +263,20 @@ export function createPhase1Repositories(db: Phase1DbClient): Phase1Repositories
         );
         return result.rows;
       },
-      async insert() {
-        return notImplemented('executionItems.insert');
+      async insert(input) {
+        return insertRow<ProjectExecutionItemRow, InsertProjectExecutionItemInput>(
+          db,
+          'project_execution_items',
+          input,
+        );
       },
-      async update() {
-        return notImplemented('executionItems.update');
+      async update(id, input) {
+        return updateRow<ProjectExecutionItemRow, UpdateProjectExecutionItemInput>(
+          db,
+          'project_execution_items',
+          id,
+          input,
+        );
       },
     },
     designTasks: {
@@ -248,11 +304,11 @@ export function createPhase1Repositories(db: Phase1DbClient): Phase1Repositories
           ),
         );
       },
-      async insert() {
-        return notImplemented('designTasks.insert');
+      async insert(input) {
+        return insertRow<DesignTaskRow, InsertDesignTaskInput>(db, 'design_tasks', input);
       },
-      async update() {
-        return notImplemented('designTasks.update');
+      async update(id, input) {
+        return updateRow<DesignTaskRow, UpdateDesignTaskInput>(db, 'design_tasks', id, input);
       },
     },
     procurementTasks: {
@@ -280,11 +336,16 @@ export function createPhase1Repositories(db: Phase1DbClient): Phase1Repositories
           ),
         );
       },
-      async insert() {
-        return notImplemented('procurementTasks.insert');
+      async insert(input) {
+        return insertRow<ProcurementTaskRow, InsertProcurementTaskInput>(db, 'procurement_tasks', input);
       },
-      async update() {
-        return notImplemented('procurementTasks.update');
+      async update(id, input) {
+        return updateRow<ProcurementTaskRow, UpdateProcurementTaskInput>(
+          db,
+          'procurement_tasks',
+          id,
+          input,
+        );
       },
     },
     vendorTasks: {
@@ -324,11 +385,11 @@ export function createPhase1Repositories(db: Phase1DbClient): Phase1Repositories
           ),
         );
       },
-      async insert() {
-        return notImplemented('vendorTasks.insert');
+      async insert(input) {
+        return insertRow<VendorTaskRow, InsertVendorTaskInput>(db, 'vendor_tasks', input);
       },
-      async update() {
-        return notImplemented('vendorTasks.update');
+      async update(id, input) {
+        return updateRow<VendorTaskRow, UpdateVendorTaskInput>(db, 'vendor_tasks', id, input);
       },
     },
     designTaskPlans: {

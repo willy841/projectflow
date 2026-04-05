@@ -1,6 +1,6 @@
 # Phase 1 DAL skeleton
 
-這一層目前已進到 **types + runtime client + 第一批 read repositories**。
+這一層目前已進到 **types + runtime client + 第一批 read/write repositories**。
 
 ## 目的
 - 讓 DB Phase 1 不停在 migration 檔案
@@ -33,12 +33,17 @@
   - `vendorTasks.listByProjectAndVendor`
   - `vendorTasks.findById`
   - `taskConfirmations.listByTask`
-- write path 仍維持 skeleton
+- 已實作第一批 write path：
+  - `projects.insert/update`
+  - `vendors.insert/update`
+  - `executionItems.insert/update`
+  - `designTasks.insert/update`
+  - `procurementTasks.insert/update`
+  - `vendorTasks.insert/update`
+- plans / confirmations / snapshot writes 仍維持 skeleton
 
 ## 下一步
-1. 補 `pg` type packages / install lockfile
-2. 補第一批 write path：
-   - projects / vendors / execution items
-   - design/procurement/vendor tasks
-3. 再補 plans / confirmations / snapshot writes
+1. 補 plans read/write path
+2. 補 confirmations / snapshot writes
+3. 補最小 service layer，封裝「任務發布 -> task 主表」流程
 4. 最後才把 app 某些 mock data source 改為可切換 DB read path
