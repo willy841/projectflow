@@ -3,11 +3,6 @@ import { notFound } from "next/navigation";
 import { AppShell } from "@/components/app-shell";
 import { procurementTaskBoardRecords } from "@/components/procurement-task-board-data";
 
-const mockRows = [
-  { id: 1, item: "壓克力桌牌", quantity: "3 組" },
-  { id: 2, item: "贈品吊卡", quantity: "1 式" },
-];
-
 export default async function ProcurementTaskDocumentPage({
   params,
 }: {
@@ -55,7 +50,7 @@ export default async function ProcurementTaskDocumentPage({
               </tr>
             </thead>
             <tbody>
-              {mockRows.map((row) => (
+              {task.documentRows.map((row) => (
                 <tr key={row.id} className="align-top text-slate-700">
                   <td className="border-b border-slate-200 px-4 py-3">{row.id}</td>
                   <td className="border-b border-slate-200 px-4 py-3">{row.item}</td>

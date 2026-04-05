@@ -4,25 +4,6 @@ import { AppShell } from "@/components/app-shell";
 import { procurementTaskBoardRecords } from "@/components/procurement-task-board-data";
 import { FeedbackActionButtons } from "@/components/mock-workflow-feedback";
 
-const mockPlans = [
-  {
-    id: "plan-a",
-    title: "主採購方案",
-    quantity: "3 組",
-    amount: "NT$ 18,000",
-    previewUrl: "https://example.com/procurement-preview-a",
-    vendor: "Momo",
-  },
-  {
-    id: "plan-b",
-    title: "替代採購方案",
-    quantity: "1 式",
-    amount: "NT$ 12,500",
-    previewUrl: "https://example.com/procurement-preview-b",
-    vendor: "Una",
-  },
-];
-
 export default async function ProcurementTaskDetailPage({
   params,
 }: {
@@ -79,12 +60,12 @@ export default async function ProcurementTaskDetailPage({
           </div>
           <div className="rounded-2xl bg-slate-50 px-4 py-3 xl:col-span-3">
             <p className="text-xs text-slate-500">需求說明</p>
-            <p className="mt-2 text-sm font-medium text-slate-900">此處為備品原始需求說明骨架，後續再接正式資料。</p>
+            <p className="mt-2 text-sm font-medium text-slate-900">{task.note}</p>
           </div>
           <div className="rounded-2xl bg-slate-50 px-4 py-3 xl:col-span-2">
             <p className="text-xs text-slate-500">參考連結</p>
-            <a href="https://example.com/procurement-reference" className="mt-2 block break-all text-sm font-medium text-blue-600 underline-offset-4 hover:underline">
-              https://example.com/procurement-reference
+            <a href={task.referenceUrl} className="mt-2 block break-all text-sm font-medium text-blue-600 underline-offset-4 hover:underline">
+              {task.referenceUrl}
             </a>
           </div>
         </div>
@@ -103,7 +84,7 @@ export default async function ProcurementTaskDetailPage({
         </div>
 
         <div className="space-y-4">
-          {mockPlans.map((plan) => (
+          {task.plans.map((plan) => (
             <article key={plan.id} className="rounded-2xl border border-slate-200 p-5">
               <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-5">
                 <div className="rounded-2xl bg-slate-50 px-4 py-3 xl:col-span-2">

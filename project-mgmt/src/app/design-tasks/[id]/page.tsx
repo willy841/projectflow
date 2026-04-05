@@ -4,31 +4,6 @@ import { AppShell } from "@/components/app-shell";
 import { getDesignTaskById } from "@/components/design-task-data";
 import { FeedbackActionButtons } from "@/components/mock-workflow-feedback";
 
-const mockPlans = [
-  {
-    id: "plan-a",
-    title: "主視覺輸出方案",
-    size: "W240 x H300 cm",
-    material: "珍珠板",
-    structure: "鋁架固定",
-    quantity: "1 式",
-    amount: "NT$ 18,000",
-    previewUrl: "https://example.com/design-preview-a",
-    vendor: "星澄輸出",
-  },
-  {
-    id: "plan-b",
-    title: "入口海報延伸方案",
-    size: "A1 / 594 x 841 mm",
-    material: "海報紙",
-    structure: "立架展示",
-    quantity: "2 張",
-    amount: "NT$ 6,800",
-    previewUrl: "https://example.com/design-preview-b",
-    vendor: "光域輸出",
-  },
-];
-
 export default async function DesignTaskDetailPage({
   params,
 }: {
@@ -117,7 +92,7 @@ export default async function DesignTaskDetailPage({
         </div>
 
         <div className="space-y-4">
-          {mockPlans.map((plan) => (
+          {task.plans.map((plan) => (
             <article key={plan.id} className="rounded-2xl border border-slate-200 p-5">
               <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
                 <div className="rounded-2xl bg-slate-50 px-4 py-3 xl:col-span-2">

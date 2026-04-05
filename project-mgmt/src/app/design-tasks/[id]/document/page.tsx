@@ -3,23 +3,6 @@ import { notFound } from "next/navigation";
 import { AppShell } from "@/components/app-shell";
 import { getDesignTaskById } from "@/components/design-task-data";
 
-const mockRows = [
-  {
-    id: 1,
-    item: "主背板輸出",
-    size: "W240 x H300 cm",
-    materialStructure: "珍珠板 + 鋁架固定",
-    quantity: "1 式",
-  },
-  {
-    id: 2,
-    item: "入口海報輸出",
-    size: "A1 / 594 x 841 mm",
-    materialStructure: "海報紙 + 立架展示",
-    quantity: "2 張",
-  },
-];
-
 export default async function DesignTaskDocumentPage({
   params,
 }: {
@@ -69,7 +52,7 @@ export default async function DesignTaskDocumentPage({
               </tr>
             </thead>
             <tbody>
-              {mockRows.map((row) => (
+              {task.documentRows.map((row) => (
                 <tr key={row.id} className="align-top text-slate-700">
                   <td className="border-b border-slate-200 px-4 py-3">{row.id}</td>
                   <td className="border-b border-slate-200 px-4 py-3">{row.item}</td>
@@ -85,7 +68,7 @@ export default async function DesignTaskDocumentPage({
         <div className="mt-6 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4">
           <p className="text-xs text-slate-500">檔案位置連結</p>
           <div className="mt-2 rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-700">
-            https://example.com/design-final-file
+            {task.documentLink}
           </div>
         </div>
       </section>

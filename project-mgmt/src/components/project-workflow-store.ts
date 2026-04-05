@@ -201,21 +201,50 @@ export function getProcurementBoardRecords(projects: Project[]): ProcurementBoar
               ? "已生成"
               : "需更新";
 
+      const title = assignment.item || project.executionItems.find((item) => item.id === targetId)?.title || targetId;
+      const quantity = assignment.quantity || "未填寫";
+      const vendorName = latestParsed?.vendor || "未指定";
+      const costLabel = latestParsed?.amount || "待確認後成立";
+
       return {
         id: `${project.id}-${targetId}`,
         projectId: project.id,
         projectName: project.name,
-        title: assignment.item || project.executionItems.find((item) => item.id === targetId)?.title || targetId,
+        title,
         size: assignment.size || "未填寫",
         material: assignment.material || "未填寫",
-        quantity: assignment.quantity || "未填寫",
+        quantity,
         replyCount: replies.length,
         confirmStatus,
         documentStatus,
-        vendorName: latestParsed?.vendor || "未指定",
-        costLabel: latestParsed?.amount || "待確認後成立",
+        vendorName,
+        costLabel,
         costAmount: latestParsed ? parseCurrency(latestParsed.amount) : 0,
         costLocked: confirmStatus === "已確認",
+        note: `此處為 ${title} 的 mock 原始需求說明，後續會接正式資料。`,
+        referenceUrl: "https://example.com/procurement-reference",
+        plans: [
+          {
+            id: `${project.id}-${targetId}-plan-a`,
+            title: "主採購方案",
+            quantity,
+            amount: costLabel,
+            previewUrl: "https://example.com/procurement-preview-a",
+            vendor: vendorName,
+          },
+          {
+            id: `${project.id}-${targetId}-plan-b`,
+            title: "替代採購方案",
+            quantity,
+            amount: costLabel,
+            previewUrl: "https://example.com/procurement-preview-b",
+            vendor: vendorName,
+          },
+        ],
+        documentRows: [
+          { id: 1, item: title, quantity },
+          { id: 2, item: `${title} 備案項目`, quantity },
+        ],
       };
     });
   });
