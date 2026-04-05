@@ -8,6 +8,7 @@ type FeedbackActionButtonsProps = {
   confirmMessage: string;
   saveMessage?: string;
   className?: string;
+  hideSave?: boolean;
 };
 
 export function FeedbackActionButtons({
@@ -16,6 +17,7 @@ export function FeedbackActionButtons({
   confirmMessage,
   saveMessage = "已儲存目前方案內容。",
   className = "",
+  hideSave = false,
 }: FeedbackActionButtonsProps) {
   const [message, setMessage] = useState<string>("");
   const [confirmed, setConfirmed] = useState(false);
@@ -23,13 +25,15 @@ export function FeedbackActionButtons({
   return (
     <div className={className}>
       <div className="flex flex-wrap items-center justify-end gap-2">
-        <button
-          type="button"
-          onClick={() => setMessage(saveMessage)}
-          className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700"
-        >
-          {saveLabel}
-        </button>
+        {!hideSave ? (
+          <button
+            type="button"
+            onClick={() => setMessage(saveMessage)}
+            className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700"
+          >
+            {saveLabel}
+          </button>
+        ) : null}
         <button
           type="button"
           onClick={() => {

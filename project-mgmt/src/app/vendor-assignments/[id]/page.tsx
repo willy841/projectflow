@@ -71,12 +71,12 @@ export default async function VendorAssignmentVendorPage({
       </header>
 
       <section className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
-        <div className="mb-4 flex flex-col gap-3 xl:flex-row xl:items-start xl:justify-between">
+        <div className="mb-4 flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
           <div>
             <h3 className="text-xl font-semibold text-slate-900">執行處理</h3>
-            <p className="mt-1 text-sm text-slate-500">此層直接列出該廠商底下所有任務，並在這一頁完成發包前處理。</p>
           </div>
           <FeedbackActionButtons
+            hideSave
             confirmLabel="確認（正式發包）"
             confirmMessage="目前這個廠商的執行處理區已確認；此動作在 mock 語意上等於正式發包，並導向 package 主線。"
           />

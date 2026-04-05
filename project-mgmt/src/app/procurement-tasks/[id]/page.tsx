@@ -73,12 +73,12 @@ export default async function ProcurementTaskDetailPage({
       </section>
 
       <section className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
-        <div className="mb-4 flex flex-col gap-3 xl:flex-row xl:items-start xl:justify-between">
+        <div className="mb-4 flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
           <div>
             <h3 className="text-xl font-semibold text-slate-900">執行處理</h3>
-            <p className="mt-1 text-sm text-slate-500">每筆處理方案彼此獨立，單筆儲存後，再由整區確認正式成立。</p>
           </div>
           <FeedbackActionButtons
+            hideSave
             confirmLabel="確認"
             confirmMessage="這個備品任務的執行處理區已確認；目前區內方案視為正式成立，可進入最終文件頁。"
           />
