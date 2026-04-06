@@ -3,20 +3,17 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { AppShell } from "@/components/app-shell";
-import { VendorQuickCreateDialog } from "@/components/vendor-quick-create-dialog";
-import { useVendorStore } from "@/components/vendor-store";
 import {
   formatCurrency,
-  getAdjustedCostTotal,
+  getAdditionalManualCostTotal,
+  getFormalOriginalCostTotal,
   getGrossProfit,
-  getOriginalCostTotal,
   getQuotationTotal,
   QuoteCostProject,
   sampleQuoteImports,
   sampleQuoteLineItemsByProject,
   UNSPECIFIED_VENDOR_ID,
   UNSPECIFIED_VENDOR_NAME,
-  vendorDirectory,
   type CostLineItem,
   type CostSourceType,
 } from "@/components/quote-cost-data";
@@ -32,19 +29,18 @@ type Props = {
 type EditableProjectState = QuoteCostProject;
 
 export function QuoteCostDetailClient({ project, mode = "active" }: Props) {
-  const { vendors } = useVendorStore();
   const workflowProject = getQuoteCostProjectsWithWorkflow().find((item) => item.id === project.id) ?? project;
   const [state, setState] = useState<EditableProjectState>(workflowProject);
   const [quoteImportIndex, setQuoteImportIndex] = useState(0);
-  const [quickCreateItemId, setQuickCreateItemId] = useState<string | null>(null);
   const quoteImportOptions = sampleQuoteImports[project.id] ?? [project.quotationImport].filter(Boolean);
   const quoteLineItemOptions = sampleQuoteLineItemsByProject[project.id] ?? [project.quotationItems];
   const isClosedView = mode === "closed";
 
   const quotationTotal = useMemo(() => getQuotationTotal(state.quotationItems), [state.quotationItems]);
-  const adjustedCostTotal = useMemo(() => getAdjustedCostTotal(state.costItems), [state.costItems]);
-  const originalCostTotal = useMemo(() => getOriginalCostTotal(state.costItems), [state.costItems]);
-  const grossProfit = useMemo(() => getGrossProfit(quotationTotal, adjustedCostTotal), [quotationTotal, adjustedCostTotal]);
+  const originalCostTotal = useMemo(() => getFormalOriginalCostTotal(state.costItems), [state.costItems]);
+  const additionalManualCostTotal = useMemo(() => getAdditionalManualCostTotal(state.costItems), [state.costItems]);
+  const projectCostTotal = useMemo(() => originalCostTotal + additionalManualCostTotal, [originalCostTotal, additionalManualCostTotal]);
+  const grossProfit = useMemo(() => getGrossProfit(quotationTotal, projectCostTotal), [quotationTotal, projectCostTotal]);
   const excludedCostItems = useMemo(() => state.costItems.filter((item) => !item.includedInCost), [state.costItems]);
   const costSourceSummary = useMemo(() => getCostSourceSummary(state.costItems), [state.costItems]);
 
@@ -66,14 +62,8 @@ export function QuoteCostDetailClient({ project, mode = "active" }: Props) {
   }, [state.costItems]);
 
   const manualItems = state.costItems.filter((item) => item.isManual);
-  const includedManualTotal = manualItems.filter((item) => item.includedInCost).reduce((sum, item) => sum + item.adjustedAmount, 0);
-  const vendorIncludedTotal = state.costItems.filter((item) => !item.isManual && item.includedInCost).reduce((sum, item) => sum + item.adjustedAmount, 0);
-  const availableVendors = useMemo(() => {
-    const merged = new Map<string, { id: string; name: string }>();
-    vendorDirectory.forEach((vendor) => merged.set(vendor.id, vendor));
-    vendors.forEach((vendor) => merged.set(vendor.id, { id: vendor.id, name: vendor.name }));
-    return Array.from(merged.values());
-  }, [vendors]);
+  const includedManualTotal = additionalManualCostTotal;
+  const vendorIncludedTotal = originalCostTotal;
 
   function mutateCosts(mutator: (prev: EditableProjectState) => EditableProjectState) {
     setState((prev) => {
@@ -103,33 +93,10 @@ export function QuoteCostDetailClient({ project, mode = "active" }: Props) {
     }));
   }
 
-  function handleAdjustedAmountChange(itemId: string, value: string) {
-    mutateCosts((prev) => ({
-      ...prev,
-      costItems: prev.costItems.map((item) => (item.id === itemId ? { ...item, adjustedAmount: Number(value) || 0 } : item)),
-    }));
-  }
-
   function handleIncludeToggle(itemId: string, included: boolean) {
     mutateCosts((prev) => ({
       ...prev,
       costItems: prev.costItems.map((item) => (item.id === itemId ? { ...item, includedInCost: included } : item)),
-    }));
-  }
-
-  function handleVendorChange(itemId: string, vendorId: string) {
-    const vendor = availableVendors.find((entry) => entry.id === vendorId);
-    mutateCosts((prev) => ({
-      ...prev,
-      costItems: prev.costItems.map((item) =>
-        item.id === itemId
-          ? {
-              ...item,
-              vendorId: vendorId === UNSPECIFIED_VENDOR_ID ? null : vendor?.id ?? null,
-              vendorName: vendorId === UNSPECIFIED_VENDOR_ID ? null : vendor?.name ?? null,
-            }
-          : item,
-      ),
     }));
   }
 
@@ -142,7 +109,7 @@ export function QuoteCostDetailClient({ project, mode = "active" }: Props) {
           id: `manual-${Date.now()}`,
           itemName: `人工成本 ${manualItems.length + 1}`,
           sourceType: "人工",
-          sourceRef: "人工成本 / 手動新增",
+          sourceRef: "",
           vendorId: null,
           vendorName: null,
           originalAmount: 0,
@@ -213,8 +180,8 @@ export function QuoteCostDetailClient({ project, mode = "active" }: Props) {
 
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <SummaryCard title="對外報價總額" value={formatCurrency(quotationTotal)} mode={mode} />
-        <SummaryCard title="原始成本總額" value={formatCurrency(originalCostTotal)} mode={mode} />
-        <SummaryCard title="調整後成本總額" value={formatCurrency(adjustedCostTotal)} mode={mode} highlight={!isClosedView} />
+        <SummaryCard title="原始總成本總額" value={formatCurrency(originalCostTotal)} mode={mode} />
+        <SummaryCard title="新增費用" value={formatCurrency(additionalManualCostTotal)} mode={mode} highlight={!isClosedView} />
         <SummaryCard title="毛利" value={formatCurrency(grossProfit)} mode={mode} />
       </section>
 
@@ -308,8 +275,8 @@ export function QuoteCostDetailClient({ project, mode = "active" }: Props) {
                 <span className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ring-1 ${item.badgeClass}`}>{item.label}</span>
                 <span className="text-xs text-slate-500">{item.count} 筆</span>
               </div>
-              <p className="mt-3 text-lg font-semibold text-slate-900">{formatCurrency(item.adjustedTotal)}</p>
-              <p className="mt-1 text-xs text-slate-500">原始 {formatCurrency(item.originalTotal)} ・ 承接到成本主線的有效小計</p>
+              <p className="mt-3 text-lg font-semibold text-slate-900">{formatCurrency(item.originalTotal)}</p>
+              <p className="mt-1 text-xs text-slate-500">正式成立後承接到成本主線的有效小計</p>
             </article>
           ))}
         </div>
@@ -318,7 +285,7 @@ export function QuoteCostDetailClient({ project, mode = "active" }: Props) {
           <article className={`rounded-3xl border p-5 ${isClosedView ? "border-slate-200 bg-white" : "border-slate-900 bg-slate-900 text-white"}`}>
             <p className={`text-xs font-medium tracking-[0.16em] uppercase ${isClosedView ? "text-slate-400" : "text-slate-300"}`}>Primary Cost Area</p>
             <h4 className={`mt-2 text-xl font-semibold ${isClosedView ? "text-slate-900" : "text-white"}`}>廠商成本區</h4>
-            <p className={`mt-2 text-sm leading-6 ${isClosedView ? "text-slate-600" : "text-slate-200"}`}>設計 / 備品 / 廠商三條線的成本都先收進這裡，按廠商分組檢視，是本頁成本管理的主體。</p>
+            <p className={`mt-2 text-sm leading-6 ${isClosedView ? "text-slate-600" : "text-slate-200"}`}>設計 / 備品 / 廠商三條線的正式成本都先收進這裡，按廠商分組檢視；若要更新，必須回三條線重新全部確認。</p>
             <div className="mt-4 grid gap-3 sm:grid-cols-3">
               <InfoChip label="廠商群組" value={`${vendorGroups.length} 組`} archived={isClosedView} inverted={!isClosedView} />
               <InfoChip label="計入成本" value={formatCurrency(vendorIncludedTotal)} archived={isClosedView} inverted={!isClosedView} />
@@ -329,7 +296,7 @@ export function QuoteCostDetailClient({ project, mode = "active" }: Props) {
           <article className="rounded-3xl border border-slate-200 bg-white p-5">
             <p className="text-xs font-medium tracking-[0.16em] text-slate-400 uppercase">Secondary Cost Area</p>
             <h4 className="mt-2 text-lg font-semibold text-slate-900">人工成本區</h4>
-            <p className="mt-2 text-sm leading-6 text-slate-500">車資、雜支、臨時費用等手動補充成本放在次區，不與廠商主體混在一起。</p>
+            <p className="mt-2 text-sm leading-6 text-slate-500">Financial 頁只允許新增 / 管理新增人工成本，不在這裡調整三條線正式成本。</p>
             <div className="mt-4 grid gap-3 sm:grid-cols-2">
               <InfoChip label="人工成本筆數" value={`${manualItems.length} 筆`} archived />
               <InfoChip label="計入成本" value={formatCurrency(includedManualTotal)} archived />
@@ -362,7 +329,7 @@ export function QuoteCostDetailClient({ project, mode = "active" }: Props) {
           <div className="space-y-4">
             {vendorGroups.map((group) => {
               const originalSubtotal = group.items.filter((item) => item.includedInCost).reduce((sum, item) => sum + item.originalAmount, 0);
-              const adjustedSubtotal = group.items.filter((item) => item.includedInCost).reduce((sum, item) => sum + item.adjustedAmount, 0);
+              const adjustedSubtotal = group.items.filter((item) => item.includedInCost).reduce((sum, item) => sum + item.originalAmount, 0);
               const excludedCount = group.items.filter((item) => !item.includedInCost).length;
               const isUnspecifiedGroup = group.key === UNSPECIFIED_VENDOR_ID;
 
@@ -383,7 +350,7 @@ export function QuoteCostDetailClient({ project, mode = "active" }: Props) {
                           </span>
                         )}
                       </div>
-                      <p className="mt-1 text-sm text-slate-500">調整後小計 {formatCurrency(adjustedSubtotal)} ・ 原始小計 {formatCurrency(originalSubtotal)}</p>
+                      <p className="mt-1 text-sm text-slate-500">正式成本小計 {formatCurrency(adjustedSubtotal)} ・ 原始記錄 {formatCurrency(originalSubtotal)}</p>
                     </div>
                     <span className="rounded-full bg-white px-3 py-1 text-xs text-slate-500 ring-1 ring-slate-200">{group.items.length} 筆</span>
                   </summary>
@@ -410,48 +377,34 @@ export function QuoteCostDetailClient({ project, mode = "active" }: Props) {
 
                         <div className="mt-4 grid gap-4 xl:grid-cols-[1fr_1fr_1.1fr]">
                           <div>
-                            <label className="text-xs font-medium text-slate-500">調整後成本</label>
+                            <label className="text-xs font-medium text-slate-500">正式成本</label>
                             <input
-                              type="number"
-                              value={item.adjustedAmount}
-                              onChange={(event) => handleAdjustedAmountChange(item.id, event.target.value)}
-                              readOnly={isClosedView}
-                              className="mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-white px-3 text-sm outline-none focus:border-slate-400 read-only:bg-slate-50 read-only:text-slate-600"
+                              type="text"
+                              value={formatCurrency(item.originalAmount)}
+                              readOnly
+                              className="mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-slate-50 px-3 text-sm text-slate-600 outline-none"
                             />
                           </div>
                           <div>
                             <label className="text-xs font-medium text-slate-500">關聯廠商</label>
-                            <select
-                              value={item.vendorId ?? UNSPECIFIED_VENDOR_ID}
-                              onChange={(event) => handleVendorChange(item.id, event.target.value)}
-                              disabled={isClosedView}
-                              className="mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-white px-3 text-sm outline-none focus:border-slate-400 disabled:bg-slate-50 disabled:text-slate-600"
-                            >
-                              <option value={UNSPECIFIED_VENDOR_ID}>{UNSPECIFIED_VENDOR_NAME}</option>
-                              {availableVendors.map((vendor) => (
-                                <option key={vendor.id} value={vendor.id}>{vendor.name}</option>
-                              ))}
-                            </select>
-                            {!isClosedView ? (
-                              <button
-                                type="button"
-                                onClick={() => setQuickCreateItemId(item.id)}
-                                className="mt-2 inline-flex items-center justify-center rounded-xl border border-dashed border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50"
-                              >
-                                找不到廠商？快速建立
-                              </button>
-                            ) : null}
+                            <input
+                              type="text"
+                              value={item.vendorName ?? UNSPECIFIED_VENDOR_NAME}
+                              readOnly
+                              className="mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-slate-50 px-3 text-sm text-slate-600 outline-none"
+                            />
+                            <p className="mt-2 text-xs text-slate-500">若需更新正式成本或廠商歸屬，請回三條線重新全部確認。</p>
                           </div>
                           <div className="flex items-end">
-                            <label className="flex h-11 w-full items-center gap-2 rounded-2xl border border-slate-200 bg-white px-3 text-sm text-slate-600">
+                            <label className="flex h-11 w-full items-center gap-2 rounded-2xl border border-slate-200 bg-slate-50 px-3 text-sm text-slate-600">
                               <input
                                 type="checkbox"
                                 checked={item.includedInCost}
-                                onChange={(event) => handleIncludeToggle(item.id, event.target.checked)}
-                                disabled={isClosedView}
+                                readOnly
+                                disabled
                                 className="h-4 w-4 rounded border-slate-300 disabled:cursor-not-allowed"
                               />
-                              計入成本總額
+                              正式成本固定計入
                             </label>
                           </div>
                         </div>
@@ -484,15 +437,15 @@ export function QuoteCostDetailClient({ project, mode = "active" }: Props) {
                     </div>
                     <div className="grid gap-4 xl:grid-cols-[1.4fr_1.4fr_1fr]">
                       <div>
-                        <label className="text-xs font-medium text-slate-500">項目名稱</label>
+                        <label className="text-xs font-medium text-slate-500">項目</label>
                         <input value={item.itemName} onChange={(event) => handleManualItemChange(item.id, "itemName", event.target.value)} readOnly={isClosedView} className="mt-2 h-11 w-full rounded-2xl border border-slate-200 px-3 text-sm outline-none focus:border-slate-400 read-only:bg-slate-50 read-only:text-slate-600" />
                       </div>
                       <div>
-                        <label className="text-xs font-medium text-slate-500">來源紀錄</label>
+                        <label className="text-xs font-medium text-slate-500">說明</label>
                         <input value={item.sourceRef} onChange={(event) => handleManualItemChange(item.id, "sourceRef", event.target.value)} readOnly={isClosedView} className="mt-2 h-11 w-full rounded-2xl border border-slate-200 px-3 text-sm outline-none focus:border-slate-400 read-only:bg-slate-50 read-only:text-slate-600" />
                       </div>
                       <div>
-                        <label className="text-xs font-medium text-slate-500">調整後成本</label>
+                        <label className="text-xs font-medium text-slate-500">金額</label>
                         <input type="number" value={item.adjustedAmount} onChange={(event) => handleManualItemChange(item.id, "adjustedAmount", event.target.value)} readOnly={isClosedView} className="mt-2 h-11 w-full rounded-2xl border border-slate-200 px-3 text-sm outline-none focus:border-slate-400 read-only:bg-slate-50 read-only:text-slate-600" />
                       </div>
                     </div>
@@ -513,7 +466,7 @@ export function QuoteCostDetailClient({ project, mode = "active" }: Props) {
 
       <section className={`rounded-[28px] border p-6 shadow-sm ${isClosedView ? "border-slate-200 bg-white" : "border-slate-200 bg-white"}`}>
         <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
-          <SectionHeader index="4" title="對帳 / 結案" description={isClosedView ? "此區保留結案當下的對帳與毛利結果，作為後續追溯與確認依據。" : "以對外報價總額與調整後成本總額比對毛利；確認對帳完成後若成本再改，系統會自動取消已確認狀態。"} archived={isClosedView} />
+          <SectionHeader index="4" title="對帳 / 結案" description={isClosedView ? "此區保留結案當下的對帳與毛利結果，作為後續追溯與確認依據。" : "以對外報價總額、原始總成本總額與新增費用比對毛利；確認對帳完成後若成本再改，系統會自動取消已確認狀態。"} archived={isClosedView} />
           <div className="flex flex-wrap gap-2">
             {isClosedView ? (
               <span className="inline-flex items-center rounded-2xl border border-slate-200 bg-slate-50 px-4 py-2 text-sm font-semibold text-slate-700">
@@ -544,22 +497,12 @@ export function QuoteCostDetailClient({ project, mode = "active" }: Props) {
 
         <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
           <OverviewRow label="對外報價總額" value={formatCurrency(quotationTotal)} archived={isClosedView} />
-          <OverviewRow label="調整後成本總額" value={formatCurrency(adjustedCostTotal)} archived={isClosedView} />
+          <OverviewRow label="專案成本" value={formatCurrency(projectCostTotal)} archived={isClosedView} />
           <OverviewRow label="毛利" value={formatCurrency(grossProfit)} archived={isClosedView} />
           <OverviewRow label="目前狀態" value={`${state.reconciliationStatus} / ${state.closeStatus}`} archived={isClosedView} />
         </div>
       </section>
       </AppShell>
-      <VendorQuickCreateDialog
-        open={Boolean(quickCreateItemId)}
-        onClose={() => setQuickCreateItemId(null)}
-        title="流程內快速建立廠商"
-        description="設計 / 備品 / 廠商相關流程若匹配不到既有廠商，可直接建立；成功後會立刻回填到目前選單。"
-        onCreated={(vendor) => {
-          if (!quickCreateItemId) return;
-          handleVendorChange(quickCreateItemId, vendor.id);
-        }}
-      />
     </>
   );
 }

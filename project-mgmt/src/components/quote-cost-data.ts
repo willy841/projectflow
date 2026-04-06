@@ -217,8 +217,20 @@ export function getOriginalCostTotal(items: CostLineItem[]) {
   return items.filter((item) => item.includedInCost).reduce((sum, item) => sum + item.originalAmount, 0);
 }
 
-export function getGrossProfit(quotationTotal: number, adjustedCostTotal: number) {
-  return quotationTotal - adjustedCostTotal;
+export function getAdditionalManualCostTotal(items: CostLineItem[]) {
+  return items.filter((item) => item.isManual && item.includedInCost).reduce((sum, item) => sum + item.adjustedAmount, 0);
+}
+
+export function getFormalOriginalCostTotal(items: CostLineItem[]) {
+  return items.filter((item) => !item.isManual && item.includedInCost).reduce((sum, item) => sum + item.originalAmount, 0);
+}
+
+export function getProjectCostTotal(items: CostLineItem[]) {
+  return getFormalOriginalCostTotal(items) + getAdditionalManualCostTotal(items);
+}
+
+export function getGrossProfit(quotationTotal: number, costTotal: number) {
+  return quotationTotal - costTotal;
 }
 
 export function getReconciliationStatusClass(status: ReconciliationStatus) {

@@ -5,13 +5,13 @@ import { useMemo, useState } from "react";
 import { AppShell } from "@/components/app-shell";
 import {
   formatCurrency,
-  getAdjustedCostTotal,
   getCloseStatusClass,
   getGrossProfit,
+  getProjectCostTotal,
   getQuotationTotal,
   getReconciliationStatusClass,
-  quoteCostProjects,
 } from "@/components/quote-cost-data";
+import { getQuoteCostProjectsWithWorkflow } from "@/components/project-workflow-store";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -21,19 +21,19 @@ export function CloseoutListClient() {
   const [dateSortOrder, setDateSortOrder] = useState<"desc" | "asc">("desc");
   const [page, setPage] = useState(1);
 
-  const closedProjects = quoteCostProjects
+  const closedProjects = getQuoteCostProjectsWithWorkflow()
     .filter((project) => project.projectStatus === "已結案")
     .map((project) => {
       const quotationTotal = getQuotationTotal(project.quotationItems);
-      const adjustedCostTotal = getAdjustedCostTotal(project.costItems);
-      const grossProfit = getGrossProfit(quotationTotal, adjustedCostTotal);
+      const projectCostTotal = getProjectCostTotal(project.costItems);
+      const grossProfit = getGrossProfit(quotationTotal, projectCostTotal);
       const manualCostCount = project.costItems.filter((item) => item.isManual).length;
       const excludedCostCount = project.costItems.filter((item) => !item.includedInCost).length;
 
       return {
         project,
         quotationTotal,
-        adjustedCostTotal,
+        projectCostTotal,
         grossProfit,
         manualCostCount,
         excludedCostCount,
@@ -112,7 +112,7 @@ export function CloseoutListClient() {
         </div>
 
         <div className="space-y-4">
-          {pagedProjects.map(({ project, quotationTotal, adjustedCostTotal, grossProfit, manualCostCount, excludedCostCount }) => (
+          {pagedProjects.map(({ project, quotationTotal, projectCostTotal, grossProfit, manualCostCount, excludedCostCount }) => (
             <article key={project.id} className="rounded-3xl border border-slate-200 p-5">
               <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
                 <div>
@@ -140,7 +140,7 @@ export function CloseoutListClient() {
 
               <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
                 <ArchiveValueCard label="對外報價總額" value={formatCurrency(quotationTotal)} />
-                <ArchiveValueCard label="調整後成本總額" value={formatCurrency(adjustedCostTotal)} />
+                <ArchiveValueCard label="專案成本" value={formatCurrency(projectCostTotal)} />
                 <ArchiveValueCard label="毛利" value={formatCurrency(grossProfit)} />
                 <ArchiveValueCard label="留存備註" value={excludedCostCount > 0 || manualCostCount > 0 ? `${excludedCostCount} 筆未計入 / ${manualCostCount} 筆人工` : "無額外例外"} />
               </div>

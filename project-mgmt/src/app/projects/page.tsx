@@ -4,6 +4,8 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import { AppShell } from "@/components/app-shell";
 import { getStatusClass, projects } from "@/components/project-data";
+import { formatCurrency, getProjectCostTotal, getQuotationTotal } from "@/components/quote-cost-data";
+import { getQuoteCostProjectsWithWorkflow } from "@/components/project-workflow-store";
 
 const parseEventDate = (value: string) => new Date(value).getTime();
 
@@ -13,6 +15,7 @@ export default function ProjectsPage() {
 
   const visibleProjects = useMemo(() => {
     const keyword = searchKeyword.trim().toLowerCase();
+    const financialProjects = getQuoteCostProjectsWithWorkflow();
 
     const filteredProjects = keyword
       ? projects.filter((project) => {
@@ -20,10 +23,22 @@ export default function ProjectsPage() {
         })
       : projects;
 
-    return [...filteredProjects].sort((a, b) => {
-      const dateDiff = parseEventDate(a.eventDate) - parseEventDate(b.eventDate);
-      return dateSortOrder === "asc" ? dateDiff : -dateDiff;
-    });
+    return [...filteredProjects]
+      .map((project) => {
+        const financialProject = financialProjects.find((item) => item.id === project.id || item.projectName === project.name);
+        const budget = financialProject ? formatCurrency(getQuotationTotal(financialProject.quotationItems)) : project.budget;
+        const cost = financialProject ? formatCurrency(getProjectCostTotal(financialProject.costItems)) : project.cost;
+
+        return {
+          ...project,
+          budget,
+          cost,
+        };
+      })
+      .sort((a, b) => {
+        const dateDiff = parseEventDate(a.eventDate) - parseEventDate(b.eventDate);
+        return dateSortOrder === "asc" ? dateDiff : -dateDiff;
+      });
   }, [dateSortOrder, searchKeyword]);
 
   return (

@@ -329,11 +329,13 @@ export function getQuoteCostProjectsWithWorkflow(): QuoteCostProject[] {
   return quoteCostProjects.map((project) => {
     const workflowItems = buildWorkflowCostItems(project.id);
     if (!workflowItems.length) return project;
-    const merged = new Map(project.costItems.map((item) => [item.id, item]));
-    workflowItems.forEach((item) => merged.set(item.id, item));
+
+    const workflowSourceTypes = new Set(workflowItems.map((item) => item.sourceType));
+    const preservedSeedItems = project.costItems.filter((item) => item.isManual || !workflowSourceTypes.has(item.sourceType));
+
     return {
       ...project,
-      costItems: Array.from(merged.values()),
+      costItems: [...preservedSeedItems, ...workflowItems],
     };
   });
 }
