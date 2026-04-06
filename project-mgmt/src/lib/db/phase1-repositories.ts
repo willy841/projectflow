@@ -144,7 +144,11 @@ async function insertRow<TRow extends QueryResultRow, TInput extends Record<stri
   table: string,
   input: TInput,
 ): Promise<TRow> {
-  const entries = entriesFromInput(input);
+  const enrichedInput = {
+    id: input.id ?? crypto.randomUUID(),
+    ...input,
+  } as TInput & { id: string };
+  const entries = entriesFromInput(enrichedInput);
   const columns = entries.map(([key]) => String(key));
   const values = entries.map(([, value]) => value);
   const result = await db.query<TRow>(buildInsertStatement(table, columns), values);

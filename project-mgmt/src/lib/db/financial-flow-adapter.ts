@@ -131,7 +131,7 @@ async function listDbFinancialProjects(): Promise<DbFinancialProjectIdentity[]> 
       coalesce(p.code, '-') as "projectCode",
       p.name as "projectName",
       coalesce(p.client_name, '未填寫') as "clientName",
-      coalesce(p.event_date::text, '-') as "eventDate",
+      coalesce(to_char(p.event_date, 'YYYY-MM-DD'), '-') as "eventDate",
       case
         when coalesce(p.status, '') in ('已結案', '結案') then '已結案'
         else '執行中'

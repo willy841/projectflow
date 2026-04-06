@@ -45,7 +45,7 @@ export async function listDbVendorProjects(): Promise<DbVendorProjectSummary[]> 
     select
       p.id as "projectId",
       p.name as "projectName",
-      coalesce(p.event_date::text, '-') as "eventDate",
+      coalesce(to_char(p.event_date, 'YYYY-MM-DD'), '-') as "eventDate",
       count(vt.id)::int as "taskCount"
     from vendor_tasks vt
     inner join projects p on p.id = vt.project_id

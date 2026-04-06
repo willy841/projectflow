@@ -41,7 +41,7 @@ export async function listDbProcurementTaskProjects(): Promise<DbProcurementProj
     select
       p.id as "projectId",
       p.name as "projectName",
-      coalesce(p.event_date::text, '-') as "eventDate",
+      coalesce(to_char(p.event_date, 'YYYY-MM-DD'), '-') as "eventDate",
       count(pt.id)::int as "taskCount"
     from procurement_tasks pt
     inner join projects p on p.id = pt.project_id

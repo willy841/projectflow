@@ -50,7 +50,7 @@ export async function listDbDesignTaskProjects(): Promise<DbDesignProjectSummary
     select
       p.id as "projectId",
       p.name as "projectName",
-      coalesce(p.event_date::text, '-') as "eventDate",
+      coalesce(to_char(p.event_date, 'YYYY-MM-DD'), '-') as "eventDate",
       count(dt.id)::int as "taskCount"
     from design_tasks dt
     inner join projects p on p.id = dt.project_id
@@ -69,7 +69,7 @@ export async function listDbDesignTasksByProject(projectId: string): Promise<DbD
         dt.id,
         dt.project_id as "projectId",
         p.name as "projectName",
-        coalesce(p.event_date::text, '-') as "eventDate",
+        coalesce(to_char(p.event_date, 'YYYY-MM-DD'), '-') as "eventDate",
         dt.title,
         coalesce(dt.size, '未填寫') as size,
         coalesce(dt.material, '未填寫') as material,
@@ -133,7 +133,7 @@ export async function getDbDesignTaskById(id: string): Promise<DbBackedDesignTas
     owner: '-',
     title: task.title,
     assignee: '-',
-    due: project?.event_date ?? '-',
+    due: project?.event_date instanceof Date ? project.event_date.toISOString().slice(0, 10) : (project?.event_date ?? '-'),
     status: task.status,
     size: task.size ?? '未填寫',
     material: task.material ?? '未填寫',

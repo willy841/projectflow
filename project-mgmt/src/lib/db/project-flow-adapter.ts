@@ -2,6 +2,12 @@ import type { Project, ProjectExecutionItem, ProjectExecutionSubItem } from '@/c
 import { createPhase1DbClient } from '@/lib/db/phase1-client';
 import { createPhase1Repositories } from '@/lib/db/phase1-repositories';
 
+function formatDateLike(value: string | Date | null | undefined): string {
+  if (!value) return '-';
+  if (value instanceof Date) return value.toISOString().slice(0, 10);
+  return value;
+}
+
 export type DbBackedProject = Project & { source: 'db' | 'mock' };
 
 function mapExecutionChild(row: {
@@ -51,7 +57,7 @@ export async function listDbProjects(): Promise<DbBackedProject[]> {
     code: row.code,
     name: row.name,
     client: row.client_name ?? '-',
-    eventDate: row.event_date ?? '-',
+    eventDate: formatDateLike(row.event_date),
     location: row.location ?? '-',
     loadInTime: row.load_in_time ?? '-',
     eventType: '-',
@@ -101,7 +107,7 @@ export async function getDbProjectById(id: string): Promise<DbBackedProject | nu
     code: project.code,
     name: project.name,
     client: project.client_name ?? '-',
-    eventDate: project.event_date ?? '-',
+    eventDate: formatDateLike(project.event_date),
     location: project.location ?? '-',
     loadInTime: project.load_in_time ?? '-',
     eventType: '-',
@@ -117,7 +123,7 @@ export async function getDbProjectById(id: string): Promise<DbBackedProject | nu
     note: '',
     requirements: [],
     executionItems: rootItems.map((item) => mapExecutionItem(item, childrenByParent.get(item.id) ?? [])),
-    designTasks: designTasks.map((task) => ({ title: task.title, assignee: '-', due: project.event_date ?? '-', status: task.status })),
+    designTasks: designTasks.map((task) => ({ title: task.title, assignee: '-', due: formatDateLike(project.event_date), status: task.status })),
     procurementTasks: procurementTasks.map((task) => ({ title: task.title, buyer: '-', budget: task.budget_note ?? '未填寫', status: task.status })),
     source: 'db',
   };

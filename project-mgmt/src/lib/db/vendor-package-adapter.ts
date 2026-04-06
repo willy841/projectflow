@@ -36,7 +36,7 @@ async function listVendorConfirmationSeeds() {
       v.name as "vendorName",
       p.id as "projectId",
       p.name as "projectName",
-      coalesce(p.event_date::text, '-') as "eventDate",
+      coalesce(to_char(p.event_date, 'YYYY-MM-DD'), '-') as "eventDate",
       coalesce(p.location, '-') as location,
       coalesce(p.load_in_time, '-') as "loadInTime"
     from task_confirmations tc
