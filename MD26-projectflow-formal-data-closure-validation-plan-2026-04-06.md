@@ -142,6 +142,38 @@ vendor 後續不再走簡化承接版，而改成：
 5. 再把 financial / summary 承接層改接正式 package source
 6. 最後完成 vendor 真閉環驗收
 
+### G-5 最新狀態（已完成）
+以上完整功能模式已推進到可驗收並完成通過：
+- vendor task 正式資料閉環已完成
+- package / 最終文件承接層已補回
+- package detail 原有文件操作能力（複製內容 / 匯出 TXT / 生成 / 重新生成 / 文件預覽）已接回正式 package source
+- vendor 線依使用者提高後的標準，現已可視為真正閉環完成
+
+---
+
+# 7. 本輪正式驗收完成總結
+
+目前本輪正式驗收目標可標記為：
+
+> **三條主線前端可新增正式資料，不再吃假資料，並可一路承接到正式文件輸出層。**
+
+驗收結果：
+- 設計線：通過
+- 備品線：通過
+- vendor 線：通過（含 package / 最終文件承接層）
+
+---
+
+# 8. 下一階段工程清單（非本輪阻塞）
+
+以下屬後續升級清單，不影響本輪正式驗收通過結論：
+
+1. `B 做法`：live plan editor 升級為 diff-based insert / update / delete / keep 模型
+2. financial / summary 層更全面改接正式 source
+3. package domain 更正式獨立化（若後續需要）
+4. migration / seed / integration test 自動化
+5. UX / 錯誤處理 / 邏輯收斂與 polish
+
 ---
 
 # 3. 後續工作排程（預設優先序）
