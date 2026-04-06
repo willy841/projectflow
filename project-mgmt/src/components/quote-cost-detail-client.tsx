@@ -24,12 +24,13 @@ type DetailMode = "active" | "closed";
 type Props = {
   project: QuoteCostProject;
   mode?: DetailMode;
+  initialProject?: QuoteCostProject;
 };
 
 type EditableProjectState = QuoteCostProject;
 
-export function QuoteCostDetailClient({ project, mode = "active" }: Props) {
-  const workflowProject = getQuoteCostProjectsWithWorkflow().find((item) => item.id === project.id) ?? project;
+export function QuoteCostDetailClient({ project, mode = "active", initialProject }: Props) {
+  const workflowProject = initialProject ?? getQuoteCostProjectsWithWorkflow().find((item) => item.id === project.id) ?? project;
   const [state, setState] = useState<EditableProjectState>(workflowProject);
   const [quoteImportIndex, setQuoteImportIndex] = useState(0);
   const quoteImportOptions = sampleQuoteImports[project.id] ?? [project.quotationImport].filter(Boolean);

@@ -12,9 +12,11 @@ import {
   type CostSourceType,
 } from "@/components/quote-cost-data";
 import { getQuoteCostProjectsWithWorkflow } from "@/components/project-workflow-store";
+import type { QuoteCostProject } from "@/components/quote-cost-data";
 
-export function QuoteCostListClient({ mode = "active" }: { mode?: "active" | "closed" }) {
-  const activeProjects = getQuoteCostProjectsWithWorkflow()
+export function QuoteCostListClient({ mode = "active", initialProjects }: { mode?: "active" | "closed"; initialProjects?: QuoteCostProject[] }) {
+  const sourceProjects = initialProjects ?? getQuoteCostProjectsWithWorkflow();
+  const activeProjects = sourceProjects
     .filter((project) => project.projectStatus === "執行中")
     .map((project) => {
       const quotationTotal = getQuotationTotal(project.quotationItems);
