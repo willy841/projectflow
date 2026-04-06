@@ -33,6 +33,20 @@ function normalizeProjectName(value: string) {
 
 async function listDbFinancialProjects(): Promise<DbFinancialProjectIdentity[]> {
   const db = createPhase1DbClient();
+  const manualCostsTableExists = await hasFinancialManualCostsTable();
+  const manualProjectSourceSql = manualCostsTableExists
+    ? `
+      union all
+
+      select
+        fmc.project_id,
+        null::timestamp as latest_confirmation_at,
+        null::timestamp as latest_plan_cost_at,
+        max(coalesce(fmc.updated_at, fmc.created_at)) as latest_manual_cost_at
+      from financial_manual_costs fmc
+      group by fmc.project_id
+    `
+    : '';
   const rows = await db.query<DbFinancialProjectIdentity>(`
     with active_financial_projects as (
       select
@@ -79,16 +93,7 @@ async function listDbFinancialProjects(): Promise<DbFinancialProjectIdentity[]> 
       inner join vendor_tasks vt on vt.id = vtp.vendor_task_id
       where vtp.amount is not null
       group by vt.project_id
-
-      union all
-
-      select
-        fmc.project_id,
-        null::timestamp as latest_confirmation_at,
-        null::timestamp as latest_plan_cost_at,
-        max(coalesce(fmc.updated_at, fmc.created_at)) as latest_manual_cost_at
-      from financial_manual_costs fmc
-      group by fmc.project_id
+      ${manualProjectSourceSql}
     ),
     summarized_financial_projects as (
       select
@@ -150,6 +155,10 @@ type SnapshotAmountRow = {
   vendorName: string | null;
 };
 
+type TableExistsRow = {
+  exists: boolean;
+};
+
 type ManualCostRow = {
   id: string;
   projectId: string;
@@ -173,6 +182,15 @@ const LATEST_CONFIRMATION_PER_TASK_CTE = `
     order by tc.flow_type, tc.task_id, tc.confirmation_no desc, tc.confirmed_at desc, tc.created_at desc, tc.id desc
   )
 `;
+
+async function hasFinancialManualCostsTable() {
+  const db = createPhase1DbClient();
+  const rows = await db.query<TableExistsRow>(`
+    select to_regclass('public.financial_manual_costs') is not null as exists
+  `);
+
+  return rows.rows[0]?.exists ?? false;
+}
 
 async function listDesignFinancialItems(): Promise<CostLineItem[]> {
   if (!shouldUseDbDesignFlow()) return [];
@@ -273,6 +291,10 @@ async function listVendorFinancialItems(): Promise<CostLineItem[]> {
 }
 
 async function listManualFinancialItems(): Promise<Array<{ projectId: string; item: CostLineItem }>> {
+  if (!(await hasFinancialManualCostsTable())) {
+    return [];
+  }
+
   const db = createPhase1DbClient();
   const rows = await db.query<ManualCostRow>(`
     select
