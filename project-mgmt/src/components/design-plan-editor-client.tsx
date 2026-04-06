@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 type DesignPlanInput = {
   id: string;
@@ -23,6 +23,10 @@ export function DesignPlanEditorClient({
   initialPlans: DesignPlanInput[];
 }) {
   const router = useRouter();
+  const useDbActions = useMemo(
+    () => /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(taskId),
+    [taskId],
+  );
   const [plans, setPlans] = useState<DesignPlanInput[]>(
     initialPlans.length
       ? initialPlans
@@ -76,16 +80,25 @@ export function DesignPlanEditorClient({
     setMessage("");
 
     try {
+      if (!useDbActions) {
+        setMessage("目前這筆任務仍是舊 mock 路由資料，尚未切到正式 DB 任務 id；請改從 DB 任務列表進入正式驗收。\n這筆不會寫入正式資料庫。");
+        return;
+      }
+
       const drafts = plans.filter((plan) => plan.title.trim());
       for (const plan of drafts) {
         if (plan.id.startsWith("draft-")) {
-          await fetch(`/api/design-tasks/${taskId}/plans`, {
+          const response = await fetch(`/api/design-tasks/${taskId}/plans`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
             },
             body: JSON.stringify(plan),
           });
+
+          if (!response.ok) {
+            throw new Error("save failed");
+          }
         }
       }
 
@@ -103,6 +116,11 @@ export function DesignPlanEditorClient({
     setMessage("");
 
     try {
+      if (!useDbActions) {
+        setMessage("目前這筆任務仍是舊 mock 路由資料，尚未切到正式 DB 任務 id；請改從 DB 任務列表進入正式驗收。\n這筆不會建立正式 confirmation。");
+        return;
+      }
+
       const response = await fetch(`/api/design-tasks/${taskId}/confirm`, {
         method: "POST",
       });

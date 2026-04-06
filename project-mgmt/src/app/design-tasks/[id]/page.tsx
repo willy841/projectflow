@@ -4,7 +4,7 @@ import { AppShell } from "@/components/app-shell";
 import { getDesignTaskById } from "@/components/design-task-data";
 import { DesignPlanEditorClient } from "@/components/design-plan-editor-client";
 import { getDbDesignTaskById } from "@/lib/db/design-flow-adapter";
-import { shouldUseDbDesignFlow } from "@/lib/db/design-flow-toggle";
+import { isUuidLike, shouldUseDbDesignFlow } from "@/lib/db/design-flow-toggle";
 
 export default async function DesignTaskDetailPage({
   params,
@@ -12,7 +12,8 @@ export default async function DesignTaskDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const task = shouldUseDbDesignFlow() ? await getDbDesignTaskById(id) : getDesignTaskById(id);
+  const useDb = shouldUseDbDesignFlow() && isUuidLike(id);
+  const task = useDb ? await getDbDesignTaskById(id) : getDesignTaskById(id);
 
   if (!task) {
     notFound();

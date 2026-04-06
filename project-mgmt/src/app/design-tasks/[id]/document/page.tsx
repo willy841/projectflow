@@ -5,7 +5,7 @@ import { getDesignTaskById } from "@/components/design-task-data";
 import { MockDesignDocumentView } from "@/components/mock-design-document-view";
 import { DesignDocumentExportButton } from "@/components/document-export-button";
 import { getDbDesignTaskById } from "@/lib/db/design-flow-adapter";
-import { shouldUseDbDesignFlow } from "@/lib/db/design-flow-toggle";
+import { isUuidLike, shouldUseDbDesignFlow } from "@/lib/db/design-flow-toggle";
 
 export default async function DesignTaskDocumentPage({
   params,
@@ -13,7 +13,8 @@ export default async function DesignTaskDocumentPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const task = shouldUseDbDesignFlow() ? await getDbDesignTaskById(id) : getDesignTaskById(id);
+  const useDb = shouldUseDbDesignFlow() && isUuidLike(id);
+  const task = useDb ? await getDbDesignTaskById(id) : getDesignTaskById(id);
 
   if (!task) {
     notFound();
