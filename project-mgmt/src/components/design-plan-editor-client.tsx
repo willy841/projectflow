@@ -75,6 +75,26 @@ export function DesignPlanEditorClient({
     setPlans((current) => current.filter((plan) => plan.id !== id));
   }
 
+  async function persistDraftPlans() {
+    const drafts = plans.filter((plan) => plan.title.trim() && plan.id.startsWith("draft-"));
+
+    for (const plan of drafts) {
+      const response = await fetch(`/api/design-tasks/${taskId}/plans`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(plan),
+      });
+
+      if (!response.ok) {
+        throw new Error("save failed");
+      }
+    }
+
+    return drafts.length;
+  }
+
   async function saveAllPlans() {
     setSaving(true);
     setMessage("");
@@ -85,23 +105,7 @@ export function DesignPlanEditorClient({
         return;
       }
 
-      const drafts = plans.filter((plan) => plan.title.trim());
-      for (const plan of drafts) {
-        if (plan.id.startsWith("draft-")) {
-          const response = await fetch(`/api/design-tasks/${taskId}/plans`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(plan),
-          });
-
-          if (!response.ok) {
-            throw new Error("save failed");
-          }
-        }
-      }
-
+      await persistDraftPlans();
       setMessage("已儲存設計執行處理。\n若有新資料，重新整理後會顯示正式寫入結果。");
       router.refresh();
     } catch {
@@ -120,6 +124,8 @@ export function DesignPlanEditorClient({
         setMessage("目前這筆任務仍是舊 mock 路由資料，尚未切到正式 DB 任務 id；請改從 DB 任務列表進入正式驗收。\n這筆不會建立正式 confirmation。");
         return;
       }
+
+      await persistDraftPlans();
 
       const response = await fetch(`/api/design-tasks/${taskId}/confirm`, {
         method: "POST",
