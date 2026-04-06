@@ -8,6 +8,54 @@ import { shouldUseDbDesignFlow } from '@/lib/db/design-flow-toggle';
 import { shouldUseDbProcurementFlow } from '@/lib/db/procurement-flow-toggle';
 import { shouldUseDbVendorFlow } from '@/lib/db/vendor-flow-toggle';
 
+const EMPTY_QUOTE_PROJECT_FIELDS = {
+  quotationImported: false,
+  quotationImport: null,
+  reconciliationStatus: '未開始' as const,
+  closeStatus: '未結案' as const,
+  quotationItems: [],
+  note: '正式 Financial project source，尚未套用 seed 報價資料。',
+};
+
+type DbFinancialProjectIdentity = {
+  id: string;
+  projectCode: string;
+  projectName: string;
+  clientName: string;
+  eventDate: string;
+  projectStatus: '執行中' | '已結案';
+};
+
+function normalizeProjectName(value: string) {
+  return value.replace(/\s+/g, '').trim().toLowerCase();
+}
+
+async function listDbFinancialProjects(): Promise<DbFinancialProjectIdentity[]> {
+  const db = createPhase1DbClient();
+  const rows = await db.query<DbFinancialProjectIdentity>(`
+    with active_financial_projects as (
+      select distinct tc.project_id
+      from task_confirmations tc
+      where tc.flow_type in ('design', 'procurement', 'vendor')
+    )
+    select
+      p.id,
+      coalesce(p.code, '-') as "projectCode",
+      p.name as "projectName",
+      coalesce(p.client_name, '未填寫') as "clientName",
+      coalesce(p.event_date::text, '-') as "eventDate",
+      case
+        when coalesce(p.status, '') in ('已結案', '結案') then '已結案'
+        else '執行中'
+      end as "projectStatus"
+    from projects p
+    inner join active_financial_projects afp on afp.project_id = p.id
+    order by p.event_date nulls last, p.created_at desc
+  `);
+
+  return rows.rows;
+}
+
 function hasDbConnectionString() {
   return Boolean(
     process.env.DATABASE_URL ||
@@ -127,10 +175,11 @@ export async function getQuoteCostProjectsWithDbFinancials(): Promise<QuoteCostP
   }
 
   try {
-    const [designItems, procurementItems, vendorItems] = await Promise.all([
+    const [designItems, procurementItems, vendorItems, dbProjects] = await Promise.all([
       listDesignFinancialItems(),
       listProcurementFinancialItems(),
       listVendorFinancialItems(),
+      listDbFinancialProjects(),
     ]);
 
     const byProject = new Map<string, CostLineItem[]>();
@@ -162,16 +211,38 @@ export async function getQuoteCostProjectsWithDbFinancials(): Promise<QuoteCostP
       byProject.get(projectId)?.push(item);
     }
 
-    return quoteCostProjects.map((project) => {
-      const dbItems = byProject.get(project.id) ?? [];
-      if (!dbItems.length) return project;
+    const seedById = new Map(quoteCostProjects.map((project) => [project.id, project]));
+    const seedByName = new Map(quoteCostProjects.map((project) => [normalizeProjectName(project.projectName), project]));
 
-      const replacedTypes = new Set(dbItems.map((item) => item.sourceType));
-      const preservedSeedItems = project.costItems.filter((item) => item.isManual || !replacedTypes.has(item.sourceType));
+    if (!dbProjects.length) {
+      return quoteCostProjects;
+    }
+
+    return dbProjects.map((dbProject) => {
+      const matchedSeed = seedById.get(dbProject.id) ?? seedByName.get(normalizeProjectName(dbProject.projectName));
+      const dbItems = byProject.get(dbProject.id) ?? [];
+      const preservedSeedItems = matchedSeed
+        ? matchedSeed.costItems.filter((item) => item.isManual || !new Set(dbItems.map((dbItem) => dbItem.sourceType)).has(item.sourceType))
+        : [];
 
       return {
-        ...project,
+        ...(matchedSeed ?? EMPTY_QUOTE_PROJECT_FIELDS),
+        id: dbProject.id,
+        projectCode: matchedSeed?.projectCode ?? dbProject.projectCode,
+        projectName: dbProject.projectName,
+        clientName: matchedSeed?.clientName ?? dbProject.clientName,
+        eventDate: dbProject.eventDate,
+        projectStatus: dbProject.projectStatus,
+        quotationImported: matchedSeed?.quotationImported ?? EMPTY_QUOTE_PROJECT_FIELDS.quotationImported,
+        quotationImport: matchedSeed?.quotationImport ?? EMPTY_QUOTE_PROJECT_FIELDS.quotationImport,
+        reconciliationStatus: matchedSeed?.reconciliationStatus ?? EMPTY_QUOTE_PROJECT_FIELDS.reconciliationStatus,
+        closeStatus:
+          dbProject.projectStatus === '已結案'
+            ? '已結案'
+            : (matchedSeed?.closeStatus ?? EMPTY_QUOTE_PROJECT_FIELDS.closeStatus),
+        quotationItems: matchedSeed?.quotationItems ?? EMPTY_QUOTE_PROJECT_FIELDS.quotationItems,
         costItems: [...preservedSeedItems, ...dbItems],
+        note: matchedSeed?.note ?? EMPTY_QUOTE_PROJECT_FIELDS.note,
       };
     });
   } catch {
