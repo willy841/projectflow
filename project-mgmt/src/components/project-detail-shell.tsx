@@ -4,8 +4,10 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { CopyEventInfoButton } from "@/components/copy-event-info-button";
 import { ExecutionTreeSection } from "@/components/execution-tree-section";
+import { DbExecutionTreeSection } from "@/components/db-execution-tree-section";
 import { Project } from "@/components/project-data";
 import { RequirementsPanel } from "@/components/requirements-panel";
+import { isUuidLike } from "@/lib/db/project-flow-toggle";
 
 type ProjectDetailEntryContext = {
   task?: string;
@@ -14,6 +16,9 @@ type ProjectDetailEntryContext = {
 
 export function ProjectDetailShell({ project, entryContext }: { project: Project; entryContext?: ProjectDetailEntryContext }) {
   const [isEditingProject, setIsEditingProject] = useState(false);
+  const [saveMessage, setSaveMessage] = useState<string>("");
+  const [isSavingProject, setIsSavingProject] = useState(false);
+  const isDbProject = isUuidLike(project.id);
   const [projectForm, setProjectForm] = useState({
     name: project.name,
     client: project.client,
@@ -33,6 +38,38 @@ export function ProjectDetailShell({ project, entryContext }: { project: Project
 
   function updateField(key: keyof typeof projectForm, value: string) {
     setProjectForm((prev) => ({ ...prev, [key]: value }));
+  }
+
+  async function saveProject() {
+    if (!isDbProject) {
+      setIsEditingProject(false);
+      return;
+    }
+
+    setIsSavingProject(true);
+    setSaveMessage("");
+    const response = await fetch(`/api/projects/${project.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: projectForm.name,
+        client: projectForm.client,
+        eventDate: projectForm.eventDate,
+        location: projectForm.location,
+        loadInTime: projectForm.loadInTime,
+        status: project.status,
+      }),
+    });
+    const result = await response.json();
+    setIsSavingProject(false);
+
+    if (!response.ok || !result.ok) {
+      setSaveMessage(result.error || "專案儲存失敗");
+      return;
+    }
+
+    setSaveMessage("已儲存正式專案內容");
+    setIsEditingProject(false);
   }
 
   const focusedExecutionTargetId = useMemo(() => {
@@ -98,7 +135,7 @@ export function ProjectDetailShell({ project, entryContext }: { project: Project
           <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
             <div>
               <h3 className="text-xl font-semibold text-slate-900">編輯專案</h3>
-              <p className="mt-1 text-sm text-slate-500">這一版先做同頁前端編輯流程，讓您可直接調整專案資訊與進場時間。</p>
+              <p className="mt-1 text-sm text-slate-500">{isDbProject ? "這一版已接正式專案儲存，可直接更新專案 Detail。" : "這一版先做同頁前端編輯流程，讓您可直接調整專案資訊與進場時間。"}</p>
             </div>
             <span className="inline-flex items-center justify-center rounded-full bg-white px-3 py-1 text-xs font-medium text-blue-700 ring-1 ring-blue-200">
               可立即驗收
@@ -145,12 +182,14 @@ export function ProjectDetailShell({ project, entryContext }: { project: Project
           </div>
 
           <div className="mt-5 flex flex-wrap gap-2">
+            {saveMessage ? <p className="w-full text-sm text-blue-700">{saveMessage}</p> : null}
             <button
               type="button"
-              onClick={() => setIsEditingProject(false)}
-              className="inline-flex items-center justify-center rounded-2xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700"
+              onClick={saveProject}
+              disabled={isSavingProject}
+              className="inline-flex items-center justify-center rounded-2xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 disabled:opacity-50"
             >
-              儲存專案內容
+              {isSavingProject ? "儲存中..." : "儲存專案內容"}
             </button>
             <button
               type="button"
@@ -223,7 +262,7 @@ export function ProjectDetailShell({ project, entryContext }: { project: Project
         <RequirementsPanel initialItems={project.requirements} />
       </section>
 
-      <ExecutionTreeSection project={project} />
+      {isDbProject ? <DbExecutionTreeSection project={project} /> : <ExecutionTreeSection project={project} />}
     </>
   );
 }

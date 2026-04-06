@@ -38,6 +38,7 @@ export type VendorPackage = {
   code: string;
   projectId: string;
   projectName: string;
+  vendorId?: string;
   vendorName: string;
   eventDate: string;
   location: string;

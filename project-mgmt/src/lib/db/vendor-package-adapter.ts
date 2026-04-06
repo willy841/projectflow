@@ -5,6 +5,7 @@ import type { VendorPackage } from '@/components/vendor-data';
 type PackageSnapshotSeed = {
   confirmationId: string;
   vendorTaskId: string;
+  vendorId: string;
   vendorName: string;
   projectId: string;
   projectName: string;
@@ -13,8 +14,8 @@ type PackageSnapshotSeed = {
   loadInTime: string;
 };
 
-function buildPackageId(projectId: string, vendorName: string) {
-  return `pkg-${projectId}-${encodeURIComponent(vendorName)}`;
+function buildPackageId(projectId: string, vendorId: string) {
+  return `pkg-${projectId}-${vendorId}`;
 }
 
 function buildPackageCode(projectId: string, vendorName: string) {
@@ -31,6 +32,7 @@ async function listVendorConfirmationSeeds() {
     select
       tc.id as "confirmationId",
       vt.id as "vendorTaskId",
+      v.id as "vendorId",
       v.name as "vendorName",
       p.id as "projectId",
       p.name as "projectName",
@@ -52,7 +54,7 @@ export async function listDbVendorPackages(): Promise<VendorPackage[]> {
   const dedup = new Map<string, VendorPackage>();
 
   for (const row of confirmations.rows) {
-    const packageId = buildPackageId(row.projectId, row.vendorName);
+    const packageId = buildPackageId(row.projectId, row.vendorId);
     if (dedup.has(packageId)) continue;
 
     const snapshots = await repositories.taskConfirmations.listSnapshots(row.confirmationId);
@@ -61,6 +63,7 @@ export async function listDbVendorPackages(): Promise<VendorPackage[]> {
       code: buildPackageCode(row.projectId, row.vendorName),
       projectId: row.projectId,
       projectName: row.projectName,
+      vendorId: row.vendorId,
       vendorName: row.vendorName,
       eventDate: row.eventDate,
       location: row.location,

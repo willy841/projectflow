@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 
 const defaultForm = {
   name: "",
@@ -18,8 +19,11 @@ const defaultForm = {
 };
 
 export function ProjectForm() {
+  const router = useRouter();
   const [form, setForm] = useState(defaultForm);
   const [submitted, setSubmitted] = useState(false);
+  const [submitError, setSubmitError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const generatedCode = useMemo(() => {
     const stamp = new Date().toISOString().slice(0, 10).replaceAll("-", "");
@@ -30,9 +34,31 @@ export function ProjectForm() {
     setForm((prev) => ({ ...prev, [key]: value }));
   }
 
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setSubmitted(true);
+    setSubmitError("");
+    setIsSubmitting(true);
+
+    try {
+      const response = await fetch("/api/projects", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
+      const result = await response.json();
+      if (!response.ok || !result.ok) {
+        setSubmitError(result.error || "建立專案失敗");
+        setIsSubmitting(false);
+        return;
+      }
+
+      setSubmitted(true);
+      router.push(`/projects/${result.project.id}`);
+      router.refresh();
+    } catch (error) {
+      setSubmitError(error instanceof Error ? error.message : "建立專案失敗");
+      setIsSubmitting(false);
+    }
   }
 
   return (
@@ -43,7 +69,7 @@ export function ProjectForm() {
             <p className="text-sm text-slate-500">建立專案</p>
             <h2 className="mt-1 text-2xl font-semibold tracking-tight">新增專案表單</h2>
             <p className="mt-2 text-sm leading-6 text-slate-600">
-              這一版先做前端互動表單，下一階段接上資料庫後即可直接寫入資料。
+              建立後即正式啟動，送出後會直接進入 Project Detail 並作為三板 upstream source-of-truth。
             </p>
           </div>
           <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600">
@@ -88,9 +114,11 @@ export function ProjectForm() {
           </label>
         </div>
 
+        {submitError ? <p className="mt-4 text-sm text-rose-600">{submitError}</p> : null}
+
         <div className="mt-6 flex flex-wrap gap-3">
-          <button type="submit" className="rounded-2xl bg-slate-950 px-5 py-3 text-sm font-medium text-white">
-            儲存專案
+          <button type="submit" disabled={isSubmitting} className="rounded-2xl bg-slate-950 px-5 py-3 text-sm font-medium text-white disabled:opacity-50">
+            {isSubmitting ? "建立中..." : "儲存專案"}
           </button>
           <button type="button" className="rounded-2xl border border-slate-300 bg-white px-5 py-3 text-sm font-medium text-slate-700">
             清空表單

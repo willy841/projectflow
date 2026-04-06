@@ -21,6 +21,7 @@ export type DbVendorTaskRecord = {
   id: string;
   projectId: string;
   projectName: string;
+  vendorId: string;
   vendorName: string;
   title: string;
   requirementText: string;
@@ -113,6 +114,7 @@ export async function getDbVendorTaskById(id: string): Promise<DbVendorTaskRecor
     id: task.id,
     projectId: task.project_id,
     projectName: project?.name ?? '未命名專案',
+    vendorId: task.vendor_id,
     vendorName: vendor?.name ?? '未指定廠商',
     title: task.title,
     requirementText: task.requirement_text ?? '',
