@@ -35,7 +35,7 @@ export default async function VendorPackagesPage() {
             </div>
 
             <div className="mt-4 grid gap-3 text-sm text-slate-600 md:grid-cols-3">
-              <p>項目數：{vendorPackage.itemCount}</p>
+              <p>項目數：{vendorPackage.items.length}</p>
               <p>文件狀態：<span className={`ml-1 inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ring-1 ${getVendorDocumentStatusClass(vendorPackage.documentStatus)}`}>{vendorPackage.documentStatus}</span></p>
               <p>文件整體備註：{vendorPackage.note || '-'}</p>
             </div>
