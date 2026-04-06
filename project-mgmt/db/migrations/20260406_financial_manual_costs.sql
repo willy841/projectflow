@@ -12,6 +12,9 @@ create table if not exists financial_manual_costs (
   updated_at timestamptz not null default now()
 );
 
+alter table financial_manual_costs
+  add column if not exists included_in_cost boolean not null default true;
+
 create index if not exists idx_financial_manual_costs_project_sort
   on financial_manual_costs (project_id, sort_order);
 

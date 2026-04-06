@@ -5,10 +5,29 @@ type TableExistsRow = {
   exists: boolean;
 };
 
+type ColumnExistsRow = {
+  exists: boolean;
+};
+
 async function hasFinancialManualCostsTable() {
   const db = createPhase1DbClient();
   const result = await db.query<TableExistsRow>(`
     select to_regclass('public.financial_manual_costs') is not null as exists
+  `);
+
+  return result.rows[0]?.exists ?? false;
+}
+
+async function hasFinancialManualCostsIncludedInCostColumn() {
+  const db = createPhase1DbClient();
+  const result = await db.query<ColumnExistsRow>(`
+    select exists (
+      select 1
+      from information_schema.columns
+      where table_schema = 'public'
+        and table_name = 'financial_manual_costs'
+        and column_name = 'included_in_cost'
+    ) as exists
   `);
 
   return result.rows[0]?.exists ?? false;
@@ -37,6 +56,8 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
       throw new Error('financial_manual_costs table is missing in production database');
     }
 
+    const hasIncludedInCostColumn = await hasFinancialManualCostsIncludedInCostColumn();
+
     await db.query('begin');
 
     try {
@@ -46,33 +67,53 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
       for (const [index, item] of items.entries()) {
         const amountNumber = Number(item.amount ?? 0);
         const result = await db.query(
-          `
-            insert into financial_manual_costs (
-              project_id,
-              item_name,
-              description,
-              amount,
-              included_in_cost,
-              sort_order
-            )
-            values ($1, $2, $3, $4, $5, $6)
-            returning *
-          `,
-          [
-            id,
-            item.itemName?.trim() ?? '',
-            item.description?.trim() || null,
-            Number.isFinite(amountNumber) ? amountNumber : 0,
-            item.includedInCost ?? true,
-            index + 1,
-          ],
+          hasIncludedInCostColumn
+            ? `
+                insert into financial_manual_costs (
+                  project_id,
+                  item_name,
+                  description,
+                  amount,
+                  included_in_cost,
+                  sort_order
+                )
+                values ($1, $2, $3, $4, $5, $6)
+                returning *
+              `
+            : `
+                insert into financial_manual_costs (
+                  project_id,
+                  item_name,
+                  description,
+                  amount,
+                  sort_order
+                )
+                values ($1, $2, $3, $4, $5)
+                returning *, true as included_in_cost
+              `,
+          hasIncludedInCostColumn
+            ? [
+                id,
+                item.itemName?.trim() ?? '',
+                item.description?.trim() || null,
+                Number.isFinite(amountNumber) ? amountNumber : 0,
+                item.includedInCost ?? true,
+                index + 1,
+              ]
+            : [
+                id,
+                item.itemName?.trim() ?? '',
+                item.description?.trim() || null,
+                Number.isFinite(amountNumber) ? amountNumber : 0,
+                index + 1,
+              ],
         );
         const row = result.rows[0];
         if (row) rows.push(row);
       }
 
       await db.query('commit');
-      return NextResponse.json({ ok: true, rows });
+      return NextResponse.json({ ok: true, rows, hasIncludedInCostColumn });
     } catch (error) {
       await db.query('rollback');
       throw error;

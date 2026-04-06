@@ -181,6 +181,10 @@ type TableExistsRow = {
   exists: boolean;
 };
 
+type ColumnExistsRow = {
+  exists: boolean;
+};
+
 type ManualCostRow = {
   id: string;
   projectId: string;
@@ -234,6 +238,21 @@ async function hasFinancialManualCostsTable() {
   const db = createPhase1DbClient();
   const rows = await db.query<TableExistsRow>(`
     select to_regclass('public.financial_manual_costs') is not null as exists
+  `);
+
+  return rows.rows[0]?.exists ?? false;
+}
+
+async function hasFinancialManualCostsIncludedInCostColumn() {
+  const db = createPhase1DbClient();
+  const rows = await db.query<ColumnExistsRow>(`
+    select exists (
+      select 1
+      from information_schema.columns
+      where table_schema = 'public'
+        and table_name = 'financial_manual_costs'
+        and column_name = 'included_in_cost'
+    ) as exists
   `);
 
   return rows.rows[0]?.exists ?? false;
@@ -342,6 +361,7 @@ async function listManualFinancialItems(): Promise<Array<{ projectId: string; it
     return [];
   }
 
+  const hasIncludedInCostColumn = await hasFinancialManualCostsIncludedInCostColumn();
   const db = createPhase1DbClient();
   const rows = await db.query<ManualCostRow>(`
     select
@@ -350,7 +370,7 @@ async function listManualFinancialItems(): Promise<Array<{ projectId: string; it
       item_name as "itemName",
       description,
       amount,
-      included_in_cost as "includedInCost"
+      ${hasIncludedInCostColumn ? 'included_in_cost' : 'true'} as "includedInCost"
     from financial_manual_costs
     order by project_id asc, sort_order asc, created_at asc
   `);
