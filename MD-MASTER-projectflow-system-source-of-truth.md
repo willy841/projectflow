@@ -2,6 +2,35 @@
 
 > 目的：這份文件是 `projectflow` 目前唯一的高階總控母檔（source of truth）。
 > 之後新的對話 / 新的 agent / 新的交接，應優先閱讀本文件，再視需要回查 MD1、MD4～MD11 與 repo。
+>
+> **2026-04-06 後的重要補充（最新版）：**
+若要續接目前最新主線，除了本文件外，還必須依序補讀：
+1. `MD20-projectflow-approved-ui-lock-rule-2026-04-05.md`
+2. `MD21-projectflow-project-detail-responsibility-redistribution-spec-2026-04-05.md`
+3. `MD22-projectflow-mock-closed-loop-frontend-execution-brief-2026-04-05.md`
+4. `MD23-projectflow-db-schema-v1-draft-2026-04-05.md`
+5. `MD24-projectflow-db-schema-v1-table-walkthrough-2026-04-05.md`
+6. `MD25-projectflow-db-phase1-migration-plan-2026-04-05.md`
+7. `MD26-projectflow-formal-data-closure-validation-plan-2026-04-06.md`
+
+其中：
+- `MD20` = 已驗收 UI 鎖定規則（不可跳過）
+- `MD21` = `Project Detail` 與三條主線責任重切 spec
+- `MD22` = 前端 mock 閉環版工程執行交辦
+- `MD23` / `MD24` / `MD25` = DB Phase 1 schema / mapping / migration 主線
+- `MD26` = 最新正式資料閉環驗收主線、驗收結果與下一階段工程清單
+
+**最新狀態總結（2026-04-06）：**
+- 三條主線（設計 / 備品 / vendor）本輪正式資料閉環驗收已完成並通過
+- vendor 線已補到 package / 最終文件承接層，因此依最新標準也已算閉環完成
+- 後續若再續接，主線不再是「先把三條線打通」，而是進入下一階段工程升級：
+  1. B 做法（diff-based live plan sync）
+  2. financial / summary 全面改接正式 source
+  3. package domain 更正式獨立化
+  4. migration / seed / integration test 自動化
+  5. UX / 錯誤處理 / 邏輯 polish
+
+**重要：若本文件內較早段落與 `MD21`～`MD26` 衝突，以 `MD21`～`MD26` 為準。**
 > 目標不是保存流水帳，而是用結構化方式，讓閱讀者一次掌握：
 > - 專案是什麼
 > - 目前產品主線是什麼
@@ -131,6 +160,45 @@
 7. 主線資訊優先；fallback、例外、背景資訊降階
 8. 不要靠零碎 padding 補丁修版型；版型問題要從結構解
 
+#### F. Project Detail 截圖版型鎖定規則（2026-04-04 新增）
+使用者已明確指定：`project detail` 頁的 layout 必須以使用者提供並已確認的截圖版型為固定基準。後續 UI / UX 修整**不得改動整體 layout 骨架**。
+
+這代表：
+
+1. **不准動首屏整體版型**
+   - header 與操作列位置
+   - 上方資訊卡區排法
+   - `專案基本資訊` / `需求溝通` 的位置與層級
+   - 整體欄位分布、主要視覺節奏
+
+2. **不准動下半部 workflow 主版型**
+   - `專案執行項目`
+   - `專案分類檢視`
+   - 三張分類卡
+   - 下方主卡 / 回覆 / 文件整理的主結構
+   - 卡片層級與左右編排節奏
+
+3. **後續 UI/UX 可以做的只限微調**
+   - 字級 / 字重 / 行高
+   - padding / margin 微調
+   - 按鈕可讀性
+   - badge 對齊
+   - 色彩一致性
+   - 卡片內資訊密度微調
+   - 文案層級優化
+
+4. **後續 UI/UX 不可做的事**
+   - 重排整個區塊位置
+   - 更換大區塊層級
+   - 把首屏資訊卡改成另一種骨架
+   - 把分類檢視改成另一種資訊架構
+   - 為了美觀順手改 layout 骨架
+   - 動到已驗證穩定的欄寬、區塊節奏、主次架構
+
+一句話規則：
+
+> `Project detail` 頁的 layout 以使用者提供的截圖版型為固定基準；後續 UI/UX 修整僅限微調，不得改動整體 layout 骨架、區塊層級、欄位節奏與主要資訊架構。
+
 ## 2.2 協作規則
 - 當 context 接近飽和，必須主動提醒、收口並整理交接 MD
 - 當 usage 剩餘約 10%，也必須執行相同收口流程
@@ -147,6 +215,79 @@
 - 使用者主要對話入口是 CPO
 - 未經明確批准，不可擅自派工給子 agent
 - 一旦使用者明確批准，就應清楚切分角色與交付物
+
+## 2.4 Project Detail / ExecutionTreeSection 工程禁則（2026-04-04 新增）
+
+這段是本專案已驗證過的工程紅線，後續任何人修改 `project detail`、`ExecutionTreeSection`、workflow replies / documents / cost 整合時，都必須先遵守。
+
+### A. 已定位的真實根因
+2026-04-04 已透過版本二分定位確認：
+
+- 左選單故障起點出現在 `b282a77`（`feat: connect workflow costs to project workspaces`）
+- 真正的壞點不是左選單本身，不是 route，不是 `ProjectDetailShell` 外層，也不是 `ExecutionTree` 本體
+- 真正的壞點是 `project-mgmt/src/components/execution-tree-section.tsx` 把 assignment callback 從**單純直通**改成：
+  - 攔截 `ExecutionTree` 回傳 payload
+  - 對 payload 做 `.map(...)`
+  - 再把 `replyOverrides[targetId]` 注回 assignment `data.replies`
+  - 再 setState
+
+這會把原本單向資料流，改成**雙來源重組資料流**，導致整頁行為異常，並連帶造成左選單故障。
+
+### B. 已驗證有效的修法
+目前已驗證恢復正常的版本是：
+
+- `d42dac3` — `fix: stop remapping assignment payloads in execution section`
+
+核心修法是把 callback 改回原始直通：
+
+- `onDesignAssignmentsChange={setDesignAssignments}`
+- `onProcurementAssignmentsChange={setProcurementAssignments}`
+- `onVendorAssignmentsChange={setVendorAssignments}`
+
+### C. 後續修改必須避免的做法
+之後修改 `ExecutionTreeSection` / workflow 區塊時，**禁止**再做以下事情：
+
+1. 在 `ExecutionTreeSection` 層重新攔截 assignment payload 後做 `.map(...)` 重組再 setState
+2. 把 `replyOverrides` 再注回 assignment `data.replies`，形成雙資料源 merge
+3. 在 callback setState 路徑中做隱性資料重建
+4. 讓 assignment 與 replies 同時來自兩條來源，卻在 section 層硬 merge
+
+### D. 正確做法
+若之後仍需要整合 assignment 與 replies，只能採以下其中一種：
+
+1. **單一資料源策略**
+   - assignment payload 就是一條線
+   - replies 只從一個來源來
+   - 不在 section callback 裡做二次 merge
+
+2. **獨立 selector / adapter 層**
+   - 若真的要 merge，應抽到明確 selector / adapter
+   - 不要直接寫在 render 路徑或 callback setState 內
+
+3. **小步驗證策略**
+   - 後續若要再接 workflow cost / reply sync / 文件整理
+   - 每次只補一小塊
+   - 每次修改後都要重新驗一次左選單是否正常
+
+### E. 已排除不是主因的項目
+以下已驗證不是根因，不要再把調查方向浪費在這些地方：
+
+- 左選單本身
+- route / id
+- `ProjectDetailShell` 外層 shell
+- `ExecutionTree`
+- 分類檢視上半部三張卡
+- 回覆區容器 / 摘要 / 最小互動
+- 文件整理容器 / 最小表格
+- 新增回覆表單與最小 local append
+- `ExecutionTreeSection` 的 storage hydration / persistence effect（單獨拔掉後，左選單仍壞）
+
+### F. 目前工程停點
+目前建議安全停點：
+
+- `d42dac3`
+
+後續若沒有更明確目的，不要隨意覆蓋掉這個已驗證正常的修復點。
 
 ---
 
@@ -841,7 +982,54 @@ project-mgmt
 
 ---
 
-# 16. Project Detail 最新結構定稿（2026-04-02 收斂版）
+# 16. Project Detail 與三條主線最新結構（2026-04-05 更新）
+
+> **本節狀態註記（2026-04-05 更新）：本節較早版本中，凡是把 `Project Detail` 描述成三條線完整深操作主場、把左選單三條頁描述成跨專案總表、或把成本成立點描述為「進整理層才算成立」的內容，均已被 `MD21` / `MD22` 更新覆蓋。**
+>
+> 本節後續若與：
+> - `MD21-projectflow-project-detail-responsibility-redistribution-spec-2026-04-05.md`
+> - `MD22-projectflow-mock-closed-loop-frontend-execution-brief-2026-04-05.md`
+> 衝突，均以 `MD21` / `MD22` 為準。
+
+## 16.0 最新總結（2026-04-05）
+目前最新正式方向已改為：
+
+### A. `Project Detail` 的正式定位
+> **單專案主控台 / 專案總覽頁 / 任務發布入口 / 各工作流導流中心**
+
+正式規則：
+- 上半部負責主項目 / 子項目展開與任務發布
+- 下半部只負責「已發布任務清單 + 導流」
+- `Project Detail` 不再承擔設計 / 備品 / vendor 三條線的完整深操作工作台責任
+
+### B. 三條主線正式承接頁
+- `設計任務板`：設計線主控工作台
+- `採購備品板`：備品線主控工作台
+- `廠商發包板`：vendor 線處理層主控工作台
+- `vendor-packages`：vendor 線整理層 / 文件層主線
+
+### C. 成本成立點（最新）
+正式規則已更新為：
+> **三條線都在整區 `確認` 時，成本才正式成立並進入報價成本。**
+
+也就是：
+- 單筆 `儲存` 不成立成本
+- 設計線：整區 `確認` 才成立成本
+- 備品線：整區 `確認` 才成立成本
+- vendor 線：整區 `確認` = 正式發包 = 進 package = 成本成立
+
+### D. 前端工程策略（最新）
+目前最新執行策略為：
+> **先做前端 mock 閉環版，先讓三條線可以一路點到底、完整驗收；正式 DB / API / 真資料串接延後。**
+
+正式語意：
+- 先驗產品結構
+- 先驗頁面責任 / 導流 / 命名 / CTA
+- 不在這一輪提前把資料庫做死
+
+---
+
+# 16.1 較早期收斂內容（保留作歷史脈絡，若衝突以 16.0 / MD21 / MD22 為準）
 
 本節整理今日最新收斂出的 `Project Detail` 正確資訊架構。這一版優先級高於較早期對 MD8 / MD9 / Vendor Flow 的零散描述；若舊描述與本節衝突，以本節為準。
 
@@ -929,6 +1117,13 @@ project-mgmt
 - 設計任務 / 備品任務 / 廠商需求的上游來源
 
 ## 16.3 第二層：執行骨架層
+
+> **補充（2026-04-05 更新）：本段以下若仍描述 `Project Detail` 同頁承擔設計 / 備品 / vendor 的完整深操作、回覆處理、文件整理或文件生成，應視為較早期歷史脈絡，不再是目前正式責任分配。**
+>
+> 目前正式規則已更新為：
+> - `Project Detail` 上半部負責任務發布
+> - `Project Detail` 下半部只負責已發布任務檢視 + 導流
+> - 三條線深操作正式外移到各自主控板
 ### 6 區：專案執行項目 / 任務發佈區
 定位：
 
@@ -976,6 +1171,8 @@ project-mgmt
 
 ### 7-1 專案設計
 定位：已發佈到設計流程的任務集中檢視區。
+
+> **補充（2026-04-05 更新）：本段較早期描述仍保留了 `Project Detail` 內同頁展開與深操作心智。現在最新正式規則已改為：`Project Detail` 只保留已發布任務清單 + 導流；真正設計線深操作改由 `設計任務板` 承接。**
 
 #### 7-1-1 設計任務卡
 角色：單筆設計任務的追蹤摘要卡 / 設計母卡入口。
@@ -1040,6 +1237,8 @@ project-mgmt
 ### 7-2 專案備品
 定位：已發佈到備品流程的任務集中檢視區。
 
+> **補充（2026-04-05 更新）：本段較早期描述仍保留了 `Project Detail` 內同頁展開與深操作心智。現在最新正式規則已改為：`Project Detail` 只保留已發布任務清單 + 導流；真正備品線深操作改由 `採購備品板` 承接。**
+
 #### 7-2-1 備品任務卡
 角色：單筆備品任務的追蹤摘要卡 / 備品母卡入口。
 
@@ -1102,6 +1301,8 @@ project-mgmt
 ### 7-3 專案廠商
 最新定位：
 
+> **補充（2026-04-05 更新）：本段以下較早期描述中的 `Vendor Flow 入口卡 / 導流卡` 語意已進一步被新版承接 spec 細化。現在正式應區分：`Project Detail` vendor 區只保留已發布任務清單 + 導流；`廠商發包板` 承接處理層；`vendor-packages` 承接整理層 / 文件層。**
+
 > **Vendor Flow 的入口卡 / 導流卡**
 
 重要規則：
@@ -1113,7 +1314,15 @@ project-mgmt
 - 避免與 Vendor Flow 主體（廠商需求 / 廠商發包清單）重複
 - Vendor Flow 主體只能保留一套
 
-## 16.5 第四層：Vendor Flow 主體層（最新定稿）
+## 16.5 第四層：Vendor Flow 主體層（較早期定稿，已被 2026-04-05 新 spec 部分更新）
+
+> **狀態註記：本段保留作歷史脈絡。**
+> 本段中把 `Vendor Flow` 主要語言仍放在較早期的 `Assignment / Reply / Package / Final Outgoing Document` 心智；2026-04-05 後，最新版已進一步收斂為：
+> - `Project Detail` vendor 區 = 已發布任務清單 + 導流
+> - `廠商發包板` = vendor 線處理層主控頁
+> - `vendor-packages` = vendor 線整理層 / 文件層主線
+>
+> 若本段與 `MD21` / `MD22` 衝突，以 `MD21` / `MD22` 為準。
 Vendor Flow 主體已重新收斂，重點是：
 - UI 要輕
 - 流程要短
@@ -1243,7 +1452,7 @@ Vendor Flow 主體已重新收斂，重點是：
 如現場尺寸有變動請提前告知
 ```
 
-## 16.6 最新整條 Vendor Flow（以本節為準）
+## 16.6 較早期整條 Vendor Flow（歷史脈絡保留，若衝突以 2026-04-05 新 spec 為準）
 ### Step 1：廠商需求卡
 - 看任務標題 / 需求說明 / 工種
 - 視需要補充廠商報價
@@ -1266,7 +1475,20 @@ Vendor Flow 主體已重新收斂，重點是：
 - 採條列式文本
 - 作為對外輸出成果
 
-## 16.6-A 設計線第一版定稿（2026-04-03 夜間更新版）
+## 16.6-A 設計線較早期定稿（2026-04-03 夜間版，已被 2026-04-05 新 spec 更新）
+
+> **狀態註記：本段保留作歷史脈絡。**
+> 本段中凡是使用「回覆區 / 回覆確認 / 整理層才成立成本」等較早期語言的描述，皆已被 2026-04-05 新版 spec 更新。
+>
+> 最新應改以：
+> - `MD21-projectflow-project-detail-responsibility-redistribution-spec-2026-04-05.md`
+> - `MD22-projectflow-mock-closed-loop-frontend-execution-brief-2026-04-05.md`
+> 為準。
+>
+> 尤其以下內容已更新：
+> - `回覆區` -> `執行處理`
+> - 成本成立點 -> 整區 `確認`
+> - 承接頁定位 -> 多層工作板 / 任務詳情 / 最終文件頁
 這一條線是：
 
 `任務發布區 -> 交辦設計 -> 任務檢視區 -> 專案設計 -> 設計回覆層 -> 回覆確認 -> 設計文件整理 -> 設計文件`
@@ -1572,7 +1794,20 @@ Vendor Flow 主體已重新收斂，重點是：
 - 狀態與操作搶過文件本體
 - 使用者分不清現在這份是不是最新
 
-## 16.6-B 備品線第一版定稿（2026-04-03 夜間更新版）
+## 16.6-B 備品線較早期定稿（2026-04-03 夜間版，已被 2026-04-05 新 spec 更新）
+
+> **狀態註記：本段保留作歷史脈絡。**
+> 本段中凡是使用「回覆區 / 回覆確認 / 整理層才成立成本」等較早期語言的描述，皆已被 2026-04-05 新版 spec 更新。
+>
+> 最新應改以：
+> - `MD21-projectflow-project-detail-responsibility-redistribution-spec-2026-04-05.md`
+> - `MD22-projectflow-mock-closed-loop-frontend-execution-brief-2026-04-05.md`
+> 為準。
+>
+> 尤其以下內容已更新：
+> - `回覆區` -> `執行處理`
+> - 成本成立點 -> 整區 `確認`
+> - 承接頁定位 -> 多層工作板 / 任務詳情 / 最終文件頁
 這一條線是：
 
 `任務發布區 -> 交辦備品 -> 任務檢視區 -> 專案備品回覆層 -> 回覆確認 -> 備品整理 -> 備品文件`
@@ -1931,14 +2166,20 @@ Vendor Flow 主體已重新收斂，重點是：
 - 備品回覆金額
 - 廠商報價
 
-### 成本成立門檻（已定稿）
-- 設計：進 `設計文件整理` 就算成本
-- 備品：進 `備品整理` 就算成本
-- Vendor：進 `廠商發包清單` 就算成本
+### 成本成立門檻（已更新，2026-04-05 以 MD21 為準）
+- 設計：整區 `確認` 時，成本正式進入報價成本
+- 備品：整區 `確認` 時，成本正式進入報價成本
+- Vendor：整區 `確認` 時，成本正式進入報價成本
+
+補充：
+- 單筆 `儲存` 不成立成本
+- Vendor 線已另行拍板：
+  - `確認` = 正式發包 = 直接進 package 主線 = 成本成立
 
 重要原則：
-- 不是等最終文件生成才算
-- 只要進入整理主線 / package 主線，就視為正式成本明細
+- 不是等最終文件頁生成才算
+- 也不是單筆資料一儲存就算
+- 成本成立的正式節點，是各條線 `執行處理` 區的整區 `確認`
 
 ## 17.4 成本累計規則
 已拍板：
@@ -2968,9 +3209,17 @@ Vendor 詳情頁第一版採以下三層主結構：
 
 ---
 
-## 18.6 左選單跨專案工作台（2026-04-03 夜間新增）
-本節整理左選單中 `設計任務版` 與 `備品採購版` 的正式定位與目前已拍板資訊架構。
-這兩頁不是單專案主工作流主場，而是跨專案管理層工作台。
+## 18.6 左選單三條主線工作台（2026-04-05 更新）
+本節整理左選單三條主線的最新正式定位。
+
+> **本節較早版本中，把 `設計任務版` / `備品採購版` 單純定義為跨專案總表 / 工作台的描述，已被 2026-04-05 新版承接 spec 更新。**
+
+目前正式定位應改理解為：
+- `設計任務板`：先以專案分流，再進任務列表、任務詳情頁、最終文件頁
+- `採購備品板`：先以專案分流，再進任務列表、任務詳情頁、最終文件頁
+- `廠商發包板`：先以專案分流，再進廠商列表，最後進單廠商執行處理層
+
+這三頁不是純總表，也不是單頁平鋪工作台，而是各自有明確層級的工作流主控板。
 
 ### A. 正式定位（已拍板）
 #### 設計任務版
