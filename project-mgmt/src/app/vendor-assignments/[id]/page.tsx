@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AppShell } from "@/components/app-shell";
-import { vendorAssignments } from "@/components/vendor-data";
 import { VendorPlanEditorClient } from "@/components/vendor-plan-editor-client";
 import { getDbVendorTaskById } from "@/lib/db/vendor-flow-adapter";
 import { shouldUseDbVendorFlow } from "@/lib/db/vendor-flow-toggle";
