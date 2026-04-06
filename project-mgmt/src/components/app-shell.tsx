@@ -10,7 +10,7 @@ const navItems = [
   { label: "廠商資料", href: "/vendors" },
   { label: "報價成本", href: "/quote-costs" },
   { label: "結案紀錄", href: "/closeouts" },
-  { label: "帳務中心", href: "#" },
+  { label: "帳務中心", href: "/accounting-center" },
   { label: "報表分析", href: "#" },
   { label: "系統設定", href: "#" },
 ];

@@ -133,7 +133,7 @@ export async function getDbDesignTaskById(id: string): Promise<DbBackedDesignTas
     owner: '-',
     title: task.title,
     assignee: '-',
-    due: project?.event_date instanceof Date ? project.event_date.toISOString().slice(0, 10) : (project?.event_date ?? '-'),
+    due: project?.event_date ?? '-',
     status: task.status,
     size: task.size ?? '未填寫',
     material: task.material ?? '未填寫',

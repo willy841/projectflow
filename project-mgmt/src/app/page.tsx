@@ -122,11 +122,14 @@ export default function Home() {
           <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div className="min-w-0">
               <h3 className="text-xl font-semibold text-slate-900">本月財務摘要</h3>
-              <p className="mt-1 text-sm leading-6 text-slate-500">提供管理層快速查看現金流壓力與毛利概況。</p>
+              <p className="mt-1 text-sm leading-6 text-slate-500">提供管理層快速查看現金流壓力與毛利概況，正式主體請進帳務中心。</p>
             </div>
-            <span className="inline-flex shrink-0 self-start whitespace-nowrap rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700 ring-1 ring-emerald-200">
-              更新中
-            </span>
+            <Link
+              href="/accounting-center"
+              className="inline-flex shrink-0 self-start items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-800 transition hover:border-slate-400 hover:bg-slate-50"
+            >
+              前往帳務中心
+            </Link>
           </div>
 
           <div className="space-y-3">
