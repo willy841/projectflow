@@ -37,6 +37,9 @@ async function listDbFinancialProjects(): Promise<DbFinancialProjectIdentity[]> 
       select distinct tc.project_id
       from task_confirmations tc
       where tc.flow_type in ('design', 'procurement', 'vendor')
+      union
+      select distinct fmc.project_id
+      from financial_manual_costs fmc
     )
     select
       p.id,
@@ -72,6 +75,15 @@ type SnapshotAmountRow = {
   title: string | null;
   amount: number | null;
   vendorName: string | null;
+};
+
+type ManualCostRow = {
+  id: string;
+  projectId: string;
+  itemName: string | null;
+  description: string | null;
+  amount: number | null;
+  includedInCost: boolean;
 };
 
 const LATEST_CONFIRMATION_PER_TASK_CTE = `
@@ -187,16 +199,48 @@ async function listVendorFinancialItems(): Promise<CostLineItem[]> {
   }));
 }
 
+async function listManualFinancialItems(): Promise<Array<{ projectId: string; item: CostLineItem }>> {
+  const db = createPhase1DbClient();
+  const rows = await db.query<ManualCostRow>(`
+    select
+      id,
+      project_id as "projectId",
+      item_name as "itemName",
+      description,
+      amount,
+      included_in_cost as "includedInCost"
+    from financial_manual_costs
+    order by project_id asc, sort_order asc, created_at asc
+  `);
+
+  return rows.rows.map((row) => ({
+    projectId: row.projectId,
+    item: {
+      id: `db-manual-${row.id}`,
+      itemName: row.itemName ?? '未命名人工成本',
+      sourceType: '人工',
+      sourceRef: row.description ?? '',
+      vendorId: null,
+      vendorName: null,
+      originalAmount: Number(row.amount ?? 0),
+      adjustedAmount: Number(row.amount ?? 0),
+      includedInCost: row.includedInCost,
+      isManual: true,
+    },
+  }));
+}
+
 export async function getQuoteCostProjectsWithDbFinancials(): Promise<QuoteCostProject[]> {
   if (!hasDbConnectionString()) {
     return quoteCostProjects;
   }
 
   try {
-    const [designItems, procurementItems, vendorItems, dbProjects] = await Promise.all([
+    const [designItems, procurementItems, vendorItems, manualItems, dbProjects] = await Promise.all([
       listDesignFinancialItems(),
       listProcurementFinancialItems(),
       listVendorFinancialItems(),
+      listManualFinancialItems(),
       listDbFinancialProjects(),
     ]);
 
@@ -230,6 +274,11 @@ export async function getQuoteCostProjectsWithDbFinancials(): Promise<QuoteCostP
       byProject.get(projectId)?.push(item);
     }
 
+    for (const manualEntry of manualItems) {
+      if (!byProject.has(manualEntry.projectId)) byProject.set(manualEntry.projectId, []);
+      byProject.get(manualEntry.projectId)?.push(manualEntry.item);
+    }
+
     const seedById = new Map(quoteCostProjects.map((project) => [project.id, project]));
     const seedByName = new Map(quoteCostProjects.map((project) => [normalizeProjectName(project.projectName), project]));
 
@@ -240,8 +289,9 @@ export async function getQuoteCostProjectsWithDbFinancials(): Promise<QuoteCostP
     return dbProjects.map((dbProject) => {
       const matchedSeed = seedById.get(dbProject.id) ?? seedByName.get(normalizeProjectName(dbProject.projectName));
       const dbItems = byProject.get(dbProject.id) ?? [];
+      const dbSourceTypes = new Set(dbItems.map((dbItem) => dbItem.sourceType));
       const preservedSeedItems = matchedSeed
-        ? matchedSeed.costItems.filter((item) => item.isManual || !new Set(dbItems.map((dbItem) => dbItem.sourceType)).has(item.sourceType))
+        ? matchedSeed.costItems.filter((item) => !dbSourceTypes.has(item.sourceType))
         : [];
 
       return {

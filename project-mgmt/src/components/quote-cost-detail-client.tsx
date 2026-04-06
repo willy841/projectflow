@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { AppShell } from "@/components/app-shell";
 import {
   formatCurrency,
@@ -30,8 +31,12 @@ type Props = {
 type EditableProjectState = QuoteCostProject;
 
 export function QuoteCostDetailClient({ project, mode = "active", initialProject }: Props) {
+  const router = useRouter();
   const workflowProject = initialProject ?? getQuoteCostProjectsWithWorkflow().find((item) => item.id === project.id) ?? project;
   const [state, setState] = useState<EditableProjectState>(workflowProject);
+  const initialManualSyncSkippedRef = useRef(false);
+  const [manualSyncError, setManualSyncError] = useState<string | null>(null);
+  const [isManualSyncing, setIsManualSyncing] = useState(false);
   const [quoteImportIndex, setQuoteImportIndex] = useState(0);
   const quoteImportOptions = sampleQuoteImports[project.id] ?? [project.quotationImport].filter(Boolean);
   const quoteLineItemOptions = sampleQuoteLineItemsByProject[project.id] ?? [project.quotationItems];
@@ -43,7 +48,56 @@ export function QuoteCostDetailClient({ project, mode = "active", initialProject
   const projectCostTotal = useMemo(() => originalCostTotal + additionalManualCostTotal, [originalCostTotal, additionalManualCostTotal]);
   const grossProfit = useMemo(() => getGrossProfit(quotationTotal, projectCostTotal), [quotationTotal, projectCostTotal]);
   const costSourceSummary = useMemo(() => getCostSourceSummary(state.costItems, state.id), [state.costItems, state.id]);
-  const manualItems = state.costItems.filter((item) => item.isManual);
+  const manualItems = useMemo(() => state.costItems.filter((item) => item.isManual), [state.costItems]);
+  const manualSyncPayload = useMemo(() => JSON.stringify(manualItems.map((item) => ({
+    itemName: item.itemName,
+    description: item.sourceRef,
+    amount: item.adjustedAmount,
+    includedInCost: item.includedInCost,
+  }))), [manualItems]);
+
+  useEffect(() => {
+    if (isClosedView) return;
+    if (!initialManualSyncSkippedRef.current) {
+      initialManualSyncSkippedRef.current = true;
+      return;
+    }
+
+    let cancelled = false;
+    const timeoutId = window.setTimeout(async () => {
+      setIsManualSyncing(true);
+      setManualSyncError(null);
+
+      try {
+        const response = await fetch(`/api/financial-projects/${state.id}/manual-costs/sync`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ items: JSON.parse(manualSyncPayload) }),
+        });
+
+        if (!response.ok) {
+          throw new Error("manual-cost-sync-failed");
+        }
+
+        if (!cancelled) {
+          router.refresh();
+        }
+      } catch {
+        if (!cancelled) {
+          setManualSyncError("人工新增費用儲存失敗，請稍後再試。");
+        }
+      } finally {
+        if (!cancelled) {
+          setIsManualSyncing(false);
+        }
+      }
+    }, 350);
+
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timeoutId);
+    };
+  }, [isClosedView, manualSyncPayload, router, state.id]);
 
   function mutateCosts(mutator: (prev: EditableProjectState) => EditableProjectState) {
     setState((prev) => {
@@ -308,6 +362,11 @@ export function QuoteCostDetailClient({ project, mode = "active", initialProject
             <div>
               <h4 className="text-lg font-semibold text-slate-900">人工新增費用</h4>
               <p className="mt-1 text-sm text-slate-500">固定欄位：項目 / 說明 / 金額。</p>
+              {!isClosedView && (
+                <p className={`mt-2 text-xs ${manualSyncError ? "text-rose-600" : "text-slate-400"}`}>
+                  {manualSyncError ?? (isManualSyncing ? "人工新增費用儲存中..." : "人工新增費用已接正式資料層，會承接到 list / detail / closeout。")}
+                </p>
+              )}
             </div>
             {!isClosedView && (
               <button

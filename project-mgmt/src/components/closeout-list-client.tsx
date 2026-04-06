@@ -12,16 +12,19 @@ import {
   getReconciliationStatusClass,
 } from "@/components/quote-cost-data";
 import { getQuoteCostProjectsWithWorkflow } from "@/components/project-workflow-store";
+import type { QuoteCostProject } from "@/components/quote-cost-data";
 
 const ITEMS_PER_PAGE = 10;
 
-export function CloseoutListClient() {
+export function CloseoutListClient({ initialProjects }: { initialProjects?: QuoteCostProject[] }) {
   const [searchKeyword, setSearchKeyword] = useState("");
   const [selectedYear, setSelectedYear] = useState("all");
   const [dateSortOrder, setDateSortOrder] = useState<"desc" | "asc">("desc");
   const [page, setPage] = useState(1);
 
-  const closedProjects = getQuoteCostProjectsWithWorkflow()
+  const sourceProjects = initialProjects ?? getQuoteCostProjectsWithWorkflow();
+
+  const closedProjects = sourceProjects
     .filter((project) => project.projectStatus === "已結案")
     .map((project) => {
       const quotationTotal = getQuotationTotal(project.quotationItems);
