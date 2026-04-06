@@ -38,6 +38,7 @@ async function listDbFinancialProjects(): Promise<DbFinancialProjectIdentity[]> 
       select
         tc.project_id,
         max(tc.confirmed_at) as latest_confirmation_at,
+        null::timestamp as latest_plan_cost_at,
         null::timestamp as latest_manual_cost_at
       from task_confirmations tc
       where tc.flow_type in ('design', 'procurement', 'vendor')
@@ -46,8 +47,45 @@ async function listDbFinancialProjects(): Promise<DbFinancialProjectIdentity[]> 
       union all
 
       select
+        dt.project_id,
+        null::timestamp as latest_confirmation_at,
+        max(coalesce(dtp.updated_at, dtp.created_at)) as latest_plan_cost_at,
+        null::timestamp as latest_manual_cost_at
+      from design_task_plans dtp
+      inner join design_tasks dt on dt.id = dtp.design_task_id
+      where dtp.amount is not null
+      group by dt.project_id
+
+      union all
+
+      select
+        pt.project_id,
+        null::timestamp as latest_confirmation_at,
+        max(coalesce(ptp.updated_at, ptp.created_at)) as latest_plan_cost_at,
+        null::timestamp as latest_manual_cost_at
+      from procurement_task_plans ptp
+      inner join procurement_tasks pt on pt.id = ptp.procurement_task_id
+      where ptp.amount is not null
+      group by pt.project_id
+
+      union all
+
+      select
+        vt.project_id,
+        null::timestamp as latest_confirmation_at,
+        max(coalesce(vtp.updated_at, vtp.created_at)) as latest_plan_cost_at,
+        null::timestamp as latest_manual_cost_at
+      from vendor_task_plans vtp
+      inner join vendor_tasks vt on vt.id = vtp.vendor_task_id
+      where vtp.amount is not null
+      group by vt.project_id
+
+      union all
+
+      select
         fmc.project_id,
         null::timestamp as latest_confirmation_at,
+        null::timestamp as latest_plan_cost_at,
         max(coalesce(fmc.updated_at, fmc.created_at)) as latest_manual_cost_at
       from financial_manual_costs fmc
       group by fmc.project_id
@@ -56,6 +94,7 @@ async function listDbFinancialProjects(): Promise<DbFinancialProjectIdentity[]> 
       select
         project_id,
         max(latest_confirmation_at) as latest_confirmation_at,
+        max(latest_plan_cost_at) as latest_plan_cost_at,
         max(latest_manual_cost_at) as latest_manual_cost_at
       from active_financial_projects
       group by project_id
@@ -73,6 +112,7 @@ async function listDbFinancialProjects(): Promise<DbFinancialProjectIdentity[]> 
       coalesce(
         greatest(
           coalesce(sfp.latest_confirmation_at, '-infinity'::timestamp),
+          coalesce(sfp.latest_plan_cost_at, '-infinity'::timestamp),
           coalesce(sfp.latest_manual_cost_at, '-infinity'::timestamp)
         )::text,
         p.created_at::text
@@ -82,6 +122,7 @@ async function listDbFinancialProjects(): Promise<DbFinancialProjectIdentity[]> 
     order by
       greatest(
         coalesce(sfp.latest_confirmation_at, '-infinity'::timestamp),
+        coalesce(sfp.latest_plan_cost_at, '-infinity'::timestamp),
         coalesce(sfp.latest_manual_cost_at, '-infinity'::timestamp)
       ) desc,
       p.event_date desc nulls last,
