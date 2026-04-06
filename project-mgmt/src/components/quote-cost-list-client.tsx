@@ -83,73 +83,60 @@ export function QuoteCostListClient({ mode = "active", initialProjects }: { mode
         </div>
       </header>
 
-      <section className="rounded-3xl bg-white p-4 shadow-sm ring-1 ring-slate-200 md:p-5">
-        <div className="overflow-x-auto">
-          <table className="min-w-full table-fixed border-separate border-spacing-0">
-            <colgroup>
-              <col className="w-[31%]" />
-              <col className="w-[14%]" />
-              <col className="w-[15%]" />
-              <col className="w-[15%]" />
-              <col className="w-[15%]" />
-              <col className="w-[10%]" />
-            </colgroup>
-            <thead>
-              <tr className="text-left text-xs font-semibold uppercase tracking-[0.08em] text-slate-500">
-                <th className="border-b border-slate-200 px-4 py-3">專案</th>
-                <th className="border-b border-slate-200 px-4 py-3 text-right">對外報價</th>
-                <th className="border-b border-slate-200 px-4 py-3 text-right">實際成本</th>
-                <th className="border-b border-slate-200 px-4 py-3 text-right">毛利</th>
-                <th className="border-b border-slate-200 px-4 py-3">成本來源</th>
-                <th className="border-b border-slate-200 px-4 py-3 text-right">操作</th>
-              </tr>
-            </thead>
-            <tbody>
-              {activeProjects.map(({ project, quotationTotal, projectCostTotal, grossProfit, manualCostCount, sourceSummary, excludedCostCount, unassignedVendorCount }) => (
-                <tr key={project.id} className="align-top text-sm text-slate-700">
-                  <td className="border-b border-slate-200 px-4 py-4">
+      <section className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+        <div className="space-y-4">
+          {activeProjects.map(({ project, quotationTotal, projectCostTotal, grossProfit, manualCostCount, sourceSummary, excludedCostCount, unassignedVendorCount }) => (
+            <article key={project.id} className="rounded-3xl border border-slate-200 p-5">
+              <div className="flex flex-col gap-4">
+                <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
+                  <div>
                     <div className="flex flex-wrap items-center gap-2">
-                      <h3 className="text-base font-semibold text-slate-900">{project.projectName}</h3>
-                      <span className="text-xs text-slate-500">活動日期 {project.eventDate}</span>
-                      <span className={`inline-flex rounded-full px-2.5 py-1 text-[11px] font-semibold ring-1 ${project.quotationImported ? "bg-emerald-50 text-emerald-700 ring-emerald-200" : "bg-amber-50 text-amber-700 ring-amber-200"}`}>
+                      <h3 className="text-xl font-semibold text-slate-900">{project.projectName}</h3>
+                      <span className="text-sm text-slate-500">活動日期 {project.eventDate}</span>
+                      <span className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ring-1 ${project.quotationImported ? "bg-emerald-50 text-emerald-700 ring-emerald-200" : "bg-amber-50 text-amber-700 ring-amber-200"}`}>
                         {project.quotationImported ? "已上傳" : "未上傳"}
                       </span>
-                      <span className={`inline-flex rounded-full px-2.5 py-1 text-[11px] font-semibold ring-1 ${getCloseStatusClass(project.closeStatus)}`}>
+                      <span className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ring-1 ${getCloseStatusClass(project.closeStatus)}`}>
                         {project.closeStatus}
                       </span>
                     </div>
                     {(excludedCostCount > 0 || unassignedVendorCount > 0 || manualCostCount > 0) && (
-                      <div className="mt-2 flex flex-wrap gap-2">
+                      <div className="mt-3 flex flex-wrap gap-2">
                         {excludedCostCount > 0 ? <ExceptionBadge label={`未計入 ${excludedCostCount} 筆`} tone="amber" /> : null}
                         {unassignedVendorCount > 0 ? <ExceptionBadge label={`未指定廠商 ${unassignedVendorCount} 筆`} tone="sky" /> : null}
                         {manualCostCount > 0 ? <ExceptionBadge label={`人工 ${manualCostCount} 筆`} tone="slate" /> : null}
                       </div>
                     )}
-                  </td>
-                  <td className="border-b border-slate-200 px-4 py-4 text-right font-semibold tabular-nums text-slate-900">{formatCurrency(quotationTotal)}</td>
-                  <td className="border-b border-slate-200 px-4 py-4 text-right font-semibold tabular-nums text-slate-900">{formatCurrency(projectCostTotal)}</td>
-                  <td className="border-b border-slate-200 px-4 py-4 text-right font-semibold tabular-nums text-slate-900">{formatCurrency(grossProfit)}</td>
-                  <td className="border-b border-slate-200 px-4 py-4">
-                    <div className="flex flex-wrap gap-2">
-                      {sourceSummary.map((item) => (
-                        <span key={item.label} className={`inline-flex rounded-full px-2.5 py-1 text-[11px] font-semibold ring-1 ${item.badgeClass}`}>
-                          {item.label} {formatCurrency(item.total)}
-                        </span>
-                      ))}
+                  </div>
+
+                  <Link
+                    href={`/quote-costs/${project.id}`}
+                    className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-800 transition hover:border-slate-400 hover:bg-slate-50"
+                  >
+                    查看詳情
+                  </Link>
+                </div>
+              </div>
+
+              <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+                <MetricCard label="對外報價總額" value={formatCurrency(quotationTotal)} />
+                <MetricCard label="實際成本" value={formatCurrency(projectCostTotal)} />
+                <MetricCard label="毛利" value={formatCurrency(grossProfit)} />
+                <MetricCard label="人工成本筆數" value={`${manualCostCount} 筆`} />
+              </div>
+
+              <div className="mt-5 grid gap-3 md:grid-cols-3">
+                {sourceSummary.map((item) => (
+                  <div key={item.label} className="rounded-2xl bg-slate-50 p-4 ring-1 ring-slate-200">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className={`inline-flex rounded-full px-2.5 py-1 text-[11px] font-semibold ring-1 ${item.badgeClass}`}>{item.label}</span>
                     </div>
-                  </td>
-                  <td className="border-b border-slate-200 px-4 py-4 text-right">
-                    <Link
-                      href={`/quote-costs/${project.id}`}
-                      className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-800 transition hover:border-slate-400 hover:bg-slate-50"
-                    >
-                      查看詳情
-                    </Link>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                    <p className="mt-3 text-sm font-semibold text-slate-900">{formatCurrency(item.total)}</p>
+                  </div>
+                ))}
+              </div>
+            </article>
+          ))}
         </div>
       </section>
     </AppShell>
@@ -183,4 +170,13 @@ function ExceptionBadge({ label, tone }: { label: string; tone: "amber" | "sky" 
   }[tone];
 
   return <span className={`inline-flex rounded-full px-2.5 py-1 text-[11px] font-semibold ring-1 ${toneClass}`}>{label}</span>;
+}
+
+function MetricCard({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-2xl bg-slate-50 p-4 ring-1 ring-slate-200">
+      <p className="text-xs font-medium text-slate-500">{label}</p>
+      <p className="mt-2 text-sm font-semibold leading-6 text-slate-900">{value}</p>
+    </div>
+  );
 }

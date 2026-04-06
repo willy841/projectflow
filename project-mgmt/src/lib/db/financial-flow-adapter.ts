@@ -24,6 +24,7 @@ type DbFinancialProjectIdentity = {
   clientName: string;
   eventDate: string;
   projectStatus: '執行中' | '已結案';
+  latestFinancialActivityAt: string;
 };
 
 function normalizeProjectName(value: string) {
@@ -34,12 +35,30 @@ async function listDbFinancialProjects(): Promise<DbFinancialProjectIdentity[]> 
   const db = createPhase1DbClient();
   const rows = await db.query<DbFinancialProjectIdentity>(`
     with active_financial_projects as (
-      select distinct tc.project_id
+      select
+        tc.project_id,
+        max(tc.confirmed_at) as latest_confirmation_at,
+        null::timestamp as latest_manual_cost_at
       from task_confirmations tc
       where tc.flow_type in ('design', 'procurement', 'vendor')
-      union
-      select distinct fmc.project_id
+      group by tc.project_id
+
+      union all
+
+      select
+        fmc.project_id,
+        null::timestamp as latest_confirmation_at,
+        max(coalesce(fmc.updated_at, fmc.created_at)) as latest_manual_cost_at
       from financial_manual_costs fmc
+      group by fmc.project_id
+    ),
+    summarized_financial_projects as (
+      select
+        project_id,
+        max(latest_confirmation_at) as latest_confirmation_at,
+        max(latest_manual_cost_at) as latest_manual_cost_at
+      from active_financial_projects
+      group by project_id
     )
     select
       p.id,
@@ -50,10 +69,23 @@ async function listDbFinancialProjects(): Promise<DbFinancialProjectIdentity[]> 
       case
         when coalesce(p.status, '') in ('已結案', '結案') then '已結案'
         else '執行中'
-      end as "projectStatus"
+      end as "projectStatus",
+      coalesce(
+        greatest(
+          coalesce(sfp.latest_confirmation_at, '-infinity'::timestamp),
+          coalesce(sfp.latest_manual_cost_at, '-infinity'::timestamp)
+        )::text,
+        p.created_at::text
+      ) as "latestFinancialActivityAt"
     from projects p
-    inner join active_financial_projects afp on afp.project_id = p.id
-    order by p.event_date nulls last, p.created_at desc
+    inner join summarized_financial_projects sfp on sfp.project_id = p.id
+    order by
+      greatest(
+        coalesce(sfp.latest_confirmation_at, '-infinity'::timestamp),
+        coalesce(sfp.latest_manual_cost_at, '-infinity'::timestamp)
+      ) desc,
+      p.event_date desc nulls last,
+      p.created_at desc
   `);
 
   return rows.rows;
