@@ -3,6 +3,8 @@ import { QuoteCostDetailClient } from "@/components/quote-cost-detail-client";
 import { getQuoteCostProjectById } from "@/components/quote-cost-data";
 import { getQuoteCostProjectByIdWithDbFinancials } from "@/lib/db/financial-flow-adapter";
 
+export const dynamic = "force-dynamic";
+
 export default async function QuoteCostDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const seedProject = getQuoteCostProjectById(id);
