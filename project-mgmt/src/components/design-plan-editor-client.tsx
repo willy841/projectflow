@@ -88,7 +88,8 @@ export function DesignPlanEditorClient({
       });
 
       if (!response.ok) {
-        throw new Error("save failed");
+        const payload = (await response.json().catch(() => null)) as { error?: string } | null;
+        throw new Error(payload?.error || "save failed");
       }
     }
 
@@ -108,8 +109,8 @@ export function DesignPlanEditorClient({
       await persistDraftPlans();
       setMessage("已儲存設計執行處理。\n若有新資料，重新整理後會顯示正式寫入結果。");
       router.refresh();
-    } catch {
-      setMessage("儲存失敗，請稍後再試。");
+    } catch (error) {
+      setMessage(`儲存失敗：${error instanceof Error ? error.message : "請稍後再試。"}`);
     } finally {
       setSaving(false);
     }
@@ -138,8 +139,8 @@ export function DesignPlanEditorClient({
       setMessage("已完成全部確認，正在前往最終文件頁。\n文件頁將承接這次正式確認結果。");
       router.push(`/design-tasks/${taskId}/document`);
       router.refresh();
-    } catch {
-      setMessage("全部確認失敗，請稍後再試。");
+    } catch (error) {
+      setMessage(`全部確認失敗：${error instanceof Error ? error.message : "請稍後再試。"}`);
     } finally {
       setConfirming(false);
     }
