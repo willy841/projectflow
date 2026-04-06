@@ -48,14 +48,14 @@ async function listDbFinancialProjects(): Promise<DbFinancialProjectIdentity[]> 
     `
     : '';
   const rows = await db.query<DbFinancialProjectIdentity>(`
-    with active_financial_projects as (
+    ${CANONICAL_CONFIRMATIONS_CTE},
+    active_financial_projects as (
       select
         tc.project_id,
         max(tc.confirmed_at) as latest_confirmation_at,
         null::timestamp as latest_plan_cost_at,
         null::timestamp as latest_manual_cost_at
-      from task_confirmations tc
-      where tc.flow_type in ('design', 'procurement', 'vendor')
+      from latest_task_confirmations tc
       group by tc.project_id
 
       union all
@@ -168,17 +168,38 @@ type ManualCostRow = {
   includedInCost: boolean;
 };
 
-const LATEST_CONFIRMATION_PER_TASK_CTE = `
-  with latest_task_confirmations as (
+const CANONICAL_CONFIRMATIONS_CTE = `
+  with canonical_task_confirmations as (
+    select
+      tc.id,
+      tc.flow_type,
+      coalesce(dt.project_id, pt.project_id, vt.project_id, tc.project_id) as project_id,
+      tc.task_id,
+      tc.confirmation_no,
+      tc.confirmed_at,
+      tc.created_at
+    from task_confirmations tc
+    left join design_tasks dt
+      on tc.flow_type = 'design'
+     and dt.id = tc.task_id
+    left join procurement_tasks pt
+      on tc.flow_type = 'procurement'
+     and pt.id = tc.task_id
+    left join vendor_tasks vt
+      on tc.flow_type = 'vendor'
+     and vt.id = tc.task_id
+    where tc.flow_type in ('design', 'procurement', 'vendor')
+  ),
+  latest_task_confirmations as (
     select distinct on (tc.flow_type, tc.task_id)
       tc.id,
       tc.flow_type,
       tc.project_id,
       tc.task_id,
       tc.confirmation_no,
-      tc.confirmed_at
-    from task_confirmations tc
-    where tc.flow_type in ('design', 'procurement', 'vendor')
+      tc.confirmed_at,
+      tc.created_at
+    from canonical_task_confirmations tc
     order by tc.flow_type, tc.task_id, tc.confirmation_no desc, tc.confirmed_at desc, tc.created_at desc, tc.id desc
   )
 `;
@@ -196,7 +217,7 @@ async function listDesignFinancialItems(): Promise<CostLineItem[]> {
   if (!shouldUseDbDesignFlow()) return [];
   const db = createPhase1DbClient();
   const rows = await db.query<SnapshotAmountRow>(`
-    ${LATEST_CONFIRMATION_PER_TASK_CTE}
+    ${CANONICAL_CONFIRMATIONS_CTE}
     select
       tc.project_id as "projectId",
       tc.task_id as "taskId",
@@ -228,7 +249,7 @@ async function listProcurementFinancialItems(): Promise<CostLineItem[]> {
   if (!shouldUseDbProcurementFlow()) return [];
   const db = createPhase1DbClient();
   const rows = await db.query<SnapshotAmountRow>(`
-    ${LATEST_CONFIRMATION_PER_TASK_CTE}
+    ${CANONICAL_CONFIRMATIONS_CTE}
     select
       tc.project_id as "projectId",
       tc.task_id as "taskId",
@@ -260,7 +281,7 @@ async function listVendorFinancialItems(): Promise<CostLineItem[]> {
   if (!shouldUseDbVendorFlow()) return [];
   const db = createPhase1DbClient();
   const rows = await db.query<SnapshotAmountRow>(`
-    ${LATEST_CONFIRMATION_PER_TASK_CTE}
+    ${CANONICAL_CONFIRMATIONS_CTE}
     select
       tc.project_id as "projectId",
       tc.task_id as "taskId",
@@ -348,7 +369,7 @@ export async function getQuoteCostProjectsWithDbFinancials(): Promise<QuoteCostP
       snapshotId: string;
       flowType: 'design' | 'procurement' | 'vendor';
     }>(`
-      ${LATEST_CONFIRMATION_PER_TASK_CTE}
+      ${CANONICAL_CONFIRMATIONS_CTE}
       select tc.project_id as "projectId", ts.id as "snapshotId", tc.flow_type as "flowType"
       from latest_task_confirmations tc
       inner join task_confirmation_plan_snapshots ts on ts.task_confirmation_id = tc.id
