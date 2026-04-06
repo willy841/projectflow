@@ -35,7 +35,7 @@ import type {
   VendorTaskPlanRow,
   VendorTaskRow,
 } from '@/lib/db/phase1-types';
-import type { Phase1DbClient } from '@/lib/db/phase1-client';
+import type { Phase1DbClient, QueryResultRow } from '@/lib/db/phase1-client';
 import {
   buildInsertStatement,
   buildUpdateStatement,
@@ -126,12 +126,14 @@ export interface Phase1Repositories {
   taskConfirmations: TaskConfirmationRepository;
 }
 
-async function firstRowOrNull<TRow>(promise: Promise<{ rows: TRow[] }>): Promise<TRow | null> {
+async function firstRowOrNull<TRow extends QueryResultRow>(
+  promise: Promise<{ rows: TRow[] }>,
+): Promise<TRow | null> {
   const result = await promise;
   return result.rows[0] ?? null;
 }
 
-async function insertRow<TRow, TInput extends Record<string, unknown>>(
+async function insertRow<TRow extends QueryResultRow, TInput extends Record<string, unknown>>(
   db: Phase1DbClient,
   table: string,
   input: TInput,
@@ -149,7 +151,7 @@ async function insertRow<TRow, TInput extends Record<string, unknown>>(
   return row;
 }
 
-async function updateRow<TRow, TInput extends Record<string, unknown>>(
+async function updateRow<TRow extends QueryResultRow, TInput extends Record<string, unknown>>(
   db: Phase1DbClient,
   table: string,
   id: UUID,
