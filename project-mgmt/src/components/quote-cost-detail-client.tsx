@@ -6,14 +6,14 @@ import { AppShell } from "@/components/app-shell";
 import {
   formatCurrency,
   getAdditionalManualCostTotal,
+  getCloseStatusClass,
   getFormalOriginalCostTotal,
   getGrossProfit,
   getQuotationTotal,
+  getReconciliationStatusClass,
   QuoteCostProject,
   sampleQuoteImports,
   sampleQuoteLineItemsByProject,
-  UNSPECIFIED_VENDOR_ID,
-  UNSPECIFIED_VENDOR_NAME,
   type CostLineItem,
   type CostSourceType,
 } from "@/components/quote-cost-data";
@@ -41,29 +41,8 @@ export function QuoteCostDetailClient({ project, mode = "active" }: Props) {
   const additionalManualCostTotal = useMemo(() => getAdditionalManualCostTotal(state.costItems), [state.costItems]);
   const projectCostTotal = useMemo(() => originalCostTotal + additionalManualCostTotal, [originalCostTotal, additionalManualCostTotal]);
   const grossProfit = useMemo(() => getGrossProfit(quotationTotal, projectCostTotal), [quotationTotal, projectCostTotal]);
-  const excludedCostItems = useMemo(() => state.costItems.filter((item) => !item.includedInCost), [state.costItems]);
-  const costSourceSummary = useMemo(() => getCostSourceSummary(state.costItems), [state.costItems]);
-
-  const vendorGroups = useMemo(() => {
-    const map = new Map<string, { key: string; name: string; items: EditableProjectState["costItems"] }>();
-    state.costItems
-      .filter((item) => !item.isManual)
-      .forEach((item) => {
-        const key = item.vendorId ?? UNSPECIFIED_VENDOR_ID;
-        const name = item.vendorName ?? UNSPECIFIED_VENDOR_NAME;
-        if (!map.has(key)) map.set(key, { key, name, items: [] });
-        map.get(key)?.items.push(item);
-      });
-    return Array.from(map.values()).sort((a, b) => {
-      if (a.key === UNSPECIFIED_VENDOR_ID) return -1;
-      if (b.key === UNSPECIFIED_VENDOR_ID) return 1;
-      return b.items.length - a.items.length;
-    });
-  }, [state.costItems]);
-
+  const costSourceSummary = useMemo(() => getCostSourceSummary(state.costItems, state.id), [state.costItems, state.id]);
   const manualItems = state.costItems.filter((item) => item.isManual);
-  const includedManualTotal = additionalManualCostTotal;
-  const vendorIncludedTotal = originalCostTotal;
 
   function mutateCosts(mutator: (prev: EditableProjectState) => EditableProjectState) {
     setState((prev) => {
@@ -147,19 +126,19 @@ export function QuoteCostDetailClient({ project, mode = "active" }: Props) {
 
   return (
     <>
-      <AppShell activePath={isClosedView ? "/closeout" : "/quote-costs"}>
+      <AppShell activePath={isClosedView ? "/closeouts" : "/quote-costs"}>
       <header className={`overflow-hidden rounded-[28px] border p-6 shadow-sm xl:p-7 ${isClosedView ? "border-slate-200 bg-linear-to-br from-slate-50 to-white" : "border-slate-200 bg-linear-to-br from-slate-900 via-slate-800 to-slate-900 text-white"}`}>
         <div className="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
           <div>
             <div className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold tracking-[0.18em] uppercase ${isClosedView ? "border border-slate-200 bg-white text-slate-500" : "border border-white/15 bg-white/10 text-slate-100"}`}>
-              {isClosedView ? "Closeout Detail Archive" : "Quote Cost Active Workspace"}
+              {isClosedView ? "Closeout Detail" : "Financial Detail"}
             </div>
             <h2 className={`mt-4 text-3xl font-semibold tracking-tight ${isClosedView ? "text-slate-900" : "text-white"}`}>{state.projectName}</h2>
             <p className={`mt-2 text-sm ${isClosedView ? "text-slate-500" : "text-slate-300"}`}>{state.projectCode} ・ {state.clientName} ・ {state.eventDate}</p>
             <p className={`mt-3 max-w-3xl text-sm leading-6 ${isClosedView ? "text-slate-600" : "text-slate-200"}`}>
               {isClosedView
-                ? "沿用報價成本詳情的四區骨架，但整體語氣改為歷史查閱與結果確認；資訊以靜態留存為主，不再強調持續編修。"
-                : "沿用四區結構處理報價、成本、對帳與結案，讓使用者在同一頁完成進行中專案的控盤與成本確認。"}
+                ? "沿用 Financial Detail 的同一套毛利邏輯與四區骨架，保留結案當下的收入、成本與對帳結果。"
+                : "依正式規格顯示對外報價、原始成本、新增花費與毛利；三條線正式成本在此唯讀承接，人工新增成本在這裡管理。"}
             </p>
           </div>
           <div className={`grid gap-3 rounded-3xl border p-4 text-sm sm:min-w-[300px] ${isClosedView ? "border-slate-200 bg-slate-50 text-slate-600" : "border-white/10 bg-white/6 text-slate-200"}`}>
@@ -171,7 +150,7 @@ export function QuoteCostDetailClient({ project, mode = "active" }: Props) {
               <QuickPanel value={state.reconciliationStatus} label="對帳狀態" archived={isClosedView} />
               <QuickPanel value={state.closeStatus} label="結案狀態" archived={isClosedView} />
             </div>
-            <Link href={isClosedView ? "/closeout" : "/quote-costs"} className={`inline-flex items-center justify-center rounded-2xl px-4 py-2.5 text-sm font-semibold transition ${isClosedView ? "border border-slate-300 bg-white text-slate-800 hover:border-slate-400 hover:bg-slate-50" : "bg-white text-slate-900 hover:bg-slate-100"}`}>
+            <Link href={isClosedView ? "/closeouts" : "/quote-costs"} className={`inline-flex items-center justify-center rounded-2xl px-4 py-2.5 text-sm font-semibold transition ${isClosedView ? "border border-slate-300 bg-white text-slate-800 hover:border-slate-400 hover:bg-slate-50" : "bg-white text-slate-900 hover:bg-slate-100"}`}>
               返回{isClosedView ? "結案列表" : "報價成本列表"}
             </Link>
           </div>
@@ -186,12 +165,19 @@ export function QuoteCostDetailClient({ project, mode = "active" }: Props) {
       </section>
 
       <section className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-sm">
-        <SectionHeader index="1" title="專案總覽" description={isClosedView ? "保留本案結案當下的主要狀態，用於後續查閱與確認。" : "先確認目前有效版本、對帳位置與備註，再進入報價與成本調整。"} archived={isClosedView} />
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+          <SectionHeader index="1" title="專案總覽" description={isClosedView ? "保留本案結案當下的主要狀態，用於後續查閱與確認。" : "先確認目前專案狀態與報價承接情況，再往下看報價與成本。"} archived={isClosedView} />
+          <div className="flex flex-wrap gap-2">
+            <StatusBadge label="對帳狀態" value={state.reconciliationStatus === "已完成" ? "已對帳" : "待確認"} toneClass={getReconciliationStatusClass(state.reconciliationStatus)} />
+            <StatusBadge label="結案狀態" value={state.closeStatus} toneClass={getCloseStatusClass(state.closeStatus)} />
+            <StatusBadge label="報價狀態" value={state.quotationImported ? "已匯入報價" : "未匯入報價"} toneClass={state.quotationImported ? "bg-emerald-50 text-emerald-700 ring-emerald-200" : "bg-amber-50 text-amber-700 ring-amber-200"} />
+          </div>
+        </div>
         <div className="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-          <OverviewRow label="對帳狀態" value={state.reconciliationStatus} archived={isClosedView} />
-          <OverviewRow label="結案狀態" value={state.closeStatus} archived={isClosedView} />
-          <OverviewRow label="有效報價單" value={state.quotationImport?.fileName ?? "未匯入"} archived={isClosedView} />
-          <OverviewRow label="備註" value={state.note} archived={isClosedView} />
+          <OverviewRow label="專案代碼" value={state.projectCode} archived={isClosedView} />
+          <OverviewRow label="客戶" value={state.clientName} archived={isClosedView} />
+          <OverviewRow label="活動日期" value={state.eventDate} archived={isClosedView} />
+          <OverviewRow label="目前有效報價檔" value={state.quotationImport?.fileName ?? "未匯入"} archived={isClosedView} />
         </div>
       </section>
 
@@ -204,24 +190,19 @@ export function QuoteCostDetailClient({ project, mode = "active" }: Props) {
                 結案版本已鎖定
               </span>
             ) : (
-              quoteImportOptions.map((quote, index) => (
-                <button
-                  key={`${quote.fileName}-${quote.importedAt}`}
-                  type="button"
-                  onClick={() => handleImportQuote(index)}
-                  className={`rounded-2xl px-4 py-2 text-sm font-semibold transition ${quoteImportIndex === index ? "bg-slate-900 text-white" : "border border-slate-300 bg-white text-slate-800 hover:border-slate-400 hover:bg-slate-50"}`}
-                >
-                  匯入 {quote.fileName}
-                </button>
-              ))
+              <button
+                type="button"
+                onClick={() => {
+                  if (quoteImportOptions.length === 0) return;
+                  handleImportQuote((quoteImportIndex + 1) % quoteImportOptions.length);
+                }}
+                disabled={quoteImportOptions.length === 0}
+                className="rounded-2xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-800 transition hover:border-slate-400 hover:bg-slate-50 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
+              >
+                匯入報價單
+              </button>
             )}
           </div>
-        </div>
-
-        <div className={`mt-4 rounded-2xl border p-4 text-sm ${isClosedView ? "border-slate-200 bg-slate-50 text-slate-800" : "border-sky-100 bg-sky-50/70 text-sky-950"}`}>
-          <p className="font-semibold">目前有效報價單</p>
-          <p className="mt-1">{state.quotationImport?.fileName ?? "未匯入"} ・ {state.quotationImport?.importedAt ?? "-"}</p>
-          <p className={`mt-1 ${isClosedView ? "text-slate-600" : "text-sky-900"}`}>{state.quotationImport?.note ?? ""}</p>
         </div>
 
         <div className="mt-5 overflow-x-auto rounded-2xl border border-slate-200">
@@ -256,250 +237,113 @@ export function QuoteCostDetailClient({ project, mode = "active" }: Props) {
 
       <section className={`rounded-[28px] border p-6 shadow-sm ${isClosedView ? "border-slate-200 bg-slate-50/70" : "border-slate-200 bg-white"}`}>
         <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
-          <SectionHeader index="3" title="成本管理" description={isClosedView ? "沿用同一骨架，但以留存結果為主：先看廠商成本結果，再往下補充人工成本與例外項。" : "先看廠商成本主體，再補人工成本與例外項；讓使用者快速聚焦主要成本來源。"} archived={isClosedView} />
-          {!isClosedView && (
-            <button
-              type="button"
-              onClick={handleAddManualCost}
-              className="inline-flex items-center justify-center rounded-2xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800"
-            >
-              + 新增人工成本
-            </button>
-          )}
-        </div>
-
-        <div className="mt-5 grid gap-3 md:grid-cols-3">
-          {costSourceSummary.map((item) => (
-            <article key={item.label} className="rounded-3xl border border-slate-200 bg-white p-4">
-              <div className="flex items-center justify-between gap-2">
-                <span className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ring-1 ${item.badgeClass}`}>{item.label}</span>
-                <span className="text-xs text-slate-500">{item.count} 筆</span>
-              </div>
-              <p className="mt-3 text-lg font-semibold text-slate-900">{formatCurrency(item.originalTotal)}</p>
-              <p className="mt-1 text-xs text-slate-500">正式成立後承接到成本主線的有效小計</p>
-            </article>
-          ))}
-        </div>
-
-        <div className="mt-5 grid gap-4 xl:grid-cols-[1.6fr_1fr]">
-          <article className={`rounded-3xl border p-5 ${isClosedView ? "border-slate-200 bg-white" : "border-slate-900 bg-slate-900 text-white"}`}>
-            <p className={`text-xs font-medium tracking-[0.16em] uppercase ${isClosedView ? "text-slate-400" : "text-slate-300"}`}>Primary Cost Area</p>
-            <h4 className={`mt-2 text-xl font-semibold ${isClosedView ? "text-slate-900" : "text-white"}`}>廠商成本區</h4>
-            <p className={`mt-2 text-sm leading-6 ${isClosedView ? "text-slate-600" : "text-slate-200"}`}>設計 / 備品 / 廠商三條線的正式成本都先收進這裡，按廠商分組檢視；若要更新，必須回三條線重新全部確認。</p>
-            <div className="mt-4 grid gap-3 sm:grid-cols-3">
-              <InfoChip label="廠商群組" value={`${vendorGroups.length} 組`} archived={isClosedView} inverted={!isClosedView} />
-              <InfoChip label="計入成本" value={formatCurrency(vendorIncludedTotal)} archived={isClosedView} inverted={!isClosedView} />
-              <InfoChip label="未指定 / 例外" value={`${vendorGroups.find((group) => group.key === UNSPECIFIED_VENDOR_ID)?.items.length ?? 0} 筆`} archived={isClosedView} inverted={!isClosedView} />
-            </div>
-          </article>
-
-          <article className="rounded-3xl border border-slate-200 bg-white p-5">
-            <p className="text-xs font-medium tracking-[0.16em] text-slate-400 uppercase">Secondary Cost Area</p>
-            <h4 className="mt-2 text-lg font-semibold text-slate-900">人工成本區</h4>
-            <p className="mt-2 text-sm leading-6 text-slate-500">Financial 頁只允許新增 / 管理新增人工成本，不在這裡調整三條線正式成本。</p>
-            <div className="mt-4 grid gap-3 sm:grid-cols-2">
-              <InfoChip label="人工成本筆數" value={`${manualItems.length} 筆`} archived />
-              <InfoChip label="計入成本" value={formatCurrency(includedManualTotal)} archived />
-            </div>
-          </article>
-        </div>
-
-        <div className="mt-6 space-y-5">
-          {excludedCostItems.length > 0 && (
-            <div className={`rounded-3xl border p-4 ${isClosedView ? "border-amber-200 bg-amber-50/70" : "border-amber-200 bg-amber-50"}`}>
-              <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
-                <div>
-                  <p className="text-sm font-semibold text-amber-900">不計入成本項</p>
-                  <p className="mt-1 text-sm text-amber-800">這些項目目前保留紀錄，但未納入成本總額，需明確與主要成本節奏區隔。</p>
-                </div>
-                <span className="inline-flex rounded-full border border-amber-200 bg-white px-3 py-1 text-xs font-medium text-amber-800">
-                  {excludedCostItems.length} 筆未納入
-                </span>
-              </div>
-              <div className="mt-3 flex flex-wrap gap-2">
-                {excludedCostItems.map((item) => (
-                  <span key={item.id} className="inline-flex rounded-full border border-amber-200 bg-white px-3 py-1 text-xs font-medium text-amber-800">
-                    {item.itemName}
-                  </span>
-                ))}
-              </div>
-            </div>
-          )}
-
-          <div className="space-y-4">
-            {vendorGroups.map((group) => {
-              const originalSubtotal = group.items.filter((item) => item.includedInCost).reduce((sum, item) => sum + item.originalAmount, 0);
-              const adjustedSubtotal = group.items.filter((item) => item.includedInCost).reduce((sum, item) => sum + item.originalAmount, 0);
-              const excludedCount = group.items.filter((item) => !item.includedInCost).length;
-              const isUnspecifiedGroup = group.key === UNSPECIFIED_VENDOR_ID;
-
-              return (
-                <details key={group.key} className={`rounded-3xl border p-4 ${isClosedView ? "border-slate-200 bg-white" : isUnspecifiedGroup ? "border-amber-200 bg-amber-50/60" : "border-slate-200 bg-slate-50/60"}`} open>
-                  <summary className="flex cursor-pointer list-none flex-col gap-3 md:flex-row md:items-center md:justify-between">
-                    <div>
-                      <div className="flex flex-wrap items-center gap-2">
-                        <p className="text-base font-semibold text-slate-900">{group.name}</p>
-                        {isUnspecifiedGroup && (
-                          <span className="inline-flex rounded-full border border-amber-200 bg-white px-3 py-1 text-xs font-medium text-amber-800">
-                            待指定廠商
-                          </span>
-                        )}
-                        {excludedCount > 0 && (
-                          <span className="inline-flex rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-600">
-                            {excludedCount} 筆未納入
-                          </span>
-                        )}
-                      </div>
-                      <p className="mt-1 text-sm text-slate-500">正式成本小計 {formatCurrency(adjustedSubtotal)} ・ 原始記錄 {formatCurrency(originalSubtotal)}</p>
-                    </div>
-                    <span className="rounded-full bg-white px-3 py-1 text-xs text-slate-500 ring-1 ring-slate-200">{group.items.length} 筆</span>
-                  </summary>
-
-                  <div className="mt-4 space-y-3">
-                    {group.items.map((item) => (
-                      <div key={item.id} className={`rounded-2xl border p-4 ${!item.includedInCost ? "border-amber-200 bg-amber-50/70" : isClosedView ? "border-slate-200 bg-slate-50/70" : "border-slate-200 bg-white"}`}>
-                        <div className="flex flex-wrap items-start justify-between gap-3">
-                          <div>
-                            <div className="flex flex-wrap items-center gap-2">
-                              <p className="font-semibold text-slate-900">{item.itemName}</p>
-                              <span className={`inline-flex rounded-full px-2.5 py-1 text-[11px] font-medium ring-1 ${getSourceBadgeClass(item.sourceType)}`}>{item.sourceType}</span>
-                              {!item.includedInCost && (
-                                <span className="inline-flex rounded-full border border-amber-200 bg-white px-2.5 py-1 text-[11px] font-medium text-amber-800">不計入成本</span>
-                              )}
-                            </div>
-                            <p className="mt-1 text-sm text-slate-500">{item.sourceRef}</p>
-                          </div>
-                          <div className="text-right">
-                            <p className="text-xs text-slate-500">原始成本</p>
-                            <p className="mt-1 text-sm font-semibold text-slate-900">{formatCurrency(item.originalAmount)}</p>
-                          </div>
-                        </div>
-
-                        <div className="mt-4 grid gap-4 xl:grid-cols-[1fr_1fr_1.1fr]">
-                          <div>
-                            <label className="text-xs font-medium text-slate-500">正式成本</label>
-                            <input
-                              type="text"
-                              value={formatCurrency(item.originalAmount)}
-                              readOnly
-                              className="mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-slate-50 px-3 text-sm text-slate-600 outline-none"
-                            />
-                          </div>
-                          <div>
-                            <label className="text-xs font-medium text-slate-500">關聯廠商</label>
-                            <input
-                              type="text"
-                              value={item.vendorName ?? UNSPECIFIED_VENDOR_NAME}
-                              readOnly
-                              className="mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-slate-50 px-3 text-sm text-slate-600 outline-none"
-                            />
-                            <p className="mt-2 text-xs text-slate-500">若需更新正式成本或廠商歸屬，請回三條線重新全部確認。</p>
-                          </div>
-                          <div className="flex items-end">
-                            <label className="flex h-11 w-full items-center gap-2 rounded-2xl border border-slate-200 bg-slate-50 px-3 text-sm text-slate-600">
-                              <input
-                                type="checkbox"
-                                checked={item.includedInCost}
-                                readOnly
-                                disabled
-                                className="h-4 w-4 rounded border-slate-300 disabled:cursor-not-allowed"
-                              />
-                              正式成本固定計入
-                            </label>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </details>
-              );
-            })}
-          </div>
-
-          <div className="rounded-3xl border border-slate-200 bg-white p-5">
-            <div className="mb-4 flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
-              <div>
-                <h4 className="text-lg font-semibold text-slate-900">人工成本區</h4>
-                <p className="mt-1 text-sm text-slate-500">作為次區保留手動補充成本，避免與廠商成本主體混在同一層閱讀。</p>
-              </div>
-              <span className="rounded-full bg-slate-50 px-3 py-1 text-xs text-slate-500 ring-1 ring-slate-200">{manualItems.length} 筆</span>
-            </div>
-
-            <div className="space-y-3">
-              {manualItems.length === 0 ? (
-                <div className="rounded-2xl border border-dashed border-slate-300 p-5 text-sm text-slate-500">目前尚未新增人工成本。</div>
-              ) : (
-                manualItems.map((item) => (
-                  <div key={item.id} className={`rounded-2xl border p-4 ${!item.includedInCost ? "border-amber-200 bg-amber-50/70" : isClosedView ? "border-slate-200 bg-slate-50/80" : "border-slate-200 bg-slate-50/50"}`}>
-                    <div className="mb-3 flex flex-wrap items-center gap-2">
-                      <span className="inline-flex rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-medium text-slate-600 ring-1 ring-slate-200">人工成本</span>
-                      {!item.includedInCost && <span className="inline-flex rounded-full border border-amber-200 bg-white px-2.5 py-1 text-[11px] font-medium text-amber-800">不計入成本</span>}
-                    </div>
-                    <div className="grid gap-4 xl:grid-cols-[1.4fr_1.4fr_1fr]">
-                      <div>
-                        <label className="text-xs font-medium text-slate-500">項目</label>
-                        <input value={item.itemName} onChange={(event) => handleManualItemChange(item.id, "itemName", event.target.value)} readOnly={isClosedView} className="mt-2 h-11 w-full rounded-2xl border border-slate-200 px-3 text-sm outline-none focus:border-slate-400 read-only:bg-slate-50 read-only:text-slate-600" />
-                      </div>
-                      <div>
-                        <label className="text-xs font-medium text-slate-500">說明</label>
-                        <input value={item.sourceRef} onChange={(event) => handleManualItemChange(item.id, "sourceRef", event.target.value)} readOnly={isClosedView} className="mt-2 h-11 w-full rounded-2xl border border-slate-200 px-3 text-sm outline-none focus:border-slate-400 read-only:bg-slate-50 read-only:text-slate-600" />
-                      </div>
-                      <div>
-                        <label className="text-xs font-medium text-slate-500">金額</label>
-                        <input type="number" value={item.adjustedAmount} onChange={(event) => handleManualItemChange(item.id, "adjustedAmount", event.target.value)} readOnly={isClosedView} className="mt-2 h-11 w-full rounded-2xl border border-slate-200 px-3 text-sm outline-none focus:border-slate-400 read-only:bg-slate-50 read-only:text-slate-600" />
-                      </div>
-                    </div>
-                    <div className="mt-3 flex flex-wrap items-center gap-4 text-sm text-slate-600">
-                      <span>原始成本：{formatCurrency(item.originalAmount)}</span>
-                      <label className="flex items-center gap-2">
-                        <input type="checkbox" checked={item.includedInCost} onChange={(event) => handleIncludeToggle(item.id, event.target.checked)} disabled={isClosedView} className="h-4 w-4 rounded border-slate-300 disabled:cursor-not-allowed" />
-                        計入成本總額
-                      </label>
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className={`rounded-[28px] border p-6 shadow-sm ${isClosedView ? "border-slate-200 bg-white" : "border-slate-200 bg-white"}`}>
-        <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
-          <SectionHeader index="4" title="對帳 / 結案" description={isClosedView ? "此區保留結案當下的對帳與毛利結果，作為後續追溯與確認依據。" : "以對外報價總額、原始總成本總額與新增費用比對毛利；確認對帳完成後若成本再改，系統會自動取消已確認狀態。"} archived={isClosedView} />
+          <SectionHeader index="3" title="成本管理" description={isClosedView ? "保留三條線正式成本承接結果與人工新增費用，供結案後查閱。" : "設計 / 備品 / 廠商卡為唯讀承接來源；人工卡在此新增與管理，三條線正式成本不可直接在 Financial 頁修改。"} archived={isClosedView} />
           <div className="flex flex-wrap gap-2">
-            {isClosedView ? (
-              <span className="inline-flex items-center rounded-2xl border border-slate-200 bg-slate-50 px-4 py-2 text-sm font-semibold text-slate-700">
+            {!isClosedView && (
+              <button
+                type="button"
+                onClick={handleAddManualCost}
+                className="inline-flex items-center justify-center rounded-2xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800"
+              >
+                + 新增人工成本
+              </button>
+            )}
+            {!isClosedView && (
+              <button
+                type="button"
+                onClick={handleConfirmReconciliation}
+                disabled={!state.quotationImported || state.costItems.length === 0}
+                className="inline-flex items-center justify-center rounded-2xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:bg-slate-300"
+              >
+                確認對帳完成
+              </button>
+            )}
+            {isClosedView && (
+              <span className="inline-flex items-center rounded-2xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700">
                 已結案留存版本
               </span>
-            ) : (
-              <>
-                <button
-                  type="button"
-                  onClick={handleConfirmReconciliation}
-                  disabled={!state.quotationImported || state.costItems.length === 0}
-                  className="inline-flex items-center justify-center rounded-2xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:bg-slate-300"
-                >
-                  確認對帳完成
-                </button>
-                <button
-                  type="button"
-                  onClick={handleCloseProject}
-                  disabled={!state.quotationImported || state.costItems.length === 0 || state.reconciliationStatus !== "已完成"}
-                  className="inline-flex items-center justify-center rounded-2xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-300"
-                >
-                  手動結案
-                </button>
-              </>
             )}
           </div>
         </div>
 
-        <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-          <OverviewRow label="對外報價總額" value={formatCurrency(quotationTotal)} archived={isClosedView} />
-          <OverviewRow label="專案成本" value={formatCurrency(projectCostTotal)} archived={isClosedView} />
-          <OverviewRow label="毛利" value={formatCurrency(grossProfit)} archived={isClosedView} />
-          <OverviewRow label="目前狀態" value={`${state.reconciliationStatus} / ${state.closeStatus}`} archived={isClosedView} />
+        <div className="mt-5 grid gap-4 xl:grid-cols-4">
+          {costSourceSummary.map((item) => (
+            <article key={item.label} className="rounded-3xl border border-slate-200 bg-white p-4">
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <span className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ring-1 ${item.badgeClass}`}>{item.label}</span>
+                  <p className="mt-3 text-lg font-semibold text-slate-900">{formatCurrency(item.originalTotal)}</p>
+                </div>
+                {item.href ? (
+                  <Link href={item.href} className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition hover:border-slate-400 hover:bg-slate-50">
+                    {item.count} 筆
+                  </Link>
+                ) : (
+                  <span className="inline-flex items-center justify-center rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-600">
+                    {item.count} 筆
+                  </span>
+                )}
+              </div>
+              <p className="mt-2 text-xs leading-5 text-slate-500">{item.description}</p>
+            </article>
+          ))}
+
+          <article className="rounded-3xl border border-slate-200 bg-white p-4">
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <span className="inline-flex rounded-full px-3 py-1 text-xs font-semibold ring-1 bg-slate-100 text-slate-700 ring-slate-200">人工</span>
+                <p className="mt-3 text-lg font-semibold text-slate-900">{formatCurrency(additionalManualCostTotal)}</p>
+              </div>
+              <span className="inline-flex items-center justify-center rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-600">
+                {manualItems.length} 筆
+              </span>
+            </div>
+            <p className="mt-2 text-xs leading-5 text-slate-500">新增 / 管理型成本卡。欄位固定為項目、說明、金額。</p>
+          </article>
+        </div>
+
+        <div className="mt-6 rounded-3xl border border-slate-200 bg-white p-5">
+          <div className="mb-4 flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+            <div>
+              <h4 className="text-lg font-semibold text-slate-900">人工新增費用</h4>
+              <p className="mt-1 text-sm text-slate-500">固定欄位：項目 / 說明 / 金額。</p>
+            </div>
+            {!isClosedView && (
+              <button
+                type="button"
+                onClick={handleCloseProject}
+                disabled={!state.quotationImported || state.costItems.length === 0 || state.reconciliationStatus !== "已完成"}
+                className="inline-flex items-center justify-center rounded-2xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-300"
+              >
+                手動結案
+              </button>
+            )}
+          </div>
+
+          <div className="space-y-3">
+            {manualItems.length === 0 ? (
+              <div className="rounded-2xl border border-dashed border-slate-300 p-5 text-sm text-slate-500">目前尚未新增人工成本。</div>
+            ) : (
+              manualItems.map((item) => (
+                <div key={item.id} className={`rounded-2xl border p-4 ${isClosedView ? "border-slate-200 bg-slate-50/80" : "border-slate-200 bg-slate-50/50"}`}>
+                  <div className="grid gap-4 xl:grid-cols-[1.4fr_1.4fr_1fr]">
+                    <div>
+                      <label className="text-xs font-medium text-slate-500">項目</label>
+                      <input value={item.itemName} onChange={(event) => handleManualItemChange(item.id, "itemName", event.target.value)} readOnly={isClosedView} className="mt-2 h-11 w-full rounded-2xl border border-slate-200 px-3 text-sm outline-none focus:border-slate-400 read-only:bg-slate-50 read-only:text-slate-600" />
+                    </div>
+                    <div>
+                      <label className="text-xs font-medium text-slate-500">說明</label>
+                      <input value={item.sourceRef} onChange={(event) => handleManualItemChange(item.id, "sourceRef", event.target.value)} readOnly={isClosedView} className="mt-2 h-11 w-full rounded-2xl border border-slate-200 px-3 text-sm outline-none focus:border-slate-400 read-only:bg-slate-50 read-only:text-slate-600" />
+                    </div>
+                    <div>
+                      <label className="text-xs font-medium text-slate-500">金額</label>
+                      <input type="number" value={item.adjustedAmount} onChange={(event) => handleManualItemChange(item.id, "adjustedAmount", event.target.value)} readOnly={isClosedView} className="mt-2 h-11 w-full rounded-2xl border border-slate-200 px-3 text-sm outline-none focus:border-slate-400 read-only:bg-slate-50 read-only:text-slate-600" />
+                    </div>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
         </div>
       </section>
       </AppShell>
@@ -507,13 +351,23 @@ export function QuoteCostDetailClient({ project, mode = "active" }: Props) {
   );
 }
 
-function getCostSourceSummary(costItems: CostLineItem[]) {
+function getCostSourceSummary(costItems: CostLineItem[], projectId: string) {
   const sourceOrder: CostSourceType[] = ["設計", "備品", "廠商"];
   const sourceTone: Record<CostSourceType, string> = {
     設計: "bg-blue-50 text-blue-700 ring-blue-200",
     備品: "bg-amber-50 text-amber-700 ring-amber-200",
     廠商: "bg-violet-50 text-violet-700 ring-violet-200",
     人工: "bg-slate-100 text-slate-700 ring-slate-200",
+  };
+  const sourceHref: Record<Exclude<CostSourceType, "人工">, string> = {
+    設計: `/design-tasks?project=${encodeURIComponent(projectId)}`,
+    備品: `/procurement-tasks?project=${encodeURIComponent(projectId)}`,
+    廠商: `/vendor-assignments?project=${encodeURIComponent(projectId)}`,
+  };
+  const sourceDescription: Record<Exclude<CostSourceType, "人工">, string> = {
+    設計: "承接設計線全部確認後的正式成本，需回設計任務列表層更新。",
+    備品: "承接備品線全部確認後的正式成本，需回備品任務列表層更新。",
+    廠商: "承接廠商線全部確認後的正式成本，需回廠商發包列表層更新。",
   };
 
   return sourceOrder.map((sourceType) => {
@@ -522,19 +376,11 @@ function getCostSourceSummary(costItems: CostLineItem[]) {
       label: sourceType,
       count: items.length,
       originalTotal: items.reduce((sum, item) => sum + item.originalAmount, 0),
-      adjustedTotal: items.reduce((sum, item) => sum + item.adjustedAmount, 0),
       badgeClass: sourceTone[sourceType],
+      href: sourceHref[sourceType as Exclude<CostSourceType, "人工">],
+      description: sourceDescription[sourceType as Exclude<CostSourceType, "人工">],
     };
   });
-}
-
-function getSourceBadgeClass(sourceType: CostSourceType) {
-  return {
-    設計: "bg-blue-50 text-blue-700 ring-blue-200",
-    備品: "bg-amber-50 text-amber-700 ring-amber-200",
-    廠商: "bg-violet-50 text-violet-700 ring-violet-200",
-    人工: "bg-slate-100 text-slate-700 ring-slate-200",
-  }[sourceType];
 }
 
 function QuickPanel({ value, label, archived }: { value: string; label: string; archived: boolean }) {
@@ -577,11 +423,11 @@ function SectionHeader({ index, title, description, archived = false }: { index:
   );
 }
 
-function InfoChip({ label, value, archived = false, inverted = false }: { label: string; value: string; archived?: boolean; inverted?: boolean }) {
+function StatusBadge({ label, value, toneClass }: { label: string; value: string; toneClass: string }) {
   return (
-    <div className={`rounded-2xl border px-3 py-3 ${inverted ? "border-white/10 bg-black/10" : archived ? "border-slate-200 bg-slate-50" : "border-slate-200 bg-white"}`}>
-      <p className={`text-xs ${inverted ? "text-slate-300" : "text-slate-500"}`}>{label}</p>
-      <p className={`mt-1 text-sm font-semibold ${inverted ? "text-white" : "text-slate-900"}`}>{value}</p>
+    <div className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-medium ring-1 ${toneClass}`}>
+      <span className="opacity-70">{label}</span>
+      <span className="font-semibold">{value}</span>
     </div>
   );
 }

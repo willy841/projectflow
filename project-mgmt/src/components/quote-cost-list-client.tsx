@@ -5,8 +5,9 @@ import { AppShell } from "@/components/app-shell";
 import {
   formatCurrency,
   getCloseStatusClass,
+  getFormalOriginalCostTotal,
   getGrossProfit,
-  getProjectCostTotal,
+  getAdditionalManualCostTotal,
   getQuotationTotal,
   type CostSourceType,
 } from "@/components/quote-cost-data";
@@ -17,7 +18,9 @@ export function QuoteCostListClient({ mode = "active" }: { mode?: "active" | "cl
     .filter((project) => project.projectStatus === "執行中")
     .map((project) => {
       const quotationTotal = getQuotationTotal(project.quotationItems);
-      const projectCostTotal = getProjectCostTotal(project.costItems);
+      const originalCostTotal = getFormalOriginalCostTotal(project.costItems);
+      const additionalManualCostTotal = getAdditionalManualCostTotal(project.costItems);
+      const projectCostTotal = originalCostTotal + additionalManualCostTotal;
       const grossProfit = getGrossProfit(quotationTotal, projectCostTotal);
       const excludedCostCount = project.costItems.filter((item) => !item.includedInCost).length;
       const unassignedVendorCount = project.costItems.filter((item) => !item.isManual && !item.vendorId).length;
@@ -29,6 +32,8 @@ export function QuoteCostListClient({ mode = "active" }: { mode?: "active" | "cl
       return {
         project,
         quotationTotal,
+        originalCostTotal,
+        additionalManualCostTotal,
         projectCostTotal,
         grossProfit,
         excludedCostCount,
@@ -47,11 +52,6 @@ export function QuoteCostListClient({ mode = "active" }: { mode?: "active" | "cl
     return null;
   }
 
-  const importedProjects = activeProjects.filter(({ project }) => project.quotationImported);
-  const pendingReconciliationProjects = activeProjects.filter(({ project }) => project.reconciliationStatus !== "已完成");
-  const unreconciledCostProjects = activeProjects.filter(({ excludedCostCount }) => excludedCostCount > 0);
-  const unassignedVendorProjects = activeProjects.filter(({ unassignedVendorCount }) => unassignedVendorCount > 0);
-
   return (
     <AppShell activePath="/quote-costs">
       <header className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200 xl:p-7">
@@ -66,7 +66,7 @@ export function QuoteCostListClient({ mode = "active" }: { mode?: "active" | "cl
       <section className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
 
         <div className="space-y-4">
-          {activeProjects.map(({ project, quotationTotal, projectCostTotal, grossProfit, excludedCostCount, unassignedVendorCount, manualCostCount, needsAttentionScore, sourceSummary }) => (
+          {activeProjects.map(({ project, quotationTotal, projectCostTotal, grossProfit, manualCostCount, sourceSummary }) => (
             <article key={project.id} className="rounded-3xl border border-slate-200 p-5">
               <div className="flex flex-col gap-4">
                 <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
@@ -94,9 +94,9 @@ export function QuoteCostListClient({ mode = "active" }: { mode?: "active" | "cl
 
               <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
                 <MetricCard label="對外報價總額" value={formatCurrency(quotationTotal)} />
-                <MetricCard label="專案成本" value={formatCurrency(projectCostTotal)} />
+                <MetricCard label="實際成本" value={formatCurrency(projectCostTotal)} />
                 <MetricCard label="毛利" value={formatCurrency(grossProfit)} />
-                <MetricCard label="新增人工成本筆數" value={`${manualCostCount} 筆`} />
+                <MetricCard label="人工更正新增費用筆數" value={`${manualCostCount} 筆`} />
               </div>
 
               <div className="mt-5 grid gap-3 md:grid-cols-3">
@@ -104,7 +104,7 @@ export function QuoteCostListClient({ mode = "active" }: { mode?: "active" | "cl
                   <div key={item.label} className="rounded-2xl bg-slate-50 p-4 ring-1 ring-slate-200">
                     <div className="flex items-center justify-between gap-2">
                       <span className={`inline-flex rounded-full px-2.5 py-1 text-[11px] font-semibold ring-1 ${item.badgeClass}`}>{item.label}</span>
-                      <span className="text-xs text-slate-500">{item.count} 筆</span>
+                      <span className="text-xs text-slate-500">正式成立成本</span>
                     </div>
                     <p className="mt-3 text-sm font-semibold text-slate-900">{formatCurrency(item.total)}</p>
                   </div>
