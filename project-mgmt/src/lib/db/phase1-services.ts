@@ -11,8 +11,9 @@ import type {
   DesignPlanSyncInput,
   PlanSyncSummary,
   ProcurementPlanSyncInput,
+  VendorPlanSyncInput,
 } from '@/lib/db/plan-sync';
-import { diffDesignPlans, diffProcurementPlans } from '@/lib/db/plan-sync';
+import { diffDesignPlans, diffProcurementPlans, diffVendorPlans } from '@/lib/db/plan-sync';
 import type {
   DesignTaskPlanRow,
   DesignTaskRow,
@@ -36,6 +37,7 @@ export interface Phase1Services {
   saveProcurementPlan(input: InsertProcurementTaskPlanInput): Promise<ProcurementTaskPlanRow>;
   syncProcurementPlans(taskId: UUID, inputs: ProcurementPlanSyncInput[]): Promise<PlanSyncSummary<ProcurementTaskPlanRow>>;
   saveVendorPlan(input: InsertVendorTaskPlanInput): Promise<VendorTaskPlanRow>;
+  syncVendorPlans(taskId: UUID, inputs: VendorPlanSyncInput[]): Promise<PlanSyncSummary<VendorTaskPlanRow>>;
   confirmDesignTaskPlans(taskId: UUID): Promise<TaskConfirmationRow>;
   confirmProcurementTaskPlans(taskId: UUID): Promise<TaskConfirmationRow>;
   confirmVendorTaskPlans(taskId: UUID): Promise<TaskConfirmationRow>;
@@ -127,6 +129,30 @@ export function createPhase1Services(repositories: Phase1Repositories): Phase1Se
     },
     async saveVendorPlan(input) {
       return repositories.vendorTaskPlans.insert(input);
+    },
+    async syncVendorPlans(taskId, inputs) {
+      const existing = await repositories.vendorTaskPlans.listByTask(taskId);
+      const diff = diffVendorPlans(existing, inputs);
+
+      for (const deleteId of diff.deleteIds) {
+        await repositories.vendorTaskPlans.deleteById(deleteId);
+      }
+
+      for (const update of diff.updates) {
+        await repositories.vendorTaskPlans.update(update.id, update.input);
+      }
+
+      for (const input of diff.inserts) {
+        await repositories.vendorTaskPlans.insert(input);
+      }
+
+      return {
+        rows: await repositories.vendorTaskPlans.listByTask(taskId),
+        inserted: diff.inserts.length,
+        updated: diff.updates.length,
+        deleted: diff.deleteIds.length,
+        kept: diff.keptIds.length,
+      };
     },
     async confirmDesignTaskPlans(taskId) {
       const task = await repositories.designTasks.findById(taskId);

@@ -37,14 +37,14 @@ export function VendorPlanEditorClient({ taskId, initialPlans }: { taskId: strin
 
   async function persistCurrentPlans() {
     const currentPlans = plans.filter((plan) => plan.title.trim());
-    const response = await fetch(`/api/vendor-tasks/${taskId}/replace-plans`, {
+    const response = await fetch(`/api/vendor-tasks/${taskId}/sync-plans`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ plans: currentPlans }),
     });
     if (!response.ok) {
       const payload = (await response.json().catch(() => null)) as { error?: string } | null;
-      throw new Error(payload?.error || "replace vendor plans failed");
+      throw new Error(payload?.error || "sync vendor plans failed");
     }
   }
 
@@ -57,7 +57,7 @@ export function VendorPlanEditorClient({ taskId, initialPlans }: { taskId: strin
         return;
       }
       await persistCurrentPlans();
-      setMessage("已儲存 vendor 執行處理。\n目前畫面內容已覆蓋成正式 live plans。\n重新整理後應看到最新結果。");
+      setMessage("已儲存 vendor 執行處理。\nlive plans 已改走 diff-based sync。\n重新整理後應看到最新結果。");
       router.refresh();
     } catch (error) {
       setMessage(`儲存失敗：${error instanceof Error ? error.message : "請稍後再試。"}`);
