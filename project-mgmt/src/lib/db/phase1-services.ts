@@ -25,6 +25,7 @@ export interface Phase1Services {
   publishProcurementTask(input: InsertProcurementTaskInput): Promise<ProcurementTaskRow>;
   publishVendorTask(input: InsertVendorTaskInput): Promise<VendorTaskRow>;
   saveDesignPlan(input: InsertDesignTaskPlanInput): Promise<DesignTaskPlanRow>;
+  replaceDesignPlans(taskId: UUID, inputs: InsertDesignTaskPlanInput[]): Promise<DesignTaskPlanRow[]>;
   saveProcurementPlan(input: InsertProcurementTaskPlanInput): Promise<ProcurementTaskPlanRow>;
   saveVendorPlan(input: InsertVendorTaskPlanInput): Promise<VendorTaskPlanRow>;
   confirmDesignTaskPlans(taskId: UUID): Promise<TaskConfirmationRow>;
@@ -54,6 +55,16 @@ export function createPhase1Services(repositories: Phase1Repositories): Phase1Se
     },
     async saveDesignPlan(input) {
       return repositories.designTaskPlans.insert(input);
+    },
+    async replaceDesignPlans(taskId, inputs) {
+      await repositories.designTaskPlans.deleteByTask(taskId);
+      const rows: DesignTaskPlanRow[] = [];
+
+      for (const input of inputs) {
+        rows.push(await repositories.designTaskPlans.insert(input));
+      }
+
+      return rows;
     },
     async saveProcurementPlan(input) {
       return repositories.procurementTaskPlans.insert(input);

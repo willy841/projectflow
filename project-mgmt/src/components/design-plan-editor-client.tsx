@@ -75,25 +75,23 @@ export function DesignPlanEditorClient({
     setPlans((current) => current.filter((plan) => plan.id !== id));
   }
 
-  async function persistDraftPlans() {
-    const drafts = plans.filter((plan) => plan.title.trim() && plan.id.startsWith("draft-"));
+  async function persistCurrentPlans() {
+    const currentPlans = plans.filter((plan) => plan.title.trim());
 
-    for (const plan of drafts) {
-      const response = await fetch(`/api/design-tasks/${taskId}/plans`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(plan),
-      });
+    const response = await fetch(`/api/design-tasks/${taskId}/replace-plans`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ plans: currentPlans }),
+    });
 
-      if (!response.ok) {
-        const payload = (await response.json().catch(() => null)) as { error?: string } | null;
-        throw new Error(payload?.error || "save failed");
-      }
+    if (!response.ok) {
+      const payload = (await response.json().catch(() => null)) as { error?: string } | null;
+      throw new Error(payload?.error || "replace plans failed");
     }
 
-    return drafts.length;
+    return currentPlans.length;
   }
 
   async function saveAllPlans() {
@@ -106,8 +104,8 @@ export function DesignPlanEditorClient({
         return;
       }
 
-      await persistDraftPlans();
-      setMessage("已儲存設計執行處理。\n若有新資料，重新整理後會顯示正式寫入結果。");
+      await persistCurrentPlans();
+      setMessage("已儲存設計執行處理。\n目前畫面內容已覆蓋成正式 live plans。\n重新整理後應看到最新結果。");
       router.refresh();
     } catch (error) {
       setMessage(`儲存失敗：${error instanceof Error ? error.message : "請稍後再試。"}`);
@@ -126,7 +124,7 @@ export function DesignPlanEditorClient({
         return;
       }
 
-      await persistDraftPlans();
+      await persistCurrentPlans();
 
       const response = await fetch(`/api/design-tasks/${taskId}/confirm`, {
         method: "POST",

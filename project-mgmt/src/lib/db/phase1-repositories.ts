@@ -87,6 +87,7 @@ export interface VendorTaskRepository {
 
 export interface DesignTaskPlanRepository {
   listByTask(designTaskId: UUID): Promise<DesignTaskPlanRow[]>;
+  deleteByTask(designTaskId: UUID): Promise<void>;
   insert(input: InsertDesignTaskPlanInput): Promise<DesignTaskPlanRow>;
   update(id: UUID, input: UpdateDesignTaskPlanInput): Promise<DesignTaskPlanRow>;
 }
@@ -403,6 +404,15 @@ export function createPhase1Repositories(db: Phase1DbClient): Phase1Repositories
           [designTaskId],
         );
         return result.rows;
+      },
+      async deleteByTask(designTaskId) {
+        await db.query(
+          `
+            delete from design_task_plans
+            where design_task_id = $1
+          `,
+          [designTaskId],
+        );
       },
       async insert(input) {
         return insertRow<DesignTaskPlanRow, InsertDesignTaskPlanInput>(db, 'design_task_plans', input);
