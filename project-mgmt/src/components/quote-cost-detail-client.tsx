@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AppShell } from "@/components/app-shell";
 import {
@@ -34,8 +34,8 @@ export function QuoteCostDetailClient({ project, mode = "active", initialProject
   const router = useRouter();
   const workflowProject = initialProject ?? getQuoteCostProjectsWithWorkflow().find((item) => item.id === project.id) ?? project;
   const [state, setState] = useState<EditableProjectState>(workflowProject);
-  const initialManualSyncSkippedRef = useRef(false);
   const [manualSyncError, setManualSyncError] = useState<string | null>(null);
+  const [manualSyncSuccess, setManualSyncSuccess] = useState<string | null>(null);
   const [isManualSyncing, setIsManualSyncing] = useState(false);
   const [quoteImportIndex, setQuoteImportIndex] = useState(0);
   const quoteImportOptions = sampleQuoteImports[project.id] ?? [project.quotationImport].filter(Boolean);
@@ -55,49 +55,8 @@ export function QuoteCostDetailClient({ project, mode = "active", initialProject
     amount: item.adjustedAmount,
     includedInCost: item.includedInCost,
   }))), [manualItems]);
-
-  useEffect(() => {
-    if (isClosedView) return;
-    if (!initialManualSyncSkippedRef.current) {
-      initialManualSyncSkippedRef.current = true;
-      return;
-    }
-
-    let cancelled = false;
-    const timeoutId = window.setTimeout(async () => {
-      setIsManualSyncing(true);
-      setManualSyncError(null);
-
-      try {
-        const response = await fetch(`/api/financial-projects/${state.id}/manual-costs/sync`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ items: JSON.parse(manualSyncPayload) }),
-        });
-
-        if (!response.ok) {
-          throw new Error("manual-cost-sync-failed");
-        }
-
-        if (!cancelled) {
-          router.refresh();
-        }
-      } catch {
-        if (!cancelled) {
-          setManualSyncError("人工新增費用儲存失敗，請稍後再試。");
-        }
-      } finally {
-        if (!cancelled) {
-          setIsManualSyncing(false);
-        }
-      }
-    }, 350);
-
-    return () => {
-      cancelled = true;
-      window.clearTimeout(timeoutId);
-    };
-  }, [isClosedView, manualSyncPayload, router, state.id]);
+  const [lastSavedManualSyncPayload, setLastSavedManualSyncPayload] = useState(manualSyncPayload);
+  const hasUnsavedManualChanges = manualSyncPayload !== lastSavedManualSyncPayload;
 
   function mutateCosts(mutator: (prev: EditableProjectState) => EditableProjectState) {
     setState((prev) => {
@@ -111,6 +70,34 @@ export function QuoteCostDetailClient({ project, mode = "active", initialProject
       }
       return next;
     });
+  }
+
+  async function handleSaveManualCosts() {
+    if (isClosedView || isManualSyncing || !hasUnsavedManualChanges) return;
+
+    setIsManualSyncing(true);
+    setManualSyncError(null);
+    setManualSyncSuccess(null);
+
+    try {
+      const response = await fetch(`/api/financial-projects/${state.id}/manual-costs/sync`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ items: JSON.parse(manualSyncPayload) }),
+      });
+
+      if (!response.ok) {
+        throw new Error("manual-cost-sync-failed");
+      }
+
+      setLastSavedManualSyncPayload(manualSyncPayload);
+      setManualSyncSuccess("人工新增費用已儲存，list / detail / closeout 會承接最新資料。");
+      router.refresh();
+    } catch {
+      setManualSyncError("人工新增費用儲存失敗，尚未寫入正式資料，請再按一次「儲存」。");
+    } finally {
+      setIsManualSyncing(false);
+    }
   }
 
   function handleImportQuote(index: number) {
@@ -135,6 +122,8 @@ export function QuoteCostDetailClient({ project, mode = "active", initialProject
   }
 
   function handleAddManualCost() {
+    setManualSyncError(null);
+    setManualSyncSuccess(null);
     mutateCosts((prev) => ({
       ...prev,
       costItems: [
@@ -156,6 +145,8 @@ export function QuoteCostDetailClient({ project, mode = "active", initialProject
   }
 
   function handleManualItemChange(itemId: string, field: "itemName" | "sourceRef" | "adjustedAmount", value: string) {
+    setManualSyncError(null);
+    setManualSyncSuccess(null);
     mutateCosts((prev) => ({
       ...prev,
       costItems: prev.costItems.map((item) => {
@@ -361,22 +352,38 @@ export function QuoteCostDetailClient({ project, mode = "active", initialProject
           <div className="mb-4 flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
             <div>
               <h4 className="text-lg font-semibold text-slate-900">人工新增費用</h4>
-              <p className="mt-1 text-sm text-slate-500">固定欄位：項目 / 說明 / 金額。</p>
+              <p className="mt-1 text-sm text-slate-500">固定欄位：項目 / 說明 / 金額。編輯內容只先留在本頁，按下「儲存」才正式寫入資料庫。</p>
               {!isClosedView && (
-                <p className={`mt-2 text-xs ${manualSyncError ? "text-rose-600" : "text-slate-400"}`}>
-                  {manualSyncError ?? (isManualSyncing ? "人工新增費用儲存中..." : "人工新增費用已接正式資料層，會承接到 list / detail / closeout。")}
+                <p className={`mt-2 text-xs ${manualSyncError ? "text-rose-600" : manualSyncSuccess ? "text-emerald-600" : hasUnsavedManualChanges ? "text-amber-600" : "text-slate-400"}`}>
+                  {manualSyncError
+                    ?? manualSyncSuccess
+                    ?? (isManualSyncing
+                      ? "人工新增費用儲存中..."
+                      : hasUnsavedManualChanges
+                        ? "你目前有尚未儲存的人工新增費用；按下「儲存」後才會同步到 list / detail / closeout。"
+                        : "目前人工新增費用已與正式資料同步。")}
                 </p>
               )}
             </div>
             {!isClosedView && (
-              <button
-                type="button"
-                onClick={handleCloseProject}
-                disabled={!state.quotationImported || state.costItems.length === 0 || state.reconciliationStatus !== "已完成"}
-                className="inline-flex items-center justify-center rounded-2xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-300"
-              >
-                手動結案
-              </button>
+              <div className="flex flex-wrap items-center justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={handleSaveManualCosts}
+                  disabled={!hasUnsavedManualChanges || isManualSyncing}
+                  className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 transition hover:border-slate-400 hover:bg-slate-50 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
+                >
+                  {isManualSyncing ? "儲存中..." : "儲存人工新增費用"}
+                </button>
+                <button
+                  type="button"
+                  onClick={handleCloseProject}
+                  disabled={!state.quotationImported || state.costItems.length === 0 || state.reconciliationStatus !== "已完成"}
+                  className="inline-flex items-center justify-center rounded-2xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-300"
+                >
+                  手動結案
+                </button>
+              </div>
             )}
           </div>
 
