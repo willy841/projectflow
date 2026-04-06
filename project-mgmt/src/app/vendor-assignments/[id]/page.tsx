@@ -10,14 +10,10 @@ import { isUuidLike } from "@/lib/db/design-flow-toggle";
 export default async function VendorAssignmentTaskPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const useDb = shouldUseDbVendorFlow() && isUuidLike(id);
-  const task = useDb
-    ? await getDbVendorTaskById(id)
-    : vendorAssignments.find((assignment) => assignment.id === id)
-      ? null
-      : null;
-
-  if (useDb && !task) notFound();
   if (!useDb) notFound();
+
+  const task = await getDbVendorTaskById(id);
+  if (!task) notFound();
 
   return (
     <AppShell activePath="/vendor-assignments">
