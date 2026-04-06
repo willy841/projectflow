@@ -1,9 +1,11 @@
+import type { QueryResultRow } from '@/lib/db/phase1-client';
+
 export type UUID = string;
 export type TimestampString = string;
 export type ISODateString = string;
 export type FlowType = 'design' | 'procurement' | 'vendor';
 
-export interface BaseRow {
+export interface BaseRow extends QueryResultRow {
   id: UUID;
   created_at: TimestampString;
 }
