@@ -25,8 +25,7 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     material: body.material ?? null,
     structure: body.structure ?? null,
     quantity: body.quantity ?? null,
-    amount: body.amount?.replace(/[^
-\d.-]/g, '') || null,
+    amount: body.amount?.replace(/[^\d.-]/g, '') || null,
     preview_url: body.previewUrl ?? null,
     vendor_name_text: body.vendor ?? null,
     sort_order: Date.now(),
