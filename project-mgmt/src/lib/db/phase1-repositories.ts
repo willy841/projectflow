@@ -101,6 +101,7 @@ export interface ProcurementTaskPlanRepository {
 
 export interface VendorTaskPlanRepository {
   listByTask(vendorTaskId: UUID): Promise<VendorTaskPlanRow[]>;
+  deleteByTask(vendorTaskId: UUID): Promise<void>;
   insert(input: InsertVendorTaskPlanInput): Promise<VendorTaskPlanRow>;
   update(id: UUID, input: UpdateVendorTaskPlanInput): Promise<VendorTaskPlanRow>;
 }
@@ -477,6 +478,15 @@ export function createPhase1Repositories(db: Phase1DbClient): Phase1Repositories
           [vendorTaskId],
         );
         return result.rows;
+      },
+      async deleteByTask(vendorTaskId) {
+        await db.query(
+          `
+            delete from vendor_task_plans
+            where vendor_task_id = $1
+          `,
+          [vendorTaskId],
+        );
       },
       async insert(input) {
         return insertRow<VendorTaskPlanRow, InsertVendorTaskPlanInput>(db, 'vendor_task_plans', input);
