@@ -19,6 +19,11 @@
 - 已對齊 migration tables 與主要欄位
 - 已定義 insert / update input types
 - 已接 `pg` runtime client
+- DB client 目前支援讀取：
+  - `DATABASE_URL`
+  - `POSTGRES_URL`
+  - `POSTGRES_PRISMA_URL`
+  - `POSTGRES_URL_NON_POOLING`
 - 已實作第一批 read path：
   - `projects.findById`
   - `projects.list`

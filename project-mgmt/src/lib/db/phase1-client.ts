@@ -18,10 +18,29 @@ export interface Phase1DbClient {
 let poolSingleton: Pool | null = null;
 
 export function getDatabaseUrl(): string {
-  const databaseUrl = process.env.DATABASE_URL ?? process.env.POSTGRES_URL;
+  const databaseUrl =
+    process.env.DATABASE_URL ??
+    process.env.POSTGRES_URL ??
+    process.env.POSTGRES_PRISMA_URL ??
+    process.env.POSTGRES_URL_NON_POOLING;
+
   if (!databaseUrl) {
-    throw new Error('Missing DATABASE_URL or POSTGRES_URL');
+    throw new Error(
+      'Missing DATABASE_URL/POSTGRES_URL/POSTGRES_PRISMA_URL/POSTGRES_URL_NON_POOLING',
+    );
   }
+
+  try {
+    const parsed = new URL(databaseUrl);
+    if (!['postgres:', 'postgresql:'].includes(parsed.protocol)) {
+      throw new Error(`Unsupported database protocol: ${parsed.protocol}`);
+    }
+  } catch (error) {
+    throw new Error(
+      `Invalid database URL. Check Vercel env DATABASE_URL (or fallback POSTGRES_* vars). ${error instanceof Error ? error.message : ''}`,
+    );
+  }
+
   return databaseUrl;
 }
 
