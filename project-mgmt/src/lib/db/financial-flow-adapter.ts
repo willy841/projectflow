@@ -175,6 +175,10 @@ const CANONICAL_CONFIRMATIONS_CTE = `
       tc.flow_type,
       coalesce(dt.project_id, pt.project_id, vt.project_id, tc.project_id) as project_id,
       tc.task_id,
+      coalesce(
+        tc.task_id::text,
+        concat('__project__:', coalesce(dt.project_id, pt.project_id, vt.project_id, tc.project_id)::text)
+      ) as confirmation_partition_key,
       tc.confirmation_no,
       tc.confirmed_at,
       tc.created_at
@@ -191,7 +195,7 @@ const CANONICAL_CONFIRMATIONS_CTE = `
     where tc.flow_type in ('design', 'procurement', 'vendor')
   ),
   latest_task_confirmations as (
-    select distinct on (tc.flow_type, tc.task_id)
+    select distinct on (tc.flow_type, tc.confirmation_partition_key)
       tc.id,
       tc.flow_type,
       tc.project_id,
@@ -200,7 +204,7 @@ const CANONICAL_CONFIRMATIONS_CTE = `
       tc.confirmed_at,
       tc.created_at
     from canonical_task_confirmations tc
-    order by tc.flow_type, tc.task_id, tc.confirmation_no desc, tc.confirmed_at desc, tc.created_at desc, tc.id desc
+    order by tc.flow_type, tc.confirmation_partition_key, tc.confirmation_no desc, tc.confirmed_at desc, tc.created_at desc, tc.id desc
   )
 `;
 
