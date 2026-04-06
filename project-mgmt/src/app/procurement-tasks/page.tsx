@@ -1,13 +1,24 @@
 import Link from "next/link";
 import { AppShell } from "@/components/app-shell";
 import { procurementTaskBoardRecords } from "@/components/procurement-task-board-data";
-import { projects as projectSeeds } from "@/components/project-data";
+import {
+  listDbProcurementTaskProjects,
+  listDbProcurementTasksByProject,
+} from "@/lib/db/procurement-flow-adapter";
+import { shouldUseDbProcurementFlow } from "@/lib/db/procurement-flow-toggle";
 
 type ProjectEntry = {
   projectId: string;
   projectName: string;
   eventDate: string;
   taskCount: number;
+};
+
+type ProjectTaskEntry = {
+  id: string;
+  title: string;
+  quantity: string;
+  costLabel: string;
 };
 
 export default async function ProcurementTasksPage({
@@ -18,40 +29,48 @@ export default async function ProcurementTasksPage({
   const resolvedSearch = searchParams ? await searchParams : undefined;
   const activeProjectId = resolvedSearch?.project;
 
-  const map = new Map<string, ProjectEntry>();
+  let projects: ProjectEntry[] = [];
+  let projectTasks: ProjectTaskEntry[] = [];
 
-  procurementTaskBoardRecords.forEach((record) => {
-    const existing = map.get(record.projectId);
-    if (existing) {
-      existing.taskCount += 1;
-      return;
-    }
-
-    const projectMeta = projectSeeds.find((project) => project.id === record.projectId);
-
-    map.set(record.projectId, {
-      projectId: record.projectId,
-      projectName: record.projectName,
-      eventDate: projectMeta?.eventDate || "未設定",
-      taskCount: 1,
+  if (shouldUseDbProcurementFlow()) {
+    projects = await listDbProcurementTaskProjects();
+    projectTasks = activeProjectId ? await listDbProcurementTasksByProject(activeProjectId) : [];
+  } else {
+    const map = new Map<string, ProjectEntry>();
+    procurementTaskBoardRecords.forEach((record) => {
+      const existing = map.get(record.projectId);
+      if (existing) {
+        existing.taskCount += 1;
+        return;
+      }
+      map.set(record.projectId, {
+        projectId: record.projectId,
+        projectName: record.projectName,
+        eventDate: "未設定",
+        taskCount: 1,
+      });
     });
-  });
-
-  const projects = Array.from(map.values());
+    projects = Array.from(map.values());
+    projectTasks = activeProjectId
+      ? procurementTaskBoardRecords
+          .filter((task) => task.projectId === activeProjectId)
+          .map((task) => ({
+            id: task.id,
+            title: task.title,
+            quantity: task.quantity,
+            costLabel: task.costLabel,
+          }))
+      : [];
+  }
 
   const activeProject = projects.find((project) => project.projectId === activeProjectId);
-  const projectTasks = activeProjectId
-    ? procurementTaskBoardRecords.filter((task) => task.projectId === activeProjectId)
-    : [];
 
   return (
     <AppShell activePath="/procurement-tasks">
       <header className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
         <div className="flex items-center gap-3">
           <h2 className="text-3xl font-semibold tracking-tight text-slate-900">採購備品板</h2>
-          <span className="rounded-2xl bg-slate-50 px-4 py-2 text-sm text-slate-600 ring-1 ring-slate-200">
-            共 {projects.length} 個專案
-          </span>
+          <span className="rounded-2xl bg-slate-50 px-4 py-2 text-sm text-slate-600 ring-1 ring-slate-200">共 {projects.length} 個專案</span>
         </div>
       </header>
 
@@ -59,33 +78,15 @@ export default async function ProcurementTasksPage({
         {!activeProject ? (
           <div className="space-y-3">
             {projects.map((project) => (
-              <article
-                key={project.projectId}
-                className="rounded-2xl border border-slate-200 p-5 transition hover:border-slate-300 hover:bg-slate-50/70"
-              >
+              <article key={project.projectId} className="rounded-2xl border border-slate-200 p-5 transition hover:border-slate-300 hover:bg-slate-50/70">
                 <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
                   <div className="grid flex-1 gap-3 md:grid-cols-3">
-                    <div className="rounded-2xl bg-slate-50 px-4 py-3">
-                      <p className="text-xs text-slate-500">專案名稱</p>
-                      <p className="mt-2 text-sm font-medium text-slate-900">{project.projectName}</p>
-                    </div>
-                    <div className="rounded-2xl bg-slate-50 px-4 py-3">
-                      <p className="text-xs text-slate-500">任務數量</p>
-                      <p className="mt-2 text-sm font-medium text-slate-900">{project.taskCount}</p>
-                    </div>
-                    <div className="rounded-2xl bg-slate-50 px-4 py-3">
-                      <p className="text-xs text-slate-500">活動日期</p>
-                      <p className="mt-2 text-sm font-medium text-slate-900">{project.eventDate}</p>
-                    </div>
+                    <div className="rounded-2xl bg-slate-50 px-4 py-3"><p className="text-xs text-slate-500">專案名稱</p><p className="mt-2 text-sm font-medium text-slate-900">{project.projectName}</p></div>
+                    <div className="rounded-2xl bg-slate-50 px-4 py-3"><p className="text-xs text-slate-500">任務數量</p><p className="mt-2 text-sm font-medium text-slate-900">{project.taskCount}</p></div>
+                    <div className="rounded-2xl bg-slate-50 px-4 py-3"><p className="text-xs text-slate-500">活動日期</p><p className="mt-2 text-sm font-medium text-slate-900">{project.eventDate}</p></div>
                   </div>
-
                   <div className="flex justify-end">
-                    <Link
-                      href={`/procurement-tasks?project=${encodeURIComponent(project.projectId)}`}
-                      className="inline-flex items-center justify-center rounded-2xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-700"
-                    >
-                      進入專案
-                    </Link>
+                    <Link href={`/procurement-tasks?project=${encodeURIComponent(project.projectId)}`} className="inline-flex items-center justify-center rounded-2xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-700">進入專案</Link>
                   </div>
                 </div>
               </article>
@@ -94,47 +95,21 @@ export default async function ProcurementTasksPage({
         ) : (
           <div className="space-y-4">
             <div className="flex items-center justify-between rounded-2xl bg-slate-50 px-4 py-3">
-              <div>
-                <p className="text-sm text-slate-500">目前專案</p>
-                <p className="mt-1 text-lg font-semibold text-slate-900">{activeProject.projectName}</p>
-              </div>
-              <Link
-                href="/procurement-tasks"
-                className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700"
-              >
-                返回專案列表
-              </Link>
+              <div><p className="text-sm text-slate-500">目前專案</p><p className="mt-1 text-lg font-semibold text-slate-900">{activeProject.projectName}</p></div>
+              <Link href="/procurement-tasks" className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700">返回專案列表</Link>
             </div>
 
             <div className="space-y-3">
               {projectTasks.map((task) => (
-                <article
-                  key={task.id}
-                  className="rounded-2xl border border-slate-200 p-5 transition hover:border-slate-300 hover:bg-slate-50/70"
-                >
+                <article key={task.id} className="rounded-2xl border border-slate-200 p-5 transition hover:border-slate-300 hover:bg-slate-50/70">
                   <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
                     <div className="grid flex-1 gap-3 md:grid-cols-3">
-                      <div className="rounded-2xl bg-slate-50 px-4 py-3">
-                        <p className="text-xs text-slate-500">任務標題</p>
-                        <p className="mt-2 text-sm font-medium text-slate-900">{task.title}</p>
-                      </div>
-                      <div className="rounded-2xl bg-slate-50 px-4 py-3">
-                        <p className="text-xs text-slate-500">數量</p>
-                        <p className="mt-2 text-sm font-medium text-slate-900">{task.quantity}</p>
-                      </div>
-                      <div className="rounded-2xl bg-slate-50 px-4 py-3">
-                        <p className="text-xs text-slate-500">預算</p>
-                        <p className="mt-2 text-sm font-medium text-slate-900">{task.costLabel}</p>
-                      </div>
+                      <div className="rounded-2xl bg-slate-50 px-4 py-3"><p className="text-xs text-slate-500">任務標題</p><p className="mt-2 text-sm font-medium text-slate-900">{task.title}</p></div>
+                      <div className="rounded-2xl bg-slate-50 px-4 py-3"><p className="text-xs text-slate-500">數量</p><p className="mt-2 text-sm font-medium text-slate-900">{task.quantity}</p></div>
+                      <div className="rounded-2xl bg-slate-50 px-4 py-3"><p className="text-xs text-slate-500">預算</p><p className="mt-2 text-sm font-medium text-slate-900">{task.costLabel}</p></div>
                     </div>
-
                     <div className="flex justify-end">
-                      <Link
-                        href={`/procurement-tasks/${task.id}`}
-                        className="inline-flex items-center justify-center rounded-2xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-700"
-                      >
-                        查看任務
-                      </Link>
+                      <Link href={`/procurement-tasks/${task.id}`} className="inline-flex items-center justify-center rounded-2xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-700">查看任務</Link>
                     </div>
                   </div>
                 </article>
