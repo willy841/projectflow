@@ -8,6 +8,12 @@ import type {
   InsertVendorTaskPlanInput,
 } from '@/lib/db/phase1-inputs';
 import type {
+  DesignPlanSyncInput,
+  PlanSyncSummary,
+  ProcurementPlanSyncInput,
+} from '@/lib/db/plan-sync';
+import { diffDesignPlans, diffProcurementPlans } from '@/lib/db/plan-sync';
+import type {
   DesignTaskPlanRow,
   DesignTaskRow,
   ProcurementTaskPlanRow,
@@ -26,7 +32,9 @@ export interface Phase1Services {
   publishVendorTask(input: InsertVendorTaskInput): Promise<VendorTaskRow>;
   saveDesignPlan(input: InsertDesignTaskPlanInput): Promise<DesignTaskPlanRow>;
   replaceDesignPlans(taskId: UUID, inputs: InsertDesignTaskPlanInput[]): Promise<DesignTaskPlanRow[]>;
+  syncDesignPlans(taskId: UUID, inputs: DesignPlanSyncInput[]): Promise<PlanSyncSummary<DesignTaskPlanRow>>;
   saveProcurementPlan(input: InsertProcurementTaskPlanInput): Promise<ProcurementTaskPlanRow>;
+  syncProcurementPlans(taskId: UUID, inputs: ProcurementPlanSyncInput[]): Promise<PlanSyncSummary<ProcurementTaskPlanRow>>;
   saveVendorPlan(input: InsertVendorTaskPlanInput): Promise<VendorTaskPlanRow>;
   confirmDesignTaskPlans(taskId: UUID): Promise<TaskConfirmationRow>;
   confirmProcurementTaskPlans(taskId: UUID): Promise<TaskConfirmationRow>;
@@ -66,8 +74,56 @@ export function createPhase1Services(repositories: Phase1Repositories): Phase1Se
 
       return rows;
     },
+    async syncDesignPlans(taskId, inputs) {
+      const existing = await repositories.designTaskPlans.listByTask(taskId);
+      const diff = diffDesignPlans(existing, inputs);
+
+      for (const deleteId of diff.deleteIds) {
+        await repositories.designTaskPlans.deleteById(deleteId);
+      }
+
+      for (const update of diff.updates) {
+        await repositories.designTaskPlans.update(update.id, update.input);
+      }
+
+      for (const input of diff.inserts) {
+        await repositories.designTaskPlans.insert(input);
+      }
+
+      return {
+        rows: await repositories.designTaskPlans.listByTask(taskId),
+        inserted: diff.inserts.length,
+        updated: diff.updates.length,
+        deleted: diff.deleteIds.length,
+        kept: diff.keptIds.length,
+      };
+    },
     async saveProcurementPlan(input) {
       return repositories.procurementTaskPlans.insert(input);
+    },
+    async syncProcurementPlans(taskId, inputs) {
+      const existing = await repositories.procurementTaskPlans.listByTask(taskId);
+      const diff = diffProcurementPlans(existing, inputs);
+
+      for (const deleteId of diff.deleteIds) {
+        await repositories.procurementTaskPlans.deleteById(deleteId);
+      }
+
+      for (const update of diff.updates) {
+        await repositories.procurementTaskPlans.update(update.id, update.input);
+      }
+
+      for (const input of diff.inserts) {
+        await repositories.procurementTaskPlans.insert(input);
+      }
+
+      return {
+        rows: await repositories.procurementTaskPlans.listByTask(taskId),
+        inserted: diff.inserts.length,
+        updated: diff.updates.length,
+        deleted: diff.deleteIds.length,
+        kept: diff.keptIds.length,
+      };
     },
     async saveVendorPlan(input) {
       return repositories.vendorTaskPlans.insert(input);

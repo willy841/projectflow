@@ -88,6 +88,7 @@ export interface VendorTaskRepository {
 export interface DesignTaskPlanRepository {
   listByTask(designTaskId: UUID): Promise<DesignTaskPlanRow[]>;
   deleteByTask(designTaskId: UUID): Promise<void>;
+  deleteById(id: UUID): Promise<void>;
   insert(input: InsertDesignTaskPlanInput): Promise<DesignTaskPlanRow>;
   update(id: UUID, input: UpdateDesignTaskPlanInput): Promise<DesignTaskPlanRow>;
 }
@@ -95,6 +96,7 @@ export interface DesignTaskPlanRepository {
 export interface ProcurementTaskPlanRepository {
   listByTask(procurementTaskId: UUID): Promise<ProcurementTaskPlanRow[]>;
   deleteByTask(procurementTaskId: UUID): Promise<void>;
+  deleteById(id: UUID): Promise<void>;
   insert(input: InsertProcurementTaskPlanInput): Promise<ProcurementTaskPlanRow>;
   update(id: UUID, input: UpdateProcurementTaskPlanInput): Promise<ProcurementTaskPlanRow>;
 }
@@ -102,6 +104,7 @@ export interface ProcurementTaskPlanRepository {
 export interface VendorTaskPlanRepository {
   listByTask(vendorTaskId: UUID): Promise<VendorTaskPlanRow[]>;
   deleteByTask(vendorTaskId: UUID): Promise<void>;
+  deleteById(id: UUID): Promise<void>;
   insert(input: InsertVendorTaskPlanInput): Promise<VendorTaskPlanRow>;
   update(id: UUID, input: UpdateVendorTaskPlanInput): Promise<VendorTaskPlanRow>;
 }
@@ -416,6 +419,15 @@ export function createPhase1Repositories(db: Phase1DbClient): Phase1Repositories
           [designTaskId],
         );
       },
+      async deleteById(id) {
+        await db.query(
+          `
+            delete from design_task_plans
+            where id = $1
+          `,
+          [id],
+        );
+      },
       async insert(input) {
         return insertRow<DesignTaskPlanRow, InsertDesignTaskPlanInput>(db, 'design_task_plans', input);
       },
@@ -448,6 +460,15 @@ export function createPhase1Repositories(db: Phase1DbClient): Phase1Repositories
             where procurement_task_id = $1
           `,
           [procurementTaskId],
+        );
+      },
+      async deleteById(id) {
+        await db.query(
+          `
+            delete from procurement_task_plans
+            where id = $1
+          `,
+          [id],
         );
       },
       async insert(input) {
@@ -486,6 +507,15 @@ export function createPhase1Repositories(db: Phase1DbClient): Phase1Repositories
             where vendor_task_id = $1
           `,
           [vendorTaskId],
+        );
+      },
+      async deleteById(id) {
+        await db.query(
+          `
+            delete from vendor_task_plans
+            where id = $1
+          `,
+          [id],
         );
       },
       async insert(input) {

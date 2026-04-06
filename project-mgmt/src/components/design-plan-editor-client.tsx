@@ -78,7 +78,7 @@ export function DesignPlanEditorClient({
   async function persistCurrentPlans() {
     const currentPlans = plans.filter((plan) => plan.title.trim());
 
-    const response = await fetch(`/api/design-tasks/${taskId}/replace-plans`, {
+    const response = await fetch(`/api/design-tasks/${taskId}/sync-plans`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -88,7 +88,7 @@ export function DesignPlanEditorClient({
 
     if (!response.ok) {
       const payload = (await response.json().catch(() => null)) as { error?: string } | null;
-      throw new Error(payload?.error || "replace plans failed");
+      throw new Error(payload?.error || "sync design plans failed");
     }
 
     return currentPlans.length;
@@ -105,7 +105,7 @@ export function DesignPlanEditorClient({
       }
 
       await persistCurrentPlans();
-      setMessage("已儲存設計執行處理。\n目前畫面內容已覆蓋成正式 live plans。\n重新整理後應看到最新結果。");
+      setMessage("已儲存設計執行處理。\nlive plans 已改走 diff-based sync。\n重新整理後應看到最新結果。");
       router.refresh();
     } catch (error) {
       setMessage(`儲存失敗：${error instanceof Error ? error.message : "請稍後再試。"}`);
