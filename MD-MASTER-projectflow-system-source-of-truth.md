@@ -101,6 +101,33 @@
 2. `Accounting Center × Closeout × Vendor Data` 對齊整合
 3. CTO / 前端設計師可直接派工的 work package 化
 
+## 快速續接閱讀順序速查表（2026-04-08）
+
+### 若要續接上游主線
+依序優先閱讀：
+1. `MD-MASTER-projectflow-system-source-of-truth.md`
+2. `MD20-projectflow-approved-ui-lock-rule-2026-04-05.md`
+3. `MD21-projectflow-project-detail-responsibility-redistribution-spec-2026-04-05.md`
+4. `MD22-projectflow-mock-closed-loop-frontend-execution-brief-2026-04-05.md`
+5. `MD26-projectflow-formal-data-closure-validation-plan-2026-04-06.md`
+6. `MD34-projectflow-system-progress-audit-and-next-stage-map-2026-04-07.md`
+
+### 若要續接下游主線
+依序優先閱讀：
+1. `MD-MASTER-projectflow-system-source-of-truth.md`
+2. `MD35-projectflow-next-stage-execution-blueprint-v1-2026-04-07.md`
+3. `MD40-projectflow-closeout-module-v1-spec-2026-04-08.md`
+4. `MD50-projectflow-accounting-center-master-spec-and-downstream-alignment-2026-04-08.md`
+5. `MD51-projectflow-downstream-progress-refresh-after-accounting-center-spec-round-2026-04-08.md`
+
+### 若要續接 Accounting Center 主線
+依序優先閱讀：
+1. `MD-MASTER-projectflow-system-source-of-truth.md`
+2. `MD44-projectflow-accounting-center-operating-expense-module-v1-spec-2026-04-08.md`
+3. `MD49-projectflow-accounting-center-revenue-overview-v1-spec-2026-04-08.md`
+4. `MD50-projectflow-accounting-center-master-spec-and-downstream-alignment-2026-04-08.md`
+5. 視需要回查：`MD42`～`MD48`
+
 > 目標不是保存流水帳，而是用結構化方式，讓閱讀者一次掌握：
 > - 專案是什麼
 > - 目前產品主線是什麼
