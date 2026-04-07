@@ -31,6 +31,28 @@
   5. UX / 錯誤處理 / 邏輯 polish
 
 **重要：若本文件內較早段落與 `MD21`～`MD26` 衝突，以 `MD21`～`MD26` 為準。**
+
+**2026-04-07 最新主線補充（必讀）：**
+若要續接目前最新主線，除本母檔外，應優先補讀：
+1. `MD28-projectflow-financial-reconciliation-closeout-spec-2026-04-07.md`
+2. `MD31-projectflow-closeout-record-list-detail-spec-2026-04-07.md`
+3. `MD32-projectflow-md29-upstream-phase1-acceptance-summary-2026-04-07.md`
+4. `MD33-projectflow-project-delete-flow-handoff-2026-04-07.md`
+5. `MD34-projectflow-system-progress-audit-and-next-stage-map-2026-04-07.md`
+
+其中：
+- `MD32` = `MD29` upstream phase 1 已驗收通過的正式摘要
+- `MD33` = project delete flow 正式規格、根因與有效修法
+- `MD34` = 截至 2026-04-07 的整體系統進度盤點與下階段主線地圖
+
+目前總結應更新為：
+- 上游 `Project Master + Execution upstream phase 1` 已站穩，`MD29` 已驗收通過
+- `/projects` 與 `/projects/[id]` 已正式走 DB-first、dynamic route、可編輯主檔與正式刪除流程
+- 下游主線不再是「補上游骨架」，而是進入：
+  1. 帳務中心（Accounting Center）
+  2. 結案紀錄（Closeout Record）
+  3. Financial closeout loop
+  4. DB-first 全域一致性回查
 > 目標不是保存流水帳，而是用結構化方式，讓閱讀者一次掌握：
 > - 專案是什麼
 > - 目前產品主線是什麼
