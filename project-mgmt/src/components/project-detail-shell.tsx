@@ -30,11 +30,17 @@ type ProjectFormState = {
   note: string;
 };
 
+function formatDateOnly(value: string | null | undefined): string {
+  if (!value) return "-";
+  const text = String(value);
+  return text.length >= 10 ? text.slice(0, 10) : text;
+}
+
 function buildProjectForm(project: Project): ProjectFormState {
   return {
     name: project.name,
     client: project.client,
-    eventDate: project.eventDate,
+    eventDate: formatDateOnly(project.eventDate),
     location: project.location,
     loadInTime: project.loadInTime,
     eventType: project.eventType,
@@ -102,7 +108,7 @@ export function ProjectDetailShell({ project, entryContext }: { project: Project
         ...prev,
         name: result.project.name ?? prev.name,
         client: result.project.client_name ?? "-",
-        eventDate: result.project.event_date ?? "-",
+        eventDate: formatDateOnly(result.project.event_date),
         location: result.project.location ?? "-",
         loadInTime: result.project.load_in_time ?? "-",
         eventType: result.project.event_type ?? "-",
