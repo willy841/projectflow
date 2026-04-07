@@ -45,14 +45,46 @@
 - `MD33` = project delete flow 正式規格、根因與有效修法
 - `MD34` = 截至 2026-04-07 的整體系統進度盤點與下階段主線地圖
 
+**2026-04-08 最新補充（Accounting Center 規格回合，必讀）：**
+若要續接目前最新下游主線，除本母檔外，應優先補讀：
+1. `MD35-projectflow-next-stage-execution-blueprint-v1-2026-04-07.md`
+2. `MD38-projectflow-vendor-data-module-v1-spec-2026-04-08.md`
+3. `MD39-projectflow-vendor-data-upstream-midstream-alignment-v1-2026-04-08.md`
+4. `MD40-projectflow-closeout-module-v1-spec-2026-04-08.md`
+5. `MD41-projectflow-downstream-current-progress-and-open-topics-2026-04-08.md`
+6. `MD42-projectflow-accounting-center-personnel-input-area-v1-spec-2026-04-08.md`
+7. `MD43-projectflow-accounting-center-personnel-record-area-v1-spec-2026-04-08.md`
+8. `MD44-projectflow-accounting-center-operating-expense-module-v1-spec-2026-04-08.md`
+9. `MD45-projectflow-accounting-center-office-expense-input-area-v1-spec-2026-04-08.md`
+10. `MD46-projectflow-accounting-center-office-expense-record-area-v1-spec-2026-04-08.md`
+11. `MD47-projectflow-accounting-center-other-expense-input-area-v1-spec-2026-04-08.md`
+12. `MD48-projectflow-accounting-center-other-expense-record-area-v1-spec-2026-04-08.md`
+13. `MD49-projectflow-accounting-center-revenue-overview-v1-spec-2026-04-08.md`
+14. `MD50-projectflow-accounting-center-master-spec-and-downstream-alignment-2026-04-08.md`
+15. `MD51-projectflow-downstream-progress-refresh-after-accounting-center-spec-round-2026-04-08.md`
+
+其中：
+- `MD35` = 下階段執行藍圖母線
+- `MD38` / `MD39` = Vendor Data 母 spec 與上下游對齊規則
+- `MD40` = Closeout 母 spec
+- `MD41` = 下游階段 open topics / progress 歷史整理檔
+- `MD42`～`MD49` = Accounting Center 本輪正式子 spec 鏈條
+- `MD50` = Accounting Center 主線最新母整合入口
+- `MD51` = 下游階段在本輪 spec 回合後的進度刷新檔
+
 目前總結應更新為：
 - 上游 `Project Master + Execution upstream phase 1` 已站穩，`MD29` 已驗收通過
 - `/projects` 與 `/projects/[id]` 已正式走 DB-first、dynamic route、可編輯主檔與正式刪除流程
-- 下游主線不再是「補上游骨架」，而是進入：
-  1. 帳務中心（Accounting Center）
-  2. 結案紀錄（Closeout Record）
-  3. Financial closeout loop
-  4. DB-first 全域一致性回查
+- 下游主線已不再只是「Vendor Data / Closeout 已完成、Accounting Center 尚未收斂」
+- `Accounting Center` 已完成一輪正式 spec 鏈條收斂：
+  1. 管銷成本母 spec 已完成
+  2. 人事 / 庶務 / 其他的輸入區與記錄區 v1 已完成
+  3. 營收概況 v1 已完成
+  4. `MD50` 已成為 Accounting Center 最新整合母入口
+- 目前後續主線應集中在：
+  1. 執行中專案母 spec 完整整理
+  2. `Accounting Center × Closeout × Vendor Data` 對齊整合
+  3. CTO / 前端設計師可直接派工的 work package 化
 > 目標不是保存流水帳，而是用結構化方式，讓閱讀者一次掌握：
 > - 專案是什麼
 > - 目前產品主線是什麼
