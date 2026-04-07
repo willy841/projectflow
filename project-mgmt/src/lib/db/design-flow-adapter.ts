@@ -25,6 +25,12 @@ type DbDesignProjectSummary = {
   taskCount: number;
 };
 
+function formatDateLike(value: string | Date | null | undefined): string {
+  if (!value) return '-';
+  if (value instanceof Date) return value.toISOString().slice(0, 10);
+  return value;
+}
+
 function buildDocumentRowsFromPlans(
   plans: Array<{
     id: string;
@@ -133,7 +139,7 @@ export async function getDbDesignTaskById(id: string): Promise<DbBackedDesignTas
     owner: '-',
     title: task.title,
     assignee: '-',
-    due: project?.event_date ?? '-',
+    due: formatDateLike(project?.event_date),
     status: task.status,
     size: task.size ?? '未填寫',
     material: task.material ?? '未填寫',
