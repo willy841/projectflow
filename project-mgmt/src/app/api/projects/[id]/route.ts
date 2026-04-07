@@ -66,20 +66,6 @@ export async function DELETE(
       return NextResponse.json({ ok: false, error: '請輸入正確專案名稱後再刪除' }, { status: 400 });
     }
 
-    const dependencySummary = await repositories.projects.getDeleteDependencySummary(id);
-    const hasDependencies = Object.values(dependencySummary).some((count) => count > 0);
-
-    if (hasDependencies) {
-      return NextResponse.json(
-        {
-          ok: false,
-          error: '此專案已有下游正式資料，禁止刪除',
-          dependencySummary,
-        },
-        { status: 409 },
-      );
-    }
-
     await repositories.projects.delete(id);
 
     return NextResponse.json({
