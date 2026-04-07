@@ -6,6 +6,8 @@ import { projects } from "@/components/project-data";
 import { getDbProjectById } from "@/lib/db/project-flow-adapter";
 import { shouldUseDbProjectFlow } from "@/lib/db/project-flow-toggle";
 
+export const dynamic = "force-dynamic";
+
 export function generateStaticParams() {
   return projects.map((project) => ({ id: project.id }));
 }
