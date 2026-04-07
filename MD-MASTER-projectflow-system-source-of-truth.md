@@ -620,32 +620,42 @@ Final Outgoing Document 是：
 
 # 9. 需求總表（最新版）
 
-## 9.1 已上線
+## 9.1 已完成（截至 2026-04-08）
 - 舊系統主體已回到主線
 - MD8 / MD9 第一輪整合版已上線
 - Vendor Assignment / Package 基礎頁已存在
 - Package Page / Final Outgoing Document 第一版骨架已完成
 - Project Detail 的 Vendor 區塊第一輪整合已完成
 - 部署鏈路目前已恢復可驗收
+- `Vendor Data` 母 spec 已完成（`MD38` / `MD39`）
+- `Closeout` 母 spec 已完成（`MD40`）
+- `Accounting Center` 下游主線已完成一輪正式 spec 鏈條：
+  - 人事輸入區 / 記錄區（`MD42` / `MD43`）
+  - 管銷成本母 spec（`MD44`）
+  - 庶務輸入區 / 記錄區（`MD45` / `MD46`）
+  - 其他輸入區 / 記錄區（`MD47` / `MD48`）
+  - 營收概況（`MD49`）
+  - Accounting Center 母整合（`MD50`）
+  - 下游進度刷新（`MD51`）
 
-## 9.2 未完成
+## 9.2 目前未完成
 - 真正後端持久化
-- Vendor Flow 深層資料整合（execution item ↔ assignment ↔ package ↔ document）
-- vendor assignments list page / vendor packages list page
-- Final Outgoing Document 正式化（正式匯出格式、document route、持久化）
 - 正式資料模型落地
-- Vendor information / 報價 / 成本同步
-- design-tasks 延伸頁是否完整接回
-- 統一需求母單後續持續維護機制
+- `執行中專案` 母 spec 最新整合版
+- `Accounting Center × Closeout × Vendor Data` 正式對齊整合檔
+- CTO / 前端設計師可直接執行的 work package 化
+- Final Outgoing Document 正式化（正式匯出格式、document route、持久化）
+- Vendor Flow 深層資料整合（execution item ↔ assignment ↔ package ↔ document）
 
-## 9.3 待修正
+## 9.3 目前待修正 / 待收斂
 - 舊主體與 MD8 / MD9 第一輪整合後的細節收斂
 - Project Detail 與 Vendor Flow 的細部整合
 - Package Page UI / UX 細節優化
 - Assignment / Package 狀態語意與 badge 統一
 - 舊系統核心能力是否完整恢復，仍需逐項驗證與補修
+- `Accounting Center` 與既有報價成本 / 結案 / vendor 財務承接的跨模組語言再收斂
 
-## 9.4 待定稿
+## 9.4 目前待定稿
 - 統一產品母單後續維護方式
 - Reply 狀況欄位命名
 - Assignment 發包狀態語意 / badge
@@ -654,6 +664,7 @@ Final Outgoing Document 是：
 - Vendor information 模組如何承接金額
 - 報價單 / 成本模組如何承接 Vendor Flow
 - Project Detail 內各模組的最終整體排列
+- `執行中專案` 與 `Accounting Center` 三大主區塊之間的最終母 spec 語言
 
 ## 9.5 已排除 / 不再列為需求
 - **前端共享狀態架構**
@@ -664,6 +675,7 @@ Final Outgoing Document 是：
 - 不做樹狀 reply
 - Final Outgoing Document 不顯示金額
 - 現階段不做 document 舊版本歷史保存
+- 不可再把 `Vendor Data` 與 `Accounting Center` 混成同一條線
 
 ---
 
