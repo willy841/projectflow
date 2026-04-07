@@ -131,6 +131,7 @@ export async function POST(
     if (body.amount?.trim() || body.requirement?.trim()) {
       await services.syncVendorPlans(task.id, [
         {
+          vendor_task_id: task.id,
           title,
           requirement_text: body.requirement?.trim() || null,
           amount: body.amount?.trim() || null,
