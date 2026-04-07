@@ -33,9 +33,10 @@
 
 下階段聚焦三個核心 domain：
 
-1. **Accounting Center（帳務中心）**
-2. **Financial Detail / Reconciliation（專案財務收斂）**
-3. **Closeout Record / Archive（結案紀錄）**
+1. **Vendor Data / Vendor Detail（廠商資料）**
+2. **Accounting Center（帳務中心）**
+3. **Financial Detail / Reconciliation（專案財務收斂）**
+4. **Closeout Record / Archive（結案紀錄）**
 
 本輪不再把主力放在：
 - Project Master 小修小補
@@ -156,11 +157,34 @@
 
 # 6. 建議實作 phase 順序
 
-下階段建議拆成四個 phase。
+下階段建議拆成五個 phase。
 
 ---
 
-## Phase 1：Financial Detail 正式收斂
+## Phase 1：Vendor Data / Vendor Detail 功能架構先定稿
+
+### 目標
+先把 vendor list、vendor create 與 vendor detail 的前端功能架構與欄位責任定穩。
+
+### 主要工作
+1. 定 vendor list 入口頁規格
+2. 定 `建立廠商` modal 輕量建立規格
+3. 定 `Vendor Detail` 三大區塊規格
+   - A. 廠商主檔區
+   - B. 未付款專案區
+   - C. 合作紀錄區
+4. 定 vendor 與 financial / accounting / closeout 的邊界
+5. 先完成前端功能結構定義，不先碰 DB
+
+### 完成定義
+- vendor list / create / detail 的頁面責任清楚
+- `Vendor Detail` 區塊名稱、欄位、狀態語意與操作定義清楚
+- vendor 模組不再混同於帳務中心
+- 後續可在此基礎上再開下一步 spec
+
+---
+
+## Phase 2：Financial Detail 正式收斂
 
 ### 目標
 先把單專案財務收斂工作台做完整。
@@ -189,7 +213,7 @@
 
 ---
 
-## Phase 2：Accounting Center 落地
+## Phase 3：Accounting Center 落地
 
 ### 目標
 建立進行中專案的正式帳務中心。
@@ -210,7 +234,7 @@
 
 ---
 
-## Phase 3：Closeout Record List / Detail 落地
+## Phase 4：Closeout Record List / Detail 落地
 
 ### 目標
 建立正式唯讀歷史紀錄庫。
@@ -234,7 +258,7 @@
 
 ---
 
-## Phase 4：正式交棒閉環與一致性回查
+## Phase 5：正式交棒閉環與一致性回查
 
 ### 目標
 把 project → financial → closeout 的交棒收斂成穩定規則。
@@ -329,18 +353,20 @@
 
 如果從管理與工程風險角度判斷，下階段最穩的策略是：
 
-> **先把 Financial Detail 的單案結案條件與對帳規則做完整，再做 Accounting Center 列表，最後做 Closeout archive。**
+> **先把 Vendor Data / Vendor Detail 的功能架構定稿，再把 Financial Detail 的單案結案條件與對帳規則做完整，接著做 Accounting Center，最後做 Closeout archive。**
 
 原因：
+- vendor 模組目前仍在下游階段功能定義中，應先把 list / create / detail 的前端結構與欄位責任定穩
 - closeout 不該先做成空 archive
 - 先把單案 closeout 條件做完整，archive 才有正確來源
 - 帳務中心則是進行中專案的管理入口，應承接 financial detail 的明確狀態
 
 也就是推薦順序：
-1. Financial Detail
-2. Accounting Center
-3. Closeout Record
-4. 最後做全域一致性清理
+1. Vendor Data / Vendor Detail
+2. Financial Detail
+3. Accounting Center
+4. Closeout Record
+5. 最後做全域一致性清理
 
 ---
 
