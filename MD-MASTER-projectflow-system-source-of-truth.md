@@ -72,19 +72,35 @@
 - `MD50` = Accounting Center 主線最新母整合入口
 - `MD51` = 下游階段在本輪 spec 回合後的進度刷新檔
 
-目前總結應更新為：
+## 目前最新總結（2026-04-08）
+
+### A. 上游現況
 - 上游 `Project Master + Execution upstream phase 1` 已站穩，`MD29` 已驗收通過
 - `/projects` 與 `/projects/[id]` 已正式走 DB-first、dynamic route、可編輯主檔與正式刪除流程
-- 下游主線已不再只是「Vendor Data / Closeout 已完成、Accounting Center 尚未收斂」
+
+### B. 下游現況
+- `Vendor Data` 母 spec 已完成
+- `Closeout` 母 spec 已完成
 - `Accounting Center` 已完成一輪正式 spec 鏈條收斂：
   1. 管銷成本母 spec 已完成
   2. 人事 / 庶務 / 其他的輸入區與記錄區 v1 已完成
   3. 營收概況 v1 已完成
   4. `MD50` 已成為 Accounting Center 最新整合母入口
-- 目前後續主線應集中在：
-  1. 執行中專案母 spec 完整整理
-  2. `Accounting Center × Closeout × Vendor Data` 對齊整合
-  3. CTO / 前端設計師可直接派工的 work package 化
+
+### C. 目前最推薦的續接入口順序
+1. `MD-MASTER-projectflow-system-source-of-truth.md`
+2. `MD50-projectflow-accounting-center-master-spec-and-downstream-alignment-2026-04-08.md`
+3. `MD51-projectflow-downstream-progress-refresh-after-accounting-center-spec-round-2026-04-08.md`
+4. 再視需要回查：
+   - `MD35`
+   - `MD38`～`MD40`
+   - `MD42`～`MD49`
+
+### D. 目前後續主線應集中在
+1. 執行中專案母 spec 完整整理
+2. `Accounting Center × Closeout × Vendor Data` 對齊整合
+3. CTO / 前端設計師可直接派工的 work package 化
+
 > 目標不是保存流水帳，而是用結構化方式，讓閱讀者一次掌握：
 > - 專案是什麼
 > - 目前產品主線是什麼
