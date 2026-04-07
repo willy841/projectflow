@@ -2,16 +2,22 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { AppShell } from "@/components/app-shell";
 import { getStatusClass, type Project } from "@/components/project-data";
 import { formatCurrency, getProjectCostTotal, getQuotationTotal } from "@/components/quote-cost-data";
 import { getQuoteCostProjectsWithWorkflow } from "@/components/project-workflow-store";
+import { isUuidLike } from "@/lib/db/project-flow-toggle";
 
 const parseEventDate = (value: string) => new Date(value).getTime();
 
 export function ProjectsPageClient({ initialProjects }: { initialProjects: Project[] }) {
+  const router = useRouter();
   const [dateSortOrder, setDateSortOrder] = useState<"asc" | "desc">("desc");
   const [searchKeyword, setSearchKeyword] = useState("");
+  const [deletingProjectId, setDeletingProjectId] = useState<string | null>(null);
+  const [pendingDeleteProject, setPendingDeleteProject] = useState<Project | null>(null);
+  const [deleteError, setDeleteError] = useState("");
 
   const visibleProjects = useMemo(() => {
     const keyword = searchKeyword.trim().toLowerCase();
@@ -40,6 +46,32 @@ export function ProjectsPageClient({ initialProjects }: { initialProjects: Proje
         return dateSortOrder === "asc" ? dateDiff : -dateDiff;
       });
   }, [dateSortOrder, initialProjects, searchKeyword]);
+
+  async function confirmDeleteProject() {
+    if (!pendingDeleteProject) return;
+
+    setDeletingProjectId(pendingDeleteProject.id);
+    setDeleteError("");
+
+    try {
+      const response = await fetch(`/api/projects/${pendingDeleteProject.id}`, {
+        method: "DELETE",
+      });
+      const result = await response.json();
+
+      if (!response.ok || !result.ok) {
+        setDeleteError(result.error || "刪除專案失敗");
+        return;
+      }
+
+      setPendingDeleteProject(null);
+      router.refresh();
+    } catch (error) {
+      setDeleteError(error instanceof Error ? error.message : "刪除專案失敗");
+    } finally {
+      setDeletingProjectId(null);
+    }
+  }
 
   return (
     <AppShell activePath="/projects">
@@ -82,7 +114,7 @@ export function ProjectsPageClient({ initialProjects }: { initialProjects: Proje
         </div>
 
         <div className="overflow-x-auto rounded-2xl border border-slate-200">
-          <table className="min-w-[1180px] divide-y divide-slate-200 text-left text-sm xl:min-w-full">
+          <table className="min-w-[1280px] divide-y divide-slate-200 text-left text-sm xl:min-w-full">
             <thead className="bg-slate-50 text-slate-500">
               <tr>
                 <th className="px-4 py-3 font-medium">專案名稱</th>
@@ -108,33 +140,93 @@ export function ProjectsPageClient({ initialProjects }: { initialProjects: Proje
                 <th className="px-4 py-3 font-medium">預算</th>
                 <th className="px-4 py-3 font-medium">成本</th>
                 <th className="px-4 py-3 font-medium">負責人</th>
+                <th className="px-4 py-3 font-medium text-right">操作</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 bg-white">
-              {visibleProjects.map((project) => (
-                <tr key={project.id} className="align-middle">
-                  <td className="px-4 py-4 align-middle">
-                    <Link href={`/projects/${project.id}`} className="font-medium text-slate-900 underline-offset-4 hover:underline">
-                      {project.name}
-                    </Link>
-                  </td>
-                  <td className="px-4 py-4 align-middle text-slate-600">{project.client}</td>
-                  <td className="px-4 py-4 align-middle text-slate-600">{project.eventDate}</td>
-                  <td className="px-4 py-4 align-middle text-slate-600">{project.location}</td>
-                  <td className="px-4 py-4 align-middle">
-                    <span className={`inline-flex min-w-[72px] items-center justify-center whitespace-nowrap rounded-full px-3 py-1 text-xs font-medium ring-1 ${getStatusClass(project.status)}`}>
-                      {project.status}
-                    </span>
-                  </td>
-                  <td className="px-4 py-4 align-middle text-slate-600">{project.budget}</td>
-                  <td className="px-4 py-4 align-middle text-slate-600">{project.cost}</td>
-                  <td className="px-4 py-4 align-middle text-slate-600">{project.owner}</td>
-                </tr>
-              ))}
+              {visibleProjects.map((project) => {
+                const isDbProject = isUuidLike(project.id);
+                const isDeleting = deletingProjectId === project.id;
+
+                return (
+                  <tr key={project.id} className="align-middle">
+                    <td className="px-4 py-4 align-middle">
+                      <Link href={`/projects/${project.id}`} className="font-medium text-slate-900 underline-offset-4 hover:underline">
+                        {project.name}
+                      </Link>
+                    </td>
+                    <td className="px-4 py-4 align-middle text-slate-600">{project.client}</td>
+                    <td className="px-4 py-4 align-middle text-slate-600">{project.eventDate}</td>
+                    <td className="px-4 py-4 align-middle text-slate-600">{project.location}</td>
+                    <td className="px-4 py-4 align-middle">
+                      <span className={`inline-flex min-w-[72px] items-center justify-center whitespace-nowrap rounded-full px-3 py-1 text-xs font-medium ring-1 ${getStatusClass(project.status)}`}>
+                        {project.status}
+                      </span>
+                    </td>
+                    <td className="px-4 py-4 align-middle text-slate-600">{project.budget}</td>
+                    <td className="px-4 py-4 align-middle text-slate-600">{project.cost}</td>
+                    <td className="px-4 py-4 align-middle text-slate-600">{project.owner}</td>
+                    <td className="px-4 py-4 align-middle text-right">
+                      {isDbProject ? (
+                        <button
+                          type="button"
+                          disabled={isDeleting}
+                          onClick={() => {
+                            setDeleteError("");
+                            setPendingDeleteProject(project);
+                          }}
+                          className="inline-flex items-center justify-center rounded-2xl border border-rose-200 bg-rose-50 px-3 py-2 text-xs font-semibold text-rose-700 transition hover:bg-rose-100 disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+                          {isDeleting ? "刪除中..." : "刪除"}
+                        </button>
+                      ) : (
+                        <span className="text-xs text-slate-400">僅 DB 專案可刪除</span>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
       </section>
+
+      {pendingDeleteProject ? (
+        <section className="rounded-3xl border border-rose-200 bg-rose-50/70 p-6 shadow-sm ring-1 ring-rose-100">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+            <div>
+              <h3 className="text-xl font-semibold text-slate-900">確認刪除專案</h3>
+              <p className="mt-1 text-sm text-slate-600">
+                你即將刪除 <span className="font-semibold text-slate-900">{pendingDeleteProject.name}</span>。這會正式刪除 DB 中的專案資料，並連動刪除其關聯 execution / task / confirmation / manual cost 資料。
+              </p>
+              <p className="mt-2 text-sm text-rose-700">此動作不可回復，請再次確認。</p>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                setPendingDeleteProject(null);
+                setDeleteError("");
+              }}
+              className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-800 transition hover:bg-slate-50"
+            >
+              取消
+            </button>
+          </div>
+
+          {deleteError ? <p className="mt-4 text-sm text-rose-700">{deleteError}</p> : null}
+
+          <div className="mt-5 flex flex-wrap gap-3">
+            <button
+              type="button"
+              onClick={confirmDeleteProject}
+              disabled={deletingProjectId === pendingDeleteProject.id}
+              className="inline-flex items-center justify-center rounded-2xl bg-rose-600 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-rose-700 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {deletingProjectId === pendingDeleteProject.id ? "刪除中..." : "確認刪除專案"}
+            </button>
+          </div>
+        </section>
+      ) : null}
     </AppShell>
   );
 }

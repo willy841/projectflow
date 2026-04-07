@@ -47,6 +47,7 @@ export interface ProjectRepository {
   list(): Promise<ProjectRow[]>;
   insert(input: InsertProjectInput): Promise<ProjectRow>;
   update(id: UUID, input: UpdateProjectInput): Promise<ProjectRow>;
+  delete(id: UUID): Promise<void>;
 }
 
 export interface VendorRepository {
@@ -215,6 +216,15 @@ export function createPhase1Repositories(db: Phase1DbClient): Phase1Repositories
       },
       async update(id, input) {
         return updateRow<ProjectRow, UpdateProjectInput>(db, 'projects', id, input);
+      },
+      async delete(id) {
+        await db.query(
+          `
+            delete from projects
+            where id = $1
+          `,
+          [id],
+        );
       },
     },
     vendors: {

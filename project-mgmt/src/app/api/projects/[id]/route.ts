@@ -38,3 +38,34 @@ export async function PATCH(
     return NextResponse.json({ ok: false, error: error instanceof Error ? error.message : 'Unknown update project error' }, { status: 500 });
   }
 }
+
+export async function DELETE(
+  _request: Request,
+  { params }: { params: Promise<{ id: string }> },
+) {
+  try {
+    const access = ensureProjectDbWriteEnabled();
+    if (!access.ok) {
+      return access.response;
+    }
+
+    const { id } = await params;
+    const repositories = createPhase1Repositories(createPhase1DbClient());
+    const project = await repositories.projects.findById(id);
+
+    if (!project) {
+      return NextResponse.json({ ok: false, error: '找不到專案' }, { status: 404 });
+    }
+
+    await repositories.projects.delete(id);
+
+    return NextResponse.json({
+      ok: true,
+      deletedProjectId: id,
+      deletedProjectName: project.name,
+      storage: access.storage,
+    });
+  } catch (error) {
+    return NextResponse.json({ ok: false, error: error instanceof Error ? error.message : 'Unknown delete project error' }, { status: 500 });
+  }
+}
