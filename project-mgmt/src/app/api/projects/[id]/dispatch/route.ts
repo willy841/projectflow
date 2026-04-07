@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createPhase1DbClient } from '@/lib/db/phase1-client';
+import { ensureProjectDbWriteEnabled } from '@/lib/db/project-flow-guard';
 import { createPhase1Repositories } from '@/lib/db/phase1-repositories';
 import { createPhase1Services } from '@/lib/db/phase1-services';
 
@@ -12,6 +13,11 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> },
 ) {
   try {
+    const access = ensureProjectDbWriteEnabled();
+    if (!access.ok) {
+      return access.response;
+    }
+
     const { id } = await params;
     const body = (await request.json()) as {
       flowType?: 'design' | 'procurement' | 'vendor';
@@ -67,7 +73,7 @@ export async function POST(
             status: '待處理',
           });
 
-      return NextResponse.json({ ok: true, taskId: task.id, boardPath: `/design-tasks/${task.id}` });
+      return NextResponse.json({ ok: true, taskId: task.id, boardPath: `/design-tasks/${task.id}`, storage: access.storage });
     }
 
     if (body.flowType === 'procurement') {
@@ -95,7 +101,7 @@ export async function POST(
             status: '待處理',
           });
 
-      return NextResponse.json({ ok: true, taskId: task.id, boardPath: `/procurement-tasks/${task.id}` });
+      return NextResponse.json({ ok: true, taskId: task.id, boardPath: `/procurement-tasks/${task.id}`, storage: access.storage });
     }
 
     const vendorName = body.vendorName?.trim();
@@ -140,7 +146,7 @@ export async function POST(
       ]);
     }
 
-    return NextResponse.json({ ok: true, taskId: task.id, boardPath: `/vendor-assignments/${task.id}` });
+    return NextResponse.json({ ok: true, taskId: task.id, boardPath: `/vendor-assignments/${task.id}`, storage: access.storage });
   } catch (error) {
     return NextResponse.json({ ok: false, error: error instanceof Error ? error.message : 'Unknown dispatch error' }, { status: 500 });
   }

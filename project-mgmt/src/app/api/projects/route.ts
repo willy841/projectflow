@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createPhase1DbClient } from '@/lib/db/phase1-client';
+import { ensureProjectDbWriteEnabled } from '@/lib/db/project-flow-guard';
 import { createPhase1Repositories } from '@/lib/db/phase1-repositories';
 
 function buildProjectCode() {
@@ -11,6 +12,11 @@ function buildProjectCode() {
 
 export async function POST(request: Request) {
   try {
+    const access = ensureProjectDbWriteEnabled();
+    if (!access.ok) {
+      return access.response;
+    }
+
     const body = (await request.json()) as {
       name?: string;
       client?: string;
@@ -37,7 +43,7 @@ export async function POST(request: Request) {
       status: '執行中',
     });
 
-    return NextResponse.json({ ok: true, project });
+    return NextResponse.json({ ok: true, project, storage: access.storage });
   } catch (error) {
     return NextResponse.json({ ok: false, error: error instanceof Error ? error.message : 'Unknown create project error' }, { status: 500 });
   }

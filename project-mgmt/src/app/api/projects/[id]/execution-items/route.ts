@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createPhase1DbClient } from '@/lib/db/phase1-client';
+import { ensureProjectDbWriteEnabled } from '@/lib/db/project-flow-guard';
 import { createPhase1Repositories } from '@/lib/db/phase1-repositories';
 
 export async function POST(
@@ -7,6 +8,11 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> },
 ) {
   try {
+    const access = ensureProjectDbWriteEnabled();
+    if (!access.ok) {
+      return access.response;
+    }
+
     const { id } = await params;
     const body = (await request.json()) as {
       title?: string;
@@ -34,7 +40,7 @@ export async function POST(
       sort_order: siblings.length + 1,
     });
 
-    return NextResponse.json({ ok: true, item });
+    return NextResponse.json({ ok: true, item, storage: access.storage });
   } catch (error) {
     return NextResponse.json({ ok: false, error: error instanceof Error ? error.message : 'Unknown create execution item error' }, { status: 500 });
   }
