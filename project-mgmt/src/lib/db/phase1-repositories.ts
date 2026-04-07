@@ -42,11 +42,21 @@ import {
   entriesFromInput,
 } from '@/lib/db/phase1-sql';
 
+export interface ProjectDeleteDependencySummary {
+  executionItemCount: number;
+  designTaskCount: number;
+  procurementTaskCount: number;
+  vendorTaskCount: number;
+  confirmationCount: number;
+  manualCostCount: number;
+}
+
 export interface ProjectRepository {
   findById(id: UUID): Promise<ProjectRow | null>;
   list(): Promise<ProjectRow[]>;
   insert(input: InsertProjectInput): Promise<ProjectRow>;
   update(id: UUID, input: UpdateProjectInput): Promise<ProjectRow>;
+  getDeleteDependencySummary(id: UUID): Promise<ProjectDeleteDependencySummary>;
   delete(id: UUID): Promise<void>;
 }
 
@@ -216,6 +226,43 @@ export function createPhase1Repositories(db: Phase1DbClient): Phase1Repositories
       },
       async update(id, input) {
         return updateRow<ProjectRow, UpdateProjectInput>(db, 'projects', id, input);
+      },
+      async getDeleteDependencySummary(id) {
+        const [executionItems, designTasks, procurementTasks, vendorTasks, confirmations, manualCosts] = await Promise.all([
+          db.query<{ count: string }>(
+            `select count(*)::text as count from project_execution_items where project_id = $1`,
+            [id],
+          ),
+          db.query<{ count: string }>(
+            `select count(*)::text as count from design_tasks where project_id = $1`,
+            [id],
+          ),
+          db.query<{ count: string }>(
+            `select count(*)::text as count from procurement_tasks where project_id = $1`,
+            [id],
+          ),
+          db.query<{ count: string }>(
+            `select count(*)::text as count from vendor_tasks where project_id = $1`,
+            [id],
+          ),
+          db.query<{ count: string }>(
+            `select count(*)::text as count from task_confirmations where project_id = $1`,
+            [id],
+          ),
+          db.query<{ count: string }>(
+            `select count(*)::text as count from financial_manual_costs where project_id = $1`,
+            [id],
+          ),
+        ]);
+
+        return {
+          executionItemCount: Number(executionItems.rows[0]?.count ?? 0),
+          designTaskCount: Number(designTasks.rows[0]?.count ?? 0),
+          procurementTaskCount: Number(procurementTasks.rows[0]?.count ?? 0),
+          vendorTaskCount: Number(vendorTasks.rows[0]?.count ?? 0),
+          confirmationCount: Number(confirmations.rows[0]?.count ?? 0),
+          manualCostCount: Number(manualCosts.rows[0]?.count ?? 0),
+        };
       },
       async delete(id) {
         await db.query(

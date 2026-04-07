@@ -40,7 +40,7 @@ export async function PATCH(
 }
 
 export async function DELETE(
-  _request: Request,
+  request: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
   try {
@@ -50,11 +50,34 @@ export async function DELETE(
     }
 
     const { id } = await params;
+    const body = (await request.json().catch(() => ({}))) as {
+      confirmProjectName?: string;
+    };
+
     const repositories = createPhase1Repositories(createPhase1DbClient());
     const project = await repositories.projects.findById(id);
 
     if (!project) {
       return NextResponse.json({ ok: false, error: '找不到專案' }, { status: 404 });
+    }
+
+    const confirmProjectName = body.confirmProjectName?.trim();
+    if (!confirmProjectName || confirmProjectName !== project.name) {
+      return NextResponse.json({ ok: false, error: '請輸入正確專案名稱後再刪除' }, { status: 400 });
+    }
+
+    const dependencySummary = await repositories.projects.getDeleteDependencySummary(id);
+    const hasDependencies = Object.values(dependencySummary).some((count) => count > 0);
+
+    if (hasDependencies) {
+      return NextResponse.json(
+        {
+          ok: false,
+          error: '此專案已有下游正式資料，禁止刪除',
+          dependencySummary,
+        },
+        { status: 409 },
+      );
     }
 
     await repositories.projects.delete(id);

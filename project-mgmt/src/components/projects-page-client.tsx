@@ -11,13 +11,33 @@ import { isUuidLike } from "@/lib/db/project-flow-toggle";
 
 const parseEventDate = (value: string) => new Date(value).getTime();
 
+type DeleteDependencySummary = {
+  executionItemCount: number;
+  designTaskCount: number;
+  procurementTaskCount: number;
+  vendorTaskCount: number;
+  confirmationCount: number;
+  manualCostCount: number;
+};
+
+const EMPTY_DELETE_SUMMARY: DeleteDependencySummary = {
+  executionItemCount: 0,
+  designTaskCount: 0,
+  procurementTaskCount: 0,
+  vendorTaskCount: 0,
+  confirmationCount: 0,
+  manualCostCount: 0,
+};
+
 export function ProjectsPageClient({ initialProjects }: { initialProjects: Project[] }) {
   const router = useRouter();
   const [dateSortOrder, setDateSortOrder] = useState<"asc" | "desc">("desc");
   const [searchKeyword, setSearchKeyword] = useState("");
   const [deletingProjectId, setDeletingProjectId] = useState<string | null>(null);
   const [pendingDeleteProject, setPendingDeleteProject] = useState<Project | null>(null);
+  const [deleteConfirmName, setDeleteConfirmName] = useState("");
   const [deleteError, setDeleteError] = useState("");
+  const [deleteDependencySummary, setDeleteDependencySummary] = useState<DeleteDependencySummary>(EMPTY_DELETE_SUMMARY);
 
   const visibleProjects = useMemo(() => {
     const keyword = searchKeyword.trim().toLowerCase();
@@ -52,19 +72,31 @@ export function ProjectsPageClient({ initialProjects }: { initialProjects: Proje
 
     setDeletingProjectId(pendingDeleteProject.id);
     setDeleteError("");
+    setDeleteDependencySummary(EMPTY_DELETE_SUMMARY);
 
     try {
       const response = await fetch(`/api/projects/${pendingDeleteProject.id}`, {
         method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          confirmProjectName: deleteConfirmName,
+        }),
       });
       const result = await response.json();
 
       if (!response.ok || !result.ok) {
         setDeleteError(result.error || "刪除專案失敗");
+        if (result.dependencySummary) {
+          setDeleteDependencySummary(result.dependencySummary as DeleteDependencySummary);
+        }
         return;
       }
 
       setPendingDeleteProject(null);
+      setDeleteConfirmName("");
+      setDeleteDependencySummary(EMPTY_DELETE_SUMMARY);
       router.refresh();
     } catch (error) {
       setDeleteError(error instanceof Error ? error.message : "刪除專案失敗");
@@ -72,6 +104,9 @@ export function ProjectsPageClient({ initialProjects }: { initialProjects: Proje
       setDeletingProjectId(null);
     }
   }
+
+  const hasBlockingDependencies = Object.values(deleteDependencySummary).some((count) => count > 0);
+  const isDeleteNameMatched = pendingDeleteProject ? deleteConfirmName.trim() === pendingDeleteProject.name : false;
 
   return (
     <AppShell activePath="/projects">
@@ -173,6 +208,8 @@ export function ProjectsPageClient({ initialProjects }: { initialProjects: Proje
                           disabled={isDeleting}
                           onClick={() => {
                             setDeleteError("");
+                            setDeleteConfirmName("");
+                            setDeleteDependencySummary(EMPTY_DELETE_SUMMARY);
                             setPendingDeleteProject(project);
                           }}
                           className="inline-flex items-center justify-center rounded-2xl border border-rose-200 bg-rose-50 px-3 py-2 text-xs font-semibold text-rose-700 transition hover:bg-rose-100 disabled:cursor-not-allowed disabled:opacity-50"
@@ -197,20 +234,53 @@ export function ProjectsPageClient({ initialProjects }: { initialProjects: Proje
             <div>
               <h3 className="text-xl font-semibold text-slate-900">確認刪除專案</h3>
               <p className="mt-1 text-sm text-slate-600">
-                你即將刪除 <span className="font-semibold text-slate-900">{pendingDeleteProject.name}</span>。這會正式刪除 DB 中的專案資料，並連動刪除其關聯 execution / task / confirmation / manual cost 資料。
+                你即將刪除 <span className="font-semibold text-slate-900">{pendingDeleteProject.name}</span>。
               </p>
-              <p className="mt-2 text-sm text-rose-700">此動作不可回復，請再次確認。</p>
+              <p className="mt-2 text-sm text-rose-700">此動作不可回復，且只有在沒有下游正式資料時才允許刪除。</p>
             </div>
             <button
               type="button"
               onClick={() => {
                 setPendingDeleteProject(null);
+                setDeleteConfirmName("");
                 setDeleteError("");
+                setDeleteDependencySummary(EMPTY_DELETE_SUMMARY);
               }}
               className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-800 transition hover:bg-slate-50"
             >
               取消
             </button>
+          </div>
+
+          <div className="mt-5 grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+            <div className="rounded-2xl border border-white/70 bg-white/80 p-4">
+              <p className="text-sm font-medium text-slate-700">請輸入專案名稱確認刪除</p>
+              <p className="mt-1 text-xs text-slate-500">必須完整輸入：{pendingDeleteProject.name}</p>
+              <input
+                value={deleteConfirmName}
+                onChange={(event) => setDeleteConfirmName(event.target.value)}
+                placeholder="輸入專案名稱"
+                className="mt-3 h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-rose-300 focus:ring-2 focus:ring-rose-100"
+              />
+              {!isDeleteNameMatched && deleteConfirmName ? (
+                <p className="mt-2 text-xs text-rose-700">名稱不一致，無法刪除。</p>
+              ) : null}
+            </div>
+
+            <div className="rounded-2xl border border-white/70 bg-white/80 p-4">
+              <p className="text-sm font-medium text-slate-700">刪除阻擋檢查</p>
+              <ul className="mt-3 space-y-2 text-sm text-slate-600">
+                <li>執行項目：{deleteDependencySummary.executionItemCount}</li>
+                <li>設計任務：{deleteDependencySummary.designTaskCount}</li>
+                <li>備品任務：{deleteDependencySummary.procurementTaskCount}</li>
+                <li>廠商任務：{deleteDependencySummary.vendorTaskCount}</li>
+                <li>確認紀錄：{deleteDependencySummary.confirmationCount}</li>
+                <li>人工費用：{deleteDependencySummary.manualCostCount}</li>
+              </ul>
+              <p className={`mt-3 text-xs font-medium ${hasBlockingDependencies ? "text-rose-700" : "text-slate-500"}`}>
+                {hasBlockingDependencies ? "此專案已有下游正式資料，系統將禁止刪除。" : "目前尚未檢出阻擋資料。送出刪除時，後端仍會再次正式檢查。"}
+              </p>
+            </div>
           </div>
 
           {deleteError ? <p className="mt-4 text-sm text-rose-700">{deleteError}</p> : null}
@@ -219,7 +289,7 @@ export function ProjectsPageClient({ initialProjects }: { initialProjects: Proje
             <button
               type="button"
               onClick={confirmDeleteProject}
-              disabled={deletingProjectId === pendingDeleteProject.id}
+              disabled={deletingProjectId === pendingDeleteProject.id || !isDeleteNameMatched || hasBlockingDependencies}
               className="inline-flex items-center justify-center rounded-2xl bg-rose-600 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-rose-700 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {deletingProjectId === pendingDeleteProject.id ? "刪除中..." : "確認刪除專案"}
