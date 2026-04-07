@@ -10,7 +10,7 @@ type VendorPlanInput = {
   amount: string;
 };
 
-export function VendorPlanEditorClient({ taskId, initialPlans }: { taskId: string; initialPlans: VendorPlanInput[] }) {
+export function VendorPlanEditorClient({ taskId, initialPlans, showConfirmButton = true }: { taskId: string; initialPlans: VendorPlanInput[]; showConfirmButton?: boolean }) {
   const router = useRouter();
   const useDbActions = useMemo(
     () => /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(taskId),
@@ -94,7 +94,7 @@ export function VendorPlanEditorClient({ taskId, initialPlans }: { taskId: strin
     <div className="space-y-4">
       <div className="flex flex-col gap-3 border-b border-slate-200 pb-4 xl:flex-row xl:items-center xl:justify-between">
         <div className="flex flex-wrap items-center gap-3"><h3 className="text-xl font-semibold text-slate-900">執行處理</h3><button type="button" onClick={addPlan} className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">新增執行處理</button></div>
-        <div className="flex flex-wrap items-center gap-2"><button type="button" onClick={saveAllPlans} disabled={saving} className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 disabled:opacity-60">{saving ? "儲存中..." : "儲存"}</button><button type="button" onClick={confirmPlans} disabled={confirming} className="inline-flex items-center justify-center rounded-2xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-60">{confirming ? "確認中..." : "全部確認"}</button></div>
+        <div className="flex flex-wrap items-center gap-2"><button type="button" onClick={saveAllPlans} disabled={saving} className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 disabled:opacity-60">{saving ? "儲存中..." : "儲存"}</button>{showConfirmButton ? <button type="button" onClick={confirmPlans} disabled={confirming} className="inline-flex items-center justify-center rounded-2xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-60">{confirming ? "確認中..." : "全部確認"}</button> : null}</div>
       </div>
 
       {plans.map((plan) => (
@@ -108,6 +108,7 @@ export function VendorPlanEditorClient({ taskId, initialPlans }: { taskId: strin
         </article>
       ))}
 
+      {!showConfirmButton ? <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600">此頁改為先逐筆儲存各任務內容；正式進 package 請使用頁首的「全部確認並前往最終文件頁」。</div> : null}
       {message ? <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800 whitespace-pre-line">{message}</div> : null}
     </div>
   );

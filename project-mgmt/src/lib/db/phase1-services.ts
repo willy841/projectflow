@@ -43,6 +43,45 @@ export interface Phase1Services {
   confirmVendorTaskPlans(taskId: UUID): Promise<TaskConfirmationRow>;
 }
 
+function normalizeComparableValue(value: unknown): string {
+  if (value == null) return '';
+  return String(value).trim();
+}
+
+function areVendorPlanPayloadsEqual(
+  plans: VendorTaskPlanRow[],
+  snapshots: Array<{ payload_json: unknown; sort_order: number | null }>,
+) {
+  if (plans.length !== snapshots.length) return false;
+
+  const sortedPlans = [...plans].sort((a, b) => {
+    if (a.sort_order !== b.sort_order) return a.sort_order - b.sort_order;
+    return a.id.localeCompare(b.id);
+  });
+  const sortedSnapshots = [...snapshots].sort((a, b) => {
+    const leftSort = a.sort_order ?? 0;
+    const rightSort = b.sort_order ?? 0;
+    if (leftSort !== rightSort) return leftSort - rightSort;
+    return 0;
+  });
+
+  return sortedPlans.every((plan, index) => {
+    const payload = sortedSnapshots[index]?.payload_json as {
+      title?: string | null;
+      requirement_text?: string | null;
+      amount?: string | number | null;
+    } | null;
+
+    if (!payload) return false;
+
+    return (
+      normalizeComparableValue(plan.title) === normalizeComparableValue(payload.title) &&
+      normalizeComparableValue(plan.requirement_text) === normalizeComparableValue(payload.requirement_text) &&
+      normalizeComparableValue(plan.amount) === normalizeComparableValue(payload.amount)
+    );
+  });
+}
+
 async function nextConfirmationNo(
   repositories: Phase1Repositories,
   flowType: 'design' | 'procurement' | 'vendor',
@@ -234,6 +273,16 @@ export function createPhase1Services(repositories: Phase1Repositories): Phase1Se
       }
 
       const plans = await repositories.vendorTaskPlans.listByTask(taskId);
+      const existingConfirmations = await repositories.taskConfirmations.listByTask('vendor', taskId);
+      const latestConfirmation = existingConfirmations[0] ?? null;
+
+      if (latestConfirmation) {
+        const latestSnapshots = await repositories.taskConfirmations.listSnapshots(latestConfirmation.id);
+        if (areVendorPlanPayloadsEqual(plans, latestSnapshots)) {
+          return latestConfirmation;
+        }
+      }
+
       const confirmation = await repositories.taskConfirmations.insert({
         project_id: task.project_id,
         flow_type: 'vendor',

@@ -55,6 +55,14 @@ function buildImportedChild(child: { id: string; title: string; quantity?: strin
   };
 }
 
+function dedupeProjectTaskSummaryItems(items: ProjectTaskSummaryItem[]) {
+  const map = new Map<string, ProjectTaskSummaryItem>();
+  items.forEach((item) => {
+    map.set(item.summaryKey ?? item.id, item);
+  });
+  return Array.from(map.values());
+}
+
 export function ExecutionTreeSection({ project }: { project: Project }) {
   const isDbProject = isUuidLike(project.id);
   const [designAssignments, setDesignAssignments] = useState<DesignAssignmentItem[]>([]);
@@ -140,6 +148,7 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
   const designSummaryList = useMemo<ProjectTaskSummaryItem[]>(() => {
     const fromAssignments = designAssignments.map((assignment) => ({
       id: assignment.targetId,
+      summaryKey: assignment.targetId,
       title: assignment.title,
       status: assignment.data.status,
       statusClass: getStatusClass(assignment.data.status),
@@ -149,6 +158,7 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
 
     const fromLegacyTasks = project.designTasks.map((task, index) => ({
       id: `${task.sourceExecutionItemId ?? task.title}-design-${index}`,
+      summaryKey: task.sourceExecutionItemId ?? `${task.title}-${index}`,
       title: task.title,
       status: task.status,
       statusClass: getStatusClass(task.status),
@@ -156,12 +166,13 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
       ctaLabel: "前往設計任務板",
     }));
 
-    return [...fromAssignments, ...fromLegacyTasks];
+    return dedupeProjectTaskSummaryItems([...fromAssignments, ...fromLegacyTasks]);
   }, [designAssignments, project.designTasks, project.id]);
 
   const procurementSummaryList = useMemo<ProjectTaskSummaryItem[]>(() => {
     const fromAssignments = procurementAssignments.map((assignment) => ({
       id: assignment.targetId,
+      summaryKey: assignment.targetId,
       title: assignment.data.item || assignment.title,
       status: assignment.data.status,
       statusClass: getStatusClass(assignment.data.status),
@@ -171,6 +182,7 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
 
     const fromLegacyTasks = project.procurementTasks.map((task, index) => ({
       id: `${task.sourceExecutionItemId ?? task.title}-procurement-${index}`,
+      summaryKey: task.sourceExecutionItemId ?? `${task.title}-${index}`,
       title: task.title,
       status: task.status,
       statusClass: getStatusClass(task.status),
@@ -178,28 +190,31 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
       ctaLabel: "前往採購備品板",
     }));
 
-    return [...fromAssignments, ...fromLegacyTasks];
+    return dedupeProjectTaskSummaryItems([...fromAssignments, ...fromLegacyTasks]);
   }, [procurementAssignments, project.procurementTasks, project.id]);
 
   const vendorSummaryList = useMemo<ProjectTaskSummaryItem[]>(
-    () => [
-      ...vendorAssignments.map((assignment) => ({
-        id: assignment.targetId,
-        title: assignment.data.title || assignment.title,
-        status: assignment.data.status,
-        statusClass: getStatusClass(assignment.data.status),
-        href: `/vendor-assignments?project=${encodeURIComponent(project.id)}`,
-        ctaLabel: "前往廠商發包板",
-      })),
-      ...(project.vendorTasks ?? []).map((task, index) => ({
-        id: `${task.sourceExecutionItemId ?? task.title}-vendor-${index}`,
-        title: task.title,
-        status: task.status,
-        statusClass: getStatusClass(task.status),
-        href: `/vendor-assignments?project=${encodeURIComponent(project.id)}`,
-        ctaLabel: "前往廠商發包板",
-      })),
-    ],
+    () =>
+      dedupeProjectTaskSummaryItems([
+        ...vendorAssignments.map((assignment) => ({
+          id: assignment.targetId,
+          summaryKey: assignment.targetId,
+          title: assignment.data.title || assignment.title,
+          status: assignment.data.status,
+          statusClass: getStatusClass(assignment.data.status),
+          href: `/vendor-assignments?project=${encodeURIComponent(project.id)}`,
+          ctaLabel: "前往廠商發包板",
+        })),
+        ...(project.vendorTasks ?? []).map((task, index) => ({
+          id: `${task.sourceExecutionItemId ?? task.title}-vendor-${index}`,
+          summaryKey: task.sourceExecutionItemId ?? `${task.title}-${index}`,
+          title: task.title,
+          status: task.status,
+          statusClass: getStatusClass(task.status),
+          href: `/vendor-assignments?project=${encodeURIComponent(project.id)}`,
+          ctaLabel: "前往廠商發包板",
+        })),
+      ]),
     [vendorAssignments, project.id, project.vendorTasks],
   );
 

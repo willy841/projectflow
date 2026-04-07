@@ -1,6 +1,7 @@
 import { createPhase1DbClient } from '@/lib/db/phase1-client';
 import { createPhase1Repositories } from '@/lib/db/phase1-repositories';
 import type { VendorPackage } from '@/components/vendor-data';
+import type { TaskConfirmationRow } from '@/lib/db/phase1-types';
 
 type PackageSnapshotSeed = {
   confirmationId: string;
@@ -41,47 +42,77 @@ function normalizeVendorDocumentStatus(itemCount: number): VendorPackage['docume
   return itemCount > 0 ? '已生成' : '未生成';
 }
 
+function formatDateOnly(value: string | Date | null | undefined) {
+  if (!value) return '-';
+  const date = value instanceof Date ? value : new Date(value);
+  return Number.isNaN(date.getTime()) ? String(value).slice(0, 10) : date.toISOString().slice(0, 10);
+}
+
+function formatDateTime(value: string | Date | null | undefined) {
+  if (!value) return '';
+  const date = value instanceof Date ? value : new Date(value);
+  return Number.isNaN(date.getTime()) ? String(value) : date.toISOString();
+}
+
+function getLatestConfirmation(confirmations: TaskConfirmationRow[]) {
+  return [...confirmations].sort((a, b) => {
+    if (a.confirmation_no !== b.confirmation_no) return b.confirmation_no - a.confirmation_no;
+    const confirmedAtDiff = formatDateTime(b.confirmed_at).localeCompare(formatDateTime(a.confirmed_at));
+    if (confirmedAtDiff !== 0) return confirmedAtDiff;
+    const createdAtDiff = formatDateTime(b.created_at).localeCompare(formatDateTime(a.created_at));
+    if (createdAtDiff !== 0) return createdAtDiff;
+    return b.id.localeCompare(a.id);
+  })[0] ?? null;
+}
+
 async function listLatestVendorConfirmationSeeds() {
-  const db = createPhase1DbClient();
-  return db.query<PackageSnapshotSeed>(`
-    with latest_vendor_confirmations as (
-      select
-        tc.id,
-        tc.task_id,
-        tc.confirmed_at,
-        row_number() over (
-          partition by tc.task_id
-          order by tc.confirmation_no desc, tc.confirmed_at desc, tc.created_at desc, tc.id desc
-        ) as rn
-      from task_confirmations tc
-      where tc.flow_type = 'vendor'
-    )
-    select
-      lvc.id as "confirmationId",
-      coalesce(to_char(lvc.confirmed_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'), '') as "confirmedAt",
-      vt.id as "vendorTaskId",
-      coalesce(to_char(vt.created_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'), '') as "vendorTaskCreatedAt",
-      v.id as "vendorId",
-      v.name as "vendorName",
-      p.id as "projectId",
-      p.name as "projectName",
-      coalesce(to_char(p.event_date, 'YYYY-MM-DD'), '-') as "eventDate",
-      coalesce(p.location, '-') as location,
-      coalesce(p.load_in_time, '-') as "loadInTime"
-    from latest_vendor_confirmations lvc
-    inner join vendor_tasks vt on vt.id = lvc.task_id
-    inner join vendors v on v.id = vt.vendor_id
-    inner join projects p on p.id = vt.project_id
-    where lvc.rn = 1
-    order by p.event_date nulls last, p.created_at desc, v.name asc, lvc.confirmed_at desc, vt.created_at asc
-  `);
+  const repositories = createPhase1Repositories(createPhase1DbClient());
+  const [projects, vendors] = await Promise.all([repositories.projects.list(), repositories.vendors.list()]);
+  const projectMap = new Map(projects.map((project) => [project.id, project]));
+  const vendorMap = new Map(vendors.map((vendor) => [vendor.id, vendor]));
+  const rows: PackageSnapshotSeed[] = [];
+
+  for (const project of projects) {
+    const tasks = await repositories.vendorTasks.listByProject(project.id);
+
+    for (const task of tasks) {
+      const confirmations = await repositories.taskConfirmations.listByTask('vendor', task.id);
+      const latestConfirmation = getLatestConfirmation(confirmations);
+      if (!latestConfirmation) continue;
+
+      const vendor = vendorMap.get(task.vendor_id);
+      if (!vendor) continue;
+
+      rows.push({
+        confirmationId: latestConfirmation.id,
+        confirmedAt: formatDateTime(latestConfirmation.confirmed_at),
+        vendorTaskId: task.id,
+        vendorTaskCreatedAt: formatDateTime(task.created_at),
+        vendorId: vendor.id,
+        vendorName: vendor.name,
+        projectId: project.id,
+        projectName: project.name,
+        eventDate: formatDateOnly(project.event_date),
+        location: project.location ?? '-',
+        loadInTime: project.load_in_time ?? '-',
+      });
+    }
+  }
+
+  return rows.sort((a, b) => {
+    if (a.eventDate !== b.eventDate) return a.eventDate.localeCompare(b.eventDate);
+    if (a.projectName !== b.projectName) return a.projectName.localeCompare(b.projectName, 'zh-Hant');
+    if (a.vendorName !== b.vendorName) return a.vendorName.localeCompare(b.vendorName, 'zh-Hant');
+    if (a.confirmedAt !== b.confirmedAt) return b.confirmedAt.localeCompare(a.confirmedAt);
+    return a.vendorTaskCreatedAt.localeCompare(b.vendorTaskCreatedAt);
+  });
 }
 
 async function buildVendorPackageGroups(): Promise<VendorPackageGroupSeed[]> {
   const confirmationRows = await listLatestVendorConfirmationSeeds();
   const groups = new Map<string, VendorPackageGroupSeed>();
 
-  for (const row of confirmationRows.rows) {
+  for (const row of confirmationRows) {
     const packageId = buildVendorPackageId(row.projectId, row.vendorId);
     const existing = groups.get(packageId);
 

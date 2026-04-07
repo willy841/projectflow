@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AppShell } from "@/components/app-shell";
+import { VendorGroupConfirmClient } from "@/components/vendor-group-confirm-client";
 import { VendorPlanEditorClient } from "@/components/vendor-plan-editor-client";
 import { buildVendorPackageId } from "@/lib/db/vendor-package-adapter";
 import { getDbVendorGroupDetail, getDbVendorTaskById } from "@/lib/db/vendor-flow-adapter";
@@ -37,9 +38,12 @@ export default async function VendorAssignmentTaskPage({ params }: { params: Pro
             <h2 className="mt-1 text-3xl font-semibold tracking-tight text-slate-900">{group.vendorName}</h2>
             <p className="mt-2 text-sm text-slate-500">{group.projectName} ・ 共 {group.tasks.length} 筆任務</p>
           </div>
-          <div className="flex flex-wrap gap-2">
-            <Link href={`/vendor-assignments?project=${encodeURIComponent(group.projectId)}`} className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700">返回任務列表</Link>
-            <Link href={`/vendor-packages/${packageId}`} className="inline-flex items-center justify-center rounded-2xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white">前往最終文件頁</Link>
+          <div className="flex flex-col gap-2 xl:items-end">
+            <div className="flex flex-wrap gap-2">
+              <Link href={`/vendor-assignments?project=${encodeURIComponent(group.projectId)}`} className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700">返回任務列表</Link>
+              <Link href={`/vendor-packages/${packageId}`} className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700">查看目前文件頁</Link>
+            </div>
+            <VendorGroupConfirmClient projectId={group.projectId} vendorId={group.vendorId} packageId={packageId} />
           </div>
         </div>
       </header>
@@ -60,7 +64,7 @@ export default async function VendorAssignmentTaskPage({ params }: { params: Pro
                 <p className="text-sm text-slate-500">群組任務 {index + 1}</p>
                 <h3 className="mt-1 text-xl font-semibold text-slate-900">{task.title}</h3>
               </div>
-              <Link href={`/vendor-assignments/${task.id}/document`} className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700">用此任務入口前往文件</Link>
+              <span className="inline-flex items-center justify-center rounded-2xl border border-slate-200 bg-slate-50 px-4 py-2 text-sm font-medium text-slate-500">此層先儲存；文件承接改由群組確認統一進入</span>
             </div>
 
             <div className="grid gap-3 md:grid-cols-2">
@@ -70,6 +74,7 @@ export default async function VendorAssignmentTaskPage({ params }: { params: Pro
 
             <VendorPlanEditorClient
               taskId={task.id}
+              showConfirmButton={false}
               initialPlans={task.plans.map((plan) => ({
                 id: plan.id,
                 title: plan.title,

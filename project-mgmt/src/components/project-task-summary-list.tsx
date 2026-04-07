@@ -2,6 +2,7 @@ import Link from "next/link";
 
 export type ProjectTaskSummaryItem = {
   id: string;
+  summaryKey?: string;
   title: string;
   quantity?: string;
   status: string;
