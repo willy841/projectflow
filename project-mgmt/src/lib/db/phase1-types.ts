@@ -21,6 +21,11 @@ export interface ProjectRow extends BaseMutableRow {
   event_date: ISODateString | null;
   location: string | null;
   load_in_time: string | null;
+  event_type: string | null;
+  contact_name: string | null;
+  contact_phone: string | null;
+  contact_email: string | null;
+  contact_line: string | null;
   status: string;
 }
 

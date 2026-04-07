@@ -13,12 +13,25 @@ type ProjectDetailEntryContext = {
   source?: string;
 };
 
-export function ProjectDetailShell({ project, entryContext }: { project: Project; entryContext?: ProjectDetailEntryContext }) {
-  const [isEditingProject, setIsEditingProject] = useState(false);
-  const [saveMessage, setSaveMessage] = useState<string>("");
-  const [isSavingProject, setIsSavingProject] = useState(false);
-  const isDbProject = isUuidLike(project.id);
-  const [projectForm, setProjectForm] = useState({
+type ProjectFormState = {
+  name: string;
+  client: string;
+  eventDate: string;
+  location: string;
+  loadInTime: string;
+  eventType: string;
+  contactName: string;
+  contactPhone: string;
+  contactEmail: string;
+  contactLine: string;
+  owner: string;
+  budget: string;
+  cost: string;
+  note: string;
+};
+
+function buildProjectForm(project: Project): ProjectFormState {
+  return {
     name: project.name,
     client: project.client,
     eventDate: project.eventDate,
@@ -33,9 +46,21 @@ export function ProjectDetailShell({ project, entryContext }: { project: Project
     budget: project.budget,
     cost: project.cost,
     note: project.note,
-  });
+  };
+}
 
-  function updateField(key: keyof typeof projectForm, value: string) {
+export function ProjectDetailShell({ project, entryContext }: { project: Project; entryContext?: ProjectDetailEntryContext }) {
+  const [isEditingProject, setIsEditingProject] = useState(false);
+  const [saveMessage, setSaveMessage] = useState<string>("");
+  const [isSavingProject, setIsSavingProject] = useState(false);
+  const isDbProject = isUuidLike(project.id);
+  const [projectForm, setProjectForm] = useState<ProjectFormState>(() => buildProjectForm(project));
+
+  useEffect(() => {
+    setProjectForm(buildProjectForm(project));
+  }, [project]);
+
+  function updateField(key: keyof ProjectFormState, value: string) {
     setProjectForm((prev) => ({ ...prev, [key]: value }));
   }
 
@@ -47,28 +72,52 @@ export function ProjectDetailShell({ project, entryContext }: { project: Project
 
     setIsSavingProject(true);
     setSaveMessage("");
-    const response = await fetch(`/api/projects/${project.id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        name: projectForm.name,
-        client: projectForm.client,
-        eventDate: projectForm.eventDate,
-        location: projectForm.location,
-        loadInTime: projectForm.loadInTime,
-        status: project.status,
-      }),
-    });
-    const result = await response.json();
-    setIsSavingProject(false);
 
-    if (!response.ok || !result.ok) {
-      setSaveMessage(result.error || "專案儲存失敗");
-      return;
+    try {
+      const response = await fetch(`/api/projects/${project.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: projectForm.name,
+          client: projectForm.client,
+          eventDate: projectForm.eventDate,
+          location: projectForm.location,
+          loadInTime: projectForm.loadInTime,
+          eventType: projectForm.eventType,
+          contactName: projectForm.contactName,
+          contactPhone: projectForm.contactPhone,
+          contactEmail: projectForm.contactEmail,
+          contactLine: projectForm.contactLine,
+          status: project.status,
+        }),
+      });
+      const result = await response.json();
+
+      if (!response.ok || !result.ok) {
+        setSaveMessage(result.error || "專案儲存失敗");
+        return;
+      }
+
+      setProjectForm((prev) => ({
+        ...prev,
+        name: result.project.name ?? prev.name,
+        client: result.project.client_name ?? "-",
+        eventDate: result.project.event_date ?? "-",
+        location: result.project.location ?? "-",
+        loadInTime: result.project.load_in_time ?? "-",
+        eventType: result.project.event_type ?? "-",
+        contactName: result.project.contact_name ?? "-",
+        contactPhone: result.project.contact_phone ?? "-",
+        contactEmail: result.project.contact_email ?? "-",
+        contactLine: result.project.contact_line ?? "-",
+      }));
+      setSaveMessage("已儲存客戶資料與活動資訊");
+      setIsEditingProject(false);
+    } catch (error) {
+      setSaveMessage(error instanceof Error ? error.message : "專案儲存失敗");
+    } finally {
+      setIsSavingProject(false);
     }
-
-    setSaveMessage("已儲存正式專案內容");
-    setIsEditingProject(false);
   }
 
   const focusedExecutionTargetId = useMemo(() => {
@@ -134,10 +183,10 @@ export function ProjectDetailShell({ project, entryContext }: { project: Project
           <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
             <div>
               <h3 className="text-xl font-semibold text-slate-900">編輯專案</h3>
-              <p className="mt-1 text-sm text-slate-500">{isDbProject ? "這一版已接正式專案儲存，可直接更新專案 Detail。" : "這一版先做同頁前端編輯流程，讓您可直接調整專案資訊與進場時間。"}</p>
+              <p className="mt-1 text-sm text-slate-500">這一版會正式儲存客戶資料與活動資訊到 DB。</p>
             </div>
             <span className="inline-flex items-center justify-center rounded-full bg-white px-3 py-1 text-xs font-medium text-blue-700 ring-1 ring-blue-200">
-              可立即驗收
+              正式版
             </span>
           </div>
 
@@ -149,33 +198,42 @@ export function ProjectDetailShell({ project, entryContext }: { project: Project
               ["location", "活動地點", "例如：松山文創園區", "text"],
               ["loadInTime", "進場時間", "", "time"],
               ["eventType", "活動類型", "例如：品牌快閃", "text"],
-              ["owner", "專案負責人", "例如：Willy", "text"],
+              ["owner", "專案負責人", "目前為唯讀欄位", "text"],
               ["contactName", "聯繫人", "例如：林雅晴", "text"],
               ["contactPhone", "電話", "例如：0912-345-678", "text"],
               ["contactEmail", "Email", "例如：name@brand.com", "text"],
               ["contactLine", "LINE", "例如：brand-team", "text"],
-              ["budget", "專案預算", "例如：NT$ 680,000", "text"],
-              ["cost", "目前成本", "例如：NT$ 472,000", "text"],
-            ].map(([key, label, placeholder, type]) => (
-              <label key={key} className="flex flex-col gap-2">
-                <span className="text-sm font-medium text-slate-700">{label}</span>
-                <input
-                  type={type}
-                  value={projectForm[key as keyof typeof projectForm]}
-                  onChange={(event) => updateField(key as keyof typeof projectForm, event.target.value)}
-                  placeholder={placeholder}
-                  className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-blue-400"
-                />
-              </label>
-            ))}
+              ["budget", "專案預算", "目前為唯讀欄位", "text"],
+              ["cost", "目前成本", "目前為唯讀欄位", "text"],
+            ].map(([key, label, placeholder, type]) => {
+              const isReadonly = ["owner", "budget", "cost"].includes(key);
+              return (
+                <label key={key} className="flex flex-col gap-2">
+                  <span className="text-sm font-medium text-slate-700">{label}</span>
+                  <input
+                    type={type}
+                    value={projectForm[key as keyof typeof projectForm]}
+                    onChange={(event) => updateField(key as keyof typeof projectForm, event.target.value)}
+                    placeholder={placeholder}
+                    readOnly={isReadonly}
+                    className={`h-11 rounded-2xl border px-4 text-sm outline-none transition ${
+                      isReadonly
+                        ? "border-slate-100 bg-slate-100 text-slate-500"
+                        : "border-slate-200 bg-white focus:border-blue-400"
+                    }`}
+                  />
+                </label>
+              );
+            })}
 
             <label className="flex flex-col gap-2 md:col-span-2 xl:col-span-3">
               <span className="text-sm font-medium text-slate-700">專案備註</span>
               <textarea
                 value={projectForm.note}
                 onChange={(event) => updateField("note", event.target.value)}
-                placeholder="記錄專案背景、需求重點與提醒事項"
-                className="min-h-28 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-blue-400"
+                placeholder="目前為前端顯示欄位，正式 DB 欄位尚未納入"
+                readOnly
+                className="min-h-28 rounded-2xl border border-slate-100 bg-slate-100 px-4 py-3 text-sm text-slate-500 outline-none"
               />
             </label>
           </div>
@@ -188,27 +246,13 @@ export function ProjectDetailShell({ project, entryContext }: { project: Project
               disabled={isSavingProject}
               className="inline-flex items-center justify-center rounded-2xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 disabled:opacity-50"
             >
-              {isSavingProject ? "儲存中..." : "儲存專案內容"}
+              {isSavingProject ? "儲存中..." : "儲存客戶資料與活動資訊"}
             </button>
             <button
               type="button"
               onClick={() => {
-                setProjectForm({
-                  name: project.name,
-                  client: project.client,
-                  eventDate: project.eventDate,
-                  location: project.location,
-                  loadInTime: project.loadInTime,
-                  eventType: project.eventType,
-                  contactName: project.contactName,
-                  contactPhone: project.contactPhone,
-                  contactEmail: project.contactEmail,
-                  contactLine: project.contactLine,
-                  owner: project.owner,
-                  budget: project.budget,
-                  cost: project.cost,
-                  note: project.note,
-                });
+                setProjectForm(buildProjectForm(project));
+                setSaveMessage("");
               }}
               className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 transition hover:bg-slate-50"
             >
@@ -261,7 +305,7 @@ export function ProjectDetailShell({ project, entryContext }: { project: Project
         <RequirementsPanel initialItems={project.requirements} />
       </section>
 
-      <ExecutionTreeSection project={project} />
+      <ExecutionTreeSection project={{ ...project, ...projectForm }} />
     </>
   );
 }

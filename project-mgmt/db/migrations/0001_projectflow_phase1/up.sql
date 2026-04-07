@@ -23,6 +23,11 @@ create table if not exists projects (
   event_date date,
   location text,
   load_in_time text,
+  event_type text,
+  contact_name text,
+  contact_phone text,
+  contact_email text,
+  contact_line text,
   status text not null,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()

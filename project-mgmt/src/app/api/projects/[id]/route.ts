@@ -20,6 +20,11 @@ export async function PATCH(
       eventDate?: string;
       location?: string;
       loadInTime?: string;
+      eventType?: string;
+      contactName?: string;
+      contactPhone?: string;
+      contactEmail?: string;
+      contactLine?: string;
       status?: string;
     };
 
@@ -30,6 +35,11 @@ export async function PATCH(
       event_date: body.eventDate?.trim() || null,
       location: body.location?.trim() || null,
       load_in_time: body.loadInTime?.trim() || null,
+      event_type: body.eventType?.trim() || null,
+      contact_name: body.contactName?.trim() || null,
+      contact_phone: body.contactPhone?.trim() || null,
+      contact_email: body.contactEmail?.trim() || null,
+      contact_line: body.contactLine?.trim() || null,
       status: body.status?.trim() || '執行中',
     });
 
