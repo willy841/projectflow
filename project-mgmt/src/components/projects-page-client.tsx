@@ -76,9 +76,11 @@ export function ProjectsPageClient({ initialProjects }: { initialProjects: Proje
         return;
       }
 
-      setProjects((current) => current.filter((project) => project.id !== pendingDeleteProject.id));
+      const deletedProjectId = pendingDeleteProject.id;
+      setProjects((current) => current.filter((project) => project.id !== deletedProjectId));
       setPendingDeleteProject(null);
       setDeleteConfirmName("");
+      router.push(`/projects?deleted=${encodeURIComponent(deletedProjectId)}`);
       router.refresh();
     } catch (error) {
       setDeleteError(error instanceof Error ? error.message : "刪除專案失敗");
