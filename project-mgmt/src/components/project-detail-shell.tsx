@@ -36,6 +36,13 @@ function formatDateOnly(value: string | null | undefined): string {
   return text.length >= 10 ? text.slice(0, 10) : text;
 }
 
+function normalizeProject(project: Project): Project {
+  return {
+    ...project,
+    eventDate: formatDateOnly(project.eventDate),
+  };
+}
+
 function buildProjectForm(project: Project): ProjectFormState {
   return {
     name: project.name,
@@ -55,16 +62,40 @@ function buildProjectForm(project: Project): ProjectFormState {
   };
 }
 
+function buildProjectView(baseProject: Project, form: ProjectFormState): Project {
+  return {
+    ...baseProject,
+    name: form.name,
+    client: form.client,
+    eventDate: formatDateOnly(form.eventDate),
+    location: form.location,
+    loadInTime: form.loadInTime,
+    eventType: form.eventType,
+    contactName: form.contactName,
+    contactPhone: form.contactPhone,
+    contactEmail: form.contactEmail,
+    contactLine: form.contactLine,
+    owner: form.owner,
+    budget: form.budget,
+    cost: form.cost,
+    note: form.note,
+  };
+}
+
 export function ProjectDetailShell({ project, entryContext }: { project: Project; entryContext?: ProjectDetailEntryContext }) {
+  const normalizedIncomingProject = useMemo(() => normalizeProject(project), [project]);
   const [isEditingProject, setIsEditingProject] = useState(false);
   const [saveMessage, setSaveMessage] = useState<string>("");
   const [isSavingProject, setIsSavingProject] = useState(false);
   const isDbProject = isUuidLike(project.id);
-  const [projectForm, setProjectForm] = useState<ProjectFormState>(() => buildProjectForm(project));
+  const [projectView, setProjectView] = useState<Project>(normalizedIncomingProject);
+  const [projectForm, setProjectForm] = useState<ProjectFormState>(() => buildProjectForm(normalizedIncomingProject));
 
   useEffect(() => {
-    setProjectForm(buildProjectForm(project));
-  }, [project]);
+    if (isEditingProject || isSavingProject) return;
+    setProjectView(normalizedIncomingProject);
+    setProjectForm(buildProjectForm(normalizedIncomingProject));
+  }, [normalizedIncomingProject, isEditingProject, isSavingProject]);
 
   function updateField(key: keyof ProjectFormState, value: string) {
     setProjectForm((prev) => ({ ...prev, [key]: value }));
@@ -72,6 +103,9 @@ export function ProjectDetailShell({ project, entryContext }: { project: Project
 
   async function saveProject() {
     if (!isDbProject) {
+      const nextView = buildProjectView(projectView, projectForm);
+      setProjectView(nextView);
+      setProjectForm(buildProjectForm(nextView));
       setIsEditingProject(false);
       return;
     }
@@ -104,9 +138,9 @@ export function ProjectDetailShell({ project, entryContext }: { project: Project
         return;
       }
 
-      setProjectForm((prev) => ({
-        ...prev,
-        name: result.project.name ?? prev.name,
+      const nextForm: ProjectFormState = {
+        ...projectForm,
+        name: result.project.name ?? projectForm.name,
         client: result.project.client_name ?? "-",
         eventDate: formatDateOnly(result.project.event_date),
         location: result.project.location ?? "-",
@@ -116,7 +150,11 @@ export function ProjectDetailShell({ project, entryContext }: { project: Project
         contactPhone: result.project.contact_phone ?? "-",
         contactEmail: result.project.contact_email ?? "-",
         contactLine: result.project.contact_line ?? "-",
-      }));
+      };
+      const nextView = buildProjectView(projectView, nextForm);
+
+      setProjectForm(nextForm);
+      setProjectView(nextView);
       setSaveMessage("已儲存客戶資料與活動資訊");
       setIsEditingProject(false);
     } catch (error) {
@@ -130,14 +168,14 @@ export function ProjectDetailShell({ project, entryContext }: { project: Project
     const target = entryContext?.task?.trim();
     if (!target) return null;
 
-    for (const item of project.executionItems) {
+    for (const item of projectView.executionItems) {
       if (item.title === target) return item.id;
       const matchedChild = item.children?.find((child) => child.title === target);
       if (matchedChild) return item.id;
     }
 
     return null;
-  }, [entryContext?.task, project.executionItems]);
+  }, [entryContext?.task, projectView.executionItems]);
 
   useEffect(() => {
     if (!focusedExecutionTargetId) return;
@@ -160,15 +198,15 @@ export function ProjectDetailShell({ project, entryContext }: { project: Project
       <header className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200 xl:p-6">
         <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
           <div className="min-w-0 flex-1">
-            <h2 className="text-3xl font-semibold tracking-tight text-slate-900">{projectForm.name}</h2>
+            <h2 className="text-3xl font-semibold tracking-tight text-slate-900">{projectView.name}</h2>
           </div>
 
           <div className="flex flex-wrap items-center gap-2 xl:justify-end">
             <CopyEventInfoButton
-              projectName={projectForm.name}
-              eventDate={projectForm.eventDate}
-              location={projectForm.location}
-              loadInTime={projectForm.loadInTime}
+              projectName={projectView.name}
+              eventDate={projectView.eventDate}
+              location={projectView.location}
+              loadInTime={projectView.loadInTime}
             />
             <Link href="/projects" className="inline-flex h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-800 shadow-sm transition hover:border-slate-400 hover:bg-slate-50">
               返回列表
@@ -257,7 +295,7 @@ export function ProjectDetailShell({ project, entryContext }: { project: Project
             <button
               type="button"
               onClick={() => {
-                setProjectForm(buildProjectForm(project));
+                setProjectForm(buildProjectForm(projectView));
                 setSaveMessage("");
               }}
               className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 transition hover:bg-slate-50"
@@ -270,11 +308,11 @@ export function ProjectDetailShell({ project, entryContext }: { project: Project
 
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-5">
         {[
-          { label: "活動日期", value: projectForm.eventDate },
-          { label: "活動地點", value: projectForm.location },
-          { label: "進場時間", value: projectForm.loadInTime },
-          { label: "專案預算", value: projectForm.budget },
-          { label: "目前成本", value: projectForm.cost },
+          { label: "活動日期", value: projectView.eventDate },
+          { label: "活動地點", value: projectView.location },
+          { label: "進場時間", value: projectView.loadInTime },
+          { label: "專案預算", value: projectView.budget },
+          { label: "目前成本", value: projectView.cost },
         ].map((item) => (
           <article key={item.label} className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
             <p className="text-sm text-slate-500">{item.label}</p>
@@ -293,12 +331,12 @@ export function ProjectDetailShell({ project, entryContext }: { project: Project
 
           <div className="grid gap-4 md:grid-cols-2">
             {[
-              ["客戶名稱", projectForm.client],
-              ["活動類型", projectForm.eventType],
-              ["聯繫人", projectForm.contactName],
-              ["電話", projectForm.contactPhone],
-              ["Email", projectForm.contactEmail],
-              ["LINE", projectForm.contactLine],
+              ["客戶名稱", projectView.client],
+              ["活動類型", projectView.eventType],
+              ["聯繫人", projectView.contactName],
+              ["電話", projectView.contactPhone],
+              ["Email", projectView.contactEmail],
+              ["LINE", projectView.contactLine],
             ].map(([label, value]) => (
               <div key={label} className="rounded-2xl bg-slate-50 px-4 py-3.5">
                 <p className="text-sm text-slate-500">{label}</p>
@@ -308,10 +346,10 @@ export function ProjectDetailShell({ project, entryContext }: { project: Project
           </div>
         </article>
 
-        <RequirementsPanel initialItems={project.requirements} />
+        <RequirementsPanel initialItems={projectView.requirements} />
       </section>
 
-      <ExecutionTreeSection project={{ ...project, ...projectForm }} />
+      <ExecutionTreeSection project={projectView} />
     </>
   );
 }
