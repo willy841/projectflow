@@ -12,6 +12,7 @@ import {
 } from "@/components/excel-task-import";
 import {
   ProjectExecutionItem,
+  ProjectExecutionSubItem,
   getStatusClass,
 } from "@/components/project-data";
 
@@ -841,6 +842,18 @@ function parseCsvLine(line: string) {
   return result;
 }
 
+type PersistedAssignmentPayload = {
+  targetId: string;
+  title: string;
+  draft: DesignAssignmentDraft | ProcurementAssignmentDraft | VendorAssignmentDraft;
+};
+
+type ExecutionTreeServerHandlers = {
+  createExecutionItem?: (input: { title: string; parentId?: string | null }) => Promise<{ item: ImportedItem | ProjectExecutionSubItem; parentId?: string | null }>;
+  saveDesignAssignment?: (payload: PersistedAssignmentPayload & { draft: DesignAssignmentDraft }) => Promise<void>;
+  saveProcurementAssignment?: (payload: PersistedAssignmentPayload & { draft: ProcurementAssignmentDraft }) => Promise<void>;
+  saveVendorAssignment?: (payload: PersistedAssignmentPayload & { draft: VendorAssignmentDraft }) => Promise<void>;
+};
 
 export function ExecutionTree({
   items,
@@ -849,6 +862,10 @@ export function ExecutionTree({
   onProcurementAssignmentsChange,
   onVendorAssignmentsChange,
   heading = "新增主項目",
+  initialDesignAssignments = {},
+  initialProcurementAssignments = {},
+  initialVendorAssignments = {},
+  serverHandlers,
 }: {
   items: ProjectExecutionItem[];
   projectId?: string;
@@ -874,6 +891,10 @@ export function ExecutionTree({
     }>,
   ) => void;
   heading?: string;
+  initialDesignAssignments?: Record<string, DesignAssignmentDraft>;
+  initialProcurementAssignments?: Record<string, ProcurementAssignmentDraft>;
+  initialVendorAssignments?: Record<string, VendorAssignmentDraft>;
+  serverHandlers?: ExecutionTreeServerHandlers;
 }) {
   const [expandedItemId, setExpandedItemId] = useState<string | null>(null);
   const [drafts, setDrafts] = useState<Record<string, string>>({});
@@ -904,29 +925,39 @@ export function ExecutionTree({
   >({});
   const [savedDesignAssignments, setSavedDesignAssignments] = useState<
     Record<string, DesignAssignmentDraft>
-  >({});
+  >(initialDesignAssignments);
   const [procurementAssignmentDrafts, setProcurementAssignmentDrafts] =
     useState<Record<string, ProcurementAssignmentDraft>>({});
   const [savedProcurementAssignments, setSavedProcurementAssignments] =
-    useState<Record<string, ProcurementAssignmentDraft>>({});
+    useState<Record<string, ProcurementAssignmentDraft>>(initialProcurementAssignments);
   const [vendorAssignmentDrafts, setVendorAssignmentDrafts] = useState<
     Record<string, VendorAssignmentDraft>
   >({});
   const [savedVendorAssignments, setSavedVendorAssignments] = useState<
     Record<string, VendorAssignmentDraft>
-  >({});
+  >(initialVendorAssignments);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
-    if (!projectId || typeof window === "undefined") return;
+    setLocalItems(items as ImportedItem[]);
+  }, [items]);
+
+  useEffect(() => {
+    if (serverHandlers || !projectId || typeof window === "undefined") return;
     const stored = readStoredExecutionTreeState(projectId);
     setSavedDesignAssignments(stored.savedDesignAssignments ?? {});
     setSavedProcurementAssignments(stored.savedProcurementAssignments ?? {});
     setSavedVendorAssignments(stored.savedVendorAssignments ?? {});
-  }, [projectId]);
+  }, [projectId, serverHandlers]);
 
   useEffect(() => {
-    if (!projectId || typeof window === "undefined") return;
+    setSavedDesignAssignments(initialDesignAssignments);
+    setSavedProcurementAssignments(initialProcurementAssignments);
+    setSavedVendorAssignments(initialVendorAssignments);
+  }, [initialDesignAssignments, initialProcurementAssignments, initialVendorAssignments]);
+
+  useEffect(() => {
+    if (serverHandlers || !projectId || typeof window === "undefined") return;
     window.localStorage.setItem(
       getExecutionTreeStorageKey(projectId),
       JSON.stringify({
@@ -935,7 +966,7 @@ export function ExecutionTree({
         savedVendorAssignments,
       }),
     );
-  }, [projectId, savedDesignAssignments, savedProcurementAssignments, savedVendorAssignments]);
+  }, [projectId, savedDesignAssignments, savedProcurementAssignments, savedVendorAssignments, serverHandlers]);
 
   useEffect(() => {
     if (!onDesignAssignmentsChange) return;
@@ -1110,28 +1141,45 @@ export function ExecutionTree({
     }));
   }
 
-  function saveDesignAssignment(targetId: string) {
+  async function saveDesignAssignment(targetId: string) {
+    const draft = designAssignmentDrafts[targetId] ?? defaultDesignAssignmentDraft;
+    if (serverHandlers?.saveDesignAssignment) {
+      const title = localItems.find((item) => item.id === targetId)?.title
+        ?? localItems.flatMap((item) => item.children ?? []).find((child) => child.id === targetId)?.title
+        ?? targetId;
+      await serverHandlers.saveDesignAssignment({ targetId, title, draft });
+    }
     setSavedDesignAssignments((prev) => ({
       ...prev,
-      [targetId]:
-        designAssignmentDrafts[targetId] ?? defaultDesignAssignmentDraft,
+      [targetId]: draft,
     }));
     setActiveDesignFormId(null);
   }
-  function saveProcurementAssignment(targetId: string) {
+  async function saveProcurementAssignment(targetId: string) {
+    const draft = procurementAssignmentDrafts[targetId] ?? defaultProcurementAssignmentDraft;
+    if (serverHandlers?.saveProcurementAssignment) {
+      const title = localItems.find((item) => item.id === targetId)?.title
+        ?? localItems.flatMap((item) => item.children ?? []).find((child) => child.id === targetId)?.title
+        ?? targetId;
+      await serverHandlers.saveProcurementAssignment({ targetId, title, draft });
+    }
     setSavedProcurementAssignments((prev) => ({
       ...prev,
-      [targetId]:
-        procurementAssignmentDrafts[targetId] ??
-        defaultProcurementAssignmentDraft,
+      [targetId]: draft,
     }));
     setActiveProcurementFormId(null);
   }
-  function saveVendorAssignment(targetId: string) {
+  async function saveVendorAssignment(targetId: string) {
+    const draft = vendorAssignmentDrafts[targetId] ?? defaultVendorAssignmentDraft;
+    if (serverHandlers?.saveVendorAssignment) {
+      const title = localItems.find((item) => item.id === targetId)?.title
+        ?? localItems.flatMap((item) => item.children ?? []).find((child) => child.id === targetId)?.title
+        ?? targetId;
+      await serverHandlers.saveVendorAssignment({ targetId, title, draft });
+    }
     setSavedVendorAssignments((prev) => ({
       ...prev,
-      [targetId]:
-        vendorAssignmentDrafts[targetId] ?? defaultVendorAssignmentDraft,
+      [targetId]: draft,
     }));
     setActiveVendorFormId(null);
   }
@@ -1179,25 +1227,34 @@ export function ExecutionTree({
     if (activeVendorFormId === targetId) setActiveVendorFormId(null);
   }
 
-  function addMainItem() {
+  async function addMainItem() {
     const draft = mainItemDraft.trim();
     if (!draft) return;
-    const newId = `main-item-${localItems.length + 1}`;
-    setLocalItems((prev) => [
-      ...prev,
-      {
-        id: newId,
-        title: draft,
-        status: "待交辦",
-        category: "專案",
-        detail: "請補充此主項目的需求說明與執行方向。",
-        referenceExample: "",
-        designTaskCount: 0,
-        procurementTaskCount: 0,
-        children: [],
-      },
-    ]);
-    setExpandedItemId(newId);
+
+    let createdItemId: string;
+    if (serverHandlers?.createExecutionItem) {
+      const created = await serverHandlers.createExecutionItem({ title: draft, parentId: null });
+      createdItemId = created.item.id;
+      setLocalItems((prev) => [...prev, created.item as ImportedItem]);
+    } else {
+      const newId = `main-item-${localItems.length + 1}`;
+      createdItemId = newId;
+      setLocalItems((prev) => [
+        ...prev,
+        {
+          id: newId,
+          title: draft,
+          status: "待交辦",
+          category: "專案",
+          detail: "請補充此主項目的需求說明與執行方向。",
+          referenceExample: "",
+          designTaskCount: 0,
+          procurementTaskCount: 0,
+          children: [],
+        },
+      ]);
+    }
+    setExpandedItemId(createdItemId);
     setMainItemDraft("");
     setShowMainItemCreator(false);
   }
@@ -1234,28 +1291,43 @@ export function ExecutionTree({
     setExcelPreview(null);
   }
 
-  function addChild(itemId: string) {
+  async function addChild(itemId: string) {
     const draft = drafts[itemId]?.trim();
     if (!draft) return;
-    setLocalItems((prev) =>
-      prev.map((item) =>
-        item.id !== itemId
-          ? item
-          : {
-              ...item,
-              children: [
-                ...(item.children ?? []),
-                {
-                  id: `${item.id}-new-${(item.children?.length ?? 0) + 1}`,
-                  title: draft,
-                  status: "待交辦",
-                  assignee: "未指派",
-                  category: item.category,
-                },
-              ],
-            },
-      ),
-    );
+
+    if (serverHandlers?.createExecutionItem) {
+      const created = await serverHandlers.createExecutionItem({ title: draft, parentId: itemId });
+      setLocalItems((prev) =>
+        prev.map((item) =>
+          item.id !== itemId
+            ? item
+            : {
+                ...item,
+                children: [...(item.children ?? []), created.item],
+              },
+        ),
+      );
+    } else {
+      setLocalItems((prev) =>
+        prev.map((item) =>
+          item.id !== itemId
+            ? item
+            : {
+                ...item,
+                children: [
+                  ...(item.children ?? []),
+                  {
+                    id: `${item.id}-new-${(item.children?.length ?? 0) + 1}`,
+                    title: draft,
+                    status: "待交辦",
+                    assignee: "未指派",
+                    category: item.category,
+                  },
+                ],
+              },
+        ),
+      );
+    }
     setDrafts((prev) => ({ ...prev, [itemId]: "" }));
     setExpandedItemId(itemId);
   }

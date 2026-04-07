@@ -11,8 +11,8 @@ import {
   ProcurementAssignmentDraft,
   VendorAssignmentDraft,
 } from "@/components/execution-tree";
-import { Project, getStatusClass } from "@/components/project-data";
-
+import { Project, getStatusClass, type ProjectExecutionSubItem } from "@/components/project-data";
+import { isUuidLike } from "@/lib/db/project-flow-toggle";
 
 type OpenCategory = "design" | "procurement" | "vendor";
 
@@ -34,11 +34,108 @@ export type VendorAssignmentItem = {
   data: VendorAssignmentDraft;
 };
 
+function findExecutionTitle(project: Project, targetId: string) {
+  for (const item of project.executionItems) {
+    if (item.id === targetId) return item.title;
+    const child = item.children?.find((entry) => entry.id === targetId);
+    if (child) return child.title;
+  }
+  return targetId;
+}
+
+function buildImportedChild(child: { id: string; title: string; quantity?: string | null; note?: string | null }, category = "專案"): ProjectExecutionSubItem {
+  return {
+    id: child.id,
+    title: child.title,
+    status: "待交辦",
+    assignee: "未指派",
+    category,
+    quantity: child.quantity ?? undefined,
+    note: child.note ?? undefined,
+  };
+}
+
 export function ExecutionTreeSection({ project }: { project: Project }) {
+  const isDbProject = isUuidLike(project.id);
   const [designAssignments, setDesignAssignments] = useState<DesignAssignmentItem[]>([]);
   const [procurementAssignments, setProcurementAssignments] = useState<ProcurementAssignmentItem[]>([]);
   const [vendorAssignments, setVendorAssignments] = useState<VendorAssignmentItem[]>([]);
   const [openCategory, setOpenCategory] = useState<OpenCategory>("design");
+
+  const initialDesignAssignments = useMemo<Record<string, DesignAssignmentDraft>>(
+    () =>
+      isDbProject
+        ? Object.fromEntries(
+            (project.designTasks ?? [])
+              .filter((task) => task.sourceExecutionItemId)
+              .map((task) => [
+                task.sourceExecutionItemId as string,
+                {
+                  assignee: task.assignee,
+                  size: "",
+                  material: "",
+                  quantity: "",
+                  referenceUrl: "",
+                  structureRequired: "需要",
+                  note: task.title,
+                  outsourceTarget: "",
+                  status: task.status as DesignAssignmentDraft["status"],
+                },
+              ]),
+          )
+        : {},
+    [isDbProject, project.designTasks],
+  );
+
+  const initialProcurementAssignments = useMemo<Record<string, ProcurementAssignmentDraft>>(
+    () =>
+      isDbProject
+        ? Object.fromEntries(
+            (project.procurementTasks ?? [])
+              .filter((task) => task.sourceExecutionItemId)
+              .map((task) => [
+                task.sourceExecutionItemId as string,
+                {
+                  assignee: task.buyer,
+                  item: task.title,
+                  size: "",
+                  material: "",
+                  quantity: "",
+                  styleUrl: "",
+                  note: task.title,
+                  status: task.status as ProcurementAssignmentDraft["status"],
+                },
+              ]),
+          )
+        : {},
+    [isDbProject, project.procurementTasks],
+  );
+
+  const initialVendorAssignments = useMemo<Record<string, VendorAssignmentDraft>>(
+    () =>
+      isDbProject
+        ? Object.fromEntries(
+            (project.vendorTasks ?? [])
+              .filter((task) => task.sourceExecutionItemId)
+              .map((task) => [
+                task.sourceExecutionItemId as string,
+                {
+                  assignee: "",
+                  category: "其他",
+                  title: task.title,
+                  vendorName: task.vendorName,
+                  requirement: task.title,
+                  specification: "",
+                  referenceUrl: "",
+                  note: task.title,
+                  amount: "",
+                  status: task.status as VendorAssignmentDraft["status"],
+                },
+              ]),
+          )
+        : {},
+    [isDbProject, project.vendorTasks],
+  );
 
   const designSummaryList = useMemo<ProjectTaskSummaryItem[]>(() => {
     const fromAssignments = designAssignments.map((assignment) => ({
@@ -50,8 +147,8 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
       ctaLabel: "前往設計任務板",
     }));
 
-    const fromLegacyTasks = project.designTasks.map((task) => ({
-      id: task.title,
+    const fromLegacyTasks = project.designTasks.map((task, index) => ({
+      id: `${task.sourceExecutionItemId ?? task.title}-design-${index}`,
       title: task.title,
       status: task.status,
       statusClass: getStatusClass(task.status),
@@ -72,8 +169,8 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
       ctaLabel: "前往採購備品板",
     }));
 
-    const fromLegacyTasks = project.procurementTasks.map((task) => ({
-      id: task.title,
+    const fromLegacyTasks = project.procurementTasks.map((task, index) => ({
+      id: `${task.sourceExecutionItemId ?? task.title}-procurement-${index}`,
       title: task.title,
       status: task.status,
       statusClass: getStatusClass(task.status),
@@ -85,8 +182,8 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
   }, [procurementAssignments, project.procurementTasks, project.id]);
 
   const vendorSummaryList = useMemo<ProjectTaskSummaryItem[]>(
-    () =>
-      vendorAssignments.map((assignment) => ({
+    () => [
+      ...vendorAssignments.map((assignment) => ({
         id: assignment.targetId,
         title: assignment.data.title || assignment.title,
         status: assignment.data.status,
@@ -94,7 +191,16 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
         href: `/vendor-assignments?project=${encodeURIComponent(project.id)}`,
         ctaLabel: "前往廠商發包板",
       })),
-    [vendorAssignments, project.id],
+      ...(project.vendorTasks ?? []).map((task, index) => ({
+        id: `${task.sourceExecutionItemId ?? task.title}-vendor-${index}`,
+        title: task.title,
+        status: task.status,
+        statusClass: getStatusClass(task.status),
+        href: `/vendor-assignments?project=${encodeURIComponent(project.id)}`,
+        ctaLabel: "前往廠商發包板",
+      })),
+    ],
+    [vendorAssignments, project.id, project.vendorTasks],
   );
 
   const currentList =
@@ -128,6 +234,90 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
     },
   };
 
+  const serverHandlers = isDbProject
+    ? {
+        createExecutionItem: async ({ title, parentId }: { title: string; parentId?: string | null }) => {
+          const response = await fetch(`/api/projects/${project.id}/execution-items`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ title, parentId: parentId ?? null }),
+          });
+          const result = await response.json();
+          if (!response.ok || !result.ok) {
+            throw new Error(result.error || "新增執行項目失敗");
+          }
+          return {
+            parentId: parentId ?? null,
+            item: parentId
+              ? buildImportedChild(result.item)
+              : {
+                  id: result.item.id,
+                  title: result.item.title,
+                  status: "待交辦",
+                  category: "專案",
+                  detail: result.item.note ?? "待補充執行說明。",
+                  quantity: result.item.quantity ?? undefined,
+                  note: result.item.note ?? undefined,
+                  children: [],
+                },
+          };
+        },
+        saveDesignAssignment: async ({ targetId, draft }: { targetId: string; title: string; draft: DesignAssignmentDraft }) => {
+          const response = await fetch(`/api/projects/${project.id}/dispatch`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              flowType: "design",
+              executionItemId: targetId,
+              title: findExecutionTitle(project, targetId),
+              size: draft.size,
+              material: draft.material,
+              structure: draft.structureRequired,
+              quantity: draft.quantity,
+              referenceUrl: draft.referenceUrl,
+              note: draft.note,
+            }),
+          });
+          const result = await response.json();
+          if (!response.ok || !result.ok) throw new Error(result.error || "設計交辦失敗");
+        },
+        saveProcurementAssignment: async ({ targetId, draft }: { targetId: string; title: string; draft: ProcurementAssignmentDraft }) => {
+          const response = await fetch(`/api/projects/${project.id}/dispatch`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              flowType: "procurement",
+              executionItemId: targetId,
+              title: draft.item || findExecutionTitle(project, targetId),
+              quantity: draft.quantity,
+              budgetNote: draft.note,
+              note: draft.note,
+              referenceUrl: draft.styleUrl,
+            }),
+          });
+          const result = await response.json();
+          if (!response.ok || !result.ok) throw new Error(result.error || "備品交辦失敗");
+        },
+        saveVendorAssignment: async ({ targetId, draft }: { targetId: string; title: string; draft: VendorAssignmentDraft }) => {
+          const response = await fetch(`/api/projects/${project.id}/dispatch`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              flowType: "vendor",
+              executionItemId: targetId,
+              title: draft.title || findExecutionTitle(project, targetId),
+              vendorName: draft.vendorName,
+              requirement: draft.requirement || draft.note,
+              note: draft.note,
+              amount: draft.amount,
+            }),
+          });
+          const result = await response.json();
+          if (!response.ok || !result.ok) throw new Error(result.error || "廠商交辦失敗");
+        },
+      }
+    : undefined;
+
   return (
     <>
       <section id="project-execution-section" className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
@@ -138,6 +328,10 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
           onDesignAssignmentsChange={setDesignAssignments}
           onProcurementAssignmentsChange={setProcurementAssignments}
           onVendorAssignmentsChange={setVendorAssignments}
+          initialDesignAssignments={initialDesignAssignments}
+          initialProcurementAssignments={initialProcurementAssignments}
+          initialVendorAssignments={initialVendorAssignments}
+          serverHandlers={serverHandlers}
         />
       </section>
 

@@ -4,7 +4,6 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { CopyEventInfoButton } from "@/components/copy-event-info-button";
 import { ExecutionTreeSection } from "@/components/execution-tree-section";
-import { DbExecutionTreeSection } from "@/components/db-execution-tree-section";
 import { Project } from "@/components/project-data";
 import { RequirementsPanel } from "@/components/requirements-panel";
 import { isUuidLike } from "@/lib/db/project-flow-toggle";
@@ -262,7 +261,7 @@ export function ProjectDetailShell({ project, entryContext }: { project: Project
         <RequirementsPanel initialItems={project.requirements} />
       </section>
 
-      {isDbProject ? <DbExecutionTreeSection project={project} /> : <ExecutionTreeSection project={project} />}
+      <ExecutionTreeSection project={project} />
     </>
   );
 }

@@ -84,10 +84,11 @@ export async function getDbProjectById(id: string): Promise<DbBackedProject | nu
   const project = await repositories.projects.findById(id);
   if (!project) return null;
 
-  const [executionItems, designTasks, procurementTasks] = await Promise.all([
+  const [executionItems, designTasks, procurementTasks, vendorTasks] = await Promise.all([
     repositories.executionItems.listByProject(id),
     repositories.designTasks.listByProject(id),
     repositories.procurementTasks.listByProject(id),
+    repositories.vendorTasks.listByProject(id),
   ]);
 
   const rootItems = executionItems.filter((item) => !item.parent_id).sort((a, b) => a.sort_order - b.sort_order);
@@ -101,6 +102,11 @@ export async function getDbProjectById(id: string): Promise<DbBackedProject | nu
       list.push(mapExecutionChild(item));
       childrenByParent.set(item.parent_id as string, list);
     });
+
+  const vendors = vendorTasks.length
+    ? await Promise.all(vendorTasks.map((task) => repositories.vendors.findById(task.vendor_id)))
+    : [];
+  const vendorNameById = new Map(vendors.filter((vendor): vendor is NonNullable<typeof vendor> => Boolean(vendor)).map((vendor) => [vendor.id, vendor.name]));
 
   return {
     id: project.id,
@@ -123,8 +129,26 @@ export async function getDbProjectById(id: string): Promise<DbBackedProject | nu
     note: '',
     requirements: [],
     executionItems: rootItems.map((item) => mapExecutionItem(item, childrenByParent.get(item.id) ?? [])),
-    designTasks: designTasks.map((task) => ({ title: task.title, assignee: '-', due: formatDateLike(project.event_date), status: task.status })),
-    procurementTasks: procurementTasks.map((task) => ({ title: task.title, buyer: '-', budget: task.budget_note ?? '未填寫', status: task.status })),
+    designTasks: designTasks.map((task) => ({
+      title: task.title,
+      assignee: '-',
+      due: formatDateLike(project.event_date),
+      status: task.status,
+      sourceExecutionItemId: task.source_execution_item_id,
+    })),
+    procurementTasks: procurementTasks.map((task) => ({
+      title: task.title,
+      buyer: '-',
+      budget: task.budget_note ?? '未填寫',
+      status: task.status,
+      sourceExecutionItemId: task.source_execution_item_id,
+    })),
+    vendorTasks: vendorTasks.map((task) => ({
+      title: task.title,
+      vendorName: vendorNameById.get(task.vendor_id) ?? '未指定廠商',
+      status: task.status,
+      sourceExecutionItemId: task.source_execution_item_id,
+    })),
     source: 'db',
   };
 }

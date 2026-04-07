@@ -39,32 +39,62 @@ export async function POST(
     const title = body.title?.trim() || body.item?.trim() || '未命名任務';
 
     if (body.flowType === 'design') {
-      const task = await services.publishDesignTask({
-        project_id: id,
-        source_execution_item_id: body.executionItemId,
-        title,
-        size: body.size?.trim() || null,
-        material: body.material?.trim() || null,
-        structure: body.structure?.trim() || null,
-        quantity: body.quantity?.trim() || null,
-        requirement_text: body.note?.trim() || null,
-        reference_url: body.referenceUrl?.trim() || null,
-        status: '待處理',
-      });
+      const existing = (await repositories.designTasks.listByProject(id)).find(
+        (task) => task.source_execution_item_id === body.executionItemId,
+      );
+
+      const task = existing
+        ? await repositories.designTasks.update(existing.id, {
+            title,
+            size: body.size?.trim() || null,
+            material: body.material?.trim() || null,
+            structure: body.structure?.trim() || null,
+            quantity: body.quantity?.trim() || null,
+            requirement_text: body.note?.trim() || null,
+            reference_url: body.referenceUrl?.trim() || null,
+            status: '待處理',
+          })
+        : await services.publishDesignTask({
+            project_id: id,
+            source_execution_item_id: body.executionItemId,
+            title,
+            size: body.size?.trim() || null,
+            material: body.material?.trim() || null,
+            structure: body.structure?.trim() || null,
+            quantity: body.quantity?.trim() || null,
+            requirement_text: body.note?.trim() || null,
+            reference_url: body.referenceUrl?.trim() || null,
+            status: '待處理',
+          });
+
       return NextResponse.json({ ok: true, taskId: task.id, boardPath: `/design-tasks/${task.id}` });
     }
 
     if (body.flowType === 'procurement') {
-      const task = await services.publishProcurementTask({
-        project_id: id,
-        source_execution_item_id: body.executionItemId,
-        title,
-        quantity: body.quantity?.trim() || null,
-        budget_note: body.budgetNote?.trim() || null,
-        requirement_text: body.note?.trim() || null,
-        reference_url: body.referenceUrl?.trim() || null,
-        status: '待處理',
-      });
+      const existing = (await repositories.procurementTasks.listByProject(id)).find(
+        (task) => task.source_execution_item_id === body.executionItemId,
+      );
+
+      const task = existing
+        ? await repositories.procurementTasks.update(existing.id, {
+            title,
+            quantity: body.quantity?.trim() || null,
+            budget_note: body.budgetNote?.trim() || null,
+            requirement_text: body.note?.trim() || null,
+            reference_url: body.referenceUrl?.trim() || null,
+            status: '待處理',
+          })
+        : await services.publishProcurementTask({
+            project_id: id,
+            source_execution_item_id: body.executionItemId,
+            title,
+            quantity: body.quantity?.trim() || null,
+            budget_note: body.budgetNote?.trim() || null,
+            requirement_text: body.note?.trim() || null,
+            reference_url: body.referenceUrl?.trim() || null,
+            status: '待處理',
+          });
+
       return NextResponse.json({ ok: true, taskId: task.id, boardPath: `/procurement-tasks/${task.id}` });
     }
 
@@ -79,23 +109,34 @@ export async function POST(
       vendor = await repositories.vendors.insert({ name: vendorName, normalized_name: normalized });
     }
 
-    const task = await services.publishVendorTask({
-      project_id: id,
-      source_execution_item_id: body.executionItemId,
-      vendor_id: vendor.id,
-      title,
-      requirement_text: body.requirement?.trim() || body.note?.trim() || null,
-      status: '待處理',
-    });
+    const existing = (await repositories.vendorTasks.listByProjectAndVendor(id, vendor.id)).find(
+      (task) => task.source_execution_item_id === body.executionItemId,
+    );
+
+    const task = existing
+      ? await repositories.vendorTasks.update(existing.id, {
+          title,
+          requirement_text: body.requirement?.trim() || body.note?.trim() || null,
+          status: '待處理',
+        })
+      : await services.publishVendorTask({
+          project_id: id,
+          source_execution_item_id: body.executionItemId,
+          vendor_id: vendor.id,
+          title,
+          requirement_text: body.requirement?.trim() || body.note?.trim() || null,
+          status: '待處理',
+        });
 
     if (body.amount?.trim() || body.requirement?.trim()) {
-      await services.saveVendorPlan({
-        vendor_task_id: task.id,
-        title,
-        requirement_text: body.requirement?.trim() || null,
-        amount: body.amount?.trim() || null,
-        sort_order: 1,
-      });
+      await services.syncVendorPlans(task.id, [
+        {
+          title,
+          requirement_text: body.requirement?.trim() || null,
+          amount: body.amount?.trim() || null,
+          sort_order: 1,
+        },
+      ]);
     }
 
     return NextResponse.json({ ok: true, taskId: task.id, boardPath: `/vendor-assignments/${task.id}` });

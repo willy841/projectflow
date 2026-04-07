@@ -58,12 +58,20 @@ export type Project = {
     assignee: string;
     due: string;
     status: string;
+    sourceExecutionItemId?: string;
   }>;
   procurementTasks: Array<{
     title: string;
     buyer: string;
     budget: string;
     status: string;
+    sourceExecutionItemId?: string;
+  }>;
+  vendorTasks?: Array<{
+    title: string;
+    vendorName: string;
+    status: string;
+    sourceExecutionItemId?: string;
   }>;
 };
 
