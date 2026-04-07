@@ -277,14 +277,14 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
                 },
           };
         },
-        saveDesignAssignment: async ({ targetId, draft }: { targetId: string; title: string; draft: DesignAssignmentDraft }) => {
+        saveDesignAssignment: async ({ targetId, title, draft }: { targetId: string; title: string; draft: DesignAssignmentDraft }) => {
           const response = await fetch(`/api/projects/${project.id}/dispatch`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               flowType: "design",
               executionItemId: targetId,
-              title: findExecutionTitle(project, targetId),
+              title: title || findExecutionTitle(project, targetId),
               size: draft.size,
               material: draft.material,
               structure: draft.structureRequired,
@@ -296,14 +296,14 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
           const result = await response.json();
           if (!response.ok || !result.ok) throw new Error(result.error || "設計交辦失敗");
         },
-        saveProcurementAssignment: async ({ targetId, draft }: { targetId: string; title: string; draft: ProcurementAssignmentDraft }) => {
+        saveProcurementAssignment: async ({ targetId, title, draft }: { targetId: string; title: string; draft: ProcurementAssignmentDraft }) => {
           const response = await fetch(`/api/projects/${project.id}/dispatch`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               flowType: "procurement",
               executionItemId: targetId,
-              title: draft.item || findExecutionTitle(project, targetId),
+              title: draft.item || title || findExecutionTitle(project, targetId),
               quantity: draft.quantity,
               budgetNote: draft.note,
               note: draft.note,
@@ -313,14 +313,14 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
           const result = await response.json();
           if (!response.ok || !result.ok) throw new Error(result.error || "備品交辦失敗");
         },
-        saveVendorAssignment: async ({ targetId, draft }: { targetId: string; title: string; draft: VendorAssignmentDraft }) => {
+        saveVendorAssignment: async ({ targetId, title, draft }: { targetId: string; title: string; draft: VendorAssignmentDraft }) => {
           const response = await fetch(`/api/projects/${project.id}/dispatch`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               flowType: "vendor",
               executionItemId: targetId,
-              title: draft.title || findExecutionTitle(project, targetId),
+              title: draft.title || title || findExecutionTitle(project, targetId),
               vendorName: draft.vendorName,
               requirement: draft.requirement || draft.note,
               note: draft.note,
