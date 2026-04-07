@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { AppShell } from "@/components/app-shell";
@@ -13,6 +13,7 @@ const parseEventDate = (value: string) => new Date(value).getTime();
 
 export function ProjectsPageClient({ initialProjects }: { initialProjects: Project[] }) {
   const router = useRouter();
+  const [projects, setProjects] = useState<Project[]>(initialProjects);
   const [dateSortOrder, setDateSortOrder] = useState<"asc" | "desc">("desc");
   const [searchKeyword, setSearchKeyword] = useState("");
   const [deletingProjectId, setDeletingProjectId] = useState<string | null>(null);
@@ -20,15 +21,19 @@ export function ProjectsPageClient({ initialProjects }: { initialProjects: Proje
   const [deleteConfirmName, setDeleteConfirmName] = useState("");
   const [deleteError, setDeleteError] = useState("");
 
+  useEffect(() => {
+    setProjects(initialProjects);
+  }, [initialProjects]);
+
   const visibleProjects = useMemo(() => {
     const keyword = searchKeyword.trim().toLowerCase();
     const financialProjects = getQuoteCostProjectsWithWorkflow();
 
     const filteredProjects = keyword
-      ? initialProjects.filter((project) => {
+      ? projects.filter((project) => {
           return [project.name, project.client, project.location, project.code].some((value) => value.toLowerCase().includes(keyword));
         })
-      : initialProjects;
+      : projects;
 
     return [...filteredProjects]
       .map((project) => {
@@ -46,7 +51,7 @@ export function ProjectsPageClient({ initialProjects }: { initialProjects: Proje
         const dateDiff = parseEventDate(a.eventDate) - parseEventDate(b.eventDate);
         return dateSortOrder === "asc" ? dateDiff : -dateDiff;
       });
-  }, [dateSortOrder, initialProjects, searchKeyword]);
+  }, [dateSortOrder, projects, searchKeyword]);
 
   async function confirmDeleteProject() {
     if (!pendingDeleteProject) return;
@@ -71,6 +76,7 @@ export function ProjectsPageClient({ initialProjects }: { initialProjects: Proje
         return;
       }
 
+      setProjects((current) => current.filter((project) => project.id !== pendingDeleteProject.id));
       setPendingDeleteProject(null);
       setDeleteConfirmName("");
       router.refresh();
@@ -89,7 +95,7 @@ export function ProjectsPageClient({ initialProjects }: { initialProjects: Proje
         <div className="flex flex-col gap-5 2xl:flex-row 2xl:items-center 2xl:justify-between">
           <div className="flex items-center gap-3">
             <h2 className="text-3xl font-semibold tracking-tight">專案列表</h2>
-            <span className="rounded-2xl bg-slate-50 px-4 py-2 text-sm text-slate-600 ring-1 ring-slate-200">共 {initialProjects.length} 筆專案</span>
+            <span className="rounded-2xl bg-slate-50 px-4 py-2 text-sm text-slate-600 ring-1 ring-slate-200">共 {projects.length} 筆專案</span>
           </div>
 
           <div className="flex flex-wrap gap-3">
@@ -109,7 +115,7 @@ export function ProjectsPageClient({ initialProjects }: { initialProjects: Proje
             <div className="flex min-h-11 flex-wrap items-center gap-3">
               <h3 className="text-xl font-semibold leading-none">全部專案</h3>
               <p className="text-sm leading-none text-slate-500">
-                目前顯示 <span className="font-semibold text-slate-800">{visibleProjects.length}</span> / {initialProjects.length} 個專案
+                目前顯示 <span className="font-semibold text-slate-800">{visibleProjects.length}</span> / {projects.length} 個專案
               </p>
             </div>
           </div>
