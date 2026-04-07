@@ -14,7 +14,7 @@ type PackageSnapshotSeed = {
   loadInTime: string;
 };
 
-function buildPackageId(projectId: string, vendorId: string) {
+export function buildVendorPackageId(projectId: string, vendorId: string) {
   return `pkg-${projectId}-${vendorId}`;
 }
 
@@ -54,7 +54,7 @@ export async function listDbVendorPackages(): Promise<VendorPackage[]> {
   const dedup = new Map<string, VendorPackage>();
 
   for (const row of confirmations.rows) {
-    const packageId = buildPackageId(row.projectId, row.vendorId);
+    const packageId = buildVendorPackageId(row.projectId, row.vendorId);
     if (dedup.has(packageId)) continue;
 
     const snapshots = await repositories.taskConfirmations.listSnapshots(row.confirmationId);

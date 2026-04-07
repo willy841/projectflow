@@ -1,11 +1,8 @@
 import { notFound, redirect } from "next/navigation";
+import { buildVendorPackageId } from "@/lib/db/vendor-package-adapter";
 import { getDbVendorTaskById } from "@/lib/db/vendor-flow-adapter";
 import { shouldUseDbVendorFlow } from "@/lib/db/vendor-flow-toggle";
 import { isUuidLike } from "@/lib/db/design-flow-toggle";
-
-function buildPackageId(projectId: string, vendorId: string) {
-  return `pkg-${projectId}-${vendorId}`;
-}
 
 export default async function VendorTaskDocumentPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -14,5 +11,5 @@ export default async function VendorTaskDocumentPage({ params }: { params: Promi
 
   if (!task) notFound();
 
-  redirect(`/vendor-packages/${buildPackageId(task.projectId, task.vendorId)}`);
+  redirect(`/vendor-packages/${buildVendorPackageId(task.projectId, task.vendorId)}`);
 }

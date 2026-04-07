@@ -5,6 +5,7 @@ import {
   listDbVendorGroupsByProject,
   listDbVendorProjects,
 } from "@/lib/db/vendor-flow-adapter";
+import { buildVendorGroupRouteId } from "@/lib/db/vendor-group-route";
 import { shouldUseDbVendorFlow } from "@/lib/db/vendor-flow-toggle";
 
 type ProjectEntry = {
@@ -16,6 +17,7 @@ type ProjectEntry = {
 
 type VendorGroupEntry = {
   vendorKey: string;
+  vendorId: string;
   vendorName: string;
   taskCount: number;
   eventDate: string;
@@ -39,6 +41,7 @@ export default async function VendorAssignmentsPage({
     vendorGroups = activeProjectId
       ? (await listDbVendorGroupsByProject(activeProjectId)).map((group) => ({
           vendorKey: `${group.projectId}::${group.vendorId}`,
+          vendorId: group.vendorId,
           vendorName: group.vendorName,
           taskCount: group.taskCount,
           eventDate: group.eventDate,
@@ -78,6 +81,7 @@ export default async function VendorAssignmentsPage({
 
           grouped.set(vendorKey, {
             vendorKey,
+            vendorId: vendorName,
             vendorName,
             taskCount: 1,
             eventDate: map.get(assignment.projectId)?.eventDate || "未設定",
@@ -135,7 +139,7 @@ export default async function VendorAssignmentsPage({
                       <div className="rounded-2xl bg-slate-50 px-4 py-3"><p className="text-xs text-slate-500">活動日期</p><p className="mt-2 text-sm font-medium text-slate-900">{group.eventDate}</p></div>
                     </div>
                     <div className="flex justify-end">
-                      <Link href={`/vendor-assignments/${group.representativeTaskId}`} className="inline-flex items-center justify-center rounded-2xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-700">進入廠商</Link>
+                      <Link href={`/vendor-assignments/${encodeURIComponent(buildVendorGroupRouteId(activeProject.projectId, group.vendorId))}`} className="inline-flex items-center justify-center rounded-2xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-700">進入廠商</Link>
                     </div>
                   </div>
                   <div className="mt-4 rounded-2xl bg-slate-50 px-4 py-3">

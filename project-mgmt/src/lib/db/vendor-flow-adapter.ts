@@ -51,6 +51,15 @@ export type DbVendorTaskRecord = {
   }>;
 };
 
+export type DbVendorGroupDetail = {
+  projectId: string;
+  projectName: string;
+  vendorId: string;
+  vendorName: string;
+  eventDate: string;
+  tasks: DbVendorTaskRecord[];
+};
+
 export async function listDbVendorProjects(): Promise<DbVendorProjectSummary[]> {
   const db = createPhase1DbClient();
   const rows = await db.query<DbVendorProjectSummary>(`
@@ -130,7 +139,7 @@ export async function listDbVendorGroupsByProject(projectId: string): Promise<Db
   }));
 }
 
-export async function getDbVendorTaskById(id: string): Promise<DbVendorTaskRecord | null> {
+async function mapDbVendorTaskRecord(id: string): Promise<DbVendorTaskRecord | null> {
   const db = createPhase1DbClient();
   const repositories = createPhase1Repositories(db);
   const task = await repositories.vendorTasks.findById(id);
@@ -179,5 +188,34 @@ export async function getDbVendorTaskById(id: string): Promise<DbVendorTaskRecor
       amount: plan.amount ? `NT$ ${plan.amount}` : '',
     })),
     documentRows,
+  };
+}
+
+export async function getDbVendorTaskById(id: string): Promise<DbVendorTaskRecord | null> {
+  return mapDbVendorTaskRecord(id);
+}
+
+export async function getDbVendorGroupDetail(projectId: string, vendorId: string): Promise<DbVendorGroupDetail | null> {
+  const db = createPhase1DbClient();
+  const repositories = createPhase1Repositories(db);
+  const [project, vendor, tasks] = await Promise.all([
+    repositories.projects.findById(projectId),
+    repositories.vendors.findById(vendorId),
+    repositories.vendorTasks.listByProjectAndVendor(projectId, vendorId),
+  ]);
+
+  if (!project || !vendor || tasks.length === 0) return null;
+
+  const taskRecords = (await Promise.all(tasks.map((task) => mapDbVendorTaskRecord(task.id)))).filter(
+    (task): task is DbVendorTaskRecord => Boolean(task),
+  );
+
+  return {
+    projectId,
+    projectName: project.name,
+    vendorId,
+    vendorName: vendor.name,
+    eventDate: project.event_date ? new Date(project.event_date).toISOString().slice(0, 10) : '-',
+    tasks: taskRecords,
   };
 }
