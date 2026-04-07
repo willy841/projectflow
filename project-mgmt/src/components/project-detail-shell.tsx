@@ -92,10 +92,9 @@ export function ProjectDetailShell({ project, entryContext }: { project: Project
   const [projectForm, setProjectForm] = useState<ProjectFormState>(() => buildProjectForm(normalizedIncomingProject));
 
   useEffect(() => {
-    if (isEditingProject || isSavingProject) return;
     setProjectView(normalizedIncomingProject);
     setProjectForm(buildProjectForm(normalizedIncomingProject));
-  }, [normalizedIncomingProject, isEditingProject, isSavingProject]);
+  }, [normalizedIncomingProject.id]);
 
   function updateField(key: keyof ProjectFormState, value: string) {
     setProjectForm((prev) => ({ ...prev, [key]: value }));
