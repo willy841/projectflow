@@ -62,6 +62,9 @@
 13. `MD49-projectflow-accounting-center-revenue-overview-v1-spec-2026-04-08.md`
 14. `MD50-projectflow-accounting-center-master-spec-and-downstream-alignment-2026-04-08.md`
 15. `MD51-projectflow-downstream-progress-refresh-after-accounting-center-spec-round-2026-04-08.md`
+16. `MD52-projectflow-accounting-center-closeout-vendor-data-alignment-v1-2026-04-08.md`
+17. `MD53-projectflow-accounting-center-active-projects-module-v1-spec-2026-04-08.md`
+18. `MD54-projectflow-accounting-center-master-spec-v1-2026-04-08.md`
 
 其中：
 - `MD35` = 下階段執行藍圖母線
@@ -71,6 +74,9 @@
 - `MD42`～`MD49` = Accounting Center 本輪正式子 spec 鏈條
 - `MD50` = Accounting Center 主線最新母整合入口
 - `MD51` = 下游階段在本輪 spec 回合後的進度刷新檔
+- `MD52` = `Accounting Center × Closeout × Vendor Data` 對齊規則
+- `MD53` = `Accounting Center` 之下 `執行中專案` 模組母 spec
+- `MD54` = `Accounting Center` 最終母 spec v1
 
 ## 目前最新總結（2026-04-08）
 
@@ -85,21 +91,25 @@
   1. 管銷成本母 spec 已完成
   2. 人事 / 庶務 / 其他的輸入區與記錄區 v1 已完成
   3. 營收概況 v1 已完成
-  4. `MD50` 已成為 Accounting Center 最新整合母入口
+  4. `Accounting Center × Closeout × Vendor Data` 對齊規則已完成
+  5. `執行中專案` 模組母 spec 已完成
+  6. `MD54` 已成為 `Accounting Center` 最新最終母 spec v1
 
 ### C. 目前最推薦的續接入口順序
 1. `MD-MASTER-projectflow-system-source-of-truth.md`
-2. `MD50-projectflow-accounting-center-master-spec-and-downstream-alignment-2026-04-08.md`
-3. `MD51-projectflow-downstream-progress-refresh-after-accounting-center-spec-round-2026-04-08.md`
-4. 再視需要回查：
+2. `MD54-projectflow-accounting-center-master-spec-v1-2026-04-08.md`
+3. `MD50-projectflow-accounting-center-master-spec-and-downstream-alignment-2026-04-08.md`
+4. `MD51-projectflow-downstream-progress-refresh-after-accounting-center-spec-round-2026-04-08.md`
+5. 再視需要回查：
    - `MD35`
    - `MD38`～`MD40`
    - `MD42`～`MD49`
+   - `MD52`～`MD53`
 
 ### D. 目前後續主線應集中在
-1. 執行中專案母 spec 完整整理
-2. `Accounting Center × Closeout × Vendor Data` 對齊整合
-3. CTO / 前端設計師可直接派工的 work package 化
+1. CTO / 前端設計師可直接派工的 work package 化
+2. 將 `Accounting Center` 最新母 spec 與既有 `MD-MASTER` / handoff 鏈條進一步同步
+3. 視需要進入正式實作派工與 UI / 工程落地
 
 ## 快速續接閱讀順序速查表（2026-04-08）
 
