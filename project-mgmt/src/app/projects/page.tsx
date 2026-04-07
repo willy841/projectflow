@@ -4,8 +4,8 @@ import { listDbProjects } from "@/lib/db/project-flow-adapter";
 import { shouldUseDbProjectFlow } from "@/lib/db/project-flow-toggle";
 
 export default async function ProjectsPage() {
-  const dbProjects = shouldUseDbProjectFlow() ? await listDbProjects() : [];
-  const mergedProjects = [...dbProjects, ...projects.filter((project) => !dbProjects.some((dbProject) => dbProject.id === project.id))];
+  const useDbProjectFlow = shouldUseDbProjectFlow();
+  const initialProjects = useDbProjectFlow ? await listDbProjects() : projects;
 
-  return <ProjectsPageClient initialProjects={mergedProjects} />;
+  return <ProjectsPageClient initialProjects={initialProjects} />;
 }
