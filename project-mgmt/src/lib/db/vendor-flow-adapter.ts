@@ -12,9 +12,21 @@ export type DbVendorTaskSummary = {
   id: string;
   projectId: string;
   projectName: string;
+  vendorId: string;
   vendorName: string;
   title: string;
   requirementText: string;
+};
+
+export type DbVendorGroupSummary = {
+  projectId: string;
+  projectName: string;
+  vendorId: string;
+  vendorName: string;
+  eventDate: string;
+  taskCount: number;
+  representativeTaskId: string;
+  taskTitles: string[];
 };
 
 export type DbVendorTaskRecord = {
@@ -63,6 +75,7 @@ export async function listDbVendorTasksByProject(projectId: string): Promise<DbV
         vt.id,
         vt.project_id as "projectId",
         p.name as "projectName",
+        vt.vendor_id as "vendorId",
         v.name as "vendorName",
         vt.title,
         coalesce(vt.requirement_text, '') as "requirementText"
@@ -70,11 +83,51 @@ export async function listDbVendorTasksByProject(projectId: string): Promise<DbV
       inner join projects p on p.id = vt.project_id
       inner join vendors v on v.id = vt.vendor_id
       where vt.project_id = $1
-      order by v.name asc, vt.created_at desc
+      order by v.name asc, vt.created_at asc
     `,
     [projectId],
   );
   return rows.rows;
+}
+
+export async function listDbVendorGroupsByProject(projectId: string): Promise<DbVendorGroupSummary[]> {
+  const tasks = await listDbVendorTasksByProject(projectId);
+  const groups = new Map<string, DbVendorGroupSummary>();
+
+  tasks.forEach((task) => {
+    const key = `${task.projectId}::${task.vendorId}`;
+    const existing = groups.get(key);
+    if (existing) {
+      existing.taskCount += 1;
+      existing.taskTitles.push(task.title);
+      return;
+    }
+
+    groups.set(key, {
+      projectId: task.projectId,
+      projectName: task.projectName,
+      vendorId: task.vendorId,
+      vendorName: task.vendorName,
+      eventDate: '-',
+      taskCount: 1,
+      representativeTaskId: task.id,
+      taskTitles: [task.title],
+    });
+  });
+
+  if (!groups.size) return [];
+
+  const db = createPhase1DbClient();
+  const projectRows = await db.query<{ eventDate: string }>(
+    `select coalesce(to_char(event_date, 'YYYY-MM-DD'), '-') as "eventDate" from projects where id = $1 limit 1`,
+    [projectId],
+  );
+  const eventDate = projectRows.rows[0]?.eventDate ?? '-';
+
+  return Array.from(groups.values()).map((group) => ({
+    ...group,
+    eventDate,
+  }));
 }
 
 export async function getDbVendorTaskById(id: string): Promise<DbVendorTaskRecord | null> {

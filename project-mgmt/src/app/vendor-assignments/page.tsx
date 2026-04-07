@@ -2,8 +2,8 @@ import Link from "next/link";
 import { AppShell } from "@/components/app-shell";
 import { vendorAssignments } from "@/components/vendor-data";
 import {
+  listDbVendorGroupsByProject,
   listDbVendorProjects,
-  listDbVendorTasksByProject,
 } from "@/lib/db/vendor-flow-adapter";
 import { shouldUseDbVendorFlow } from "@/lib/db/vendor-flow-toggle";
 
@@ -14,11 +14,13 @@ type ProjectEntry = {
   taskCount: number;
 };
 
-type VendorTaskEntry = {
-  id: string;
+type VendorGroupEntry = {
+  vendorKey: string;
   vendorName: string;
-  title: string;
-  requirementText: string;
+  taskCount: number;
+  eventDate: string;
+  representativeTaskId: string;
+  taskTitles: string[];
 };
 
 export default async function VendorAssignmentsPage({
@@ -30,11 +32,20 @@ export default async function VendorAssignmentsPage({
   const activeProjectId = resolvedSearch?.project;
 
   let projects: ProjectEntry[] = [];
-  let vendorTasks: VendorTaskEntry[] = [];
+  let vendorGroups: VendorGroupEntry[] = [];
 
   if (shouldUseDbVendorFlow()) {
     projects = await listDbVendorProjects();
-    vendorTasks = activeProjectId ? await listDbVendorTasksByProject(activeProjectId) : [];
+    vendorGroups = activeProjectId
+      ? (await listDbVendorGroupsByProject(activeProjectId)).map((group) => ({
+          vendorKey: `${group.projectId}::${group.vendorId}`,
+          vendorName: group.vendorName,
+          taskCount: group.taskCount,
+          eventDate: group.eventDate,
+          representativeTaskId: group.representativeTaskId,
+          taskTitles: group.taskTitles,
+        }))
+      : [];
   } else {
     const map = new Map<string, ProjectEntry>();
     vendorAssignments.forEach((assignment) => {
@@ -51,16 +62,31 @@ export default async function VendorAssignmentsPage({
       });
     });
     projects = Array.from(map.values());
-    vendorTasks = activeProjectId
-      ? vendorAssignments
-          .filter((assignment) => assignment.projectId === activeProjectId)
-          .map((assignment) => ({
-            id: assignment.id,
-            vendorName: assignment.selectedVendorName || "未指定廠商",
-            title: assignment.title,
-            requirementText: assignment.summary,
-          }))
-      : [];
+    if (activeProjectId) {
+      const grouped = new Map<string, VendorGroupEntry>();
+      vendorAssignments
+        .filter((assignment) => assignment.projectId === activeProjectId)
+        .forEach((assignment) => {
+          const vendorName = assignment.selectedVendorName || "未指定廠商";
+          const vendorKey = `${assignment.projectId}::${vendorName}`;
+          const existing = grouped.get(vendorKey);
+          if (existing) {
+            existing.taskCount += 1;
+            existing.taskTitles.push(assignment.title);
+            return;
+          }
+
+          grouped.set(vendorKey, {
+            vendorKey,
+            vendorName,
+            taskCount: 1,
+            eventDate: map.get(assignment.projectId)?.eventDate || "未設定",
+            representativeTaskId: assignment.id,
+            taskTitles: [assignment.title],
+          });
+        });
+      vendorGroups = Array.from(grouped.values()).sort((a, b) => a.vendorName.localeCompare(b.vendorName, "zh-Hant"));
+    }
   }
 
   const activeProject = projects.find((project) => project.projectId === activeProjectId);
@@ -100,16 +126,26 @@ export default async function VendorAssignmentsPage({
             </div>
 
             <div className="space-y-3">
-              {vendorTasks.map((task) => (
-                <article key={task.id} className="rounded-2xl border border-slate-200 p-5 transition hover:border-slate-300 hover:bg-slate-50/70">
+              {vendorGroups.map((group) => (
+                <article key={group.vendorKey} className="rounded-2xl border border-slate-200 p-5 transition hover:border-slate-300 hover:bg-slate-50/70">
                   <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
                     <div className="grid flex-1 gap-3 md:grid-cols-3">
-                      <div className="rounded-2xl bg-slate-50 px-4 py-3"><p className="text-xs text-slate-500">廠商</p><p className="mt-2 text-sm font-medium text-slate-900">{task.vendorName}</p></div>
-                      <div className="rounded-2xl bg-slate-50 px-4 py-3"><p className="text-xs text-slate-500">任務標題</p><p className="mt-2 text-sm font-medium text-slate-900">{task.title}</p></div>
-                      <div className="rounded-2xl bg-slate-50 px-4 py-3"><p className="text-xs text-slate-500">需求摘要</p><p className="mt-2 text-sm font-medium text-slate-900">{task.requirementText || '未填寫'}</p></div>
+                      <div className="rounded-2xl bg-slate-50 px-4 py-3"><p className="text-xs text-slate-500">廠商</p><p className="mt-2 text-sm font-medium text-slate-900">{group.vendorName}</p></div>
+                      <div className="rounded-2xl bg-slate-50 px-4 py-3"><p className="text-xs text-slate-500">任務數量</p><p className="mt-2 text-sm font-medium text-slate-900">{group.taskCount}</p></div>
+                      <div className="rounded-2xl bg-slate-50 px-4 py-3"><p className="text-xs text-slate-500">活動日期</p><p className="mt-2 text-sm font-medium text-slate-900">{group.eventDate}</p></div>
                     </div>
                     <div className="flex justify-end">
-                      <Link href={`/vendor-assignments/${task.id}`} className="inline-flex items-center justify-center rounded-2xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-700">查看任務</Link>
+                      <Link href={`/vendor-assignments/${group.representativeTaskId}`} className="inline-flex items-center justify-center rounded-2xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-700">進入廠商</Link>
+                    </div>
+                  </div>
+                  <div className="mt-4 rounded-2xl bg-slate-50 px-4 py-3">
+                    <p className="text-xs text-slate-500">本組任務</p>
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      {group.taskTitles.map((title, index) => (
+                        <span key={`${group.vendorKey}-${index}`} className="inline-flex rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-700">
+                          {title}
+                        </span>
+                      ))}
                     </div>
                   </div>
                 </article>
