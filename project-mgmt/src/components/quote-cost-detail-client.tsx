@@ -453,85 +453,60 @@ function QuickPanel({ value, label, archived }: { value: string; label: string; 
 }
 
 function ArchiveContentPanel({ source }: { source: Exclude<CostSourceType, "人工"> }) {
-  const contentMap: Record<Exclude<CostSourceType, "人工">, { summaryTitle: string; summary: string; primary: Array<{ label: string; value: string }>; secondaryTitle: string; secondaryItems: string[]; note: string }> = {
-    設計: {
-      summaryTitle: "設計最終文件內容",
-      summary: "承接設計線最終留存頁的核心內容，重點回看最終交付項目、完稿狀態與備註。",
-      primary: [
-        { label: "最終設計項目", value: "主視覺、POP、價卡、吊牌完稿" },
-        { label: "交付內容", value: "AI / PDF 完稿檔、輸出確認版、規格備註" },
-        { label: "完稿狀態", value: "已完成最終版留存" },
-      ],
-      secondaryTitle: "最終交付內容",
-      secondaryItems: [
-        "主視覺最終版已定稿，作為結案後留存基準。",
-        "現場輸出物規格已固定，後續查閱以此版本為準。",
-        "設計調整說明已併入結案備註，不再回工作頁修改。",
-      ],
-      note: "這裡顯示的是設計最終文件頁的資訊內容，不是檔名清單。",
-    },
-    備品: {
-      summaryTitle: "備品最終文件內容",
-      summary: "承接備品線最終留存頁的內容，重點回看項目、數量與最終整理結果。",
-      primary: [
-        { label: "最終備品項目", value: "展示架、五金配件、贈品包材" },
-        { label: "整理結果", value: "採購 / 整理完成，作為結案版留存" },
-        { label: "數量結論", value: "以結案當下最終清單為準" },
-      ],
-      secondaryTitle: "最終整理重點",
-      secondaryItems: [
-        "展示架與配件數量已收斂為結案版結果。",
-        "贈品包材追加內容已整併到最終備品頁。",
-        "現場補件與零星採購已吸收進最終備註。",
-      ],
-      note: "這裡顯示的是備品最終文件頁的資訊內容，不是檔名清單。",
-    },
-    廠商: {
-      summaryTitle: "廠商最終文件內容",
-      summary: "承接廠商線最終留存頁的內容，重點回看發包項目、合作對象與最終執行結果。",
-      primary: [
-        { label: "發包項目", value: "輸出製作、展示架加工、現場支援" },
-        { label: "合作對象", value: "春分印刷、青田展示製作、禮品補給站" },
-        { label: "最終狀態", value: "已依結案版本留存" },
-      ],
-      secondaryTitle: "最終執行內容",
-      secondaryItems: [
-        "各廠商承接項目已對齊結案版成本。",
-        "最終發包範圍與執行內容已從工作中版本收斂。",
-        "結案後查閱以本頁承接的最終內容為準。",
-      ],
-      note: "這裡顯示的是廠商最終文件頁的資訊內容，不是檔名清單。",
-    },
-  };
+  if (source === "設計") {
+    const rows = [
+      ["主視覺完稿", "W240 × H300cm", "PVC 貼膜", "木作背板", "1 式", formatCurrency(41800)],
+      ["POP 與價卡", "A3 / A4 混合規格", "雪銅紙", "桌卡 / 吊卡", "24 件", formatCurrency(22300)],
+      ["吊牌設計", "W12 × H18cm", "銅西卡", "雙孔掛繩", "80 張", formatCurrency(9700)],
+    ];
 
-  const content = contentMap[source];
+    return <ArchiveTable title="設計最終留存內容" headers={["標題", "尺寸", "材質", "結構", "數量", "金額"]} rows={rows} />;
+  }
 
+  if (source === "備品") {
+    const rows = [
+      ["展示架與五金配件", "12 組", formatCurrency(89500)],
+      ["贈品包材追加", "1 式", formatCurrency(23500)],
+      ["現場補件備品", "6 件", formatCurrency(8600)],
+    ];
+
+    return <ArchiveTable title="備品最終留存內容" headers={["標題", "數量", "金額"]} rows={rows} compact />;
+  }
+
+  const rows = [
+    ["春分印刷", "POP 與價卡輸出", "檔期 POP、價卡與吊牌最終輸出", formatCurrency(41800)],
+    ["青田展示製作", "展示架與五金配件", "展示架結構、五金配件與現場調整", formatCurrency(89500)],
+    ["禮品補給站", "贈品包材追加", "贈品包材補件與標示物追加", formatCurrency(23500)],
+  ];
+
+  return <ArchiveTable title="廠商最終留存內容" headers={["某廠商", "標題", "需求內容", "金額"]} rows={rows} />;
+}
+
+function ArchiveTable({ title, headers, rows, compact = false }: { title: string; headers: string[]; rows: string[][]; compact?: boolean }) {
   return (
-    <div className="grid gap-4 xl:grid-cols-[minmax(0,1.05fr)_minmax(320px,0.95fr)]">
-      <div className="rounded-2xl border border-slate-200 bg-slate-50/70 p-4">
-        <h5 className="text-base font-semibold text-slate-900">{content.summaryTitle}</h5>
-        <p className="mt-2 text-sm leading-6 text-slate-600">{content.summary}</p>
-
-        <div className="mt-4 grid gap-3 md:grid-cols-3">
-          {content.primary.map((item) => (
-            <div key={`${source}-${item.label}`} className="rounded-2xl border border-slate-200 bg-white p-4">
-              <p className="text-xs font-medium text-slate-500">{item.label}</p>
-              <p className="mt-2 text-sm font-semibold leading-6 text-slate-900">{item.value}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <div className="rounded-2xl border border-slate-200 bg-white p-4">
-        <h5 className="text-base font-semibold text-slate-900">{content.secondaryTitle}</h5>
-        <ul className="mt-3 space-y-2 text-sm text-slate-600">
-          {content.secondaryItems.map((item) => (
-            <li key={`${source}-${item}`} className="rounded-2xl bg-slate-50 px-3 py-2">• {item}</li>
-          ))}
-        </ul>
-        <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-500">
-          {content.note}
-        </div>
+    <div className="rounded-2xl border border-slate-200 bg-white p-4">
+      <h5 className="text-base font-semibold text-slate-900">{title}</h5>
+      <div className="mt-4 overflow-x-auto rounded-2xl border border-slate-200">
+        <table className="min-w-full divide-y divide-slate-200 text-left text-sm">
+          <thead className="bg-slate-50 text-slate-500">
+            <tr>
+              {headers.map((header) => (
+                <th key={header} className="px-4 py-3 font-medium whitespace-nowrap">{header}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-slate-100 bg-white">
+            {rows.map((row, rowIndex) => (
+              <tr key={`${title}-${rowIndex}`}>
+                {row.map((cell, cellIndex) => (
+                  <td key={`${cell}-${cellIndex}`} className={`px-4 ${compact ? "py-3" : "py-4"} ${cellIndex === 0 ? "font-semibold text-slate-900" : "text-slate-600"}`}>
+                    {cell}
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     </div>
   );
