@@ -174,8 +174,8 @@ export function QuoteCostDetailClient({ project, mode = "active", initialProject
     <>
       <AppShell activePath={isClosedView ? "/closeouts" : "/quote-costs"}>
       <header className={`overflow-hidden rounded-[28px] border p-6 shadow-sm xl:p-7 ${isClosedView ? "border-slate-200 bg-linear-to-br from-slate-50 to-white" : "border-slate-200 bg-linear-to-br from-slate-900 via-slate-800 to-slate-900 text-white"}`}>
-        <div className="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
-          <div className="min-w-0 flex-1">
+        <div className="flex flex-col gap-5 xl:flex-row xl:items-center xl:justify-between">
+          <div className="min-w-0 flex-1 xl:self-center">
             <h2 className={`text-3xl font-semibold tracking-tight ${isClosedView ? "text-slate-900" : "text-white"}`}>{state.projectName}</h2>
             <div className={`mt-4 grid gap-3 sm:grid-cols-2 xl:max-w-[520px] ${isClosedView ? "text-slate-600" : "text-slate-200"}`}>
               <OverviewRow label="客戶" value={state.clientName} archived={isClosedView} />
