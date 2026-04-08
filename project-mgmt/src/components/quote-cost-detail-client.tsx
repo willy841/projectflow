@@ -184,8 +184,7 @@ export function QuoteCostDetailClient({ project, mode = "active", initialProject
           </div>
           <div className={`grid gap-3 rounded-3xl border p-4 text-sm sm:min-w-[300px] ${isClosedView ? "border-slate-200 bg-slate-50 text-slate-600" : "border-white/10 bg-white/6 text-slate-200"}`}>
             <div>
-              <p className={`text-xs font-medium tracking-[0.16em] uppercase ${isClosedView ? "text-slate-400" : "text-slate-300"}`}>{isClosedView ? "Archive Focus" : "Management Focus"}</p>
-              <p className={`mt-1 text-base font-semibold ${isClosedView ? "text-slate-900" : "text-white"}`}>{isClosedView ? "結案留存 / 最終結果確認" : "進行中控盤 / 成本管理 / 對帳推進"}</p>
+              <p className={`text-base font-semibold ${isClosedView ? "text-slate-900" : "text-white"}`}>{isClosedView ? "結案留存 / 最終結果確認" : "進行中控盤 / 成本管理 / 對帳推進"}</p>
             </div>
             <div className="grid grid-cols-2 gap-3 text-xs">
               <QuickPanel value={state.reconciliationStatus} label="對帳狀態" archived={isClosedView} />
@@ -331,7 +330,6 @@ export function QuoteCostDetailClient({ project, mode = "active", initialProject
           <div className="mb-4 flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
             <div>
               <h4 className="text-lg font-semibold text-slate-900">人工新增費用</h4>
-              <p className="mt-1 text-sm text-slate-500">固定欄位：項目 / 說明 / 金額。編輯內容只先留在本頁，按下「儲存」才正式寫入資料庫。</p>
               {!isClosedView && (
                 <p className={`mt-2 text-xs ${manualSyncError ? "text-rose-600" : manualSyncSuccess ? "text-emerald-600" : hasUnsavedManualChanges ? "text-amber-600" : "text-slate-400"}`}>
                   {manualSyncError
