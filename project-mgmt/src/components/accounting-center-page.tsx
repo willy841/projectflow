@@ -832,7 +832,7 @@ export function AccountingCenterPage() {
                   </div>
 
                   {expenseEditorTab === "personnel" ? (
-                  <Panel eyebrow="人事輸入區" title="員工名單與輸入頁" description="以員工為主體，管理名單並送出到指定薪資月份。">
+                  <Panel title="人事費用管理">
                     <div className="space-y-4">
                       <div className="grid gap-3 sm:grid-cols-2">
                         <button type="button" onClick={() => setEmployeeFilter("full-time")} className={`rounded-2xl border p-4 text-left transition ${employeeFilter === "full-time" ? "border-slate-900 bg-slate-900 text-white" : "border-slate-200 bg-slate-50 text-slate-700"}`}><p className="text-xs font-semibold uppercase tracking-[0.18em]">正職人數</p><p className="mt-2 text-3xl font-semibold">{employeeRoster.filter((item) => item.type === "full-time").length}</p><p className="mt-2 text-sm opacity-80">只顯示正職名單</p></button>
@@ -847,6 +847,7 @@ export function AccountingCenterPage() {
                           <div key={employee.id} className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-200 px-4 py-3">
                             <div><p className="font-semibold text-slate-900">{employee.name}</p><p className="text-xs text-slate-500">{employee.type === "full-time" ? "正職" : "兼職"}</p></div>
                             <div className="flex gap-2">
+                              <button type="button" onClick={() => setEditingEmployeeId(employee.id)} className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-800 transition hover:bg-slate-50">預覽</button>
                               <button type="button" onClick={() => setEditingEmployeeId(employee.id)} className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-800 transition hover:bg-slate-50">編輯</button>
                               <button type="button" onClick={() => handleDeleteEmployee(employee.id)} className="inline-flex items-center justify-center rounded-2xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm font-semibold text-rose-700 transition hover:bg-rose-100">刪除</button>
                             </div>
@@ -886,22 +887,14 @@ export function AccountingCenterPage() {
                   ) : null}
 
                   {expenseEditorTab === "office" ? (
-                  <Panel eyebrow="庶務輸入區" title="庶務編輯" description="入口頁採列表 + 主操作；分類管理與新增支出都集中在這裡。">
-                    <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
-                      <div><p className="text-sm font-semibold text-slate-900">庶務輸入區</p><p className="text-xs text-slate-500">以單筆支出為主體，分類可管理。</p></div>
-                      <div className="flex gap-2"><button type="button" onClick={() => setShowManageOfficeCategories(true)} className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-800 transition hover:bg-slate-50">管理分類</button><button type="button" onClick={() => setOfficeExpenseForm({ mode: "create", item: "", category: officeCategories[0] ?? "", amount: "", note: "" })} className="inline-flex items-center justify-center rounded-2xl border border-slate-900 bg-slate-900 px-3 py-2 text-sm font-semibold text-white transition hover:bg-slate-800">新增支出</button></div>
-                    </div>
-                    <div className="mt-5"><ListBlock title="庶務輸入列表" headers={["項目名稱", "分類", "金額", "編輯", "刪除"]} rows={currentOfficeExpenses.map((expense) => [expense.item, expense.category, formatCurrency(expense.amount)])} actionLabel="編輯" secondaryActionLabel="刪除" onAction={(index) => { const target = currentOfficeExpenses[index]; setOfficeExpenseForm({ mode: "edit", id: target.id, item: target.item, category: target.category, amount: String(target.amount), note: target.note }); }} onSecondaryAction={(index) => handleDeleteOfficeExpense(currentOfficeExpenses[index].id)} /></div>
+                  <Panel title="庶務編輯" actions={<><button type="button" onClick={() => setShowManageOfficeCategories(true)} className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-800 transition hover:bg-slate-50">管理分類</button><button type="button" onClick={() => setOfficeExpenseForm({ mode: "create", item: "", category: officeCategories[0] ?? "", amount: "", note: "" })} className="inline-flex items-center justify-center rounded-2xl border border-slate-900 bg-slate-900 px-3 py-2 text-sm font-semibold text-white transition hover:bg-slate-800">新增支出</button></>}>
+                    <div className="mt-5"><ListBlock title="庶務項目" headers={["項目名稱", "分類", "金額", "編輯", "刪除"]} rows={currentOfficeExpenses.map((expense) => [expense.item, expense.category, formatCurrency(expense.amount)])} actionLabel="編輯" secondaryActionLabel="刪除" onAction={(index) => { const target = currentOfficeExpenses[index]; setOfficeExpenseForm({ mode: "edit", id: target.id, item: target.item, category: target.category, amount: String(target.amount), note: target.note }); }} onSecondaryAction={(index) => handleDeleteOfficeExpense(currentOfficeExpenses[index].id)} /></div>
                   </Panel>
                   ) : null}
 
                   {expenseEditorTab === "other" ? (
-                  <Panel eyebrow="其他輸入區" title="其他編輯" description="承接其他營運支出的新增與編輯。">
-                    <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
-                      <div><p className="text-sm font-semibold text-slate-900">其他輸入區</p><p className="text-xs text-slate-500">入口結構採列表 + 新增按鈕，新增 / 編輯都走 modal。</p></div>
-                      <button type="button" onClick={() => setOtherExpenseForm({ mode: "create", item: "", amount: "", note: "" })} className="inline-flex items-center justify-center rounded-2xl border border-slate-900 bg-slate-900 px-3 py-2 text-sm font-semibold text-white transition hover:bg-slate-800">新增支出</button>
-                    </div>
-                    <div className="mt-5"><ListBlock title="其他輸入列表" headers={["項目名稱", "金額", "備註", "編輯", "刪除"]} rows={currentOtherExpenses.map((expense) => [expense.item, formatCurrency(expense.amount), expense.note || "-"])} actionLabel="編輯" secondaryActionLabel="刪除" onAction={(index) => { const target = currentOtherExpenses[index]; setOtherExpenseForm({ mode: "edit", id: target.id, item: target.item, amount: String(target.amount), note: target.note }); }} onSecondaryAction={(index) => handleDeleteOtherExpense(currentOtherExpenses[index].id)} /></div>
+                  <Panel title="其他編輯" actions={<button type="button" onClick={() => setOtherExpenseForm({ mode: "create", item: "", amount: "", note: "" })} className="inline-flex items-center justify-center rounded-2xl border border-slate-900 bg-slate-900 px-3 py-2 text-sm font-semibold text-white transition hover:bg-slate-800">新增支出</button>}>
+                    <div className="mt-5"><ListBlock title="其他項目" headers={["項目名稱", "金額", "備註", "編輯", "刪除"]} rows={currentOtherExpenses.map((expense) => [expense.item, formatCurrency(expense.amount), expense.note || "-"])} actionLabel="編輯" secondaryActionLabel="刪除" onAction={(index) => { const target = currentOtherExpenses[index]; setOtherExpenseForm({ mode: "edit", id: target.id, item: target.item, amount: String(target.amount), note: target.note }); }} onSecondaryAction={(index) => handleDeleteOtherExpense(currentOtherExpenses[index].id)} /></div>
                   </Panel>
                   ) : null}
                 </div>
@@ -1010,12 +1003,17 @@ export function AccountingCenterPage() {
   );
 }
 
-function Panel({ eyebrow, title, description, children }: { eyebrow: string; title: string; description: string; children: ReactNode }) {
+function Panel({ eyebrow, title, description, actions, children }: { eyebrow?: string; title: string; description?: string; actions?: ReactNode; children: ReactNode }) {
   return (
     <article className="rounded-3xl border border-slate-200 p-5">
-      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">{eyebrow}</p>
-      <h4 className="mt-2 text-xl font-semibold text-slate-900">{title}</h4>
-      <p className="mt-2 text-sm leading-6 text-slate-500">{description}</p>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          {eyebrow ? <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">{eyebrow}</p> : null}
+          <h4 className={`${eyebrow ? 'mt-2' : ''} text-xl font-semibold text-slate-900`}>{title}</h4>
+          {description ? <p className="mt-2 text-sm leading-6 text-slate-500">{description}</p> : null}
+        </div>
+        {actions ? <div className="flex flex-wrap gap-2">{actions}</div> : null}
+      </div>
       <div className="mt-5">{children}</div>
     </article>
   );
