@@ -623,9 +623,6 @@ export function AccountingCenterPage() {
         <header className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200 xl:p-7">
           <div className="flex flex-wrap items-center gap-3">
             <h2 className="text-3xl font-semibold tracking-tight text-slate-900">帳務中心</h2>
-            <span className="inline-flex rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700 ring-1 ring-emerald-200">
-              前端 workflow 驗收版
-            </span>
           </div>
         </header>
 
@@ -797,7 +794,7 @@ export function AccountingCenterPage() {
               </div>
 
               {expenseTab === "personnel" ? (
-                <Panel eyebrow="人事記錄區" title="月份主體查看區" description="正職與兼職分開列表，詳情以 drawer 查看。">
+                <Panel title="本月人事總覽">
                     <div className="grid gap-3 sm:grid-cols-5">
                       <MetricCard label="正職人數" value={String(personnelSummary.fullTimeCount)} hint="本月正式紀錄" tone="slate" compact />
                       <MetricCard label="兼職人數" value={String(personnelSummary.partTimeCount)} hint="本月正式紀錄" tone="slate" compact />
@@ -813,13 +810,13 @@ export function AccountingCenterPage() {
               ) : null}
 
               {expenseTab === "office" ? (
-                <Panel eyebrow="庶務記錄區" title="庶務區" description="以單筆支出為主體查看庶務記錄，詳情以 drawer 查看。">
+                <Panel title="本月庶務支出">
                   <div className="mt-5"><ListBlock title="庶務記錄區" headers={["項目名稱", "分類", "金額", "備註", "查看詳情"]} rows={currentOfficeExpenses.map((expense) => [expense.item, expense.category, formatCurrency(expense.amount), expense.note || "-"])} actionLabel="查看詳情" onAction={(index) => setRecordDrawer({ type: "office", id: currentOfficeExpenses[index].id })} /></div>
                 </Panel>
               ) : null}
 
               {expenseTab === "other" ? (
-                <Panel eyebrow="其他記錄區" title="其他區" description="承接無法歸入人事或庶務、但仍屬營運支出的其他記錄。">
+                <Panel title="其他支出">
                   <div className="mt-5"><ListBlock title="其他記錄區" headers={["項目名稱", "金額", "備註", "查看詳情"]} rows={currentOtherExpenses.map((expense) => [expense.item, formatCurrency(expense.amount), expense.note || "-"])} actionLabel="查看詳情" onAction={(index) => setRecordDrawer({ type: "other", id: currentOtherExpenses[index].id })} /></div>
                 </Panel>
               ) : null}
@@ -856,7 +853,7 @@ export function AccountingCenterPage() {
                                 </div>
 
                                 {isExpanded && employee.type === "full-time" && rosterFullTimeDraft ? (
-                                  <EditableBlock title={personnelViewMode === "edit" ? "正職編輯頁" : "正職預覽頁"} badge={personnelViewMode === "edit" ? "完整人事成本結構" : "預覽模式"} mode={personnelViewMode}>
+                                  <EditableBlock title={personnelViewMode === "edit" ? "正職薪資設定" : "正職薪資明細"} badge="" mode={personnelViewMode}>
                                     <div className={`grid gap-4 ${personnelViewMode === "edit" ? "xl:grid-cols-2" : "xl:grid-cols-3"}`}>
                                       <ReadOnlyPair label="姓名" value={employee.name} />
                                       <ReadOnlyPair label="類型" value="正職" />
@@ -887,7 +884,7 @@ export function AccountingCenterPage() {
                                 ) : null}
 
                                 {isExpanded && employee.type === "part-time" && rosterPartTimeDraft ? (
-                                  <EditableBlock title={personnelViewMode === "edit" ? "兼職編輯頁" : "兼職預覽頁"} badge={personnelViewMode === "edit" ? "極簡工時計算結構" : "預覽模式"} mode={personnelViewMode}>
+                                  <EditableBlock title={personnelViewMode === "edit" ? "兼職薪資設定" : "兼職薪資明細"} badge="" mode={personnelViewMode}>
                                     <div className="grid gap-4 xl:grid-cols-2">
                                       <ReadOnlyPair label="姓名" value={employee.name} />
                                       <ReadOnlyPair label="類型" value="兼職" />
@@ -941,7 +938,7 @@ export function AccountingCenterPage() {
       </div>
 
       {showAddEmployeeModal ? (
-        <ModalShell title="新增員工" badge="modal">
+        <ModalShell title="新增員工" badge="">
           <div className="space-y-4">
             <EditablePair label="姓名" value={newEmployeeName} onChange={setNewEmployeeName} placeholder="輸入員工姓名" />
             <div>
@@ -968,7 +965,7 @@ export function AccountingCenterPage() {
       ) : null}
 
       {showManageOfficeCategories ? (
-        <ModalShell title="管理庶務分類" badge="分類來源">
+        <ModalShell title="庶務分類設定" badge="">
           <div className="space-y-4">
             <div className="flex gap-2">
               <input
@@ -1005,7 +1002,7 @@ export function AccountingCenterPage() {
       ) : null}
 
       {officeExpenseForm ? (
-        <ModalShell title={officeExpenseForm.mode === "create" ? "新增庶務支出" : "編輯庶務支出"} badge="modal">
+        <ModalShell title={officeExpenseForm.mode === "create" ? "新增庶務支出" : "編輯庶務支出"} badge="">
           <div className="space-y-4">
             <EditablePair label="項目名稱" value={officeExpenseForm.item} onChange={(value) => setOfficeExpenseForm((current) => current ? { ...current, item: value } : current)} />
             <EditablePair label="分類" value={officeExpenseForm.category} onChange={(value) => setOfficeExpenseForm((current) => current ? { ...current, category: value } : current)} listId="office-category-list" />
@@ -1020,7 +1017,7 @@ export function AccountingCenterPage() {
       ) : null}
 
       {otherExpenseForm ? (
-        <ModalShell title={otherExpenseForm.mode === "create" ? "新增其他支出" : "編輯其他支出"} badge="modal">
+        <ModalShell title={otherExpenseForm.mode === "create" ? "新增其他支出" : "編輯其他支出"} badge="">
           <div className="space-y-4">
             <EditablePair label="項目名稱" value={otherExpenseForm.item} onChange={(value) => setOtherExpenseForm((current) => current ? { ...current, item: value } : current)} />
             <EditablePair label="金額" value={otherExpenseForm.amount} onChange={(value) => setOtherExpenseForm((current) => current ? { ...current, amount: value } : current)} inputMode="numeric" />
