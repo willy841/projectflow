@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { getVendorOutstandingTotal, formatCurrency } from "@/components/vendor-data";
 import { useVendorStore } from "@/components/vendor-store";
 
@@ -9,6 +10,7 @@ const DELETE_CONFIRM_TITLE = "確認刪除這個廠商？";
 const DELETE_CONFIRM_DESCRIPTION = "這是刪除動作，刪除後會從目前的前端 vendor 清單移除。請再次確認是否要刪除這個廠商。";
 
 export function VendorListPage() {
+  const router = useRouter();
   const { vendors, deleteVendor, tradeOptions, createVendor } = useVendorStore();
   const [searchKeyword, setSearchKeyword] = useState("");
   const [activeTrade, setActiveTrade] = useState<string | null>(null);
@@ -70,6 +72,7 @@ export function VendorListPage() {
     setNewVendorTrade("");
     setCreateVendorError(null);
     setShowCreateVendorModal(false);
+    router.push(`/vendors/${encodeURIComponent(result.vendor.id)}`);
   }
 
   return (
