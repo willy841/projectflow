@@ -97,7 +97,7 @@ function VendorProfileEditor({
       <div className="mb-5 flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
         <div>
           <p className="text-xs font-semibold tracking-wide text-slate-500">A. 廠商資料</p>
-          <h3 className="mt-1 text-xl font-semibold text-slate-900">廠商主檔資料區</h3>
+          <h3 className="mt-1 text-xl font-semibold text-slate-900">廠商資訊</h3>
         </div>
         <div className="flex flex-col items-start gap-2 lg:items-end">
           <span className="inline-flex rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700 ring-1 ring-emerald-200">
@@ -340,8 +340,7 @@ export function VendorDetailShell({ vendorId }: Props) {
             <div className="mt-5 rounded-2xl border border-sky-200 bg-sky-50/60 p-4 ring-1 ring-sky-100">
               <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                 <div>
-                  <p className="text-xs font-semibold tracking-wide text-sky-700">Vendor trade / 工種管理</p>
-                </div>
+                  </div>
                 <div className="rounded-2xl bg-white px-4 py-3 text-sm text-slate-700 ring-1 ring-sky-200">
                   目前工種：<span className="font-semibold text-slate-900">{vendor.tradeLabel || vendor.category || "待補充"}</span>
                 </div>
@@ -406,7 +405,7 @@ export function VendorDetailShell({ vendorId }: Props) {
             <div className="mb-5 flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
               <div>
                 <p className="text-xs font-semibold tracking-wide text-amber-700">C. 未付款專案區</p>
-                <h3 className="mt-1 text-xl font-semibold text-slate-900">專案 × 廠商 付款管理</h3>
+                <h3 className="mt-1 text-xl font-semibold text-slate-900">未付款專案</h3>
               </div>
               <div className="rounded-2xl bg-white px-4 py-3 text-sm text-slate-700 ring-1 ring-amber-200">
                 <p>已勾選 {selectedCount} 筆</p>
@@ -431,7 +430,6 @@ export function VendorDetailShell({ vendorId }: Props) {
                       </div>
                     </div>
                     <div className="text-left sm:text-right">
-                      <p className="text-sm text-slate-500">未付款金額</p>
                       <p className="mt-1 text-xl font-semibold text-slate-900">{record.adjustedCostLabel}</p>
                     </div>
                   </label>
@@ -439,7 +437,6 @@ export function VendorDetailShell({ vendorId }: Props) {
 
                 <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-slate-900 px-4 py-4 text-white">
                   <div>
-                    <p className="text-sm text-slate-300">即時計算</p>
                     <p className="mt-1 font-semibold">已勾選 {selectedCount} 個專案 × 廠商，合計 {formatCurrency(selectedTotal)}</p>
                   </div>
                   <button
@@ -462,7 +459,7 @@ export function VendorDetailShell({ vendorId }: Props) {
           <div className="mb-5 flex min-h-12 items-center justify-between gap-4">
             <div>
               <p className="text-xs font-semibold tracking-wide text-slate-500">D. 往來 / 歷史紀錄區</p>
-              <h3 className="mt-1 text-xl font-semibold text-slate-900">所有有往來的專案紀錄</h3>
+              <h3 className="mt-1 text-xl font-semibold text-slate-900">往來紀錄</h3>
             </div>
             <div className="rounded-2xl bg-slate-50 px-4 py-3 text-sm text-slate-600 ring-1 ring-slate-200">
               目前顯示 {filteredHistoryRecords.length} 筆 / 第 {currentHistoryPage} / {totalHistoryPages} 頁
