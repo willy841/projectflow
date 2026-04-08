@@ -618,46 +618,17 @@ export function AccountingCenterPage() {
     <AppShell activePath="/accounting-center">
       <div className="space-y-6">
         <header className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200 xl:p-7">
-          <div className="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
-            <div className="max-w-3xl">
-              <div className="flex flex-wrap items-center gap-3">
-                <h2 className="text-3xl font-semibold tracking-tight text-slate-900">帳務中心</h2>
-                <span className="inline-flex rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700 ring-1 ring-emerald-200">
-                  前端 workflow 驗收版
-                </span>
-              </div>
-              <p className="mt-3 text-sm leading-6 text-slate-500">先看經營摘要，再往下進管理工作區。本頁維持 mock / local state，不碰 DB、API、persistence。</p>
-            </div>
-
-            <div className="rounded-3xl border border-slate-200 bg-slate-50 p-4 xl:min-w-[360px]">
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">月份主體</p>
-              <div className="mt-3 flex flex-wrap gap-2">
-                {monthOptions.map((month) => {
-                  const active = selectedMonth === month.key;
-                  return (
-                    <button
-                      key={month.key}
-                      type="button"
-                      onClick={() => setSelectedMonth(month.key)}
-                      className={`rounded-2xl px-4 py-2 text-sm font-medium ring-1 transition ${
-                        active ? "bg-slate-900 text-white ring-slate-900" : "bg-white text-slate-600 ring-slate-200 hover:bg-slate-100"
-                      }`}
-                    >
-                      {month.label}
-                    </button>
-                  );
-                })}
-              </div>
-              <p className="mt-3 text-sm text-slate-500">三個模組都掛在同一個月份上下文下。</p>
-            </div>
+          <div className="flex flex-wrap items-center gap-3">
+            <h2 className="text-3xl font-semibold tracking-tight text-slate-900">帳務中心</h2>
+            <span className="inline-flex rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700 ring-1 ring-emerald-200">
+              前端 workflow 驗收版
+            </span>
           </div>
         </header>
 
         <section className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">上半部 / 經營摘要區</p>
-            <h3 className="mt-2 text-2xl font-semibold tracking-tight text-slate-900">營收概況</h3>
-            <p className="mt-2 text-sm leading-6 text-slate-500">先看收入、成本、營運支出與利潤結果。</p>
+            <h3 className="text-2xl font-semibold tracking-tight text-slate-900">營收概況</h3>
           </div>
 
           <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
@@ -674,39 +645,66 @@ export function AccountingCenterPage() {
           </div>
 
           <div className="mt-6 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4">
-            <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
-              <div>
-                <p className="text-sm font-semibold text-slate-900">時間範圍</p>
-                <p className="mt-1 text-xs text-slate-500">控制摘要卡的統計範圍，不另外做獨立頁首工具列。</p>
+            <div className="flex flex-col gap-3 xl:flex-row xl:flex-wrap xl:items-center xl:gap-4">
+              <div className="flex flex-wrap gap-2">
+                {([
+                  ["month", "月份"],
+                  ["year", "年份"],
+                  ["range", "年份區間"],
+                ] as Array<[RevenueMode, string]>).map(([mode, label]) => (
+                  <button
+                    key={mode}
+                    type="button"
+                    onClick={() => setRevenueMode(mode)}
+                    className={`rounded-2xl px-4 py-2 text-sm font-medium ring-1 transition ${revenueMode === mode ? "bg-slate-900 text-white ring-slate-900" : "bg-white text-slate-600 ring-slate-200 hover:bg-slate-100"}`}
+                  >
+                    {label}
+                  </button>
+                ))}
               </div>
-              <div className="w-full max-w-[540px] space-y-3">
-                <div className="flex flex-wrap gap-2">
-                  {([
-                    ["month", "月份"],
-                    ["year", "年份"],
-                    ["range", "區間"],
-                  ] as Array<[RevenueMode, string]>).map(([mode, label]) => (
-                    <button
-                      key={mode}
-                      type="button"
-                      onClick={() => setRevenueMode(mode)}
-                      className={`rounded-2xl px-4 py-2 text-sm font-medium ring-1 transition ${revenueMode === mode ? "bg-slate-900 text-white ring-slate-900" : "bg-white text-slate-600 ring-slate-200 hover:bg-slate-100"}`}
-                    >
-                      {label}
-                    </button>
-                  ))}
+
+              {revenueMode === "month" ? (
+                <div className="min-w-[220px] rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-700">
+                  <span className="font-semibold text-slate-900">月份：</span>
+                  {monthOptions.find((item) => item.key === selectedMonth)?.label ?? selectedMonth}
                 </div>
-                <div className="grid gap-3 sm:grid-cols-2">
-                  {revenueMode === "month" ? <ReadOnlyPair label="月份" value={monthOptions.find((item) => item.key === selectedMonth)?.label ?? selectedMonth} /> : null}
-                  {revenueMode === "year" ? <EditablePair label="年份" value={yearSelection} onChange={setYearSelection} /> : null}
-                  {revenueMode === "range" ? (
-                    <>
-                      <EditablePair label="起始月份" value={rangeStart} onChange={setRangeStart} />
-                      <EditablePair label="結束月份" value={rangeEnd} onChange={setRangeEnd} />
-                    </>
-                  ) : null}
+              ) : null}
+
+              {revenueMode === "year" ? (
+                <div className="flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-3 py-2">
+                  <span className="text-sm font-semibold text-slate-700">年份</span>
+                  <input
+                    value={yearSelection}
+                    onChange={(event) => setYearSelection(event.target.value)}
+                    className="h-9 w-28 rounded-xl border border-slate-200 px-3 text-sm outline-none transition focus:border-slate-400"
+                  />
                 </div>
-              </div>
+              ) : null}
+
+              {revenueMode === "range" ? (
+                <>
+                  <div className="flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-3 py-2">
+                    <span className="text-sm font-semibold text-slate-700">起始</span>
+                    <input
+                      value={rangeStart}
+                      onChange={(event) => setRangeStart(event.target.value)}
+                      className="h-9 w-32 rounded-xl border border-slate-200 px-3 text-sm outline-none transition focus:border-slate-400"
+                    />
+                  </div>
+                  <div className="flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-3 py-2">
+                    <span className="text-sm font-semibold text-slate-700">結束</span>
+                    <input
+                      value={rangeEnd}
+                      onChange={(event) => setRangeEnd(event.target.value)}
+                      className="h-9 w-32 rounded-xl border border-slate-200 px-3 text-sm outline-none transition focus:border-slate-400"
+                    />
+                  </div>
+                  <div className="min-w-[220px] rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-700">
+                    <span className="font-semibold text-slate-900">區間：</span>
+                    {rangeStart} ～ {rangeEnd}
+                  </div>
+                </>
+              ) : null}
             </div>
           </div>
         </section>
@@ -714,14 +712,30 @@ export function AccountingCenterPage() {
         <section className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
           <div className="flex flex-col gap-4 border-b border-slate-200 pb-5 xl:flex-row xl:items-end xl:justify-between">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">下半部 / 管理工作區</p>
-              <h3 className="mt-2 text-2xl font-semibold tracking-tight text-slate-900">主工作區</h3>
-              <p className="mt-2 text-sm leading-6 text-slate-500">用 tab 切換進行中專案與管銷成本，避免每個區塊同時搶主視覺。</p>
+              <h3 className="text-2xl font-semibold tracking-tight text-slate-900">主工作區</h3>
             </div>
             <div className="flex flex-wrap gap-2">
-              <button type="button" onClick={() => setWorkspaceTab("active-projects")} className={`rounded-2xl px-4 py-2.5 text-sm font-semibold ring-1 transition ${workspaceTab === "active-projects" ? "bg-slate-900 text-white ring-slate-900" : "bg-white text-slate-600 ring-slate-200 hover:bg-slate-50"}`}>執行中專案</button>
-              <button type="button" onClick={() => setWorkspaceTab("operating-expenses")} className={`rounded-2xl px-4 py-2.5 text-sm font-semibold ring-1 transition ${workspaceTab === "operating-expenses" ? "bg-slate-900 text-white ring-slate-900" : "bg-white text-slate-600 ring-slate-200 hover:bg-slate-50"}`}>管銷成本</button>
+              {monthOptions.map((month) => {
+                const active = selectedMonth === month.key;
+                return (
+                  <button
+                    key={month.key}
+                    type="button"
+                    onClick={() => setSelectedMonth(month.key)}
+                    className={`rounded-2xl px-4 py-2 text-sm font-medium ring-1 transition ${
+                      active ? "bg-slate-900 text-white ring-slate-900" : "bg-white text-slate-600 ring-slate-200 hover:bg-slate-100"
+                    }`}
+                  >
+                    {month.label}
+                  </button>
+                );
+              })}
             </div>
+          </div>
+
+          <div className="mt-5 flex flex-wrap gap-2">
+            <button type="button" onClick={() => setWorkspaceTab("active-projects")} className={`rounded-2xl px-4 py-2.5 text-sm font-semibold ring-1 transition ${workspaceTab === "active-projects" ? "bg-slate-900 text-white ring-slate-900" : "bg-white text-slate-600 ring-slate-200 hover:bg-slate-50"}`}>執行中專案</button>
+            <button type="button" onClick={() => setWorkspaceTab("operating-expenses")} className={`rounded-2xl px-4 py-2.5 text-sm font-semibold ring-1 transition ${workspaceTab === "operating-expenses" ? "bg-slate-900 text-white ring-slate-900" : "bg-white text-slate-600 ring-slate-200 hover:bg-slate-50"}`}>管銷成本</button>
           </div>
 
           {workspaceTab === "active-projects" ? (
@@ -1016,7 +1030,7 @@ function FooterActions({ onSubmit }: { onSubmit: () => void }) {
 
 function MetricCard({ label, value, hint, tone, compact = false, emphasize = false }: { label: string; value: string; hint: string; tone: "slate" | "emerald" | "amber" | "rose" | "sky" | "violet"; compact?: boolean; emphasize?: boolean }) {
   return (
-    <article className={`rounded-3xl border p-${compact ? '4' : '5'} shadow-sm ${getCardToneClass(tone)} ${emphasize ? 'ring-2 ring-emerald-300' : 'ring-1 ring-inset ring-transparent'}`}>
+    <article className={`rounded-3xl border ${compact ? 'p-4' : 'p-5'} shadow-sm ${getCardToneClass(tone)} ${emphasize ? 'ring-2 ring-emerald-300' : 'ring-1 ring-inset ring-transparent'}`}>
       <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">{label}</p>
       <p className={`mt-2 font-semibold tracking-tight text-slate-900 ${compact ? 'text-xl' : 'text-3xl'}`}>{value}</p>
       <p className="mt-2 text-xs leading-5 text-slate-500">{hint}</p>
