@@ -180,12 +180,11 @@ export function QuoteCostDetailClient({ project, mode = "active", initialProject
               {isClosedView ? "Closeout Detail" : "Financial Detail"}
             </div>
             <h2 className={`mt-4 text-3xl font-semibold tracking-tight ${isClosedView ? "text-slate-900" : "text-white"}`}>{state.projectName}</h2>
-            <p className={`mt-2 text-sm ${isClosedView ? "text-slate-500" : "text-slate-300"}`}>{state.projectCode} ・ {state.clientName} ・ {state.eventDate}</p>
-            <p className={`mt-3 max-w-3xl text-sm leading-6 ${isClosedView ? "text-slate-600" : "text-slate-200"}`}>
-              {isClosedView
-                ? "沿用 Financial Detail 的同一套毛利邏輯與四區骨架，保留結案當下的收入、成本與對帳結果。"
-                : "依正式規格顯示對外報價、原始成本、新增花費與毛利；三條線正式成本在此唯讀承接，人工新增成本在這裡管理。"}
-            </p>
+            <p className={`mt-2 text-sm ${isClosedView ? "text-slate-500" : "text-slate-300"}`}>{state.projectCode}</p>
+          </div>
+          <div className={`grid gap-3 sm:grid-cols-2 xl:min-w-[420px] ${isClosedView ? "text-slate-600" : "text-slate-200"}`}>
+            <OverviewRow label="客戶" value={state.clientName} archived={isClosedView} />
+            <OverviewRow label="活動日期" value={state.eventDate} archived={isClosedView} />
           </div>
           <div className={`grid gap-3 rounded-3xl border p-4 text-sm sm:min-w-[300px] ${isClosedView ? "border-slate-200 bg-slate-50 text-slate-600" : "border-white/10 bg-white/6 text-slate-200"}`}>
             <div>
@@ -210,26 +209,10 @@ export function QuoteCostDetailClient({ project, mode = "active", initialProject
         <SummaryCard title="毛利" value={formatCurrency(grossProfit)} mode={mode} />
       </section>
 
-      <section className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-sm">
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-          <SectionHeader index="1" title="專案總覽" description={isClosedView ? "保留本案結案當下的主要狀態，用於後續查閱與確認。" : "先確認目前專案狀態與報價承接情況，再往下看報價與成本。"} archived={isClosedView} />
-          <div className="flex flex-wrap gap-2">
-            <StatusBadge label="對帳狀態" value={state.reconciliationStatus === "已完成" ? "已對帳" : "待確認"} toneClass={getReconciliationStatusClass(state.reconciliationStatus)} />
-            <StatusBadge label="結案狀態" value={state.closeStatus} toneClass={getCloseStatusClass(state.closeStatus)} />
-            <StatusBadge label="報價狀態" value={state.quotationImported ? "已匯入報價" : "未匯入報價"} toneClass={state.quotationImported ? "bg-emerald-50 text-emerald-700 ring-emerald-200" : "bg-amber-50 text-amber-700 ring-amber-200"} />
-          </div>
-        </div>
-        <div className="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-          <OverviewRow label="專案代碼" value={state.projectCode} archived={isClosedView} />
-          <OverviewRow label="客戶" value={state.clientName} archived={isClosedView} />
-          <OverviewRow label="活動日期" value={state.eventDate} archived={isClosedView} />
-          <OverviewRow label="目前有效報價檔" value={state.quotationImport?.fileName ?? "未匯入"} archived={isClosedView} />
-        </div>
-      </section>
 
       <section className={`rounded-[28px] border p-6 shadow-sm ${isClosedView ? "border-slate-200 bg-white" : "border-slate-200 bg-white"}`}>
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-          <SectionHeader index="2" title="對外報價單" description={isClosedView ? "保留結案時有效報價版本，作為歷史結果比對依據。" : "一個專案同時間只保留一份有效對外報價單；Excel 匯入後系統內不可直接編修明細。"} archived={isClosedView} />
+          <SimpleSectionTitle title="對外報價單" />
           <div className="flex flex-wrap gap-2">
             {isClosedView ? (
               <span className="inline-flex items-center rounded-2xl border border-slate-200 bg-slate-50 px-4 py-2 text-sm font-semibold text-slate-700">
@@ -283,7 +266,7 @@ export function QuoteCostDetailClient({ project, mode = "active", initialProject
 
       <section className={`rounded-[28px] border p-6 shadow-sm ${isClosedView ? "border-slate-200 bg-slate-50/70" : "border-slate-200 bg-white"}`}>
         <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
-          <SectionHeader index="3" title="成本管理" description={isClosedView ? "保留三條線正式成本承接結果與人工新增費用，供結案後查閱。" : "設計 / 備品 / 廠商卡為唯讀承接來源；人工卡在此新增與管理，三條線正式成本不可直接在 Financial 頁修改。"} archived={isClosedView} />
+          <SimpleSectionTitle title="成本管理" />
           <div className="flex flex-wrap gap-2">
             {!isClosedView && (
               <button
@@ -478,16 +461,8 @@ function OverviewRow({ label, value, archived = false }: { label: string; value:
   );
 }
 
-function SectionHeader({ index, title, description, archived = false }: { index: string; title: string; description: string; archived?: boolean }) {
-  return (
-    <div>
-      <div className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ring-1 ${archived ? "bg-slate-100 text-slate-600 ring-slate-200" : "bg-slate-100 text-slate-700 ring-slate-200"}`}>
-        {index}. {archived ? "Archive Section" : "Workspace Section"}
-      </div>
-      <h3 className="mt-3 text-xl font-semibold text-slate-900">{title}</h3>
-      <p className="mt-1 max-w-3xl text-sm leading-6 text-slate-500">{description}</p>
-    </div>
-  );
+function SimpleSectionTitle({ title }: { title: string }) {
+  return <h3 className="text-xl font-semibold text-slate-900">{title}</h3>;
 }
 
 function StatusBadge({ label, value, toneClass }: { label: string; value: string; toneClass: string }) {
