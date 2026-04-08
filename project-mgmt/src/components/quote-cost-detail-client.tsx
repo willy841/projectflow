@@ -175,16 +175,12 @@ export function QuoteCostDetailClient({ project, mode = "active", initialProject
       <AppShell activePath={isClosedView ? "/closeouts" : "/quote-costs"}>
       <header className={`overflow-hidden rounded-[28px] border p-6 shadow-sm xl:p-7 ${isClosedView ? "border-slate-200 bg-linear-to-br from-slate-50 to-white" : "border-slate-200 bg-linear-to-br from-slate-900 via-slate-800 to-slate-900 text-white"}`}>
         <div className="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
-          <div>
-            <div className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold tracking-[0.18em] uppercase ${isClosedView ? "border border-slate-200 bg-white text-slate-500" : "border border-white/15 bg-white/10 text-slate-100"}`}>
-              {isClosedView ? "Closeout Detail" : "Financial Detail"}
+          <div className="min-w-0 flex-1">
+            <h2 className={`text-3xl font-semibold tracking-tight ${isClosedView ? "text-slate-900" : "text-white"}`}>{state.projectName}</h2>
+            <div className={`mt-4 grid gap-3 sm:grid-cols-2 xl:max-w-[520px] ${isClosedView ? "text-slate-600" : "text-slate-200"}`}>
+              <OverviewRow label="客戶" value={state.clientName} archived={isClosedView} />
+              <OverviewRow label="活動日期" value={state.eventDate} archived={isClosedView} />
             </div>
-            <h2 className={`mt-4 text-3xl font-semibold tracking-tight ${isClosedView ? "text-slate-900" : "text-white"}`}>{state.projectName}</h2>
-            <p className={`mt-2 text-sm ${isClosedView ? "text-slate-500" : "text-slate-300"}`}>{state.projectCode}</p>
-          </div>
-          <div className={`grid gap-3 sm:grid-cols-2 xl:min-w-[420px] ${isClosedView ? "text-slate-600" : "text-slate-200"}`}>
-            <OverviewRow label="客戶" value={state.clientName} archived={isClosedView} />
-            <OverviewRow label="活動日期" value={state.eventDate} archived={isClosedView} />
           </div>
           <div className={`grid gap-3 rounded-3xl border p-4 text-sm sm:min-w-[300px] ${isClosedView ? "border-slate-200 bg-slate-50 text-slate-600" : "border-white/10 bg-white/6 text-slate-200"}`}>
             <div>
