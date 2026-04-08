@@ -7,10 +7,11 @@ export default async function CloseoutDetailPage({ params }: { params: Promise<{
   const { id } = await params;
   const seedProject = getQuoteCostProjectById(id);
   const project = await getQuoteCostProjectByIdWithDbFinancials(id);
+  const resolvedProject = project && project.projectStatus === "已結案" ? project : seedProject;
 
-  if (!project || project.projectStatus !== "已結案") {
+  if (!resolvedProject || resolvedProject.projectStatus !== "已結案") {
     notFound();
   }
 
-  return <QuoteCostDetailClient project={seedProject ?? project} initialProject={project} mode="closed" />;
+  return <QuoteCostDetailClient project={seedProject ?? resolvedProject} initialProject={resolvedProject} mode="closed" />;
 }
