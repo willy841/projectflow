@@ -618,7 +618,7 @@ export function AccountingCenterPage() {
     <AppShell activePath="/accounting-center">
       <div className="space-y-6">
         <header className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200 xl:p-7">
-          <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
+          <div className="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
             <div className="max-w-3xl">
               <div className="flex flex-wrap items-center gap-3">
                 <h2 className="text-3xl font-semibold tracking-tight text-slate-900">帳務中心</h2>
@@ -626,21 +626,38 @@ export function AccountingCenterPage() {
                   前端 workflow 驗收版
                 </span>
               </div>
-              <p className="mt-3 text-sm leading-6 text-slate-500">
-                本輪先依已批准 spec，把頁面骨架收斂成 <strong>營收概況</strong> + <strong>單一卡片式主工作區</strong>；資料仍維持 mock / local state，不碰 DB / API / persistence。
-              </p>
+              <p className="mt-3 text-sm leading-6 text-slate-500">先看經營摘要，再往下進管理工作區。本頁維持 mock / local state，不碰 DB、API、persistence。</p>
             </div>
-            <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-500">
-              月份主體：<span className="font-semibold text-slate-900">{monthOptions.find((item) => item.key === selectedMonth)?.label ?? selectedMonth}</span>
+
+            <div className="rounded-3xl border border-slate-200 bg-slate-50 p-4 xl:min-w-[360px]">
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">月份主體</p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {monthOptions.map((month) => {
+                  const active = selectedMonth === month.key;
+                  return (
+                    <button
+                      key={month.key}
+                      type="button"
+                      onClick={() => setSelectedMonth(month.key)}
+                      className={`rounded-2xl px-4 py-2 text-sm font-medium ring-1 transition ${
+                        active ? "bg-slate-900 text-white ring-slate-900" : "bg-white text-slate-600 ring-slate-200 hover:bg-slate-100"
+                      }`}
+                    >
+                      {month.label}
+                    </button>
+                  );
+                })}
+              </div>
+              <p className="mt-3 text-sm text-slate-500">三個模組都掛在同一個月份上下文下。</p>
             </div>
           </div>
         </header>
 
         <section className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">首屏第一區</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">上半部 / 經營摘要區</p>
             <h3 className="mt-2 text-2xl font-semibold tracking-tight text-slate-900">營收概況</h3>
-            <p className="mt-2 text-sm leading-6 text-slate-500">先看已結案收入 / 成本、營運支出與利潤總計；時間範圍控制列收進同一區塊，不再獨立漂在頁首。</p>
+            <p className="mt-2 text-sm leading-6 text-slate-500">先看收入、成本、營運支出與利潤結果。</p>
           </div>
 
           <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
@@ -657,104 +674,63 @@ export function AccountingCenterPage() {
           </div>
 
           <div className="mt-6 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4">
-            <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
+            <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">時間範圍控制區</p>
-                <p className="mt-1 text-sm text-slate-500">先選統計模式，再決定月份 / 年份 / 起訖區間。</p>
+                <p className="text-sm font-semibold text-slate-900">時間範圍</p>
+                <p className="mt-1 text-xs text-slate-500">控制摘要卡的統計範圍，不另外做獨立頁首工具列。</p>
               </div>
-
-              <div className="flex flex-wrap gap-2">
-                {([
-                  ["month", "月份"],
-                  ["year", "年份"],
-                  ["range", "區間"],
-                ] as Array<[RevenueMode, string]>).map(([mode, label]) => (
-                  <button
-                    key={mode}
-                    type="button"
-                    onClick={() => setRevenueMode(mode)}
-                    className={`rounded-2xl px-4 py-2 text-sm font-medium ring-1 transition ${revenueMode === mode ? "bg-slate-900 text-white ring-slate-900" : "bg-white text-slate-600 ring-slate-200 hover:bg-slate-100"}`}
-                  >
-                    {label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-              {revenueMode === "month" ? (
-                <div className="xl:col-span-4">
-                  <div className="flex flex-wrap gap-2">
-                    {monthOptions.map((month) => {
-                      const active = selectedMonth === month.key;
-                      return (
-                        <button
-                          key={month.key}
-                          type="button"
-                          onClick={() => setSelectedMonth(month.key)}
-                          className={`rounded-2xl px-4 py-2 text-sm font-medium ring-1 transition ${
-                            active ? "bg-slate-900 text-white ring-slate-900" : "bg-white text-slate-600 ring-slate-200 hover:bg-slate-100"
-                          }`}
-                        >
-                          {month.label}
-                        </button>
-                      );
-                    })}
-                  </div>
+              <div className="w-full max-w-[540px] space-y-3">
+                <div className="flex flex-wrap gap-2">
+                  {([
+                    ["month", "月份"],
+                    ["year", "年份"],
+                    ["range", "區間"],
+                  ] as Array<[RevenueMode, string]>).map(([mode, label]) => (
+                    <button
+                      key={mode}
+                      type="button"
+                      onClick={() => setRevenueMode(mode)}
+                      className={`rounded-2xl px-4 py-2 text-sm font-medium ring-1 transition ${revenueMode === mode ? "bg-slate-900 text-white ring-slate-900" : "bg-white text-slate-600 ring-slate-200 hover:bg-slate-100"}`}
+                    >
+                      {label}
+                    </button>
+                  ))}
                 </div>
-              ) : null}
-              {revenueMode === "year" ? <EditablePair label="年份模式" value={yearSelection} onChange={setYearSelection} /> : null}
-              {revenueMode === "range" ? (
-                <>
-                  <EditablePair label="起始月份" value={rangeStart} onChange={setRangeStart} />
-                  <EditablePair label="結束月份" value={rangeEnd} onChange={setRangeEnd} />
-                </>
-              ) : null}
+                <div className="grid gap-3 sm:grid-cols-2">
+                  {revenueMode === "month" ? <ReadOnlyPair label="月份" value={monthOptions.find((item) => item.key === selectedMonth)?.label ?? selectedMonth} /> : null}
+                  {revenueMode === "year" ? <EditablePair label="年份" value={yearSelection} onChange={setYearSelection} /> : null}
+                  {revenueMode === "range" ? (
+                    <>
+                      <EditablePair label="起始月份" value={rangeStart} onChange={setRangeStart} />
+                      <EditablePair label="結束月份" value={rangeEnd} onChange={setRangeEnd} />
+                    </>
+                  ) : null}
+                </div>
+              </div>
             </div>
           </div>
         </section>
 
         <section className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
-          <div className="flex flex-col gap-4 border-b border-slate-200 pb-5 xl:flex-row xl:items-start xl:justify-between">
+          <div className="flex flex-col gap-4 border-b border-slate-200 pb-5 xl:flex-row xl:items-end xl:justify-between">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">主工作區</p>
-              <h3 className="mt-2 text-2xl font-semibold tracking-tight text-slate-900">帳務操作工作台</h3>
-              <p className="mt-2 text-sm leading-6 text-slate-500">第一層 tab 切成 <strong>執行中專案</strong> / <strong>管銷成本</strong>，避免兩條線同時長頁展開。</p>
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">下半部 / 管理工作區</p>
+              <h3 className="mt-2 text-2xl font-semibold tracking-tight text-slate-900">主工作區</h3>
+              <p className="mt-2 text-sm leading-6 text-slate-500">用 tab 切換進行中專案與管銷成本，避免每個區塊同時搶主視覺。</p>
             </div>
             <div className="flex flex-wrap gap-2">
-              {([
-                ["active-projects", "執行中專案"],
-                ["operating-expenses", "管銷成本"],
-              ] as const).map(([key, label]) => (
-                <button
-                  key={key}
-                  type="button"
-                  onClick={() => setWorkspaceTab(key)}
-                  className={`rounded-2xl px-4 py-2 text-sm font-semibold ring-1 transition ${
-                    workspaceTab === key ? "bg-slate-900 text-white ring-slate-900" : "bg-white text-slate-600 ring-slate-200 hover:bg-slate-50"
-                  }`}
-                >
-                  {label}
-                </button>
-              ))}
+              <button type="button" onClick={() => setWorkspaceTab("active-projects")} className={`rounded-2xl px-4 py-2.5 text-sm font-semibold ring-1 transition ${workspaceTab === "active-projects" ? "bg-slate-900 text-white ring-slate-900" : "bg-white text-slate-600 ring-slate-200 hover:bg-slate-50"}`}>執行中專案</button>
+              <button type="button" onClick={() => setWorkspaceTab("operating-expenses")} className={`rounded-2xl px-4 py-2.5 text-sm font-semibold ring-1 transition ${workspaceTab === "operating-expenses" ? "bg-slate-900 text-white ring-slate-900" : "bg-white text-slate-600 ring-slate-200 hover:bg-slate-50"}`}>管銷成本</button>
             </div>
           </div>
 
           {workspaceTab === "active-projects" ? (
-            <div className="mt-6 space-y-6">
-              <div className="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
-                <div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">主區塊 1</p>
-                  <h4 className="mt-2 text-2xl font-semibold tracking-tight text-slate-900">執行中專案</h4>
-                  <p className="mt-2 text-sm leading-6 text-slate-500">承接進行中專案款項追蹤與收款管理；此區維持摘要區 + 款項追蹤表。</p>
-                </div>
-                <div className="grid gap-3 sm:grid-cols-3">
-                  <MetricCard label="總金額" value={formatCurrency(activeProjectSummary.total)} hint="本月份進行中專案總金額" tone="slate" />
-                  <MetricCard label="已收款" value={formatCurrency(activeProjectSummary.collected)} hint="目前已收回金額" tone="emerald" />
-                  <MetricCard label="未收款" value={formatCurrency(activeProjectSummary.outstanding)} hint="尚未收回金額" tone="amber" />
-                </div>
+            <div className="mt-6 space-y-5">
+              <div className="grid gap-3 sm:grid-cols-3">
+                <MetricCard label="總金額" value={formatCurrency(activeProjectSummary.total)} hint="本月份進行中專案總金額" tone="slate" compact />
+                <MetricCard label="已收款" value={formatCurrency(activeProjectSummary.collected)} hint="目前已收回金額" tone="emerald" compact />
+                <MetricCard label="未收款" value={formatCurrency(activeProjectSummary.outstanding)} hint="尚未收回金額" tone="amber" compact />
               </div>
-
               <div className="overflow-x-auto rounded-2xl border border-slate-200">
                 <table className="min-w-full divide-y divide-slate-200 text-left text-sm">
                   <thead className="bg-slate-50 text-slate-500">
@@ -773,12 +749,7 @@ export function AccountingCenterPage() {
                         <td className="px-4 py-3 text-slate-900">{formatCurrency(project.collectedAmount)}</td>
                         <td className="px-4 py-3 font-semibold text-amber-700">{formatCurrency(project.totalAmount - project.collectedAmount)}</td>
                         <td className="px-4 py-3">
-                          <Link
-                            href="/quote-costs"
-                            className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-800 transition hover:border-slate-400 hover:bg-slate-50"
-                          >
-                            查看詳情
-                          </Link>
+                          <Link href="/quote-costs" className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-800 transition hover:border-slate-400 hover:bg-slate-50">查看詳情</Link>
                         </td>
                       </tr>
                     ))}
@@ -788,71 +759,35 @@ export function AccountingCenterPage() {
             </div>
           ) : (
             <div className="mt-6 space-y-6">
-              <div className="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
-                <div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">主區塊 2</p>
-                  <h4 className="mt-2 text-2xl font-semibold tracking-tight text-slate-900">管銷成本</h4>
-                  <p className="mt-2 text-sm leading-6 text-slate-500">正式對齊規則：<strong>管銷成本 = 營運支出</strong>。本區改為第二層 tab：人事 / 庶務 / 其他。</p>
-                </div>
-                <div className="grid gap-3 sm:grid-cols-4">
-                  <MetricCard label="人事成本小計" value={formatCurrency(personnelSummary.total)} hint="正職 + 兼職" tone="rose" />
-                  <MetricCard label="庶務成本小計" value={formatCurrency(officeExpenseSummary)} hint="物流 / 行政 / 倉儲" tone="sky" />
-                  <MetricCard label="其他成本小計" value={formatCurrency(otherExpenseSummary)} hint="其他營運支出" tone="violet" />
-                  <MetricCard label="當月營運支出總計" value={formatCurrency(totalOperatingExpense)} hint="本月份整體營運支出" tone="amber" />
-                </div>
+              <div className="grid gap-3 sm:grid-cols-4">
+                <MetricCard label="人事成本" value={formatCurrency(personnelSummary.total)} hint="正職 + 兼職" tone="rose" compact />
+                <MetricCard label="庶務成本" value={formatCurrency(officeExpenseSummary)} hint="物流 / 行政 / 倉儲" tone="sky" compact />
+                <MetricCard label="其他成本" value={formatCurrency(otherExpenseSummary)} hint="其他營運支出" tone="violet" compact />
+                <MetricCard label="營運支出總計" value={formatCurrency(totalOperatingExpense)} hint="本月份總計" tone="amber" compact />
               </div>
 
-              <div className="flex flex-wrap gap-2">
-                {([
-                  ["personnel", "人事"],
-                  ["office", "庶務"],
-                  ["other", "其他"],
-                ] as const).map(([key, label]) => (
-                  <button
-                    key={key}
-                    type="button"
-                    onClick={() => setExpenseTab(key)}
-                    className={`rounded-2xl px-4 py-2 text-sm font-semibold ring-1 transition ${
-                      expenseTab === key ? "bg-slate-900 text-white ring-slate-900" : "bg-white text-slate-600 ring-slate-200 hover:bg-slate-50"
-                    }`}
-                  >
-                    {label}
-                  </button>
-                ))}
+              <div className="flex flex-wrap gap-2 border-b border-slate-200 pb-4">
+                <button type="button" onClick={() => setExpenseTab("personnel")} className={`rounded-2xl px-4 py-2 text-sm font-semibold ring-1 transition ${expenseTab === "personnel" ? "bg-slate-900 text-white ring-slate-900" : "bg-white text-slate-600 ring-slate-200 hover:bg-slate-50"}`}>人事</button>
+                <button type="button" onClick={() => setExpenseTab("office")} className={`rounded-2xl px-4 py-2 text-sm font-semibold ring-1 transition ${expenseTab === "office" ? "bg-slate-900 text-white ring-slate-900" : "bg-white text-slate-600 ring-slate-200 hover:bg-slate-50"}`}>庶務</button>
+                <button type="button" onClick={() => setExpenseTab("other")} className={`rounded-2xl px-4 py-2 text-sm font-semibold ring-1 transition ${expenseTab === "other" ? "bg-slate-900 text-white ring-slate-900" : "bg-white text-slate-600 ring-slate-200 hover:bg-slate-50"}`}>其他</button>
               </div>
 
               {expenseTab === "personnel" ? (
                 <div className="grid gap-6 xl:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)]">
-                  <Panel eyebrow="人事輸入區" title="員工名單與輸入頁" description="入口頁以員工為主體，切分正職 / 兼職，支援新增、刪除、暫存與送出。">
+                  <Panel eyebrow="人事輸入區" title="員工名單與輸入頁" description="以員工為主體，管理名單並送出到指定薪資月份。">
                     <div className="space-y-4">
                       <div className="grid gap-3 sm:grid-cols-2">
-                        <button type="button" onClick={() => setEmployeeFilter("full-time")} className={`rounded-2xl border p-4 text-left transition ${employeeFilter === "full-time" ? "border-slate-900 bg-slate-900 text-white" : "border-slate-200 bg-slate-50 text-slate-700"}`}>
-                          <p className="text-xs font-semibold uppercase tracking-[0.18em]">正職人數</p>
-                          <p className="mt-2 text-3xl font-semibold">{employeeRoster.filter((item) => item.type === "full-time").length}</p>
-                          <p className="mt-2 text-sm opacity-80">點擊後只顯示正職名單</p>
-                        </button>
-                        <button type="button" onClick={() => setEmployeeFilter("part-time")} className={`rounded-2xl border p-4 text-left transition ${employeeFilter === "part-time" ? "border-slate-900 bg-slate-900 text-white" : "border-slate-200 bg-slate-50 text-slate-700"}`}>
-                          <p className="text-xs font-semibold uppercase tracking-[0.18em]">兼職人數</p>
-                          <p className="mt-2 text-3xl font-semibold">{employeeRoster.filter((item) => item.type === "part-time").length}</p>
-                          <p className="mt-2 text-sm opacity-80">點擊後只顯示兼職名單</p>
-                        </button>
+                        <button type="button" onClick={() => setEmployeeFilter("full-time")} className={`rounded-2xl border p-4 text-left transition ${employeeFilter === "full-time" ? "border-slate-900 bg-slate-900 text-white" : "border-slate-200 bg-slate-50 text-slate-700"}`}><p className="text-xs font-semibold uppercase tracking-[0.18em]">正職人數</p><p className="mt-2 text-3xl font-semibold">{employeeRoster.filter((item) => item.type === "full-time").length}</p><p className="mt-2 text-sm opacity-80">只顯示正職名單</p></button>
+                        <button type="button" onClick={() => setEmployeeFilter("part-time")} className={`rounded-2xl border p-4 text-left transition ${employeeFilter === "part-time" ? "border-slate-900 bg-slate-900 text-white" : "border-slate-200 bg-slate-50 text-slate-700"}`}><p className="text-xs font-semibold uppercase tracking-[0.18em]">兼職人數</p><p className="mt-2 text-3xl font-semibold">{employeeRoster.filter((item) => item.type === "part-time").length}</p><p className="mt-2 text-sm opacity-80">只顯示兼職名單</p></button>
                       </div>
-
                       <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
-                        <div>
-                          <p className="text-sm font-semibold text-slate-900">員工名單</p>
-                          <p className="text-xs text-slate-500">入口頁只負責名單管理與編輯入口，不處理歷史記錄查詢。</p>
-                        </div>
+                        <div><p className="text-sm font-semibold text-slate-900">員工名單</p><p className="text-xs text-slate-500">入口頁只負責名單與編輯入口。</p></div>
                         <button type="button" onClick={() => setShowAddEmployeeModal(true)} className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-800 transition hover:border-slate-400 hover:bg-slate-50">新增員工</button>
                       </div>
-
                       <div className="space-y-3">
                         {filteredRoster.map((employee) => (
                           <div key={employee.id} className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-200 px-4 py-3">
-                            <div>
-                              <p className="font-semibold text-slate-900">{employee.name}</p>
-                              <p className="text-xs text-slate-500">{employee.type === "full-time" ? "正職" : "兼職"}</p>
-                            </div>
+                            <div><p className="font-semibold text-slate-900">{employee.name}</p><p className="text-xs text-slate-500">{employee.type === "full-time" ? "正職" : "兼職"}</p></div>
                             <div className="flex gap-2">
                               <button type="button" onClick={() => setEditingEmployeeId(employee.id)} className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-800 transition hover:bg-slate-50">編輯</button>
                               <button type="button" onClick={() => handleDeleteEmployee(employee.id)} className="inline-flex items-center justify-center rounded-2xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm font-semibold text-rose-700 transition hover:bg-rose-100">刪除</button>
@@ -860,7 +795,6 @@ export function AccountingCenterPage() {
                           </div>
                         ))}
                       </div>
-
                       {editingEmployee && editingFullTimeDraft ? (
                         <EditableBlock title="正職編輯頁" badge="完整人事成本結構">
                           <div className="grid gap-4 xl:grid-cols-2">
@@ -869,45 +803,13 @@ export function AccountingCenterPage() {
                             <EditablePair label="薪資日期" value={editingFullTimeDraft.salaryMonth} onChange={(value) => setFullTimeDrafts((current) => ({ ...current, [editingEmployee.id]: { ...editingFullTimeDraft, salaryMonth: value } }))} />
                             <EditableNumberPair label="本薪" value={editingFullTimeDraft.baseSalary} onChange={(value) => setFullTimeDrafts((current) => ({ ...current, [editingEmployee.id]: { ...editingFullTimeDraft, baseSalary: value } }))} />
                           </div>
-
-                          <DetailGroup title="應支付項目區">
-                            <InlineAmountList title="津貼明細" items={editingFullTimeDraft.allowances} />
-                            <InlineAmountList title="獎金明細" items={editingFullTimeDraft.bonuses} />
-                            <InlineAmountList title="其他加給明細" items={editingFullTimeDraft.otherPayments} />
-                            <SummaryLine label="應支合計（含加班費）" value={formatCurrency(calculateFullTimeGross(editingFullTimeDraft))} />
-                          </DetailGroup>
-
-                          <DetailGroup title="加班計算區">
-                            {editingFullTimeDraft.overtime.map((row) => (
-                              <SummaryLine key={row.label} label={`${row.label}｜${row.hours} 小時 × ${row.multiplier}`} value={formatCurrency(row.amount)} />
-                            ))}
-                            <SummaryLine label="加班費合計" value={formatCurrency(calculateOvertimeTotal(editingFullTimeDraft))} />
-                          </DetailGroup>
-
-                          <DetailGroup title="應扣項目區">
-                            <SummaryLine label="勞保費" value={formatCurrency(editingFullTimeDraft.deductions.laborInsurance)} />
-                            <SummaryLine label="健保費" value={formatCurrency(editingFullTimeDraft.deductions.healthInsurance)} />
-                            <SummaryLine label="眷屬負擔" value={formatCurrency(editingFullTimeDraft.deductions.dependents)} />
-                            <SummaryLine label="請假扣款" value={formatCurrency(editingFullTimeDraft.deductions.leaveDeduction)} />
-                            <InlineAmountList title="其他扣項明細" items={editingFullTimeDraft.deductions.other} />
-                            <SummaryLine label="應扣合計" value={formatCurrency(calculateFullTimeDeduction(editingFullTimeDraft))} />
-                            <SummaryLine label="實領金額" value={formatCurrency(calculateFullTimeNetPay(editingFullTimeDraft))} emphasize />
-                          </DetailGroup>
-
-                          <DetailGroup title="單位負擔區">
-                            <SummaryLine label="單位負擔勞保" value={formatCurrency(editingFullTimeDraft.employerContribution.laborInsurance)} />
-                            <SummaryLine label="單位負擔健保" value={formatCurrency(editingFullTimeDraft.employerContribution.healthInsurance)} />
-                            <SummaryLine label="職保" value={formatCurrency(editingFullTimeDraft.employerContribution.occupationalInsurance)} />
-                            <SummaryLine label="勞退" value={formatCurrency(editingFullTimeDraft.employerContribution.pension)} />
-                            <InlineAmountList title="其他單位負擔明細" items={editingFullTimeDraft.employerContribution.other} />
-                            <SummaryLine label="單位負擔合計" value={formatCurrency(calculateFullTimeEmployerContribution(editingFullTimeDraft))} />
-                            <SummaryLine label="人事成本總支出" value={formatCurrency(calculateFullTimeCost(editingFullTimeDraft))} emphasize />
-                          </DetailGroup>
-
+                          <DetailGroup title="應支付項目區"><InlineAmountList title="津貼明細" items={editingFullTimeDraft.allowances} /><InlineAmountList title="獎金明細" items={editingFullTimeDraft.bonuses} /><InlineAmountList title="其他加給明細" items={editingFullTimeDraft.otherPayments} /><SummaryLine label="應支合計（含加班費）" value={formatCurrency(calculateFullTimeGross(editingFullTimeDraft))} /></DetailGroup>
+                          <DetailGroup title="加班計算區">{editingFullTimeDraft.overtime.map((row) => <SummaryLine key={row.label} label={`${row.label}｜${row.hours} 小時 × ${row.multiplier}`} value={formatCurrency(row.amount)} />)}<SummaryLine label="加班費合計" value={formatCurrency(calculateOvertimeTotal(editingFullTimeDraft))} /></DetailGroup>
+                          <DetailGroup title="應扣項目區"><SummaryLine label="勞保費" value={formatCurrency(editingFullTimeDraft.deductions.laborInsurance)} /><SummaryLine label="健保費" value={formatCurrency(editingFullTimeDraft.deductions.healthInsurance)} /><SummaryLine label="眷屬負擔" value={formatCurrency(editingFullTimeDraft.deductions.dependents)} /><SummaryLine label="請假扣款" value={formatCurrency(editingFullTimeDraft.deductions.leaveDeduction)} /><InlineAmountList title="其他扣項明細" items={editingFullTimeDraft.deductions.other} /><SummaryLine label="應扣合計" value={formatCurrency(calculateFullTimeDeduction(editingFullTimeDraft))} /><SummaryLine label="實領金額" value={formatCurrency(calculateFullTimeNetPay(editingFullTimeDraft))} emphasize /></DetailGroup>
+                          <DetailGroup title="單位負擔區"><SummaryLine label="單位負擔勞保" value={formatCurrency(editingFullTimeDraft.employerContribution.laborInsurance)} /><SummaryLine label="單位負擔健保" value={formatCurrency(editingFullTimeDraft.employerContribution.healthInsurance)} /><SummaryLine label="職保" value={formatCurrency(editingFullTimeDraft.employerContribution.occupationalInsurance)} /><SummaryLine label="勞退" value={formatCurrency(editingFullTimeDraft.employerContribution.pension)} /><InlineAmountList title="其他單位負擔明細" items={editingFullTimeDraft.employerContribution.other} /><SummaryLine label="單位負擔合計" value={formatCurrency(calculateFullTimeEmployerContribution(editingFullTimeDraft))} /><SummaryLine label="人事成本總支出" value={formatCurrency(calculateFullTimeCost(editingFullTimeDraft))} emphasize /></DetailGroup>
                           <FooterActions onSubmit={handlePersonnelSubmit} />
                         </EditableBlock>
                       ) : null}
-
                       {editingEmployee && editingPartTimeDraft ? (
                         <EditableBlock title="兼職編輯頁" badge="極簡工時計算結構">
                           <div className="grid gap-4 xl:grid-cols-2">
@@ -923,8 +825,7 @@ export function AccountingCenterPage() {
                       ) : null}
                     </div>
                   </Panel>
-
-                  <Panel eyebrow="人事記錄區" title="月份主體查看區" description="預設顯示目前月份，正職與兼職分開列表，詳情以 drawer 查看。">
+                  <Panel eyebrow="人事記錄區" title="月份主體查看區" description="正職與兼職分開列表，詳情以 drawer 查看。">
                     <div className="grid gap-3 sm:grid-cols-5">
                       <MetricCard label="正職人數" value={String(personnelSummary.fullTimeCount)} hint="本月正式紀錄" tone="slate" compact />
                       <MetricCard label="兼職人數" value={String(personnelSummary.partTimeCount)} hint="本月正式紀錄" tone="slate" compact />
@@ -932,29 +833,9 @@ export function AccountingCenterPage() {
                       <MetricCard label="兼職成本小計" value={formatCurrency(personnelSummary.partTimeCost)} hint="本月兼職成本" tone="rose" compact />
                       <MetricCard label="人事總成本" value={formatCurrency(personnelSummary.total)} hint="本月人事總成本" tone="amber" compact />
                     </div>
-
                     <div className="mt-5 space-y-4">
-                      <ListBlock
-                        title="正職記錄"
-                        headers={["姓名", "應支合計", "應扣合計", "單位負擔合計", "人事成本總支出", "查看詳情"]}
-                        rows={fullTimeRecords.map((record) => [
-                          record.name,
-                          formatCurrency(calculateFullTimeGross(record)),
-                          formatCurrency(calculateFullTimeDeduction(record)),
-                          formatCurrency(calculateFullTimeEmployerContribution(record)),
-                          formatCurrency(calculateFullTimeCost(record)),
-                        ])}
-                        actionLabel="查看詳情"
-                        onAction={(index) => setRecordDrawer({ type: "full-time", id: fullTimeRecords[index].id })}
-                      />
-
-                      <ListBlock
-                        title="兼職記錄"
-                        headers={["姓名", "本月工作時數", "每小時薪資金額", "本月應支金額", "查看詳情"]}
-                        rows={partTimeRecords.map((record) => [record.name, `${record.hours} 小時`, formatCurrency(record.hourlyRate), formatCurrency(calculatePartTimePay(record))])}
-                        actionLabel="查看詳情"
-                        onAction={(index) => setRecordDrawer({ type: "part-time", id: partTimeRecords[index].id })}
-                      />
+                      <ListBlock title="正職記錄" headers={["姓名", "應支合計", "應扣合計", "單位負擔合計", "人事成本總支出", "查看詳情"]} rows={fullTimeRecords.map((record) => [record.name, formatCurrency(calculateFullTimeGross(record)), formatCurrency(calculateFullTimeDeduction(record)), formatCurrency(calculateFullTimeEmployerContribution(record)), formatCurrency(calculateFullTimeCost(record))])} actionLabel="查看詳情" onAction={(index) => setRecordDrawer({ type: "full-time", id: fullTimeRecords[index].id })} />
+                      <ListBlock title="兼職記錄" headers={["姓名", "本月工作時數", "每小時薪資金額", "本月應支金額", "查看詳情"]} rows={partTimeRecords.map((record) => [record.name, `${record.hours} 小時`, formatCurrency(record.hourlyRate), formatCurrency(calculatePartTimePay(record))])} actionLabel="查看詳情" onAction={(index) => setRecordDrawer({ type: "part-time", id: partTimeRecords[index].id })} />
                     </div>
                   </Panel>
                 </div>
@@ -963,73 +844,22 @@ export function AccountingCenterPage() {
               {expenseTab === "office" ? (
                 <Panel eyebrow="庶務輸入 / 記錄" title="庶務區" description="以單筆支出為主體，分類可管理；新增 / 編輯採 modal，詳情採 drawer。">
                   <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
-                    <div>
-                      <p className="text-sm font-semibold text-slate-900">庶務輸入區</p>
-                      <p className="text-xs text-slate-500">入口頁採列表 + 主操作；分類管理入口放在這一層。</p>
-                    </div>
-                    <div className="flex gap-2">
-                      <button type="button" onClick={() => setShowManageOfficeCategories(true)} className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-800 transition hover:bg-slate-50">管理分類</button>
-                      <button type="button" onClick={() => setOfficeExpenseForm({ mode: "create", item: "", category: officeCategories[0] ?? "", amount: "", note: "" })} className="inline-flex items-center justify-center rounded-2xl border border-slate-900 bg-slate-900 px-3 py-2 text-sm font-semibold text-white transition hover:bg-slate-800">新增支出</button>
-                    </div>
+                    <div><p className="text-sm font-semibold text-slate-900">庶務輸入區</p><p className="text-xs text-slate-500">入口頁採列表 + 主操作；分類管理入口放在這一層。</p></div>
+                    <div className="flex gap-2"><button type="button" onClick={() => setShowManageOfficeCategories(true)} className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-800 transition hover:bg-slate-50">管理分類</button><button type="button" onClick={() => setOfficeExpenseForm({ mode: "create", item: "", category: officeCategories[0] ?? "", amount: "", note: "" })} className="inline-flex items-center justify-center rounded-2xl border border-slate-900 bg-slate-900 px-3 py-2 text-sm font-semibold text-white transition hover:bg-slate-800">新增支出</button></div>
                   </div>
-
-                  <ListBlock
-                    title="庶務輸入列表"
-                    headers={["項目名稱", "分類", "金額", "編輯", "刪除"]}
-                    rows={currentOfficeExpenses.map((expense) => [expense.item, expense.category, formatCurrency(expense.amount)])}
-                    actionLabel="編輯"
-                    secondaryActionLabel="刪除"
-                    onAction={(index) => {
-                      const target = currentOfficeExpenses[index];
-                      setOfficeExpenseForm({ mode: "edit", id: target.id, item: target.item, category: target.category, amount: String(target.amount), note: target.note });
-                    }}
-                    onSecondaryAction={(index) => handleDeleteOfficeExpense(currentOfficeExpenses[index].id)}
-                  />
-
-                  <div className="mt-5">
-                    <ListBlock
-                      title="庶務記錄區"
-                      headers={["項目名稱", "分類", "金額", "備註", "查看詳情"]}
-                      rows={currentOfficeExpenses.map((expense) => [expense.item, expense.category, formatCurrency(expense.amount), expense.note || "-"])}
-                      actionLabel="查看詳情"
-                      onAction={(index) => setRecordDrawer({ type: "office", id: currentOfficeExpenses[index].id })}
-                    />
-                  </div>
+                  <ListBlock title="庶務輸入列表" headers={["項目名稱", "分類", "金額", "編輯", "刪除"]} rows={currentOfficeExpenses.map((expense) => [expense.item, expense.category, formatCurrency(expense.amount)])} actionLabel="編輯" secondaryActionLabel="刪除" onAction={(index) => { const target = currentOfficeExpenses[index]; setOfficeExpenseForm({ mode: "edit", id: target.id, item: target.item, category: target.category, amount: String(target.amount), note: target.note }); }} onSecondaryAction={(index) => handleDeleteOfficeExpense(currentOfficeExpenses[index].id)} />
+                  <div className="mt-5"><ListBlock title="庶務記錄區" headers={["項目名稱", "分類", "金額", "備註", "查看詳情"]} rows={currentOfficeExpenses.map((expense) => [expense.item, expense.category, formatCurrency(expense.amount), expense.note || "-"])} actionLabel="查看詳情" onAction={(index) => setRecordDrawer({ type: "office", id: currentOfficeExpenses[index].id })} /></div>
                 </Panel>
               ) : null}
 
               {expenseTab === "other" ? (
                 <Panel eyebrow="其他輸入 / 記錄" title="其他區" description="承接無法歸入人事或庶務、但仍屬營運支出的其他單筆支出。">
                   <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
-                    <div>
-                      <p className="text-sm font-semibold text-slate-900">其他輸入區</p>
-                      <p className="text-xs text-slate-500">入口結構採列表 + 新增按鈕，新增 / 編輯都走 modal。</p>
-                    </div>
+                    <div><p className="text-sm font-semibold text-slate-900">其他輸入區</p><p className="text-xs text-slate-500">入口結構採列表 + 新增按鈕，新增 / 編輯都走 modal。</p></div>
                     <button type="button" onClick={() => setOtherExpenseForm({ mode: "create", item: "", amount: "", note: "" })} className="inline-flex items-center justify-center rounded-2xl border border-slate-900 bg-slate-900 px-3 py-2 text-sm font-semibold text-white transition hover:bg-slate-800">新增支出</button>
                   </div>
-
-                  <ListBlock
-                    title="其他輸入列表"
-                    headers={["項目名稱", "金額", "備註", "編輯", "刪除"]}
-                    rows={currentOtherExpenses.map((expense) => [expense.item, formatCurrency(expense.amount), expense.note || "-"])}
-                    actionLabel="編輯"
-                    secondaryActionLabel="刪除"
-                    onAction={(index) => {
-                      const target = currentOtherExpenses[index];
-                      setOtherExpenseForm({ mode: "edit", id: target.id, item: target.item, amount: String(target.amount), note: target.note });
-                    }}
-                    onSecondaryAction={(index) => handleDeleteOtherExpense(currentOtherExpenses[index].id)}
-                  />
-
-                  <div className="mt-5">
-                    <ListBlock
-                      title="其他記錄區"
-                      headers={["項目名稱", "金額", "備註", "查看詳情"]}
-                      rows={currentOtherExpenses.map((expense) => [expense.item, formatCurrency(expense.amount), expense.note || "-"])}
-                      actionLabel="查看詳情"
-                      onAction={(index) => setRecordDrawer({ type: "other", id: currentOtherExpenses[index].id })}
-                    />
-                  </div>
+                  <ListBlock title="其他輸入列表" headers={["項目名稱", "金額", "備註", "編輯", "刪除"]} rows={currentOtherExpenses.map((expense) => [expense.item, formatCurrency(expense.amount), expense.note || "-"])} actionLabel="編輯" secondaryActionLabel="刪除" onAction={(index) => { const target = currentOtherExpenses[index]; setOtherExpenseForm({ mode: "edit", id: target.id, item: target.item, amount: String(target.amount), note: target.note }); }} onSecondaryAction={(index) => handleDeleteOtherExpense(currentOtherExpenses[index].id)} />
+                  <div className="mt-5"><ListBlock title="其他記錄區" headers={["項目名稱", "金額", "備註", "查看詳情"]} rows={currentOtherExpenses.map((expense) => [expense.item, formatCurrency(expense.amount), expense.note || "-"])} actionLabel="查看詳情" onAction={(index) => setRecordDrawer({ type: "other", id: currentOtherExpenses[index].id })} /></div>
                 </Panel>
               ) : null}
             </div>
