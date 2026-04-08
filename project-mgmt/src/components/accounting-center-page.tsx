@@ -337,6 +337,7 @@ export function AccountingCenterPage() {
   const [recordDrawer, setRecordDrawer] = useState<{ type: "full-time" | "part-time" | "office" | "other"; id: string } | null>(null);
   const [workspaceTab, setWorkspaceTab] = useState<"active-projects" | "operating-expenses">("active-projects");
   const [expenseTab, setExpenseTab] = useState<"personnel" | "office" | "other" | "editor">("personnel");
+  const [expenseEditorTab, setExpenseEditorTab] = useState<"personnel" | "office" | "other">("personnel");
   const [revenueMode, setRevenueMode] = useState<RevenueMode>("month");
   const [rangeStart, setRangeStart] = useState("2026-03");
   const [rangeEnd, setRangeEnd] = useState("2026-04");
@@ -824,6 +825,13 @@ export function AccountingCenterPage() {
 
               {expenseTab === "editor" ? (
                 <div className="space-y-6">
+                  <div className="flex flex-wrap gap-2 border-b border-slate-200 pb-4">
+                    <button type="button" onClick={() => setExpenseEditorTab("personnel")} className={`rounded-2xl px-4 py-2 text-sm font-semibold ring-1 transition ${expenseEditorTab === "personnel" ? "bg-slate-900 text-white ring-slate-900" : "bg-white text-slate-600 ring-slate-200 hover:bg-slate-50"}`}>人事編輯</button>
+                    <button type="button" onClick={() => setExpenseEditorTab("office")} className={`rounded-2xl px-4 py-2 text-sm font-semibold ring-1 transition ${expenseEditorTab === "office" ? "bg-slate-900 text-white ring-slate-900" : "bg-white text-slate-600 ring-slate-200 hover:bg-slate-50"}`}>庶務編輯</button>
+                    <button type="button" onClick={() => setExpenseEditorTab("other")} className={`rounded-2xl px-4 py-2 text-sm font-semibold ring-1 transition ${expenseEditorTab === "other" ? "bg-slate-900 text-white ring-slate-900" : "bg-white text-slate-600 ring-slate-200 hover:bg-slate-50"}`}>其他編輯</button>
+                  </div>
+
+                  {expenseEditorTab === "personnel" ? (
                   <Panel eyebrow="人事輸入區" title="員工名單與輸入頁" description="以員工為主體，管理名單並送出到指定薪資月份。">
                     <div className="space-y-4">
                       <div className="grid gap-3 sm:grid-cols-2">
@@ -875,7 +883,9 @@ export function AccountingCenterPage() {
                       ) : null}
                     </div>
                   </Panel>
+                  ) : null}
 
+                  {expenseEditorTab === "office" ? (
                   <Panel eyebrow="庶務輸入區" title="庶務編輯" description="入口頁採列表 + 主操作；分類管理與新增支出都集中在這裡。">
                     <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
                       <div><p className="text-sm font-semibold text-slate-900">庶務輸入區</p><p className="text-xs text-slate-500">以單筆支出為主體，分類可管理。</p></div>
@@ -883,7 +893,9 @@ export function AccountingCenterPage() {
                     </div>
                     <div className="mt-5"><ListBlock title="庶務輸入列表" headers={["項目名稱", "分類", "金額", "編輯", "刪除"]} rows={currentOfficeExpenses.map((expense) => [expense.item, expense.category, formatCurrency(expense.amount)])} actionLabel="編輯" secondaryActionLabel="刪除" onAction={(index) => { const target = currentOfficeExpenses[index]; setOfficeExpenseForm({ mode: "edit", id: target.id, item: target.item, category: target.category, amount: String(target.amount), note: target.note }); }} onSecondaryAction={(index) => handleDeleteOfficeExpense(currentOfficeExpenses[index].id)} /></div>
                   </Panel>
+                  ) : null}
 
+                  {expenseEditorTab === "other" ? (
                   <Panel eyebrow="其他輸入區" title="其他編輯" description="承接其他營運支出的新增與編輯。">
                     <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
                       <div><p className="text-sm font-semibold text-slate-900">其他輸入區</p><p className="text-xs text-slate-500">入口結構採列表 + 新增按鈕，新增 / 編輯都走 modal。</p></div>
@@ -891,6 +903,7 @@ export function AccountingCenterPage() {
                     </div>
                     <div className="mt-5"><ListBlock title="其他輸入列表" headers={["項目名稱", "金額", "備註", "編輯", "刪除"]} rows={currentOtherExpenses.map((expense) => [expense.item, formatCurrency(expense.amount), expense.note || "-"])} actionLabel="編輯" secondaryActionLabel="刪除" onAction={(index) => { const target = currentOtherExpenses[index]; setOtherExpenseForm({ mode: "edit", id: target.id, item: target.item, amount: String(target.amount), note: target.note }); }} onSecondaryAction={(index) => handleDeleteOtherExpense(currentOtherExpenses[index].id)} /></div>
                   </Panel>
+                  ) : null}
                 </div>
               ) : null}
             </div>
