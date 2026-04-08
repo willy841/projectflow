@@ -843,12 +843,11 @@ export function AccountingCenterPage() {
                       </div>
                       <div className="space-y-3">
                         {filteredRoster.map((employee) => (
-                          <div key={employee.id} className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-200 px-4 py-3">
-                            <div><p className="font-semibold text-slate-900">{employee.name}</p><p className="text-xs text-slate-500">{employee.type === "full-time" ? "正職" : "兼職"}</p></div>
-                            <div className="flex gap-2">
-                              <button type="button" onClick={() => { if (editingEmployeeId === employee.id && personnelViewMode === "preview") { setEditingEmployeeId(null); } else { setEditingEmployeeId(employee.id); setPersonnelViewMode("preview"); } }} className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-800 transition hover:bg-slate-50">預覽</button>
+                          <div key={employee.id} onClick={() => { if (editingEmployeeId === employee.id && personnelViewMode === "preview") { setEditingEmployeeId(null); } else { setEditingEmployeeId(employee.id); setPersonnelViewMode("preview"); } }} className="flex cursor-pointer flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-200 px-4 py-2.5 transition hover:border-slate-300 hover:bg-slate-50">
+                            <div className="flex items-center gap-3"><p className="font-semibold text-slate-900">{employee.name}</p><span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ring-1 ${employee.type === "full-time" ? "bg-sky-50 text-sky-700 ring-sky-200" : "bg-violet-50 text-violet-700 ring-violet-200"}`}>{employee.type === "full-time" ? "正職" : "兼職"}</span></div>
+                            <div className="flex gap-2" onClick={(event) => event.stopPropagation()}>
                               <button type="button" onClick={() => { if (editingEmployeeId === employee.id && personnelViewMode === "edit") { setEditingEmployeeId(null); } else { setEditingEmployeeId(employee.id); setPersonnelViewMode("edit"); } }} className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-800 transition hover:bg-slate-50">編輯</button>
-                              <button type="button" onClick={() => handleDeleteEmployee(employee.id)} className="inline-flex items-center justify-center rounded-2xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm font-semibold text-rose-700 transition hover:bg-rose-100">刪除</button>
+                              <button type="button" onClick={() => handleDeleteEmployee(employee.id)} className="inline-flex items-center justify-center px-2 py-2 text-sm font-semibold text-rose-600 transition hover:text-rose-700">刪除</button>
                             </div>
                           </div>
                         ))}
