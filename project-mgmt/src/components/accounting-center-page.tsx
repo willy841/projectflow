@@ -333,7 +333,8 @@ export function AccountingCenterPage() {
   const [employeeFilter, setEmployeeFilter] = useState<FormEmployeeType>("full-time");
   const [showAddEmployeeModal, setShowAddEmployeeModal] = useState(false);
   const [showManageOfficeCategories, setShowManageOfficeCategories] = useState(false);
-  const [editingEmployeeId, setEditingEmployeeId] = useState<string | null>("ft-amy");
+  const [editingEmployeeId, setEditingEmployeeId] = useState<string | null>(null);
+  const [personnelViewMode, setPersonnelViewMode] = useState<"preview" | "edit">("preview");
   const [recordDrawer, setRecordDrawer] = useState<{ type: "full-time" | "part-time" | "office" | "other"; id: string } | null>(null);
   const [workspaceTab, setWorkspaceTab] = useState<"active-projects" | "operating-expenses">("active-projects");
   const [expenseTab, setExpenseTab] = useState<"personnel" | "office" | "other" | "editor">("personnel");
@@ -508,7 +509,8 @@ export function AccountingCenterPage() {
         },
       }));
       setWorkspaceMonth(targetMonth);
-      window.alert(`已送出 ${editingEmployee.name} 的人事資料到 ${targetMonth}`);
+      window.alert(`已送出  的人事資料到 `);
+      setEditingEmployeeId(null);
       return;
     }
 
@@ -530,7 +532,8 @@ export function AccountingCenterPage() {
         },
       }));
       setWorkspaceMonth(targetMonth);
-      window.alert(`已送出 ${editingEmployee.name} 的兼職資料到 ${targetMonth}`);
+      window.alert(`已送出  的兼職資料到 `);
+      setEditingEmployeeId(null);
     }
   }
 
@@ -847,39 +850,54 @@ export function AccountingCenterPage() {
                           <div key={employee.id} className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-200 px-4 py-3">
                             <div><p className="font-semibold text-slate-900">{employee.name}</p><p className="text-xs text-slate-500">{employee.type === "full-time" ? "正職" : "兼職"}</p></div>
                             <div className="flex gap-2">
-                              <button type="button" onClick={() => setEditingEmployeeId(employee.id)} className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-800 transition hover:bg-slate-50">預覽</button>
-                              <button type="button" onClick={() => setEditingEmployeeId(employee.id)} className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-800 transition hover:bg-slate-50">編輯</button>
+                              <button type="button" onClick={() => { setEditingEmployeeId(employee.id); setPersonnelViewMode("preview"); }} className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-800 transition hover:bg-slate-50">預覽</button>
+                              <button type="button" onClick={() => { setEditingEmployeeId(employee.id); setPersonnelViewMode("edit"); }} className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-800 transition hover:bg-slate-50">編輯</button>
                               <button type="button" onClick={() => handleDeleteEmployee(employee.id)} className="inline-flex items-center justify-center rounded-2xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm font-semibold text-rose-700 transition hover:bg-rose-100">刪除</button>
                             </div>
                           </div>
                         ))}
                       </div>
                       {editingEmployee && editingFullTimeDraft ? (
-                        <EditableBlock title="正職編輯頁" badge="完整人事成本結構">
+                        <EditableBlock title={personnelViewMode === "edit" ? "正職編輯頁" : "正職預覽頁"} badge={personnelViewMode === "edit" ? "完整人事成本結構" : "預覽模式"}>
                           <div className="grid gap-4 xl:grid-cols-2">
                             <ReadOnlyPair label="姓名" value={editingEmployee.name} />
                             <ReadOnlyPair label="類型" value="正職" />
-                            <EditablePair label="薪資日期" value={editingFullTimeDraft.salaryMonth} onChange={(value) => setFullTimeDrafts((current) => ({ ...current, [editingEmployee.id]: { ...editingFullTimeDraft, salaryMonth: value } }))} />
-                            <EditableNumberPair label="本薪" value={editingFullTimeDraft.baseSalary} onChange={(value) => setFullTimeDrafts((current) => ({ ...current, [editingEmployee.id]: { ...editingFullTimeDraft, baseSalary: value } }))} />
+                            <EditablePair label="送出年月" value={editingFullTimeDraft.salaryMonth} onChange={(value) => setFullTimeDrafts((current) => ({ ...current, [editingEmployee.id]: { ...editingFullTimeDraft, salaryMonth: value } }))} />
+                            {personnelViewMode === "edit" ? <EditableNumberPair label="本薪" value={editingFullTimeDraft.baseSalary} onChange={(value) => setFullTimeDrafts((current) => ({ ...current, [editingEmployee.id]: { ...editingFullTimeDraft, baseSalary: value } }))} /> : <ReadOnlyPair label="本薪" value={formatCurrency(editingFullTimeDraft.baseSalary)} />}
                           </div>
-                          <DetailGroup title="應支付項目區"><InlineAmountList title="津貼明細" items={editingFullTimeDraft.allowances} /><InlineAmountList title="獎金明細" items={editingFullTimeDraft.bonuses} /><InlineAmountList title="其他加給明細" items={editingFullTimeDraft.otherPayments} /><SummaryLine label="應支合計（含加班費）" value={formatCurrency(calculateFullTimeGross(editingFullTimeDraft))} /></DetailGroup>
+                          <DetailGroup title="應支付項目區">
+                            {personnelViewMode === "edit" ? (
+                              <div className="grid gap-4 xl:grid-cols-3">
+                                <EditableNumberPair label="津貼" value={editingFullTimeDraft.allowances[0]?.amount ?? 0} onChange={(value) => setFullTimeDrafts((current) => ({ ...current, [editingEmployee.id]: { ...editingFullTimeDraft, allowances: [{ label: editingFullTimeDraft.allowances[0]?.label ?? "交通津貼", amount: value }] } }))} />
+                                <EditableNumberPair label="獎金" value={editingFullTimeDraft.bonuses[0]?.amount ?? 0} onChange={(value) => setFullTimeDrafts((current) => ({ ...current, [editingEmployee.id]: { ...editingFullTimeDraft, bonuses: [{ label: editingFullTimeDraft.bonuses[0]?.label ?? "獎金", amount: value }] } }))} />
+                                <EditableNumberPair label="其他加給" value={editingFullTimeDraft.otherPayments[0]?.amount ?? 0} onChange={(value) => setFullTimeDrafts((current) => ({ ...current, [editingEmployee.id]: { ...editingFullTimeDraft, otherPayments: [{ label: editingFullTimeDraft.otherPayments[0]?.label ?? "其他加給", amount: value }] } }))} />
+                              </div>
+                            ) : (
+                              <>
+                                <InlineAmountList title="津貼明細" items={editingFullTimeDraft.allowances} />
+                                <InlineAmountList title="獎金明細" items={editingFullTimeDraft.bonuses} />
+                                <InlineAmountList title="其他加給明細" items={editingFullTimeDraft.otherPayments} />
+                              </>
+                            )}
+                            <SummaryLine label="應支合計（含加班費）" value={formatCurrency(calculateFullTimeGross(editingFullTimeDraft))} />
+                          </DetailGroup>
                           <DetailGroup title="加班計算區">{editingFullTimeDraft.overtime.map((row) => <SummaryLine key={row.label} label={`${row.label}｜${row.hours} 小時 × ${row.multiplier}`} value={formatCurrency(row.amount)} />)}<SummaryLine label="加班費合計" value={formatCurrency(calculateOvertimeTotal(editingFullTimeDraft))} /></DetailGroup>
                           <DetailGroup title="應扣項目區"><SummaryLine label="勞保費" value={formatCurrency(editingFullTimeDraft.deductions.laborInsurance)} /><SummaryLine label="健保費" value={formatCurrency(editingFullTimeDraft.deductions.healthInsurance)} /><SummaryLine label="眷屬負擔" value={formatCurrency(editingFullTimeDraft.deductions.dependents)} /><SummaryLine label="請假扣款" value={formatCurrency(editingFullTimeDraft.deductions.leaveDeduction)} /><InlineAmountList title="其他扣項明細" items={editingFullTimeDraft.deductions.other} /><SummaryLine label="應扣合計" value={formatCurrency(calculateFullTimeDeduction(editingFullTimeDraft))} /><SummaryLine label="實領金額" value={formatCurrency(calculateFullTimeNetPay(editingFullTimeDraft))} emphasize /></DetailGroup>
                           <DetailGroup title="單位負擔區"><SummaryLine label="單位負擔勞保" value={formatCurrency(editingFullTimeDraft.employerContribution.laborInsurance)} /><SummaryLine label="單位負擔健保" value={formatCurrency(editingFullTimeDraft.employerContribution.healthInsurance)} /><SummaryLine label="職保" value={formatCurrency(editingFullTimeDraft.employerContribution.occupationalInsurance)} /><SummaryLine label="勞退" value={formatCurrency(editingFullTimeDraft.employerContribution.pension)} /><InlineAmountList title="其他單位負擔明細" items={editingFullTimeDraft.employerContribution.other} /><SummaryLine label="單位負擔合計" value={formatCurrency(calculateFullTimeEmployerContribution(editingFullTimeDraft))} /><SummaryLine label="人事成本總支出" value={formatCurrency(calculateFullTimeCost(editingFullTimeDraft))} emphasize /></DetailGroup>
-                          <FooterActions onSubmit={handlePersonnelSubmit} />
+                          {personnelViewMode === "edit" ? <FooterActions onSubmit={handlePersonnelSubmit} /> : null}
                         </EditableBlock>
                       ) : null}
                       {editingEmployee && editingPartTimeDraft ? (
-                        <EditableBlock title="兼職編輯頁" badge="極簡工時計算結構">
+                        <EditableBlock title={personnelViewMode === "edit" ? "兼職編輯頁" : "兼職預覽頁"} badge={personnelViewMode === "edit" ? "極簡工時計算結構" : "預覽模式"}>
                           <div className="grid gap-4 xl:grid-cols-2">
                             <ReadOnlyPair label="姓名" value={editingEmployee.name} />
                             <ReadOnlyPair label="類型" value="兼職" />
-                            <EditablePair label="薪資日期" value={editingPartTimeDraft.salaryMonth} onChange={(value) => setPartTimeDrafts((current) => ({ ...current, [editingEmployee.id]: { ...editingPartTimeDraft, salaryMonth: value } }))} />
-                            <EditableNumberPair label="本月工作時數" value={editingPartTimeDraft.hours} onChange={(value) => setPartTimeDrafts((current) => ({ ...current, [editingEmployee.id]: { ...editingPartTimeDraft, hours: value } }))} />
-                            <EditableNumberPair label="每小時薪資金額" value={editingPartTimeDraft.hourlyRate} onChange={(value) => setPartTimeDrafts((current) => ({ ...current, [editingEmployee.id]: { ...editingPartTimeDraft, hourlyRate: value } }))} />
+                            <EditablePair label="送出年月" value={editingPartTimeDraft.salaryMonth} onChange={(value) => setPartTimeDrafts((current) => ({ ...current, [editingEmployee.id]: { ...editingPartTimeDraft, salaryMonth: value } }))} />
+                            {personnelViewMode === "edit" ? <EditableNumberPair label="本月工作時數" value={editingPartTimeDraft.hours} onChange={(value) => setPartTimeDrafts((current) => ({ ...current, [editingEmployee.id]: { ...editingPartTimeDraft, hours: value } }))} /> : <ReadOnlyPair label="本月工作時數" value={`${editingPartTimeDraft.hours} 小時`} />}
+                            {personnelViewMode === "edit" ? <EditableNumberPair label="每小時薪資金額" value={editingPartTimeDraft.hourlyRate} onChange={(value) => setPartTimeDrafts((current) => ({ ...current, [editingEmployee.id]: { ...editingPartTimeDraft, hourlyRate: value } }))} /> : <ReadOnlyPair label="每小時薪資金額" value={formatCurrency(editingPartTimeDraft.hourlyRate)} />}
                             <ReadOnlyPair label="本月應支金額" value={formatCurrency(calculatePartTimePay(editingPartTimeDraft))} />
                           </div>
-                          <FooterActions onSubmit={handlePersonnelSubmit} />
+                          {personnelViewMode === "edit" ? <FooterActions onSubmit={handlePersonnelSubmit} /> : null}
                         </EditableBlock>
                       ) : null}
                     </div>
