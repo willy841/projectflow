@@ -157,6 +157,21 @@ export function VendorDetailShell({ vendorId }: Props) {
       );
     }
 
+    if (typeof window !== "undefined") {
+      const currentPath = window.location.pathname;
+      const encodedVendorId = encodeURIComponent(vendorId);
+      const decodedVendorId = decodeURIComponent(vendorId);
+
+      if (currentPath.endsWith(encodedVendorId) && encodedVendorId !== decodedVendorId) {
+        router.replace(`/vendors/${decodedVendorId}`);
+        return (
+          <div className="rounded-3xl border border-dashed border-slate-300 bg-white p-8 text-sm text-slate-500">
+            正在把新建立廠商導向正確 detail 路徑…
+          </div>
+        );
+      }
+    }
+
     return (
       <div className="rounded-3xl border border-dashed border-slate-300 bg-white p-8 text-sm text-slate-500">
         找不到此廠商。前端資料同步已完成，但目前 store 內沒有這筆 vendor。
