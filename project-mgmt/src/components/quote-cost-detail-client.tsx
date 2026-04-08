@@ -301,16 +301,11 @@ export function QuoteCostDetailClient({ project, mode = "active", initialProject
                 onClick={() => setActiveArchiveSource(item.label)}
                 className={`rounded-3xl border bg-white p-4 text-left transition ${isActiveArchiveSource ? "border-slate-900 ring-2 ring-slate-900/10" : "border-slate-200 hover:border-slate-300"}`}
               >
-                <div className="flex items-center justify-between gap-3">
-                  <div>
-                    <span className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ring-1 ${item.badgeClass}`}>{item.label}</span>
-                    <p className="mt-3 text-lg font-semibold text-slate-900">{formatCurrency(item.originalTotal)}</p>
-                  </div>
-                  <span className="inline-flex items-center justify-center rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-600">
-                    {item.count} 筆
-                  </span>
+                <div className="flex items-center justify-between gap-4">
+                  <span className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ring-1 ${item.badgeClass}`}>{item.label}</span>
+                  <span className="text-lg font-semibold text-slate-900">{formatCurrency(item.originalTotal)}</span>
+                  <span className="text-sm font-semibold text-slate-600">{item.count} 筆</span>
                 </div>
-                <p className="mt-2 text-xs leading-5 text-slate-500">{item.description}</p>
               </button>
             );
           })}
@@ -320,16 +315,11 @@ export function QuoteCostDetailClient({ project, mode = "active", initialProject
             onClick={() => setActiveArchiveSource("人工")}
             className={`rounded-3xl border bg-white p-4 text-left transition ${activeArchiveSource === "人工" ? "border-slate-900 ring-2 ring-slate-900/10" : "border-slate-200 hover:border-slate-300"}`}
           >
-            <div className="flex items-center justify-between gap-3">
-              <div>
-                <span className="inline-flex rounded-full px-3 py-1 text-xs font-semibold ring-1 bg-slate-100 text-slate-700 ring-slate-200">人工</span>
-                <p className="mt-3 text-lg font-semibold text-slate-900">{formatCurrency(additionalManualCostTotal)}</p>
-              </div>
-              <span className="inline-flex items-center justify-center rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-600">
-                {manualItems.length} 筆
-              </span>
+            <div className="flex items-center justify-between gap-4">
+              <span className="inline-flex rounded-full px-3 py-1 text-xs font-semibold ring-1 bg-slate-100 text-slate-700 ring-slate-200">人工</span>
+              <span className="text-lg font-semibold text-slate-900">{formatCurrency(additionalManualCostTotal)}</span>
+              <span className="text-sm font-semibold text-slate-600">{manualItems.length} 筆</span>
             </div>
-            <p className="mt-2 text-xs leading-5 text-slate-500">最終留存欄位:項目、金額。</p>
           </button>
         </div>
 
@@ -364,8 +354,8 @@ export function QuoteCostDetailClient({ project, mode = "active", initialProject
                 ?? (isManualSyncing
                   ? "人工新增費用儲存中..."
                   : hasUnsavedManualChanges
-                    ? "你目前有尚未儲存的人工新增費用；按下「儲存」後才會同步到 list / detail / closeout。"
-                    : "目前人工新增費用已與正式資料同步。")} 
+                    ? "你目前有尚未儲存的人工新增費用;按下「儲存」後才會同步到 list / detail / closeout。"
+                    : "目前人工新增費用已與正式資料同步。")}
             </div>
           ) : null}
           <ArchiveContentPanel source={activeArchiveSource} manualItems={manualItems} isClosedView={isClosedView} onManualItemChange={handleManualItemChange} />
