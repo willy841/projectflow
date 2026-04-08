@@ -835,15 +835,11 @@ export function AccountingCenterPage() {
                   </div>
 
                   {expenseEditorTab === "personnel" ? (
-                  <Panel title="人事費用管理">
+                  <Panel title="人事費用管理" actions={<button type="button" onClick={() => setShowAddEmployeeModal(true)} className="inline-flex items-center justify-center rounded-2xl border border-slate-900 bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800">新增員工</button>}>
                     <div className="space-y-4">
                       <div className="grid gap-3 sm:grid-cols-2">
-                        <button type="button" onClick={() => setEmployeeFilter("full-time")} className={`rounded-2xl border p-4 text-left transition ${employeeFilter === "full-time" ? "border-slate-900 bg-slate-900 text-white" : "border-slate-200 bg-slate-50 text-slate-700"}`}><p className="text-xs font-semibold uppercase tracking-[0.18em]">正職人數</p><p className="mt-2 text-3xl font-semibold">{employeeRoster.filter((item) => item.type === "full-time").length}</p><p className="mt-2 text-sm opacity-80">只顯示正職名單</p></button>
-                        <button type="button" onClick={() => setEmployeeFilter("part-time")} className={`rounded-2xl border p-4 text-left transition ${employeeFilter === "part-time" ? "border-slate-900 bg-slate-900 text-white" : "border-slate-200 bg-slate-50 text-slate-700"}`}><p className="text-xs font-semibold uppercase tracking-[0.18em]">兼職人數</p><p className="mt-2 text-3xl font-semibold">{employeeRoster.filter((item) => item.type === "part-time").length}</p><p className="mt-2 text-sm opacity-80">只顯示兼職名單</p></button>
-                      </div>
-                      <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
-                        <div><p className="text-sm font-semibold text-slate-900">員工名單</p><p className="text-xs text-slate-500">入口頁只負責名單與編輯入口。</p></div>
-                        <button type="button" onClick={() => setShowAddEmployeeModal(true)} className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-800 transition hover:border-slate-400 hover:bg-slate-50">新增員工</button>
+                        <button type="button" onClick={() => setEmployeeFilter("full-time")} className={`rounded-2xl border p-4 text-left transition ${employeeFilter === "full-time" ? "border-slate-900 bg-slate-900 text-white" : "border-slate-200 bg-slate-50 text-slate-700"}`}><div className="flex items-center justify-between gap-3"><p className="text-sm font-semibold">正職員工</p><p className="text-2xl font-semibold">{employeeRoster.filter((item) => item.type === "full-time").length}</p></div></button>
+                        <button type="button" onClick={() => setEmployeeFilter("part-time")} className={`rounded-2xl border p-4 text-left transition ${employeeFilter === "part-time" ? "border-slate-900 bg-slate-900 text-white" : "border-slate-200 bg-slate-50 text-slate-700"}`}><div className="flex items-center justify-between gap-3"><p className="text-sm font-semibold">兼職員工</p><p className="text-2xl font-semibold">{employeeRoster.filter((item) => item.type === "part-time").length}</p></div></button>
                       </div>
                       <div className="space-y-3">
                         {filteredRoster.map((employee) => (
