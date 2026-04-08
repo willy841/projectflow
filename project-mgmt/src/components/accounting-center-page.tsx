@@ -389,11 +389,6 @@ export function AccountingCenterPage() {
   const totalOperatingExpense = personnelSummary.total + officeExpenseSummary + otherExpenseSummary;
 
   const filteredRoster = employeeRoster.filter((employee) => employee.type === employeeFilter);
-  const editingEmployee = editingEmployeeId
-    ? employeeRoster.find((employee) => employee.id === editingEmployeeId) ?? null
-    : null;
-  const editingFullTimeDraft = editingEmployee?.type === "full-time" ? fullTimeDrafts[editingEmployee.id] : null;
-  const editingPartTimeDraft = editingEmployee?.type === "part-time" ? partTimeDrafts[editingEmployee.id] : null;
 
   const revenueSnapshot = useMemo(() => {
     const scopedMonths = getScopedMonths(revenueMode, revenueMonth, yearSelection, rangeStart, rangeEnd);
@@ -488,12 +483,15 @@ export function AccountingCenterPage() {
     }
   }
 
-  function handlePersonnelSubmit() {
-    if (!editingEmployee) return;
+  function handlePersonnelSubmit(employeeId: string) {
+    const employee = employeeRoster.find((item) => item.id === employeeId);
+    if (!employee) return;
 
-    if (editingEmployee.type === "full-time" && editingFullTimeDraft) {
-      const targetMonth = editingFullTimeDraft.salaryMonth;
-      const exists = Boolean(personnelRecordsByMonth[targetMonth]?.fullTime[editingEmployee.id]);
+    if (employee.type === "full-time") {
+      const draft = fullTimeDrafts[employeeId];
+      if (!draft) return;
+      const targetMonth = draft.salaryMonth;
+      const exists = Boolean(personnelRecordsByMonth[targetMonth]?.fullTime[employeeId]);
       if (exists) {
         const overwrite = window.confirm(`同一員工在 ${targetMonth} 已有正式紀錄，是否覆蓋？`);
         if (!overwrite) return;
@@ -503,38 +501,38 @@ export function AccountingCenterPage() {
         [targetMonth]: {
           fullTime: {
             ...(current[targetMonth]?.fullTime ?? {}),
-            [editingEmployee.id]: editingFullTimeDraft,
+            [employeeId]: draft,
           },
           partTime: current[targetMonth]?.partTime ?? {},
         },
       }));
       setWorkspaceMonth(targetMonth);
-      window.alert(`已送出 ${editingEmployee.name} 的人事資料到 ${targetMonth}`);
+      window.alert(`已送出 ${employee.name} 的人事資料到 ${targetMonth}`);
       setEditingEmployeeId(null);
       return;
     }
 
-    if (editingEmployee.type === "part-time" && editingPartTimeDraft) {
-      const targetMonth = editingPartTimeDraft.salaryMonth;
-      const exists = Boolean(personnelRecordsByMonth[targetMonth]?.partTime[editingEmployee.id]);
-      if (exists) {
-        const overwrite = window.confirm(`同一員工在 ${targetMonth} 已有正式紀錄，是否覆蓋？`);
-        if (!overwrite) return;
-      }
-      setPersonnelRecordsByMonth((current) => ({
-        ...current,
-        [targetMonth]: {
-          fullTime: current[targetMonth]?.fullTime ?? {},
-          partTime: {
-            ...(current[targetMonth]?.partTime ?? {}),
-            [editingEmployee.id]: editingPartTimeDraft,
-          },
-        },
-      }));
-      setWorkspaceMonth(targetMonth);
-      window.alert(`已送出 ${editingEmployee.name} 的兼職資料到 ${targetMonth}`);
-      setEditingEmployeeId(null);
+    const draft = partTimeDrafts[employeeId];
+    if (!draft) return;
+    const targetMonth = draft.salaryMonth;
+    const exists = Boolean(personnelRecordsByMonth[targetMonth]?.partTime[employeeId]);
+    if (exists) {
+      const overwrite = window.confirm(`同一員工在 ${targetMonth} 已有正式紀錄，是否覆蓋？`);
+      if (!overwrite) return;
     }
+    setPersonnelRecordsByMonth((current) => ({
+      ...current,
+      [targetMonth]: {
+        fullTime: current[targetMonth]?.fullTime ?? {},
+        partTime: {
+          ...(current[targetMonth]?.partTime ?? {}),
+          [employeeId]: draft,
+        },
+      },
+    }));
+    setWorkspaceMonth(targetMonth);
+    window.alert(`已送出 ${employee.name} 的兼職資料到 ${targetMonth}`);
+    setEditingEmployeeId(null);
   }
 
   function handleAddOfficeCategory() {
@@ -884,7 +882,7 @@ export function AccountingCenterPage() {
                                     <DetailGroup title="加班計算區">{personnelViewMode === "edit" ? <div className="grid gap-4 xl:grid-cols-3">{rosterFullTimeDraft.overtime.map((row, index) => <EditableNumberPair key={row.label} label={`${row.label} 時數`} value={row.hours} onChange={(value) => setFullTimeDrafts((current) => { const nextOvertime = [...rosterFullTimeDraft.overtime]; nextOvertime[index] = { ...row, hours: value }; return { ...current, [employee.id]: { ...rosterFullTimeDraft, overtime: nextOvertime } }; })} />)}</div> : rosterFullTimeDraft.overtime.map((row) => <SummaryLine key={row.label} label={`${row.label}｜${row.hours} 小時 × ${row.multiplier}`} value={formatCurrency(row.amount)} />)}<SummaryLine label="加班費合計" value={formatCurrency(calculateOvertimeTotal(rosterFullTimeDraft))} /></DetailGroup>
                                     <DetailGroup title="應扣項目區">{personnelViewMode === "edit" ? <div className="grid gap-4 xl:grid-cols-2"><EditableNumberPair label="勞保費" value={rosterFullTimeDraft.deductions.laborInsurance} onChange={(value) => setFullTimeDrafts((current) => ({ ...current, [employee.id]: { ...rosterFullTimeDraft, deductions: { ...rosterFullTimeDraft.deductions, laborInsurance: value } } }))} /><EditableNumberPair label="健保費" value={rosterFullTimeDraft.deductions.healthInsurance} onChange={(value) => setFullTimeDrafts((current) => ({ ...current, [employee.id]: { ...rosterFullTimeDraft, deductions: { ...rosterFullTimeDraft.deductions, healthInsurance: value } } }))} /><EditableNumberPair label="眷屬負擔" value={rosterFullTimeDraft.deductions.dependents} onChange={(value) => setFullTimeDrafts((current) => ({ ...current, [employee.id]: { ...rosterFullTimeDraft, deductions: { ...rosterFullTimeDraft.deductions, dependents: value } } }))} /><EditableNumberPair label="請假扣款" value={rosterFullTimeDraft.deductions.leaveDeduction} onChange={(value) => setFullTimeDrafts((current) => ({ ...current, [employee.id]: { ...rosterFullTimeDraft, deductions: { ...rosterFullTimeDraft.deductions, leaveDeduction: value } } }))} /><EditableNumberPair label="其他扣項" value={rosterFullTimeDraft.deductions.other[0]?.amount ?? 0} onChange={(value) => setFullTimeDrafts((current) => ({ ...current, [employee.id]: { ...rosterFullTimeDraft, deductions: { ...rosterFullTimeDraft.deductions, other: [{ label: rosterFullTimeDraft.deductions.other[0]?.label ?? "其他扣項", amount: value }] } } }))} /></div> : <><SummaryLine label="勞保費" value={formatCurrency(rosterFullTimeDraft.deductions.laborInsurance)} /><SummaryLine label="健保費" value={formatCurrency(rosterFullTimeDraft.deductions.healthInsurance)} /><SummaryLine label="眷屬負擔" value={formatCurrency(rosterFullTimeDraft.deductions.dependents)} /><SummaryLine label="請假扣款" value={formatCurrency(rosterFullTimeDraft.deductions.leaveDeduction)} /><InlineAmountList title="其他扣項明細" items={rosterFullTimeDraft.deductions.other} /></>}<SummaryLine label="應扣合計" value={formatCurrency(calculateFullTimeDeduction(rosterFullTimeDraft))} /><SummaryLine label="實領金額" value={formatCurrency(calculateFullTimeNetPay(rosterFullTimeDraft))} emphasize /></DetailGroup>
                                     <DetailGroup title="公司負擔">{personnelViewMode === "edit" ? <div className="grid gap-4 xl:grid-cols-2"><EditableNumberPair label="單位負擔勞保" value={rosterFullTimeDraft.employerContribution.laborInsurance} onChange={(value) => setFullTimeDrafts((current) => ({ ...current, [employee.id]: { ...rosterFullTimeDraft, employerContribution: { ...rosterFullTimeDraft.employerContribution, laborInsurance: value } } }))} /><EditableNumberPair label="單位負擔健保" value={rosterFullTimeDraft.employerContribution.healthInsurance} onChange={(value) => setFullTimeDrafts((current) => ({ ...current, [employee.id]: { ...rosterFullTimeDraft, employerContribution: { ...rosterFullTimeDraft.employerContribution, healthInsurance: value } } }))} /><EditableNumberPair label="職保" value={rosterFullTimeDraft.employerContribution.occupationalInsurance} onChange={(value) => setFullTimeDrafts((current) => ({ ...current, [employee.id]: { ...rosterFullTimeDraft, employerContribution: { ...rosterFullTimeDraft.employerContribution, occupationalInsurance: value } } }))} /><EditableNumberPair label="勞退" value={rosterFullTimeDraft.employerContribution.pension} onChange={(value) => setFullTimeDrafts((current) => ({ ...current, [employee.id]: { ...rosterFullTimeDraft, employerContribution: { ...rosterFullTimeDraft.employerContribution, pension: value } } }))} /><EditableNumberPair label="其他單位負擔" value={rosterFullTimeDraft.employerContribution.other[0]?.amount ?? 0} onChange={(value) => setFullTimeDrafts((current) => ({ ...current, [employee.id]: { ...rosterFullTimeDraft, employerContribution: { ...rosterFullTimeDraft.employerContribution, other: [{ label: rosterFullTimeDraft.employerContribution.other[0]?.label ?? "其他單位負擔", amount: value }] } } }))} /></div> : <><SummaryLine label="單位負擔勞保" value={formatCurrency(rosterFullTimeDraft.employerContribution.laborInsurance)} /><SummaryLine label="單位負擔健保" value={formatCurrency(rosterFullTimeDraft.employerContribution.healthInsurance)} /><SummaryLine label="職保" value={formatCurrency(rosterFullTimeDraft.employerContribution.occupationalInsurance)} /><SummaryLine label="勞退" value={formatCurrency(rosterFullTimeDraft.employerContribution.pension)} /><InlineAmountList title="其他單位負擔明細" items={rosterFullTimeDraft.employerContribution.other} /></>}<SummaryLine label="單位負擔合計" value={formatCurrency(calculateFullTimeEmployerContribution(rosterFullTimeDraft))} /><SummaryLine label="人事成本總支出" value={formatCurrency(calculateFullTimeCost(rosterFullTimeDraft))} emphasize /></DetailGroup>
-                                    {personnelViewMode === "edit" ? <FooterActions onSubmit={handlePersonnelSubmit} /> : null}
+                                    {personnelViewMode === "edit" ? <FooterActions onSubmit={() => handlePersonnelSubmit(employee.id)} /> : null}
                                   </EditableBlock>
                                 ) : null}
 
@@ -913,7 +911,7 @@ export function AccountingCenterPage() {
                                       <SummaryLine label="公司負擔合計" value={formatCurrency(0)} />
                                       <SummaryLine label="人事成本總支出" value={formatCurrency(calculatePartTimePay(rosterPartTimeDraft))} emphasize />
                                     </DetailGroup>
-                                    {personnelViewMode === "edit" ? <FooterActions onSubmit={handlePersonnelSubmit} /> : null}
+                                    {personnelViewMode === "edit" ? <FooterActions onSubmit={() => handlePersonnelSubmit(employee.id)} /> : null}
                                   </EditableBlock>
                                 ) : null}
                               </div>
