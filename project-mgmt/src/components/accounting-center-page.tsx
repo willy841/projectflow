@@ -328,7 +328,8 @@ const initialPersonnelRoster: EmployeeRoster[] = [
 ];
 
 export function AccountingCenterPage() {
-  const [selectedMonth, setSelectedMonth] = useState<string>("2026-04");
+  const [workspaceMonth, setWorkspaceMonth] = useState<string>("2026-04");
+  const [revenueMonth, setRevenueMonth] = useState<string>("2026-04");
   const [employeeFilter, setEmployeeFilter] = useState<FormEmployeeType>("full-time");
   const [showAddEmployeeModal, setShowAddEmployeeModal] = useState(false);
   const [showManageOfficeCategories, setShowManageOfficeCategories] = useState(false);
@@ -353,7 +354,7 @@ export function AccountingCenterPage() {
   const [officeExpenseForm, setOfficeExpenseForm] = useState<{ mode: "create" | "edit"; id?: string; item: string; category: string; amount: string; note: string } | null>(null);
   const [otherExpenseForm, setOtherExpenseForm] = useState<{ mode: "create" | "edit"; id?: string; item: string; amount: string; note: string } | null>(null);
 
-  const monthData = accountingDataByMonth[selectedMonth];
+  const monthData = accountingDataByMonth[workspaceMonth];
   const activeProjectSummary = useMemo(() => {
     const total = monthData.activeProjects.reduce((sum, item) => sum + item.totalAmount, 0);
     const collected = monthData.activeProjects.reduce((sum, item) => sum + item.collectedAmount, 0);
@@ -364,9 +365,9 @@ export function AccountingCenterPage() {
     };
   }, [monthData.activeProjects]);
 
-  const currentOfficeExpenses = officeExpensesByMonth[selectedMonth] ?? [];
-  const currentOtherExpenses = otherExpensesByMonth[selectedMonth] ?? [];
-  const monthPersonnelRecords = personnelRecordsByMonth[selectedMonth] ?? { fullTime: {}, partTime: {} };
+  const currentOfficeExpenses = officeExpensesByMonth[workspaceMonth] ?? [];
+  const currentOtherExpenses = otherExpensesByMonth[workspaceMonth] ?? [];
+  const monthPersonnelRecords = personnelRecordsByMonth[workspaceMonth] ?? { fullTime: {}, partTime: {} };
   const fullTimeRecords = Object.values(monthPersonnelRecords.fullTime);
   const partTimeRecords = Object.values(monthPersonnelRecords.partTime);
   const personnelSummary = useMemo(() => {
@@ -393,7 +394,7 @@ export function AccountingCenterPage() {
   const editingPartTimeDraft = editingEmployee?.type === "part-time" ? partTimeDrafts[editingEmployee.id] : null;
 
   const revenueSnapshot = useMemo(() => {
-    const scopedMonths = getScopedMonths(revenueMode, selectedMonth, yearSelection, rangeStart, rangeEnd);
+    const scopedMonths = getScopedMonths(revenueMode, revenueMonth, yearSelection, rangeStart, rangeEnd);
     return scopedMonths.reduce(
       (acc, monthKey) => {
         const scopedMonth = accountingDataByMonth[monthKey];
@@ -410,7 +411,7 @@ export function AccountingCenterPage() {
       },
       { closedRevenue: 0, closedCost: 0, operatingExpense: 0 },
     );
-  }, [officeExpensesByMonth, otherExpensesByMonth, personnelRecordsByMonth, rangeEnd, rangeStart, revenueMode, selectedMonth, yearSelection]);
+  }, [officeExpensesByMonth, otherExpensesByMonth, personnelRecordsByMonth, rangeEnd, rangeStart, revenueMode, revenueMonth, yearSelection]);
 
   const revenueCards = [
     { label: "已結案總收入", value: formatCurrency(revenueSnapshot.closedRevenue), hint: "承接 Closeout 已結案專案的收入摘要" },
@@ -435,12 +436,12 @@ export function AccountingCenterPage() {
     if (newEmployeeType === "full-time") {
       setFullTimeDrafts((current) => ({
         ...current,
-        [id]: buildDefaultFullTimeDraft(id, name, selectedMonth),
+        [id]: buildDefaultFullTimeDraft(id, name, workspaceMonth),
       }));
     } else {
       setPartTimeDrafts((current) => ({
         ...current,
-        [id]: buildDefaultPartTimeDraft(id, name, selectedMonth),
+        [id]: buildDefaultPartTimeDraft(id, name, workspaceMonth),
       }));
     }
 
@@ -505,7 +506,7 @@ export function AccountingCenterPage() {
           partTime: current[targetMonth]?.partTime ?? {},
         },
       }));
-      setSelectedMonth(targetMonth);
+      setWorkspaceMonth(targetMonth);
       window.alert(`已送出 ${editingEmployee.name} 的人事資料到 ${targetMonth}`);
       return;
     }
@@ -527,7 +528,7 @@ export function AccountingCenterPage() {
           },
         },
       }));
-      setSelectedMonth(targetMonth);
+      setWorkspaceMonth(targetMonth);
       window.alert(`已送出 ${editingEmployee.name} 的兼職資料到 ${targetMonth}`);
     }
   }
@@ -556,7 +557,7 @@ export function AccountingCenterPage() {
     if (!item || !category || Number.isNaN(amount)) return;
 
     setOfficeExpensesByMonth((current) => {
-      const currentMonthItems = current[selectedMonth] ?? [];
+      const currentMonthItems = current[workspaceMonth] ?? [];
       const nextItem: OfficeExpense = {
         id: officeExpenseForm.id ?? `office-${Date.now()}`,
         item,
@@ -566,7 +567,7 @@ export function AccountingCenterPage() {
       };
       return {
         ...current,
-        [selectedMonth]: officeExpenseForm.mode === "edit"
+        [workspaceMonth]: officeExpenseForm.mode === "edit"
           ? currentMonthItems.map((expense) => (expense.id === nextItem.id ? nextItem : expense))
           : [...currentMonthItems, nextItem],
       };
@@ -581,7 +582,7 @@ export function AccountingCenterPage() {
     if (!item || Number.isNaN(amount)) return;
 
     setOtherExpensesByMonth((current) => {
-      const currentMonthItems = current[selectedMonth] ?? [];
+      const currentMonthItems = current[workspaceMonth] ?? [];
       const nextItem: OtherExpense = {
         id: otherExpenseForm.id ?? `other-${Date.now()}`,
         item,
@@ -590,7 +591,7 @@ export function AccountingCenterPage() {
       };
       return {
         ...current,
-        [selectedMonth]: otherExpenseForm.mode === "edit"
+        [workspaceMonth]: otherExpenseForm.mode === "edit"
           ? currentMonthItems.map((expense) => (expense.id === nextItem.id ? nextItem : expense))
           : [...currentMonthItems, nextItem],
       };
@@ -602,7 +603,7 @@ export function AccountingCenterPage() {
     if (!window.confirm("確認刪除這筆庶務支出？")) return;
     setOfficeExpensesByMonth((current) => ({
       ...current,
-      [selectedMonth]: (current[selectedMonth] ?? []).filter((item) => item.id !== id),
+      [workspaceMonth]: (current[workspaceMonth] ?? []).filter((item) => item.id !== id),
     }));
   }
 
@@ -610,7 +611,7 @@ export function AccountingCenterPage() {
     if (!window.confirm("確認刪除這筆其他支出？")) return;
     setOtherExpensesByMonth((current) => ({
       ...current,
-      [selectedMonth]: (current[selectedMonth] ?? []).filter((item) => item.id !== id),
+      [workspaceMonth]: (current[workspaceMonth] ?? []).filter((item) => item.id !== id),
     }));
   }
 
@@ -627,24 +628,8 @@ export function AccountingCenterPage() {
         </header>
 
         <section className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
-          <div>
+          <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
             <h3 className="text-2xl font-semibold tracking-tight text-slate-900">營收概況</h3>
-          </div>
-
-          <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-            {revenueCards.map((card) => (
-              <MetricCard
-                key={card.label}
-                label={card.label}
-                value={card.value}
-                hint={card.hint}
-                tone={card.emphasize ? "emerald" : "slate"}
-                emphasize={card.emphasize}
-              />
-            ))}
-          </div>
-
-          <div className="mt-6 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4">
             <div className="flex flex-col gap-3 xl:flex-row xl:flex-wrap xl:items-center xl:gap-4">
               <div className="flex flex-wrap gap-2">
                 {([
@@ -664,9 +649,14 @@ export function AccountingCenterPage() {
               </div>
 
               {revenueMode === "month" ? (
-                <div className="min-w-[220px] rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-700">
-                  <span className="font-semibold text-slate-900">月份：</span>
-                  {monthOptions.find((item) => item.key === selectedMonth)?.label ?? selectedMonth}
+                <div className="flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-3 py-2">
+                  <span className="text-sm font-semibold text-slate-700">月份</span>
+                  <input
+                    value={revenueMonth}
+                    onChange={(event) => setRevenueMonth(event.target.value)}
+                    list="revenue-month-options"
+                    className="h-9 w-32 rounded-xl border border-slate-200 px-3 text-sm outline-none transition focus:border-slate-400"
+                  />
                 </div>
               ) : null}
 
@@ -707,21 +697,40 @@ export function AccountingCenterPage() {
               ) : null}
             </div>
           </div>
+
+          <datalist id="revenue-month-options">
+            {monthOptions.map((month) => <option key={month.key} value={month.key} />)}
+          </datalist>
+
+          <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+            {revenueCards.map((card) => (
+              <MetricCard
+                key={card.label}
+                label={card.label}
+                value={card.value}
+                hint={card.hint}
+                tone={card.emphasize ? "emerald" : "slate"}
+                emphasize={card.emphasize}
+              />
+            ))}
+          </div>
+
         </section>
 
         <section className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
           <div className="flex flex-col gap-4 border-b border-slate-200 pb-5 xl:flex-row xl:items-end xl:justify-between">
-            <div>
-              <h3 className="text-2xl font-semibold tracking-tight text-slate-900">主工作區</h3>
+            <div className="flex flex-wrap gap-2">
+              <button type="button" onClick={() => setWorkspaceTab("active-projects")} className={`rounded-2xl px-4 py-2.5 text-sm font-semibold ring-1 transition ${workspaceTab === "active-projects" ? "bg-slate-900 text-white ring-slate-900" : "bg-white text-slate-600 ring-slate-200 hover:bg-slate-50"}`}>執行中專案</button>
+              <button type="button" onClick={() => setWorkspaceTab("operating-expenses")} className={`rounded-2xl px-4 py-2.5 text-sm font-semibold ring-1 transition ${workspaceTab === "operating-expenses" ? "bg-slate-900 text-white ring-slate-900" : "bg-white text-slate-600 ring-slate-200 hover:bg-slate-50"}`}>管銷成本</button>
             </div>
             <div className="flex flex-wrap gap-2">
               {monthOptions.map((month) => {
-                const active = selectedMonth === month.key;
+                const active = workspaceMonth === month.key;
                 return (
                   <button
                     key={month.key}
                     type="button"
-                    onClick={() => setSelectedMonth(month.key)}
+                    onClick={() => setWorkspaceMonth(month.key)}
                     className={`rounded-2xl px-4 py-2 text-sm font-medium ring-1 transition ${
                       active ? "bg-slate-900 text-white ring-slate-900" : "bg-white text-slate-600 ring-slate-200 hover:bg-slate-100"
                     }`}
@@ -731,11 +740,6 @@ export function AccountingCenterPage() {
                 );
               })}
             </div>
-          </div>
-
-          <div className="mt-5 flex flex-wrap gap-2">
-            <button type="button" onClick={() => setWorkspaceTab("active-projects")} className={`rounded-2xl px-4 py-2.5 text-sm font-semibold ring-1 transition ${workspaceTab === "active-projects" ? "bg-slate-900 text-white ring-slate-900" : "bg-white text-slate-600 ring-slate-200 hover:bg-slate-50"}`}>執行中專案</button>
-            <button type="button" onClick={() => setWorkspaceTab("operating-expenses")} className={`rounded-2xl px-4 py-2.5 text-sm font-semibold ring-1 transition ${workspaceTab === "operating-expenses" ? "bg-slate-900 text-white ring-slate-900" : "bg-white text-slate-600 ring-slate-200 hover:bg-slate-50"}`}>管銷成本</button>
           </div>
 
           {workspaceTab === "active-projects" ? (
