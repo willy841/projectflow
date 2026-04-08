@@ -29,11 +29,13 @@ type VendorStoreContextValue = {
 const VendorStoreContext = createContext<VendorStoreContextValue | null>(null);
 
 function slugifyVendorName(name: string) {
-  return name
+  const normalized = name
     .trim()
     .toLowerCase()
-    .replace(/[^a-z0-9\u4e00-\u9fa5]+/g, "-")
-    .replace(/^-+|-+$/g, "") || `vendor-${Date.now()}`;
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+
+  return normalized || `vendor-${Date.now()}`;
 }
 
 function withDefaultTrade(vendor: VendorBasicProfile): VendorBasicProfile {
@@ -134,8 +136,11 @@ export function VendorStoreProvider({ children }: { children: React.ReactNode })
         return { ok: false as const, reason: "duplicate" as const, vendor: existed };
       }
 
+      const baseId = `vendor-${slugifyVendorName(name)}`;
+      const uniqueId = vendors.some((vendor) => vendor.id === baseId) ? `${baseId}-${Date.now()}` : baseId;
+
       const nextVendor: VendorBasicProfile = {
-        id: `vendor-${slugifyVendorName(name)}`,
+        id: uniqueId,
         name,
         category: tradeLabel,
         tradeLabel,
