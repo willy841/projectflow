@@ -121,7 +121,6 @@ export function CloseoutListClient({ initialProjects }: { initialProjects?: Quot
                 <div>
                   <div className="flex flex-wrap items-center gap-2">
                     <h4 className="text-xl font-semibold text-slate-900">{project.projectName}</h4>
-                    <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700 ring-1 ring-slate-200">{project.projectCode}</span>
                     <span className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ring-1 ${getReconciliationStatusClass(project.reconciliationStatus)}`}>
                       {project.reconciliationStatus}
                     </span>
@@ -130,7 +129,6 @@ export function CloseoutListClient({ initialProjects }: { initialProjects?: Quot
                     </span>
                   </div>
                   <p className="mt-2 text-sm text-slate-600">{project.clientName} ・ 活動日期 {project.eventDate}</p>
-                  <p className="mt-3 text-sm leading-6 text-slate-500">{project.note}</p>
                 </div>
 
                 <Link
