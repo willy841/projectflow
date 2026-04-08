@@ -28,6 +28,11 @@ type VendorEditableForm = {
   bankName: string;
   accountName: string;
   accountNumber: string;
+  laborName: string;
+  guildName: string;
+  nationalId: string;
+  birthDateRoc: string;
+  mailingAddress: string;
 };
 
 function buildVendorEditableForm(vendor: VendorBasicProfile): VendorEditableForm {
@@ -40,6 +45,11 @@ function buildVendorEditableForm(vendor: VendorBasicProfile): VendorEditableForm
     bankName: vendor.bankName || "",
     accountName: vendor.accountName || "",
     accountNumber: vendor.accountNumber || "",
+    laborName: (vendor as VendorBasicProfile & { laborName?: string }).laborName || "",
+    guildName: (vendor as VendorBasicProfile & { guildName?: string }).guildName || "",
+    nationalId: (vendor as VendorBasicProfile & { nationalId?: string }).nationalId || "",
+    birthDateRoc: (vendor as VendorBasicProfile & { birthDateRoc?: string }).birthDateRoc || "",
+    mailingAddress: (vendor as VendorBasicProfile & { mailingAddress?: string }).mailingAddress || "",
   };
 }
 
@@ -52,6 +62,7 @@ function VendorProfileEditor({
 }) {
   const [editableForm, setEditableForm] = useState<VendorEditableForm>(() => buildVendorEditableForm(vendor));
   const [saveMessage, setSaveMessage] = useState("");
+  const [activeTab, setActiveTab] = useState<"basic" | "labor">("basic");
 
   function updateEditableField(field: keyof VendorEditableForm, value: string) {
     setEditableForm((current) => ({ ...current, [field]: value }));
@@ -70,6 +81,11 @@ function VendorProfileEditor({
       bankName: editableForm.bankName.trim(),
       accountName: editableForm.accountName.trim(),
       accountNumber: editableForm.accountNumber.trim(),
+      laborName: editableForm.laborName.trim(),
+      guildName: editableForm.guildName.trim(),
+      nationalId: editableForm.nationalId.trim(),
+      birthDateRoc: editableForm.birthDateRoc.trim(),
+      mailingAddress: editableForm.mailingAddress.trim(),
     };
     setEditableForm(patch);
     onSave(patch);
@@ -81,7 +97,7 @@ function VendorProfileEditor({
       <div className="mb-5 flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
         <div>
           <p className="text-xs font-semibold tracking-wide text-slate-500">A. 廠商資料</p>
-          <h3 className="mt-1 text-xl font-semibold text-slate-900">基本資料與匯款資訊</h3>
+          <h3 className="mt-1 text-xl font-semibold text-slate-900">廠商主檔資料區</h3>
         </div>
         <div className="flex flex-col items-start gap-2 lg:items-end">
           <span className="inline-flex rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700 ring-1 ring-emerald-200">
@@ -91,41 +107,88 @@ function VendorProfileEditor({
         </div>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2">
-        {[
-          { label: "聯絡人", field: "contactName", type: "text", placeholder: "請輸入聯絡人" },
-          { label: "電話", field: "phone", type: "text", placeholder: "請輸入電話" },
-          { label: "Email", field: "email", type: "email", placeholder: "請輸入 Email" },
-          { label: "LINE", field: "lineId", type: "text", placeholder: "請輸入 LINE" },
-          { label: "地址", field: "address", type: "text", placeholder: "請輸入地址", fullWidth: true },
-          { label: "銀行", field: "bankName", type: "text", placeholder: "請輸入銀行名稱" },
-          { label: "戶名", field: "accountName", type: "text", placeholder: "請輸入戶名" },
-          { label: "帳號", field: "accountNumber", type: "text", placeholder: "請輸入帳號" },
-        ].map((item) => (
-          <label
-            key={item.field}
-            className={`rounded-2xl bg-slate-50 p-4 ${item.fullWidth ? "md:col-span-2" : ""}`}
-          >
-            <span className="text-sm text-slate-500">{item.label}</span>
-            <input
-              type={item.type}
-              value={editableForm[item.field as keyof VendorEditableForm]}
-              onChange={(event) => updateEditableField(item.field as keyof VendorEditableForm, event.target.value)}
-              placeholder={item.placeholder}
-              className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-slate-400"
-            />
-          </label>
-        ))}
+      <div className="mb-5 flex flex-wrap gap-2">
+        <button
+          type="button"
+          onClick={() => setActiveTab("basic")}
+          className={`rounded-2xl px-4 py-2 text-sm font-medium ring-1 transition ${activeTab === "basic" ? "bg-slate-900 text-white ring-slate-900" : "bg-white text-slate-700 ring-slate-200 hover:bg-slate-50"}`}
+        >
+          基本資料 / 匯款資訊
+        </button>
+        <button
+          type="button"
+          onClick={() => setActiveTab("labor")}
+          className={`rounded-2xl px-4 py-2 text-sm font-medium ring-1 transition ${activeTab === "labor" ? "bg-slate-900 text-white ring-slate-900" : "bg-white text-slate-700 ring-slate-200 hover:bg-slate-50"}`}
+        >
+          勞報資訊
+        </button>
       </div>
 
+      {activeTab === "basic" ? (
+        <div className="grid gap-4 md:grid-cols-2">
+          {[
+            { label: "聯絡人", field: "contactName", type: "text", placeholder: "請輸入聯絡人" },
+            { label: "電話", field: "phone", type: "text", placeholder: "請輸入電話" },
+            { label: "Email", field: "email", type: "email", placeholder: "請輸入 Email" },
+            { label: "LINE", field: "lineId", type: "text", placeholder: "請輸入 LINE" },
+            { label: "地址", field: "address", type: "text", placeholder: "請輸入地址", fullWidth: true },
+            { label: "銀行", field: "bankName", type: "text", placeholder: "請輸入銀行名稱" },
+            { label: "戶名", field: "accountName", type: "text", placeholder: "請輸入戶名" },
+            { label: "帳號", field: "accountNumber", type: "text", placeholder: "請輸入帳號" },
+          ].map((item) => (
+            <label
+              key={item.field}
+              className={`rounded-2xl bg-slate-50 p-4 ${item.fullWidth ? "md:col-span-2" : ""}`}
+            >
+              <span className="text-sm text-slate-500">{item.label}</span>
+              <input
+                type={item.type}
+                value={editableForm[item.field as keyof VendorEditableForm]}
+                onChange={(event) => updateEditableField(item.field as keyof VendorEditableForm, event.target.value)}
+                placeholder={item.placeholder}
+                className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-slate-400"
+              />
+            </label>
+          ))}
+        </div>
+      ) : (
+        <div className="grid gap-4 md:grid-cols-2">
+          {[
+            { label: "姓名", field: "laborName", type: "text", placeholder: "請輸入勞報姓名" },
+            { label: "公會名稱", field: "guildName", type: "text", placeholder: "請輸入公會名稱" },
+            { label: "身分證字號", field: "nationalId", type: "text", placeholder: "請輸入身分證字號" },
+            { label: "出生年月日（民國）", field: "birthDateRoc", type: "text", placeholder: "例如：78/05/21" },
+            { label: "通訊地址", field: "mailingAddress", type: "text", placeholder: "請輸入通訊地址", fullWidth: true },
+          ].map((item) => (
+            <label
+              key={item.field}
+              className={`rounded-2xl bg-slate-50 p-4 ${item.fullWidth ? "md:col-span-2" : ""}`}
+            >
+              <span className="text-sm text-slate-500">{item.label}</span>
+              <input
+                type={item.type}
+                value={editableForm[item.field as keyof VendorEditableForm]}
+                onChange={(event) => updateEditableField(item.field as keyof VendorEditableForm, event.target.value)}
+                placeholder={item.placeholder}
+                className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-slate-400"
+              />
+            </label>
+          ))}
+        </div>
+      )}
+
       <div className="mt-5 flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-slate-50 px-4 py-4">
-        <p className="text-sm text-slate-500">銀行代碼目前維持既有資料顯示：{vendor.bankCode || "未填"}</p>
+        <p className="text-sm text-slate-500">
+          {activeTab === "basic"
+            ? `銀行代碼目前維持既有資料顯示：${vendor.bankCode || "未填"}`
+            : "勞報資訊供請款 / 報帳用，與一般聯絡資料分開管理。"}
+        </p>
         <button
           type="button"
           onClick={saveVendorProfile}
           className="inline-flex items-center justify-center rounded-2xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800"
         >
-          儲存基本資料與匯款資訊
+          {activeTab === "basic" ? "儲存基本資料與匯款資訊" : "儲存勞報資訊"}
         </button>
       </div>
     </article>
@@ -142,11 +205,32 @@ export function VendorDetailShell({ vendorId }: Props) {
   const [isTradeEditorOpen, setIsTradeEditorOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [newTrade, setNewTrade] = useState("");
+  const [historyTab, setHistoryTab] = useState<"unpaid" | "paid">("unpaid");
+  const [historyKeyword, setHistoryKeyword] = useState("");
+  const [historyProjectStatus, setHistoryProjectStatus] = useState<"all" | "執行中" | "已結案">("all");
+  const [historyPage, setHistoryPage] = useState(1);
 
   const unpaidRecords = useMemo(() => records.filter((record) => record.paymentStatus === "未付款"), [records]);
   const selectedRecords = unpaidRecords.filter((record) => selectedIds.includes(record.id));
   const selectedCount = selectedRecords.length;
   const selectedTotal = selectedRecords.reduce((sum, record) => sum + record.adjustedCost, 0);
+  const historySourceRecords = useMemo(
+    () => records.filter((record) => (historyTab === "unpaid" ? record.paymentStatus === "未付款" : record.paymentStatus === "已付款")),
+    [historyTab, records],
+  );
+  const filteredHistoryRecords = useMemo(() => {
+    const keyword = historyKeyword.trim().toLowerCase();
+    return historySourceRecords.filter((record) => {
+      const matchesKeyword =
+        !keyword || [record.projectName, record.procurementSummary].join(" ").toLowerCase().includes(keyword);
+      const matchesStatus = historyProjectStatus === "all" || record.projectStatus === historyProjectStatus;
+      return matchesKeyword && matchesStatus;
+    });
+  }, [historyKeyword, historyProjectStatus, historySourceRecords]);
+  const HISTORY_PAGE_SIZE = 4;
+  const totalHistoryPages = Math.max(1, Math.ceil(filteredHistoryRecords.length / HISTORY_PAGE_SIZE));
+  const currentHistoryPage = Math.min(historyPage, totalHistoryPages);
+  const pagedHistoryRecords = filteredHistoryRecords.slice((currentHistoryPage - 1) * HISTORY_PAGE_SIZE, currentHistoryPage * HISTORY_PAGE_SIZE);
 
   if (!vendor) {
     if (!isReady) {
@@ -375,70 +459,156 @@ export function VendorDetailShell({ vendorId }: Props) {
         </section>
 
         <article className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
-          <div className="mb-5 flex min-h-12 items-center">
+          <div className="mb-5 flex min-h-12 items-center justify-between gap-4">
             <div>
               <p className="text-xs font-semibold tracking-wide text-slate-500">D. 往來 / 歷史紀錄區</p>
               <h3 className="mt-1 text-xl font-semibold text-slate-900">所有有往來的專案紀錄</h3>
             </div>
+            <div className="rounded-2xl bg-slate-50 px-4 py-3 text-sm text-slate-600 ring-1 ring-slate-200">
+              目前顯示 {filteredHistoryRecords.length} 筆 / 第 {currentHistoryPage} / {totalHistoryPages} 頁
+            </div>
           </div>
 
           <div className="space-y-4">
-            {records.map((record) => {
-              const isExpanded = expandedIds.includes(record.id);
-              return (
-                <div key={record.id} className="rounded-3xl border border-slate-200 bg-slate-50/70 p-5">
-                  <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
-                    <div className="min-w-0">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <h4 className="text-lg font-semibold text-slate-900">{record.projectName}</h4>
-                        <span className="inline-flex rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700 ring-1 ring-slate-200">{record.projectStatus}</span>
-                        <span className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ring-1 ${getVendorPaymentStatusClass(record.paymentStatus)}`}>
-                          {record.paymentStatus}
-                        </span>
-                      </div>
-                      <p className="mt-3 text-sm leading-6 text-slate-600">{record.procurementSummary}</p>
-                    </div>
-                    <div className="flex flex-col gap-3 xl:items-end">
-                      <div className="text-left xl:text-right">
-                        <p className="text-sm text-slate-500">調整後成本總額</p>
-                        <p className="mt-1 text-2xl font-semibold tracking-tight text-slate-900">{record.adjustedCostLabel}</p>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => toggleExpanded(record.id)}
-                        className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 transition hover:bg-slate-100"
-                      >
-                        {isExpanded ? "收合明細" : "展開看成本 / 發包明細"}
-                      </button>
-                    </div>
-                  </div>
+            <div className="flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setHistoryTab("unpaid");
+                  setHistoryPage(1);
+                }}
+                className={`rounded-2xl px-4 py-2 text-sm font-medium ring-1 transition ${historyTab === "unpaid" ? "bg-slate-900 text-white ring-slate-900" : "bg-white text-slate-700 ring-slate-200 hover:bg-slate-50"}`}
+              >
+                未付款
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setHistoryTab("paid");
+                  setHistoryPage(1);
+                }}
+                className={`rounded-2xl px-4 py-2 text-sm font-medium ring-1 transition ${historyTab === "paid" ? "bg-slate-900 text-white ring-slate-900" : "bg-white text-slate-700 ring-slate-200 hover:bg-slate-50"}`}
+              >
+                已付款
+              </button>
+            </div>
 
-                  {isExpanded ? (
-                    <div className="mt-5 grid gap-4 xl:grid-cols-2">
-                      <div className="rounded-2xl bg-white p-4 ring-1 ring-slate-200">
-                        <p className="text-sm font-semibold text-slate-900">成本明細</p>
-                        <div className="mt-3 space-y-3">
-                          {record.costBreakdown.map((item) => (
-                            <div key={`${record.id}-${item.label}`} className="flex items-center justify-between gap-3 text-sm">
-                              <span className="text-slate-600">{item.label}</span>
-                              <span className="font-medium text-slate-900">{item.amount}</span>
-                            </div>
-                          ))}
+            <div className="grid gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
+              <label className="block">
+                <span className="mb-1.5 block text-[11px] font-semibold tracking-wide text-slate-500">搜尋歷史紀錄</span>
+                <input
+                  type="search"
+                  value={historyKeyword}
+                  onChange={(event) => {
+                    setHistoryKeyword(event.target.value);
+                    setHistoryPage(1);
+                  }}
+                  placeholder="搜尋專案名稱或發包摘要"
+                  className="h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400"
+                />
+              </label>
+
+              <label className="block lg:min-w-[180px]">
+                <span className="mb-1.5 block text-[11px] font-semibold tracking-wide text-slate-500">專案狀態</span>
+                <select
+                  value={historyProjectStatus}
+                  onChange={(event) => {
+                    setHistoryProjectStatus(event.target.value as "all" | "執行中" | "已結案");
+                    setHistoryPage(1);
+                  }}
+                  className="h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400"
+                >
+                  <option value="all">全部</option>
+                  <option value="執行中">執行中</option>
+                  <option value="已結案">已結案</option>
+                </select>
+              </label>
+            </div>
+
+            <div className="space-y-4">
+              {pagedHistoryRecords.length ? pagedHistoryRecords.map((record) => {
+                const isExpanded = expandedIds.includes(record.id);
+                return (
+                  <div key={record.id} className="rounded-3xl border border-slate-200 bg-slate-50/70 p-5">
+                    <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
+                      <div className="min-w-0">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <h4 className="text-lg font-semibold text-slate-900">{record.projectName}</h4>
+                          <span className="inline-flex rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700 ring-1 ring-slate-200">{record.projectStatus}</span>
+                          <span className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ring-1 ${getVendorPaymentStatusClass(record.paymentStatus)}`}>
+                            {record.paymentStatus}
+                          </span>
+                        </div>
+                        <p className="mt-3 line-clamp-2 text-sm leading-6 text-slate-600">{record.procurementSummary}</p>
+                      </div>
+                      <div className="flex flex-col gap-3 xl:items-end">
+                        <div className="text-left xl:text-right">
+                          <p className="text-sm text-slate-500">調整後成本總額</p>
+                          <p className="mt-1 text-2xl font-semibold tracking-tight text-slate-900">{record.adjustedCostLabel}</p>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => toggleExpanded(record.id)}
+                          className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 transition hover:bg-slate-100"
+                        >
+                          {isExpanded ? "收合明細" : "查看明細"}
+                        </button>
+                      </div>
+                    </div>
+
+                    {isExpanded ? (
+                      <div className="mt-5 grid gap-4 xl:grid-cols-2">
+                        <div className="rounded-2xl bg-white p-4 ring-1 ring-slate-200">
+                          <p className="text-sm font-semibold text-slate-900">成本明細</p>
+                          <div className="mt-3 space-y-3">
+                            {record.costBreakdown.map((item) => (
+                              <div key={`${record.id}-${item.label}`} className="flex items-center justify-between gap-3 text-sm">
+                                <span className="text-slate-600">{item.label}</span>
+                                <span className="font-medium text-slate-900">{item.amount}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                        <div className="rounded-2xl bg-white p-4 ring-1 ring-slate-200">
+                          <p className="text-sm font-semibold text-slate-900">發包內容明細</p>
+                          <ul className="mt-3 space-y-2 text-sm text-slate-600">
+                            {record.procurementDetails.map((item) => (
+                              <li key={`${record.id}-${item}`} className="rounded-2xl bg-slate-50 px-3 py-2">• {item}</li>
+                            ))}
+                          </ul>
                         </div>
                       </div>
-                      <div className="rounded-2xl bg-white p-4 ring-1 ring-slate-200">
-                        <p className="text-sm font-semibold text-slate-900">發包內容明細</p>
-                        <ul className="mt-3 space-y-2 text-sm text-slate-600">
-                          {record.procurementDetails.map((item) => (
-                            <li key={`${record.id}-${item}`} className="rounded-2xl bg-slate-50 px-3 py-2">• {item}</li>
-                          ))}
-                        </ul>
-                      </div>
-                    </div>
-                  ) : null}
+                    ) : null}
+                  </div>
+                );
+              }) : (
+                <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-5 py-6 text-sm text-slate-500">
+                  目前沒有符合條件的歷史紀錄。
                 </div>
-              );
-            })}
+              )}
+            </div>
+
+            <div className="flex items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
+              <p className="text-sm text-slate-500">第 {currentHistoryPage} / {totalHistoryPages} 頁</p>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => setHistoryPage((current) => Math.max(1, current - 1))}
+                  disabled={currentHistoryPage === 1}
+                  className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  上一頁
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setHistoryPage((current) => Math.min(totalHistoryPages, current + 1))}
+                  disabled={currentHistoryPage === totalHistoryPages}
+                  className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  下一頁
+                </button>
+              </div>
+            </div>
           </div>
         </article>
       </div>
