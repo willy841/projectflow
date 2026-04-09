@@ -95,9 +95,26 @@ function VendorProfileEditor({
 
   return (
     <article className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
-      <div className="mb-5 flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
-        <div>
-          <h3 className="text-xl font-semibold text-slate-900">廠商資訊</h3>
+      <div className="mb-5">
+        <h3 className="text-xl font-semibold text-slate-900">廠商資訊</h3>
+      </div>
+
+      <div className="mb-5 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+        <div className="flex flex-wrap gap-2">
+          <button
+            type="button"
+            onClick={() => setActiveTab("basic")}
+            className={`rounded-2xl px-4 py-2 text-sm font-medium ring-1 transition ${activeTab === "basic" ? "bg-slate-900 text-white ring-slate-900" : "bg-white text-slate-700 ring-slate-200 hover:bg-slate-50"}`}
+          >
+            基本資料 / 匯款資訊
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab("labor")}
+            className={`rounded-2xl px-4 py-2 text-sm font-medium ring-1 transition ${activeTab === "labor" ? "bg-slate-900 text-white ring-slate-900" : "bg-white text-slate-700 ring-slate-200 hover:bg-slate-50"}`}
+          >
+            勞報資訊
+          </button>
         </div>
         <div className="flex items-center gap-3">
           {saveMessage ? <p className="text-xs text-emerald-700">{saveMessage}</p> : null}
@@ -109,23 +126,6 @@ function VendorProfileEditor({
             {activeTab === "basic" ? "儲存基本資料與匯款資訊" : "儲存勞報資訊"}
           </button>
         </div>
-      </div>
-
-      <div className="mb-5 flex flex-wrap gap-2">
-        <button
-          type="button"
-          onClick={() => setActiveTab("basic")}
-          className={`rounded-2xl px-4 py-2 text-sm font-medium ring-1 transition ${activeTab === "basic" ? "bg-slate-900 text-white ring-slate-900" : "bg-white text-slate-700 ring-slate-200 hover:bg-slate-50"}`}
-        >
-          基本資料 / 匯款資訊
-        </button>
-        <button
-          type="button"
-          onClick={() => setActiveTab("labor")}
-          className={`rounded-2xl px-4 py-2 text-sm font-medium ring-1 transition ${activeTab === "labor" ? "bg-slate-900 text-white ring-slate-900" : "bg-white text-slate-700 ring-slate-200 hover:bg-slate-50"}`}
-        >
-          勞報資訊
-        </button>
       </div>
 
       {activeTab === "basic" ? (
@@ -531,10 +531,10 @@ export function VendorDetailShell({ vendorId }: Props) {
                         </div>
                         <p className="mt-3 line-clamp-2 text-sm leading-6 text-slate-600">{record.procurementSummary}</p>
                       </div>
-                      <div className="flex flex-col gap-3 xl:items-end">
-                        <div className="text-left xl:text-right">
-                          <p className="text-sm text-slate-500">調整後成本總額</p>
-                          <p className="mt-1 text-2xl font-semibold tracking-tight text-slate-900">{record.adjustedCostLabel}</p>
+                      <div className="flex flex-wrap items-center gap-3 xl:justify-end">
+                        <div className="flex items-center gap-2 text-left xl:text-right">
+                          <span className="text-sm text-slate-500">調整後成本總額</span>
+                          <p className="text-2xl font-semibold tracking-tight text-slate-900">{record.adjustedCostLabel}</p>
                         </div>
                         <button
                           type="button"
