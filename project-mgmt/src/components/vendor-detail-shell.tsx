@@ -450,17 +450,9 @@ export function VendorDetailShell({ vendorId }: Props) {
         </section>
 
         <article className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
-          <div className="mb-5 flex min-h-12 items-center justify-between gap-4">
-            <div>
+          <div className="mb-5 flex min-h-12 flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
+            <div className="flex flex-wrap items-center gap-2">
               <h3 className="text-xl font-semibold text-slate-900">往來紀錄</h3>
-            </div>
-            <div className="rounded-2xl bg-slate-50 px-4 py-3 text-sm text-slate-600 ring-1 ring-slate-200">
-              目前顯示 {filteredHistoryRecords.length} 筆 / 第 {currentHistoryPage} / {totalHistoryPages} 頁
-            </div>
-          </div>
-
-          <div className="space-y-4">
-            <div className="flex flex-wrap gap-2">
               <button
                 type="button"
                 onClick={() => {
@@ -482,6 +474,12 @@ export function VendorDetailShell({ vendorId }: Props) {
                 已付款
               </button>
             </div>
+            <div className="rounded-2xl bg-slate-50 px-4 py-3 text-sm text-slate-600 ring-1 ring-slate-200">
+              目前顯示 {filteredHistoryRecords.length} 筆 / 第 {currentHistoryPage} / {totalHistoryPages} 頁
+            </div>
+          </div>
+
+          <div className="space-y-4">
 
             <div className="grid gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
               <label className="block">
@@ -529,7 +527,6 @@ export function VendorDetailShell({ vendorId }: Props) {
                             {record.paymentStatus}
                           </span>
                         </div>
-                        <p className="mt-3 line-clamp-2 text-sm leading-6 text-slate-600">{record.procurementSummary}</p>
                       </div>
                       <div className="flex flex-wrap items-center gap-3 xl:justify-end">
                         <div className="flex items-center gap-2 text-left xl:text-right">
