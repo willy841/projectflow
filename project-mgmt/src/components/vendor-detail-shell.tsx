@@ -7,6 +7,7 @@ import {
   formatCurrency,
   getVendorPaymentStatusClass,
   getVendorRecordsByVendorId,
+  vendorPackages,
   type VendorBasicProfile,
   type VendorProjectRecord,
 } from "@/components/vendor-data";
@@ -208,6 +209,10 @@ export function VendorDetailShell({ vendorId }: Props) {
   const [historyKeyword, setHistoryKeyword] = useState("");
   const [historyProjectStatus, setHistoryProjectStatus] = useState<"all" | "執行中" | "已結案">("all");
   const [historyPage, setHistoryPage] = useState(1);
+
+  const packageEventDateMap = useMemo(() => {
+    return new Map(vendorPackages.map((pkg) => [pkg.id, pkg.eventDate]));
+  }, []);
 
   const unpaidRecords = useMemo(() => records.filter((record) => record.paymentStatus === "未付款"), [records]);
   const selectedRecords = unpaidRecords.filter((record) => selectedIds.includes(record.id));
@@ -423,7 +428,10 @@ export function VendorDetailShell({ vendorId }: Props) {
                         className="mt-1 h-4 w-4 rounded border-slate-300 text-slate-900 focus:ring-slate-400"
                       />
                       <div>
-                        <p className="font-semibold text-slate-900">{record.projectName}</p>
+                        <div className="flex flex-wrap items-center gap-2">
+                          <p className="font-semibold text-slate-900">{record.projectName}</p>
+                          <span className="text-sm text-slate-500">{record.packageId ? packageEventDateMap.get(record.packageId) ?? "-" : "-"}</span>
+                        </div>
                         <p className="mt-1 text-sm text-slate-500">{record.procurementSummary}</p>
                       </div>
                     </div>
