@@ -177,12 +177,7 @@ function VendorProfileEditor({
         </div>
       )}
 
-      <div className="mt-5 flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-slate-50 px-4 py-4">
-        <p className="text-sm text-slate-500">
-          {activeTab === "basic"
-            ? `銀行代碼目前維持既有資料顯示：${vendor.bankCode || "未填"}`
-            : "勞報資訊供請款 / 報帳用，與一般聯絡資料分開管理。"}
-        </p>
+      <div className="mt-5 flex justify-end">
         <button
           type="button"
           onClick={saveVendorProfile}
