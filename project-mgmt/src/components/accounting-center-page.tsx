@@ -890,23 +890,12 @@ export function AccountingCenterPage() {
                                       <ReadOnlyPair label="類型" value="兼職" />
                                       <EditablePair label="送出年月" value={rosterPartTimeDraft.salaryMonth} onChange={(value) => setPartTimeDrafts((current) => ({ ...current, [employee.id]: { ...rosterPartTimeDraft, salaryMonth: value } }))} />
                                     </div>
-                                    <DetailGroup title="應支付項目區">
+                                    <DetailGroup title="應支付項目區" indexLabel="1" tone="slate">
                                       <div className="grid gap-4 xl:grid-cols-2">
                                         {personnelViewMode === "edit" ? <EditableNumberPair label="本月工作時數" value={rosterPartTimeDraft.hours} onChange={(value) => setPartTimeDrafts((current) => ({ ...current, [employee.id]: { ...rosterPartTimeDraft, hours: value } }))} /> : <ReadOnlyPair label="本月工作時數" value={`${rosterPartTimeDraft.hours} 小時`} />}
                                         {personnelViewMode === "edit" ? <EditableNumberPair label="每小時薪資金額" value={rosterPartTimeDraft.hourlyRate} onChange={(value) => setPartTimeDrafts((current) => ({ ...current, [employee.id]: { ...rosterPartTimeDraft, hourlyRate: value } }))} /> : <ReadOnlyPair label="每小時薪資金額" value={formatCurrency(rosterPartTimeDraft.hourlyRate)} />}
                                       </div>
                                       <SummaryLine label="本月應支金額" value={formatCurrency(calculatePartTimePay(rosterPartTimeDraft))} emphasize />
-                                    </DetailGroup>
-                                    <DetailGroup title="加班費">
-                                      <SummaryLine label="加班費合計" value={formatCurrency(0)} />
-                                    </DetailGroup>
-                                    <DetailGroup title="扣款項目">
-                                      <SummaryLine label="應扣合計" value={formatCurrency(0)} />
-                                      <SummaryLine label="實領金額" value={formatCurrency(calculatePartTimePay(rosterPartTimeDraft))} emphasize />
-                                    </DetailGroup>
-                                    <DetailGroup title="公司負擔">
-                                      <SummaryLine label="公司負擔合計" value={formatCurrency(0)} />
-                                      <SummaryLine label="人事成本總支出" value={formatCurrency(calculatePartTimePay(rosterPartTimeDraft))} emphasize />
                                     </DetailGroup>
                                     {personnelViewMode === "edit" ? <FooterActions onSubmit={() => handlePersonnelSubmit(employee.id)} /> : null}
                                   </EditableBlock>
