@@ -452,14 +452,14 @@ export function VendorDetailShell({ vendorId }: Props) {
         <article className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
           <div className="mb-5 flex min-h-12 flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
             <div className="flex flex-wrap items-center gap-2">
-              <h3 className="text-xl font-semibold text-slate-900">往來紀錄</h3>
+              <h3 className="flex h-10 items-center text-xl font-semibold text-slate-900">往來紀錄</h3>
               <button
                 type="button"
                 onClick={() => {
                   setHistoryTab("unpaid");
                   setHistoryPage(1);
                 }}
-                className={`rounded-2xl px-4 py-2 text-sm font-medium ring-1 transition ${historyTab === "unpaid" ? "bg-slate-900 text-white ring-slate-900" : "bg-white text-slate-700 ring-slate-200 hover:bg-slate-50"}`}
+                className={`inline-flex h-10 items-center justify-center rounded-2xl px-4 text-sm font-medium ring-1 transition ${historyTab === "unpaid" ? "bg-slate-900 text-white ring-slate-900" : "bg-white text-slate-700 ring-slate-200 hover:bg-slate-50"}`}
               >
                 未付款
               </button>
@@ -469,7 +469,7 @@ export function VendorDetailShell({ vendorId }: Props) {
                   setHistoryTab("paid");
                   setHistoryPage(1);
                 }}
-                className={`rounded-2xl px-4 py-2 text-sm font-medium ring-1 transition ${historyTab === "paid" ? "bg-slate-900 text-white ring-slate-900" : "bg-white text-slate-700 ring-slate-200 hover:bg-slate-50"}`}
+                className={`inline-flex h-10 items-center justify-center rounded-2xl px-4 text-sm font-medium ring-1 transition ${historyTab === "paid" ? "bg-slate-900 text-white ring-slate-900" : "bg-white text-slate-700 ring-slate-200 hover:bg-slate-50"}`}
               >
                 已付款
               </button>
