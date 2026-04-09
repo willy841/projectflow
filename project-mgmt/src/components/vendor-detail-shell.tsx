@@ -518,7 +518,7 @@ export function VendorDetailShell({ vendorId }: Props) {
                 const isExpanded = expandedIds.includes(record.id);
                 return (
                   <div key={record.id} className="rounded-3xl border border-slate-200 bg-slate-50/70 p-5">
-                    <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
+                    <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
                       <div className="min-w-0">
                         <div className="flex flex-wrap items-center gap-2">
                           <h4 className="flex h-8 items-center text-lg font-semibold text-slate-900">{record.projectName}</h4>
@@ -528,10 +528,10 @@ export function VendorDetailShell({ vendorId }: Props) {
                           </span>
                         </div>
                       </div>
-                      <div className="flex flex-wrap items-center gap-3 xl:justify-end">
+                      <div className="flex flex-wrap items-center gap-3 xl:justify-end xl:self-center">
                         <div className="flex items-center gap-2 text-left xl:text-right">
-                          <span className="text-sm text-slate-500">調整後成本總額</span>
-                          <p className="text-2xl font-semibold tracking-tight text-slate-900">{record.adjustedCostLabel}</p>
+                          <span className="leading-none text-sm text-slate-500">調整後成本總額</span>
+                          <p className="leading-none text-2xl font-semibold tracking-tight text-slate-900">{record.adjustedCostLabel}</p>
                         </div>
                         <button
                           type="button"
