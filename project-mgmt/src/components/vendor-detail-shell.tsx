@@ -432,7 +432,6 @@ export function VendorDetailShell({ vendorId }: Props) {
                           <p className="font-semibold text-slate-900">{record.projectName}</p>
                           <span className="text-sm text-slate-500">{record.packageId ? packageEventDateMap.get(record.packageId) ?? "-" : "-"}</span>
                         </div>
-                        <p className="mt-1 text-sm text-slate-500">{record.procurementSummary}</p>
                       </div>
                     </div>
                     <div className="text-left sm:text-right">
