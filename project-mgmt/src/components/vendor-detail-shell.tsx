@@ -90,7 +90,7 @@ function VendorProfileEditor({
     };
     setEditableForm(patch);
     onSave(patch);
-    setSaveMessage("已儲存，vendor detail 已同步更新。");
+    setSaveMessage("已儲存");
   }
 
   return (
