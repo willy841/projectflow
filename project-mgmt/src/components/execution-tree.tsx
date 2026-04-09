@@ -81,6 +81,14 @@ type FormActions = {
   onDelete?: () => void;
 };
 
+type ActiveAssignmentDrawer = {
+  targetId: string;
+  title: string;
+  flowType: "design" | "procurement" | "vendor";
+  level: "main" | "child";
+  parentItemId: string;
+};
+
 const defaultDesignAssignmentDraft: DesignAssignmentDraft = {
   assignee: "",
   size: "",
@@ -855,6 +863,134 @@ type ExecutionTreeServerHandlers = {
   saveVendorAssignment?: (payload: PersistedAssignmentPayload & { draft: VendorAssignmentDraft }) => Promise<void>;
 };
 
+function AssignmentDrawer({
+  activeDrawer,
+  designDraft,
+  savedDesign,
+  procurementDraft,
+  savedProcurement,
+  vendorDraft,
+  savedVendor,
+  onClose,
+  onDesignChange,
+  onProcurementChange,
+  onVendorChange,
+  onSaveDesign,
+  onSaveProcurement,
+  onSaveVendor,
+  onDeleteDesign,
+  onDeleteProcurement,
+  onDeleteVendor,
+}: {
+  activeDrawer: ActiveAssignmentDrawer | null;
+  designDraft: DesignAssignmentDraft;
+  savedDesign?: DesignAssignmentDraft;
+  procurementDraft: ProcurementAssignmentDraft;
+  savedProcurement?: ProcurementAssignmentDraft;
+  vendorDraft: VendorAssignmentDraft;
+  savedVendor?: VendorAssignmentDraft;
+  onClose: () => void;
+  onDesignChange: (key: keyof DesignAssignmentDraft, value: string) => void;
+  onProcurementChange: (key: keyof ProcurementAssignmentDraft, value: string) => void;
+  onVendorChange: (key: keyof VendorAssignmentDraft, value: string) => void;
+  onSaveDesign: () => void;
+  onSaveProcurement: () => void;
+  onSaveVendor: () => void;
+  onDeleteDesign: () => void;
+  onDeleteProcurement: () => void;
+  onDeleteVendor: () => void;
+}) {
+  if (!activeDrawer) return null;
+
+  const flowMeta =
+    activeDrawer.flowType === "design"
+      ? { label: "設計交辦", accent: "text-blue-700", badge: "bg-blue-50 text-blue-700 ring-blue-200" }
+      : activeDrawer.flowType === "procurement"
+        ? { label: "備品交辦", accent: "text-amber-700", badge: "bg-amber-50 text-amber-700 ring-amber-200" }
+        : { label: "廠商交辦", accent: "text-violet-700", badge: "bg-violet-50 text-violet-700 ring-violet-200" };
+
+  return (
+    <>
+      <div
+        className="fixed inset-0 z-40 bg-slate-900/30 backdrop-blur-[1px]"
+        onClick={onClose}
+        aria-hidden="true"
+      />
+      <aside className="fixed inset-y-0 right-0 z-50 flex w-full max-w-[720px] flex-col border-l border-slate-200 bg-white shadow-2xl">
+        <div className="flex items-start justify-between gap-4 border-b border-slate-200 px-6 py-5">
+          <div className="min-w-0">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className={`inline-flex items-center justify-center rounded-full px-3 py-1 text-xs font-semibold ring-1 ${flowMeta.badge}`}>
+                {flowMeta.label}
+              </span>
+              <span className="inline-flex items-center justify-center rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600 ring-1 ring-slate-200">
+                {activeDrawer.level === "main" ? "主項目" : "子項目"}
+              </span>
+            </div>
+            <h3 className="mt-3 text-xl font-semibold text-slate-900">{activeDrawer.title}</h3>
+            <p className="mt-1 text-sm text-slate-500">在不改變任務發布 workflow 的前提下，改由右側抽屜完成交辦編輯。</p>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-slate-300 bg-white text-lg text-slate-600 transition hover:bg-slate-50 hover:text-slate-900"
+            aria-label="關閉交辦抽屜"
+          >
+            ×
+          </button>
+        </div>
+
+        <div className="flex-1 overflow-y-auto px-6 py-6">
+          {activeDrawer.flowType === "design" ? (
+            <DesignAssignmentForm
+              title={activeDrawer.title}
+              draft={designDraft}
+              saved={savedDesign}
+              isEditing
+              onChange={onDesignChange}
+              actions={{
+                onSave: onSaveDesign,
+                onCancel: onClose,
+                onDelete: savedDesign ? onDeleteDesign : undefined,
+              }}
+            />
+          ) : null}
+
+          {activeDrawer.flowType === "procurement" ? (
+            <ProcurementAssignmentForm
+              title={activeDrawer.title}
+              draft={procurementDraft}
+              saved={savedProcurement}
+              isEditing
+              onChange={onProcurementChange}
+              actions={{
+                onSave: onSaveProcurement,
+                onCancel: onClose,
+                onDelete: savedProcurement ? onDeleteProcurement : undefined,
+              }}
+            />
+          ) : null}
+
+          {activeDrawer.flowType === "vendor" ? (
+            <VendorAssignmentForm
+              title={activeDrawer.title}
+              draft={vendorDraft}
+              saved={savedVendor}
+              isEditing
+              onChange={onVendorChange}
+              actions={{
+                onSave: onSaveVendor,
+                onCancel: onClose,
+                onDelete: savedVendor ? onDeleteVendor : undefined,
+              }}
+            />
+          ) : null}
+        </div>
+      </aside>
+    </>
+  );
+}
+
 export function ExecutionTree({
   items,
   projectId,
@@ -911,15 +1047,7 @@ export function ExecutionTree({
   const [excelPreview, setExcelPreview] = useState<ParsedExcelImportPreview | null>(null);
   const [excelImportError, setExcelImportError] = useState("");
   const [excelDebugRows, setExcelDebugRows] = useState<string[][]>([]);
-  const [activeDesignFormId, setActiveDesignFormId] = useState<string | null>(
-    null,
-  );
-  const [activeProcurementFormId, setActiveProcurementFormId] = useState<
-    string | null
-  >(null);
-  const [activeVendorFormId, setActiveVendorFormId] = useState<string | null>(
-    null,
-  );
+  const [activeAssignmentDrawer, setActiveAssignmentDrawer] = useState<ActiveAssignmentDrawer | null>(null);
   const [designAssignmentDrafts, setDesignAssignmentDrafts] = useState<
     Record<string, DesignAssignmentDraft>
   >({});
@@ -1043,9 +1171,7 @@ export function ExecutionTree({
 
   function resetTransientPanels() {
     setActiveAssignMenu(null);
-    setActiveDesignFormId(null);
-    setActiveProcurementFormId(null);
-    setActiveVendorFormId(null);
+    setActiveAssignmentDrawer(null);
   }
 
   function toggleItem(itemId: string) {
@@ -1097,11 +1223,9 @@ export function ExecutionTree({
     }));
   }
 
-  function openDesignForm(targetId: string) {
-    setExpandedItemId(getParentItemId(targetId));
-    setActiveDesignFormId(targetId);
-    setActiveProcurementFormId(null);
-    setActiveVendorFormId(null);
+  function openDesignForm(targetId: string, title: string) {
+    const parentItemId = getParentItemId(targetId);
+    setExpandedItemId(parentItemId);
     setActiveAssignMenu(null);
     setDesignAssignmentDrafts((prev) => ({
       ...prev,
@@ -1110,12 +1234,17 @@ export function ExecutionTree({
         savedDesignAssignments[targetId] ??
         defaultDesignAssignmentDraft,
     }));
+    setActiveAssignmentDrawer({
+      targetId,
+      title,
+      flowType: "design",
+      level: targetId === parentItemId ? "main" : "child",
+      parentItemId,
+    });
   }
-  function openProcurementForm(targetId: string) {
-    setExpandedItemId(getParentItemId(targetId));
-    setActiveProcurementFormId(targetId);
-    setActiveDesignFormId(null);
-    setActiveVendorFormId(null);
+  function openProcurementForm(targetId: string, title: string) {
+    const parentItemId = getParentItemId(targetId);
+    setExpandedItemId(parentItemId);
     setActiveAssignMenu(null);
     setProcurementAssignmentDrafts((prev) => ({
       ...prev,
@@ -1124,12 +1253,17 @@ export function ExecutionTree({
         savedProcurementAssignments[targetId] ??
         defaultProcurementAssignmentDraft,
     }));
+    setActiveAssignmentDrawer({
+      targetId,
+      title,
+      flowType: "procurement",
+      level: targetId === parentItemId ? "main" : "child",
+      parentItemId,
+    });
   }
   function openVendorForm(targetId: string, title: string) {
-    setExpandedItemId(getParentItemId(targetId));
-    setActiveVendorFormId(targetId);
-    setActiveDesignFormId(null);
-    setActiveProcurementFormId(null);
+    const parentItemId = getParentItemId(targetId);
+    setExpandedItemId(parentItemId);
     setActiveAssignMenu(null);
     setVendorAssignmentDrafts((prev) => ({
       ...prev,
@@ -1139,6 +1273,13 @@ export function ExecutionTree({
           title,
         },
     }));
+    setActiveAssignmentDrawer({
+      targetId,
+      title,
+      flowType: "vendor",
+      level: targetId === parentItemId ? "main" : "child",
+      parentItemId,
+    });
   }
 
   async function saveDesignAssignment(targetId: string) {
@@ -1153,7 +1294,7 @@ export function ExecutionTree({
       ...prev,
       [targetId]: draft,
     }));
-    setActiveDesignFormId(null);
+    setActiveAssignmentDrawer(null);
   }
   async function saveProcurementAssignment(targetId: string) {
     const draft = procurementAssignmentDrafts[targetId] ?? defaultProcurementAssignmentDraft;
@@ -1167,7 +1308,7 @@ export function ExecutionTree({
       ...prev,
       [targetId]: draft,
     }));
-    setActiveProcurementFormId(null);
+    setActiveAssignmentDrawer(null);
   }
   async function saveVendorAssignment(targetId: string) {
     const draft = vendorAssignmentDrafts[targetId] ?? defaultVendorAssignmentDraft;
@@ -1181,7 +1322,7 @@ export function ExecutionTree({
       ...prev,
       [targetId]: draft,
     }));
-    setActiveVendorFormId(null);
+    setActiveAssignmentDrawer(null);
   }
 
   function removeDesignAssignment(targetId: string) {
@@ -1196,7 +1337,9 @@ export function ExecutionTree({
       delete next[targetId];
       return next;
     });
-    if (activeDesignFormId === targetId) setActiveDesignFormId(null);
+    if (activeAssignmentDrawer?.flowType === "design" && activeAssignmentDrawer.targetId === targetId) {
+      setActiveAssignmentDrawer(null);
+    }
   }
   function removeProcurementAssignment(targetId: string) {
     if (!window.confirm("確定要刪除這筆備品交辦嗎？")) return;
@@ -1210,7 +1353,9 @@ export function ExecutionTree({
       delete next[targetId];
       return next;
     });
-    if (activeProcurementFormId === targetId) setActiveProcurementFormId(null);
+    if (activeAssignmentDrawer?.flowType === "procurement" && activeAssignmentDrawer.targetId === targetId) {
+      setActiveAssignmentDrawer(null);
+    }
   }
   function removeVendorAssignment(targetId: string) {
     if (!window.confirm("確定要刪除這筆廠商交辦嗎？")) return;
@@ -1224,7 +1369,9 @@ export function ExecutionTree({
       delete next[targetId];
       return next;
     });
-    if (activeVendorFormId === targetId) setActiveVendorFormId(null);
+    if (activeAssignmentDrawer?.flowType === "vendor" && activeAssignmentDrawer.targetId === targetId) {
+      setActiveAssignmentDrawer(null);
+    }
   }
 
   async function addMainItem() {
@@ -1374,9 +1521,7 @@ export function ExecutionTree({
   }
   function toggleAssignMenu(targetId: string) {
     setExpandedItemId(getParentItemId(targetId));
-    setActiveDesignFormId(null);
-    setActiveProcurementFormId(null);
-    setActiveVendorFormId(null);
+    setActiveAssignmentDrawer(null);
     setActiveAssignMenu((prev) => (prev === targetId ? null : targetId));
   }
 
@@ -1614,18 +1759,83 @@ export function ExecutionTree({
         ) : null}
       </div>
 
+      <AssignmentDrawer
+        activeDrawer={activeAssignmentDrawer}
+        designDraft={
+          activeAssignmentDrawer && activeAssignmentDrawer.flowType === "design"
+            ? designAssignmentDrafts[activeAssignmentDrawer.targetId] ?? defaultDesignAssignmentDraft
+            : defaultDesignAssignmentDraft
+        }
+        savedDesign={
+          activeAssignmentDrawer && activeAssignmentDrawer.flowType === "design"
+            ? savedDesignAssignments[activeAssignmentDrawer.targetId]
+            : undefined
+        }
+        procurementDraft={
+          activeAssignmentDrawer && activeAssignmentDrawer.flowType === "procurement"
+            ? procurementAssignmentDrafts[activeAssignmentDrawer.targetId] ?? defaultProcurementAssignmentDraft
+            : defaultProcurementAssignmentDraft
+        }
+        savedProcurement={
+          activeAssignmentDrawer && activeAssignmentDrawer.flowType === "procurement"
+            ? savedProcurementAssignments[activeAssignmentDrawer.targetId]
+            : undefined
+        }
+        vendorDraft={
+          activeAssignmentDrawer && activeAssignmentDrawer.flowType === "vendor"
+            ? vendorAssignmentDrafts[activeAssignmentDrawer.targetId] ?? {
+                ...defaultVendorAssignmentDraft,
+                title: activeAssignmentDrawer.title,
+              }
+            : defaultVendorAssignmentDraft
+        }
+        savedVendor={
+          activeAssignmentDrawer && activeAssignmentDrawer.flowType === "vendor"
+            ? savedVendorAssignments[activeAssignmentDrawer.targetId]
+            : undefined
+        }
+        onClose={() => setActiveAssignmentDrawer(null)}
+        onDesignChange={(key, value) => {
+          if (!activeAssignmentDrawer) return;
+          updateDesignAssignmentDraft(activeAssignmentDrawer.targetId, key, value);
+        }}
+        onProcurementChange={(key, value) => {
+          if (!activeAssignmentDrawer) return;
+          updateProcurementAssignmentDraft(activeAssignmentDrawer.targetId, key, value);
+        }}
+        onVendorChange={(key, value) => {
+          if (!activeAssignmentDrawer) return;
+          updateVendorAssignmentDraft(activeAssignmentDrawer.targetId, key, value);
+        }}
+        onSaveDesign={() => {
+          if (!activeAssignmentDrawer) return;
+          void saveDesignAssignment(activeAssignmentDrawer.targetId);
+        }}
+        onSaveProcurement={() => {
+          if (!activeAssignmentDrawer) return;
+          void saveProcurementAssignment(activeAssignmentDrawer.targetId);
+        }}
+        onSaveVendor={() => {
+          if (!activeAssignmentDrawer) return;
+          void saveVendorAssignment(activeAssignmentDrawer.targetId);
+        }}
+        onDeleteDesign={() => {
+          if (!activeAssignmentDrawer) return;
+          removeDesignAssignment(activeAssignmentDrawer.targetId);
+        }}
+        onDeleteProcurement={() => {
+          if (!activeAssignmentDrawer) return;
+          removeProcurementAssignment(activeAssignmentDrawer.targetId);
+        }}
+        onDeleteVendor={() => {
+          if (!activeAssignmentDrawer) return;
+          removeVendorAssignment(activeAssignmentDrawer.targetId);
+        }}
+      />
+
       {localItems.map((item, itemIndex) => {
         const isOpen = expandedItemId === item.id;
         const isEditingMain = editingMainId === item.id;
-        const showMainDesignForm =
-          activeDesignFormId === item.id ||
-          Boolean(savedDesignAssignments[item.id]);
-        const showMainProcurementForm =
-          activeProcurementFormId === item.id ||
-          Boolean(savedProcurementAssignments[item.id]);
-        const showMainVendorForm =
-          activeVendorFormId === item.id ||
-          Boolean(savedVendorAssignments[item.id]);
         const hasMainAssignment =
           Boolean(savedDesignAssignments[item.id]) ||
           Boolean(savedProcurementAssignments[item.id]) ||
@@ -1741,8 +1951,8 @@ export function ExecutionTree({
                   targetId={item.id}
                   isActive={activeAssignMenu === item.id}
                   onToggle={toggleAssignMenu}
-                  onDesign={() => openDesignForm(item.id)}
-                  onProcurement={() => openProcurementForm(item.id)}
+                  onDesign={() => openDesignForm(item.id, item.title)}
+                  onProcurement={() => openProcurementForm(item.id, item.title)}
                   onVendor={() => openVendorForm(item.id, item.title)}
                   hasDesign={Boolean(savedDesignAssignments[item.id])}
                   hasProcurement={Boolean(savedProcurementAssignments[item.id])}
@@ -1764,68 +1974,6 @@ export function ExecutionTree({
                 </button>
               </div>
             </div>
-            {showMainDesignForm && !isMainAssignmentCollapsed ? (
-              <DesignAssignmentForm
-                title={item.title}
-                draft={
-                  designAssignmentDrafts[item.id] ??
-                  defaultDesignAssignmentDraft
-                }
-                saved={savedDesignAssignments[item.id]}
-                isEditing={activeDesignFormId === item.id}
-                onChange={(key, value) =>
-                  updateDesignAssignmentDraft(item.id, key, value)
-                }
-                actions={{
-                  onSave: () => saveDesignAssignment(item.id),
-                  onCancel: () => setActiveDesignFormId(null),
-                  onEdit: () => openDesignForm(item.id),
-                  onDelete: () => removeDesignAssignment(item.id),
-                }}
-              />
-            ) : null}
-            {showMainProcurementForm && !isMainAssignmentCollapsed ? (
-              <ProcurementAssignmentForm
-                title={item.title}
-                draft={
-                  procurementAssignmentDrafts[item.id] ??
-                  defaultProcurementAssignmentDraft
-                }
-                saved={savedProcurementAssignments[item.id]}
-                isEditing={activeProcurementFormId === item.id}
-                onChange={(key, value) =>
-                  updateProcurementAssignmentDraft(item.id, key, value)
-                }
-                actions={{
-                  onSave: () => saveProcurementAssignment(item.id),
-                  onCancel: () => setActiveProcurementFormId(null),
-                  onEdit: () => openProcurementForm(item.id),
-                  onDelete: () => removeProcurementAssignment(item.id),
-                }}
-              />
-            ) : null}
-            {showMainVendorForm && !isMainAssignmentCollapsed ? (
-              <VendorAssignmentForm
-                title={item.title}
-                draft={
-                  vendorAssignmentDrafts[item.id] ?? {
-                    ...defaultVendorAssignmentDraft,
-                    title: item.title,
-                  }
-                }
-                saved={savedVendorAssignments[item.id]}
-                isEditing={activeVendorFormId === item.id}
-                onChange={(key, value) =>
-                  updateVendorAssignmentDraft(item.id, key, value)
-                }
-                actions={{
-                  onSave: () => saveVendorAssignment(item.id),
-                  onCancel: () => setActiveVendorFormId(null),
-                  onEdit: () => openVendorForm(item.id, item.title),
-                  onDelete: () => removeVendorAssignment(item.id),
-                }}
-              />
-            ) : null}
 
             {isOpen ? (
               <div className="mt-5 rounded-3xl border border-slate-200 bg-slate-50 p-4">
@@ -1837,15 +1985,6 @@ export function ExecutionTree({
                 <div className="space-y-3 border-l border-slate-200 pl-4 md:pl-6">
                   {(item.children ?? []).map((child, childIndex) => {
                     const isEditingChild = editingChildId === child.id;
-                    const showChildDesignForm =
-                      activeDesignFormId === child.id ||
-                      Boolean(savedDesignAssignments[child.id]);
-                    const showChildProcurementForm =
-                      activeProcurementFormId === child.id ||
-                      Boolean(savedProcurementAssignments[child.id]);
-                    const showChildVendorForm =
-                      activeVendorFormId === child.id ||
-                      Boolean(savedVendorAssignments[child.id]);
                     const hasChildAssignment =
                       Boolean(savedDesignAssignments[child.id]) ||
                       Boolean(savedProcurementAssignments[child.id]) ||
@@ -1954,9 +2093,9 @@ export function ExecutionTree({
                               targetId={child.id}
                               isActive={activeAssignMenu === child.id}
                               onToggle={toggleAssignMenu}
-                              onDesign={() => openDesignForm(child.id)}
+                              onDesign={() => openDesignForm(child.id, child.title)}
                               onProcurement={() =>
-                                openProcurementForm(child.id)
+                                openProcurementForm(child.id, child.title)
                               }
                               onVendor={() =>
                                 openVendorForm(child.id, child.title)
@@ -1990,74 +2129,6 @@ export function ExecutionTree({
                             </button>
                           </div>
                         </div>
-                        {showChildDesignForm && !isChildAssignmentCollapsed ? (
-                          <DesignAssignmentForm
-                            title={child.title}
-                            draft={
-                              designAssignmentDrafts[child.id] ??
-                              defaultDesignAssignmentDraft
-                            }
-                            saved={savedDesignAssignments[child.id]}
-                            isEditing={activeDesignFormId === child.id}
-                            onChange={(key, value) =>
-                              updateDesignAssignmentDraft(child.id, key, value)
-                            }
-                            actions={{
-                              onSave: () => saveDesignAssignment(child.id),
-                              onCancel: () => setActiveDesignFormId(null),
-                              onEdit: () => openDesignForm(child.id),
-                              onDelete: () => removeDesignAssignment(child.id),
-                            }}
-                          />
-                        ) : null}
-                        {showChildProcurementForm && !isChildAssignmentCollapsed ? (
-                          <ProcurementAssignmentForm
-                            title={child.title}
-                            draft={
-                              procurementAssignmentDrafts[child.id] ??
-                              defaultProcurementAssignmentDraft
-                            }
-                            saved={savedProcurementAssignments[child.id]}
-                            isEditing={activeProcurementFormId === child.id}
-                            onChange={(key, value) =>
-                              updateProcurementAssignmentDraft(
-                                child.id,
-                                key,
-                                value,
-                              )
-                            }
-                            actions={{
-                              onSave: () => saveProcurementAssignment(child.id),
-                              onCancel: () => setActiveProcurementFormId(null),
-                              onEdit: () => openProcurementForm(child.id),
-                              onDelete: () =>
-                                removeProcurementAssignment(child.id),
-                            }}
-                          />
-                        ) : null}
-                        {showChildVendorForm && !isChildAssignmentCollapsed ? (
-                          <VendorAssignmentForm
-                            title={child.title}
-                            draft={
-                              vendorAssignmentDrafts[child.id] ?? {
-                                ...defaultVendorAssignmentDraft,
-                                title: child.title,
-                              }
-                            }
-                            saved={savedVendorAssignments[child.id]}
-                            isEditing={activeVendorFormId === child.id}
-                            onChange={(key, value) =>
-                              updateVendorAssignmentDraft(child.id, key, value)
-                            }
-                            actions={{
-                              onSave: () => saveVendorAssignment(child.id),
-                              onCancel: () => setActiveVendorFormId(null),
-                              onEdit: () =>
-                                openVendorForm(child.id, child.title),
-                              onDelete: () => removeVendorAssignment(child.id),
-                            }}
-                          />
-                        ) : null}
                       </div>
                     );
                   })}
