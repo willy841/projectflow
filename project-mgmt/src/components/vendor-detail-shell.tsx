@@ -411,8 +411,7 @@ export function VendorDetailShell({ vendorId }: Props) {
                 <h3 className="text-xl font-semibold text-slate-900">未付款專案</h3>
               </div>
               <div className="rounded-2xl bg-white px-4 py-3 text-sm text-slate-700 ring-1 ring-amber-200">
-                <p>已勾選 {selectedCount} 筆</p>
-                <p className="mt-1 font-semibold text-slate-900">勾選總額 {formatCurrency(selectedTotal)}</p>
+                <p className="font-semibold text-slate-900">已勾選 {selectedCount} 筆｜勾選總額 {formatCurrency(selectedTotal)}</p>
               </div>
             </div>
 
