@@ -1,16 +1,29 @@
 import { NextResponse } from 'next/server';
 import { createPhase1DbClient } from '@/lib/db/phase1-client';
+import { ensureProjectDbWriteEnabled } from '@/lib/db/project-flow-guard';
 import { createPhase1Repositories } from '@/lib/db/phase1-repositories';
 import { createPhase1Services } from '@/lib/db/phase1-services';
 
 export async function POST(_request: Request, context: { params: Promise<{ id: string }> }) {
-  const { id } = await context.params;
+  try {
+    const access = ensureProjectDbWriteEnabled();
+    if (!access.ok) {
+      return access.response;
+    }
 
-  const db = createPhase1DbClient();
-  const repositories = createPhase1Repositories(db);
-  const services = createPhase1Services(repositories);
+    const { id } = await context.params;
 
-  const confirmation = await services.confirmDesignTaskPlans(id);
+    const db = createPhase1DbClient();
+    const repositories = createPhase1Repositories(db);
+    const services = createPhase1Services(repositories);
 
-  return NextResponse.json({ ok: true, confirmation });
+    const confirmation = await services.confirmDesignTaskPlans(id);
+
+    return NextResponse.json({ ok: true, confirmation, storage: access.storage });
+  } catch (error) {
+    return NextResponse.json(
+      { ok: false, error: error instanceof Error ? error.message : 'Unknown confirm design plans error' },
+      { status: 500 },
+    );
+  }
 }

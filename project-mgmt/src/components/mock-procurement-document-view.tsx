@@ -3,6 +3,7 @@
 import { useMemo } from "react";
 import { getMockTaskDocument } from "@/components/mock-workflow-document-store";
 import type { ProcurementDocumentRow } from "@/components/procurement-task-board-data";
+import { isUuidLike } from "@/lib/db/project-flow-toggle";
 
 export function MockProcurementDocumentView({
   taskId,
@@ -11,7 +12,7 @@ export function MockProcurementDocumentView({
   taskId: string;
   fallbackRows: ProcurementDocumentRow[];
 }) {
-  const stored = useMemo(() => getMockTaskDocument(taskId), [taskId]);
+  const stored = useMemo(() => (isUuidLike(taskId) ? null : getMockTaskDocument(taskId)), [taskId]);
   const rows = stored?.rows?.length ? stored.rows : fallbackRows;
 
   return (

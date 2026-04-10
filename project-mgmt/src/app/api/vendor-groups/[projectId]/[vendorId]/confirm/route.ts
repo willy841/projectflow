@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createPhase1DbClient } from '@/lib/db/phase1-client';
+import { ensureProjectDbWriteEnabled } from '@/lib/db/project-flow-guard';
 import { createPhase1Repositories } from '@/lib/db/phase1-repositories';
 import { createPhase1Services } from '@/lib/db/phase1-services';
 
@@ -8,6 +9,11 @@ export async function POST(
   context: { params: Promise<{ projectId: string; vendorId: string }> },
 ) {
   try {
+    const access = ensureProjectDbWriteEnabled();
+    if (!access.ok) {
+      return access.response;
+    }
+
     const { projectId, vendorId } = await context.params;
     const db = createPhase1DbClient();
     const repositories = createPhase1Repositories(db);

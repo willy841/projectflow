@@ -3,6 +3,7 @@
 import { useMemo } from "react";
 import { getMockTaskDocument } from "@/components/mock-workflow-document-store";
 import type { DesignDocumentRow } from "@/components/design-task-data";
+import { isUuidLike } from "@/lib/db/project-flow-toggle";
 
 export function MockDesignDocumentView({
   taskId,
@@ -11,7 +12,7 @@ export function MockDesignDocumentView({
   taskId: string;
   fallbackRows: DesignDocumentRow[];
 }) {
-  const stored = useMemo(() => getMockTaskDocument(taskId), [taskId]);
+  const stored = useMemo(() => (isUuidLike(taskId) ? null : getMockTaskDocument(taskId)), [taskId]);
   const rows = stored?.rows?.length ? stored.rows : fallbackRows;
 
   return (
