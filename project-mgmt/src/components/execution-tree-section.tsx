@@ -46,6 +46,26 @@ function findExecutionTitle(project: Project, targetId: string) {
   return targetId;
 }
 
+function resolveExecutionTargetId(project: Project, sourceExecutionItemId?: string, fallbackTitle?: string) {
+  if (sourceExecutionItemId) {
+    for (const item of project.executionItems) {
+      if (item.id === sourceExecutionItemId) return item.id;
+      const child = item.children?.find((entry) => entry.id === sourceExecutionItemId);
+      if (child) return child.id;
+    }
+  }
+
+  if (fallbackTitle) {
+    for (const item of project.executionItems) {
+      if (item.title === fallbackTitle) return item.id;
+      const child = item.children?.find((entry) => entry.title === fallbackTitle);
+      if (child) return child.id;
+    }
+  }
+
+  return sourceExecutionItemId ?? fallbackTitle ?? null;
+}
+
 function buildImportedChild(child: { id: string; title: string; quantity?: string | null; note?: string | null }, category = "專案"): ProjectExecutionSubItem {
   return {
     id: child.id,
@@ -79,9 +99,13 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
       isDbProject
         ? Object.fromEntries(
             (project.designTasks ?? [])
-              .filter((task) => task.sourceExecutionItemId)
-              .map((task) => [
-                task.sourceExecutionItemId as string,
+              .map((task) => ({
+                targetId: resolveExecutionTargetId(project, task.sourceExecutionItemId, task.title),
+                task,
+              }))
+              .filter((entry) => entry.targetId)
+              .map(({ targetId, task }) => [
+                targetId as string,
                 {
                   assignee: task.assignee,
                   size: "",
@@ -104,9 +128,13 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
       isDbProject
         ? Object.fromEntries(
             (project.procurementTasks ?? [])
-              .filter((task) => task.sourceExecutionItemId)
-              .map((task) => [
-                task.sourceExecutionItemId as string,
+              .map((task) => ({
+                targetId: resolveExecutionTargetId(project, task.sourceExecutionItemId, task.title),
+                task,
+              }))
+              .filter((entry) => entry.targetId)
+              .map(({ targetId, task }) => [
+                targetId as string,
                 {
                   assignee: task.buyer,
                   item: task.title,
@@ -128,9 +156,13 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
       isDbProject
         ? Object.fromEntries(
             (project.vendorTasks ?? [])
-              .filter((task) => task.sourceExecutionItemId)
-              .map((task) => [
-                task.sourceExecutionItemId as string,
+              .map((task) => ({
+                targetId: resolveExecutionTargetId(project, task.sourceExecutionItemId, task.title),
+                task,
+              }))
+              .filter((entry) => entry.targetId)
+              .map(({ targetId, task }) => [
+                targetId as string,
                 {
                   assignee: "",
                   category: "其他",

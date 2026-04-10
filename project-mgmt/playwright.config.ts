@@ -9,6 +9,7 @@ export default defineConfig({
   fullyParallel: false,
   retries: 0,
   reporter: 'list',
+  workers: 1,
   use: {
     baseURL: process.env.PLAYWRIGHT_BASE_URL || 'http://localhost:3000',
     trace: 'on-first-retry',
@@ -24,7 +25,7 @@ export default defineConfig({
   webServer: process.env.PLAYWRIGHT_SKIP_WEBSERVER
     ? undefined
     : {
-        command: 'npm run dev',
+        command: 'npm run dev -- --webpack',
         url: 'http://localhost:3000',
         reuseExistingServer: true,
         timeout: 120_000,
