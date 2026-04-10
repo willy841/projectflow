@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   ProjectTaskSummaryList,
   type ProjectTaskSummaryItem,
@@ -69,6 +69,7 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
   const [procurementAssignments, setProcurementAssignments] = useState<ProcurementAssignmentItem[]>([]);
   const [vendorAssignments, setVendorAssignments] = useState<VendorAssignmentItem[]>([]);
   const [openCategory, setOpenCategory] = useState<OpenCategory>("design");
+  const [saveFeedback, setSaveFeedback] = useState<{ category: OpenCategory; message: string } | null>(null);
 
   const initialDesignAssignments = useMemo<Record<string, DesignAssignmentDraft>>(
     () =>
@@ -249,6 +250,12 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
     },
   };
 
+  useEffect(() => {
+    if (!saveFeedback) return;
+    const timer = window.setTimeout(() => setSaveFeedback(null), 4000);
+    return () => window.clearTimeout(timer);
+  }, [saveFeedback]);
+
   const serverHandlers = isDbProject
     ? {
         createExecutionItem: async ({ title, parentId }: { title: string; parentId?: string | null }) => {
@@ -291,6 +298,7 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
               quantity: draft.quantity,
               referenceUrl: draft.referenceUrl,
               note: draft.note,
+              status: draft.status,
             }),
           });
           const result = await response.json();
@@ -308,6 +316,7 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
               budgetNote: draft.note,
               note: draft.note,
               referenceUrl: draft.styleUrl,
+              status: draft.status,
             }),
           });
           const result = await response.json();
@@ -325,6 +334,7 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
               requirement: draft.requirement || draft.note,
               note: draft.note,
               amount: draft.amount,
+              status: draft.status,
             }),
           });
           const result = await response.json();
@@ -343,6 +353,18 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
           onDesignAssignmentsChange={setDesignAssignments}
           onProcurementAssignmentsChange={setProcurementAssignments}
           onVendorAssignmentsChange={setVendorAssignments}
+          onAssignmentSaved={(flowType) => {
+            setOpenCategory(flowType);
+            setSaveFeedback({
+              category: flowType,
+              message:
+                flowType === "design"
+                  ? "設計交辦已建立，摘要清單已更新。"
+                  : flowType === "procurement"
+                    ? "備品交辦已建立，摘要清單已更新。"
+                    : "廠商交辦已建立，摘要清單已更新。",
+            });
+          }}
           initialDesignAssignments={initialDesignAssignments}
           initialProcurementAssignments={initialProcurementAssignments}
           initialVendorAssignments={initialVendorAssignments}
@@ -396,6 +418,12 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
               <p className="mt-1 text-sm text-slate-500">{categoryMeta[openCategory].sectionHint}</p>
             </div>
           </div>
+
+          {saveFeedback && saveFeedback.category === openCategory ? (
+            <div className="mb-4 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
+              {saveFeedback.message}
+            </div>
+          ) : null}
 
           <div className="space-y-3">
             <ProjectTaskSummaryList items={currentList} />

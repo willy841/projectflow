@@ -79,6 +79,8 @@ type FormActions = {
   onSave: () => void;
   onEdit?: () => void;
   onDelete?: () => void;
+  isSaving?: boolean;
+  saveLabel?: string;
 };
 
 type ActiveAssignmentDrawer = {
@@ -405,14 +407,16 @@ function DesignAssignmentForm({
             <button
               type="button"
               onClick={actions.onSave}
-              className="inline-flex items-center justify-center rounded-2xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700"
+              disabled={actions.isSaving}
+              className="inline-flex items-center justify-center rounded-2xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-blue-300"
             >
-              儲存設計交辦
+              {actions.saveLabel ?? "儲存設計交辦"}
             </button>
             <button
               type="button"
               onClick={actions.onCancel}
-              className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 transition hover:bg-slate-50"
+              disabled={actions.isSaving}
+              className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
             >
               取消
             </button>
@@ -557,14 +561,16 @@ function ProcurementAssignmentForm({
             <button
               type="button"
               onClick={actions.onSave}
-              className="inline-flex items-center justify-center rounded-2xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800"
+              disabled={actions.isSaving}
+              className="inline-flex items-center justify-center rounded-2xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-400"
             >
-              儲存備品交辦
+              {actions.saveLabel ?? "儲存備品交辦"}
             </button>
             <button
               type="button"
               onClick={actions.onCancel}
-              className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 transition hover:bg-slate-50"
+              disabled={actions.isSaving}
+              className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
             >
               取消
             </button>
@@ -740,14 +746,16 @@ function VendorAssignmentForm({
             <button
               type="button"
               onClick={actions.onSave}
-              className="inline-flex items-center justify-center rounded-2xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800"
+              disabled={actions.isSaving}
+              className="inline-flex items-center justify-center rounded-2xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-400"
             >
-              儲存廠商交辦
+              {actions.saveLabel ?? "儲存廠商交辦"}
             </button>
             <button
               type="button"
               onClick={actions.onCancel}
-              className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 transition hover:bg-slate-50"
+              disabled={actions.isSaving}
+              className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
             >
               取消
             </button>
@@ -881,6 +889,8 @@ function AssignmentDrawer({
   onDeleteDesign,
   onDeleteProcurement,
   onDeleteVendor,
+  isSaving = false,
+  errorMessage,
 }: {
   activeDrawer: ActiveAssignmentDrawer | null;
   designDraft: DesignAssignmentDraft;
@@ -899,6 +909,8 @@ function AssignmentDrawer({
   onDeleteDesign: () => void;
   onDeleteProcurement: () => void;
   onDeleteVendor: () => void;
+  isSaving?: boolean;
+  errorMessage?: string | null;
 }) {
   if (!activeDrawer) return null;
 
@@ -941,6 +953,12 @@ function AssignmentDrawer({
         </div>
 
         <div className="flex-1 overflow-y-auto px-6 py-6">
+          {errorMessage ? (
+            <div className="mb-4 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+              {errorMessage}
+            </div>
+          ) : null}
+
           {activeDrawer.flowType === "design" ? (
             <DesignAssignmentForm
               title={activeDrawer.title}
@@ -952,6 +970,8 @@ function AssignmentDrawer({
                 onSave: onSaveDesign,
                 onCancel: onClose,
                 onDelete: savedDesign ? onDeleteDesign : undefined,
+                isSaving,
+                saveLabel: isSaving ? "儲存中..." : "儲存設計交辦",
               }}
             />
           ) : null}
@@ -967,6 +987,8 @@ function AssignmentDrawer({
                 onSave: onSaveProcurement,
                 onCancel: onClose,
                 onDelete: savedProcurement ? onDeleteProcurement : undefined,
+                isSaving,
+                saveLabel: isSaving ? "儲存中..." : "儲存備品交辦",
               }}
             />
           ) : null}
@@ -982,6 +1004,8 @@ function AssignmentDrawer({
                 onSave: onSaveVendor,
                 onCancel: onClose,
                 onDelete: savedVendor ? onDeleteVendor : undefined,
+                isSaving,
+                saveLabel: isSaving ? "儲存中..." : "儲存廠商交辦",
               }}
             />
           ) : null}
@@ -997,6 +1021,7 @@ export function ExecutionTree({
   onDesignAssignmentsChange,
   onProcurementAssignmentsChange,
   onVendorAssignmentsChange,
+  onAssignmentSaved,
   heading = "新增主項目",
   initialDesignAssignments = {},
   initialProcurementAssignments = {},
@@ -1030,6 +1055,7 @@ export function ExecutionTree({
   initialDesignAssignments?: Record<string, DesignAssignmentDraft>;
   initialProcurementAssignments?: Record<string, ProcurementAssignmentDraft>;
   initialVendorAssignments?: Record<string, VendorAssignmentDraft>;
+  onAssignmentSaved?: (flowType: "design" | "procurement" | "vendor") => void;
   serverHandlers?: ExecutionTreeServerHandlers;
 }) {
   const [expandedItemId, setExpandedItemId] = useState<string | null>(null);
@@ -1064,6 +1090,8 @@ export function ExecutionTree({
   const [savedVendorAssignments, setSavedVendorAssignments] = useState<
     Record<string, VendorAssignmentDraft>
   >(initialVendorAssignments);
+  const [isSubmittingAssignment, setIsSubmittingAssignment] = useState(false);
+  const [assignmentSaveError, setAssignmentSaveError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
@@ -1223,7 +1251,20 @@ export function ExecutionTree({
     }));
   }
 
+  function cloneDesignAssignmentDraft(draft: DesignAssignmentDraft): DesignAssignmentDraft {
+    return { ...draft, replies: draft.replies ? [...draft.replies] : undefined };
+  }
+
+  function cloneProcurementAssignmentDraft(draft: ProcurementAssignmentDraft): ProcurementAssignmentDraft {
+    return { ...draft, replies: draft.replies ? [...draft.replies] : undefined };
+  }
+
+  function cloneVendorAssignmentDraft(draft: VendorAssignmentDraft): VendorAssignmentDraft {
+    return { ...draft, replies: draft.replies ? [...draft.replies] : undefined };
+  }
+
   function openDesignForm(targetId: string, title: string) {
+    setAssignmentSaveError(null);
     const parentItemId = getParentItemId(targetId);
     setExpandedItemId(parentItemId);
     setActiveAssignMenu(null);
@@ -1243,6 +1284,7 @@ export function ExecutionTree({
     });
   }
   function openProcurementForm(targetId: string, title: string) {
+    setAssignmentSaveError(null);
     const parentItemId = getParentItemId(targetId);
     setExpandedItemId(parentItemId);
     setActiveAssignMenu(null);
@@ -1262,6 +1304,7 @@ export function ExecutionTree({
     });
   }
   function openVendorForm(targetId: string, title: string) {
+    setAssignmentSaveError(null);
     const parentItemId = getParentItemId(targetId);
     setExpandedItemId(parentItemId);
     setActiveAssignMenu(null);
@@ -1283,46 +1326,73 @@ export function ExecutionTree({
   }
 
   async function saveDesignAssignment(targetId: string) {
-    const draft = designAssignmentDrafts[targetId] ?? defaultDesignAssignmentDraft;
-    if (serverHandlers?.saveDesignAssignment) {
-      const title = localItems.find((item) => item.id === targetId)?.title
-        ?? localItems.flatMap((item) => item.children ?? []).find((child) => child.id === targetId)?.title
-        ?? targetId;
-      await serverHandlers.saveDesignAssignment({ targetId, title, draft });
+    const draft = cloneDesignAssignmentDraft(designAssignmentDrafts[targetId] ?? defaultDesignAssignmentDraft);
+    setIsSubmittingAssignment(true);
+    setAssignmentSaveError(null);
+    try {
+      if (serverHandlers?.saveDesignAssignment) {
+        const title = localItems.find((item) => item.id === targetId)?.title
+          ?? localItems.flatMap((item) => item.children ?? []).find((child) => child.id === targetId)?.title
+          ?? targetId;
+        await serverHandlers.saveDesignAssignment({ targetId, title, draft });
+      }
+      setSavedDesignAssignments((prev) => ({
+        ...prev,
+        [targetId]: draft,
+      }));
+      setActiveAssignmentDrawer(null);
+      onAssignmentSaved?.("design");
+    } catch (error) {
+      setAssignmentSaveError(error instanceof Error ? error.message : "設計交辦儲存失敗");
+    } finally {
+      setIsSubmittingAssignment(false);
     }
-    setSavedDesignAssignments((prev) => ({
-      ...prev,
-      [targetId]: draft,
-    }));
-    setActiveAssignmentDrawer(null);
   }
   async function saveProcurementAssignment(targetId: string) {
-    const draft = procurementAssignmentDrafts[targetId] ?? defaultProcurementAssignmentDraft;
-    if (serverHandlers?.saveProcurementAssignment) {
-      const title = localItems.find((item) => item.id === targetId)?.title
-        ?? localItems.flatMap((item) => item.children ?? []).find((child) => child.id === targetId)?.title
-        ?? targetId;
-      await serverHandlers.saveProcurementAssignment({ targetId, title, draft });
+    const draft = cloneProcurementAssignmentDraft(procurementAssignmentDrafts[targetId] ?? defaultProcurementAssignmentDraft);
+    setIsSubmittingAssignment(true);
+    setAssignmentSaveError(null);
+    try {
+      if (serverHandlers?.saveProcurementAssignment) {
+        const title = localItems.find((item) => item.id === targetId)?.title
+          ?? localItems.flatMap((item) => item.children ?? []).find((child) => child.id === targetId)?.title
+          ?? targetId;
+        await serverHandlers.saveProcurementAssignment({ targetId, title, draft });
+      }
+      setSavedProcurementAssignments((prev) => ({
+        ...prev,
+        [targetId]: draft,
+      }));
+      setActiveAssignmentDrawer(null);
+      onAssignmentSaved?.("procurement");
+    } catch (error) {
+      setAssignmentSaveError(error instanceof Error ? error.message : "備品交辦儲存失敗");
+    } finally {
+      setIsSubmittingAssignment(false);
     }
-    setSavedProcurementAssignments((prev) => ({
-      ...prev,
-      [targetId]: draft,
-    }));
-    setActiveAssignmentDrawer(null);
   }
   async function saveVendorAssignment(targetId: string) {
-    const draft = vendorAssignmentDrafts[targetId] ?? defaultVendorAssignmentDraft;
-    if (serverHandlers?.saveVendorAssignment) {
-      const title = localItems.find((item) => item.id === targetId)?.title
-        ?? localItems.flatMap((item) => item.children ?? []).find((child) => child.id === targetId)?.title
-        ?? targetId;
-      await serverHandlers.saveVendorAssignment({ targetId, title, draft });
+    const draft = cloneVendorAssignmentDraft(vendorAssignmentDrafts[targetId] ?? defaultVendorAssignmentDraft);
+    setIsSubmittingAssignment(true);
+    setAssignmentSaveError(null);
+    try {
+      if (serverHandlers?.saveVendorAssignment) {
+        const title = localItems.find((item) => item.id === targetId)?.title
+          ?? localItems.flatMap((item) => item.children ?? []).find((child) => child.id === targetId)?.title
+          ?? targetId;
+        await serverHandlers.saveVendorAssignment({ targetId, title, draft });
+      }
+      setSavedVendorAssignments((prev) => ({
+        ...prev,
+        [targetId]: draft,
+      }));
+      setActiveAssignmentDrawer(null);
+      onAssignmentSaved?.("vendor");
+    } catch (error) {
+      setAssignmentSaveError(error instanceof Error ? error.message : "廠商交辦儲存失敗");
+    } finally {
+      setIsSubmittingAssignment(false);
     }
-    setSavedVendorAssignments((prev) => ({
-      ...prev,
-      [targetId]: draft,
-    }));
-    setActiveAssignmentDrawer(null);
   }
 
   function removeDesignAssignment(targetId: string) {
@@ -1831,6 +1901,8 @@ export function ExecutionTree({
           if (!activeAssignmentDrawer) return;
           removeVendorAssignment(activeAssignmentDrawer.targetId);
         }}
+        isSaving={isSubmittingAssignment}
+        errorMessage={assignmentSaveError}
       />
 
       {localItems.map((item, itemIndex) => {

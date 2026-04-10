@@ -34,6 +34,7 @@ export async function POST(
       vendorName?: string;
       requirement?: string;
       amount?: string;
+      status?: string;
     };
 
     if (!body.flowType || !body.executionItemId) {
@@ -43,6 +44,8 @@ export async function POST(
     const repositories = createPhase1Repositories(createPhase1DbClient());
     const services = createPhase1Services(repositories);
     const title = body.title?.trim() || body.item?.trim() || '未命名任務';
+
+    const taskStatus = body.status?.trim() || '待處理';
 
     if (body.flowType === 'design') {
       const existing = (await repositories.designTasks.listByProject(id)).find(
@@ -58,7 +61,7 @@ export async function POST(
             quantity: body.quantity?.trim() || null,
             requirement_text: body.note?.trim() || null,
             reference_url: body.referenceUrl?.trim() || null,
-            status: '待處理',
+            status: taskStatus,
           })
         : await services.publishDesignTask({
             project_id: id,
@@ -70,7 +73,7 @@ export async function POST(
             quantity: body.quantity?.trim() || null,
             requirement_text: body.note?.trim() || null,
             reference_url: body.referenceUrl?.trim() || null,
-            status: '待處理',
+            status: taskStatus,
           });
 
       return NextResponse.json({ ok: true, taskId: task.id, boardPath: `/design-tasks/${task.id}`, storage: access.storage });
@@ -88,7 +91,7 @@ export async function POST(
             budget_note: body.budgetNote?.trim() || null,
             requirement_text: body.note?.trim() || null,
             reference_url: body.referenceUrl?.trim() || null,
-            status: '待處理',
+            status: taskStatus,
           })
         : await services.publishProcurementTask({
             project_id: id,
@@ -98,7 +101,7 @@ export async function POST(
             budget_note: body.budgetNote?.trim() || null,
             requirement_text: body.note?.trim() || null,
             reference_url: body.referenceUrl?.trim() || null,
-            status: '待處理',
+            status: taskStatus,
           });
 
       return NextResponse.json({ ok: true, taskId: task.id, boardPath: `/procurement-tasks/${task.id}`, storage: access.storage });
@@ -123,7 +126,7 @@ export async function POST(
       ? await repositories.vendorTasks.update(existing.id, {
           title,
           requirement_text: body.requirement?.trim() || body.note?.trim() || null,
-          status: '待處理',
+          status: taskStatus,
         })
       : await services.publishVendorTask({
           project_id: id,
@@ -131,7 +134,7 @@ export async function POST(
           vendor_id: vendor.id,
           title,
           requirement_text: body.requirement?.trim() || body.note?.trim() || null,
-          status: '待處理',
+          status: taskStatus,
         });
 
     if (body.amount?.trim() || body.requirement?.trim()) {
