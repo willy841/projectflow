@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { getProjectRouteId } from "@/components/project-data";
 
 const defaultForm = {
   name: "",
@@ -53,7 +54,7 @@ export function ProjectForm() {
       }
 
       setSubmitted(true);
-      router.push(`/projects/${result.project.id}`);
+      router.push(`/projects/${getProjectRouteId({ id: result.project.id, name: result.project.name })}`);
       router.refresh();
     } catch (error) {
       setSubmitError(error instanceof Error ? error.message : "建立專案失敗");

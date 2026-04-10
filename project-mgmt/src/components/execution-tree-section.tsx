@@ -161,13 +161,13 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
     }));
 
     const fromLegacyTasks = project.designTasks.map((task, index) => ({
-      id: `${task.sourceExecutionItemId ?? task.title}-design-${index}`,
-      summaryKey: task.sourceExecutionItemId ?? `${task.title}-${index}`,
+      id: task.id ?? `${task.sourceExecutionItemId ?? task.title}-design-${index}`,
+      summaryKey: task.sourceExecutionItemId ?? task.id ?? `${task.title}-${index}`,
       title: task.title,
       status: task.status,
       statusClass: getStatusClass(task.status),
-      href: `/design-tasks?project=${encodeURIComponent(project.id)}`,
-      ctaLabel: "前往設計任務板",
+      href: task.id ? `/design-tasks/${task.id}` : `/design-tasks?project=${encodeURIComponent(project.id)}`,
+      ctaLabel: task.id ? "前往設計任務詳情" : "前往設計任務板",
     }));
 
     return dedupeProjectTaskSummaryItems([...fromAssignments, ...fromLegacyTasks]);
@@ -185,13 +185,13 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
     }));
 
     const fromLegacyTasks = project.procurementTasks.map((task, index) => ({
-      id: `${task.sourceExecutionItemId ?? task.title}-procurement-${index}`,
-      summaryKey: task.sourceExecutionItemId ?? `${task.title}-${index}`,
+      id: task.id ?? `${task.sourceExecutionItemId ?? task.title}-procurement-${index}`,
+      summaryKey: task.sourceExecutionItemId ?? task.id ?? `${task.title}-${index}`,
       title: task.title,
       status: task.status,
       statusClass: getStatusClass(task.status),
-      href: `/procurement-tasks?project=${encodeURIComponent(project.id)}`,
-      ctaLabel: "前往採購備品板",
+      href: task.id ? `/procurement-tasks/${task.id}` : `/procurement-tasks?project=${encodeURIComponent(project.id)}`,
+      ctaLabel: task.id ? "前往備品任務詳情" : "前往採購備品板",
     }));
 
     return dedupeProjectTaskSummaryItems([...fromAssignments, ...fromLegacyTasks]);
@@ -210,13 +210,13 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
           ctaLabel: assignment.boardPath ? "前往廠商任務詳情" : "前往廠商發包板",
         })),
         ...(project.vendorTasks ?? []).map((task, index) => ({
-          id: `${task.sourceExecutionItemId ?? task.title}-vendor-${index}`,
-          summaryKey: task.sourceExecutionItemId ?? `${task.title}-${index}`,
+          id: task.id ?? `${task.sourceExecutionItemId ?? task.title}-vendor-${index}`,
+          summaryKey: task.sourceExecutionItemId ?? task.id ?? `${task.title}-${index}`,
           title: task.title,
           status: task.status,
           statusClass: getStatusClass(task.status),
-          href: `/vendor-assignments?project=${encodeURIComponent(project.id)}`,
-          ctaLabel: "前往廠商發包板",
+          href: task.id ? `/vendor-assignments/${task.id}` : `/vendor-assignments?project=${encodeURIComponent(project.id)}`,
+          ctaLabel: task.id ? "前往廠商任務詳情" : "前往廠商發包板",
         })),
       ]),
     [vendorAssignments, project.id, project.vendorTasks],

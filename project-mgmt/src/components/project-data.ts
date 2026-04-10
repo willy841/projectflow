@@ -54,6 +54,7 @@ export type Project = {
   }>;
   executionItems: ProjectExecutionItem[];
   designTasks: Array<{
+    id?: string;
     title: string;
     assignee: string;
     due: string;
@@ -61,6 +62,7 @@ export type Project = {
     sourceExecutionItemId?: string;
   }>;
   procurementTasks: Array<{
+    id?: string;
     title: string;
     buyer: string;
     budget: string;
@@ -68,12 +70,29 @@ export type Project = {
     sourceExecutionItemId?: string;
   }>;
   vendorTasks?: Array<{
+    id?: string;
     title: string;
     vendorName: string;
     status: string;
     sourceExecutionItemId?: string;
   }>;
 };
+
+export function slugifyProjectName(name: string) {
+  return name
+    .trim()
+    .toLowerCase()
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "") || "project";
+}
+
+export function getProjectRouteId(project: Pick<Project, "id" | "name">) {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(project.id)
+    ? slugifyProjectName(project.name)
+    : project.id;
+}
 
 export const projects: Project[] = [
   {

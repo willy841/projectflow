@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { AppShell } from "@/components/app-shell";
-import { getStatusClass, projects } from "@/components/project-data";
+import { getProjectRouteId, getStatusClass, projects } from "@/components/project-data";
 
 const stats = [
   { label: "進行中專案", value: "18", change: "+3 本週" },
@@ -95,7 +95,7 @@ export default function Home() {
                   <tr key={project.code} className="align-top transition hover:bg-slate-50/70">
                     <td className="px-4 py-4 align-top">
                       <Link
-                        href={`/projects/${project.id}`}
+                        href={`/projects/${getProjectRouteId(project)}`}
                         className="line-clamp-2 font-semibold leading-6 text-slate-900 underline-offset-4 hover:text-blue-600 hover:underline"
                       >
                         {project.name}

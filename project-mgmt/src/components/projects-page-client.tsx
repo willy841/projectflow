@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { AppShell } from "@/components/app-shell";
-import { getStatusClass, type Project } from "@/components/project-data";
+import { getProjectRouteId, getStatusClass, type Project } from "@/components/project-data";
 import { formatCurrency, getProjectCostTotal, getQuotationTotal } from "@/components/quote-cost-data";
 import { getQuoteCostProjectsWithWorkflow } from "@/components/project-workflow-store";
 import { isUuidLike } from "@/lib/db/project-flow-toggle";
@@ -169,7 +169,7 @@ export function ProjectsPageClient({ initialProjects }: { initialProjects: Proje
                 return (
                   <tr key={project.id} className="align-middle">
                     <td className="px-4 py-4 align-middle">
-                      <Link href={`/projects/${project.id}`} className="font-medium text-slate-900 underline-offset-4 hover:underline">
+                      <Link href={`/projects/${getProjectRouteId(project)}`} className="font-medium text-slate-900 underline-offset-4 hover:underline">
                         {project.name}
                       </Link>
                     </td>

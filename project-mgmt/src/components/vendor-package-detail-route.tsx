@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { getProjectRouteId } from "@/components/project-data";
 import { VendorPackageDetail } from "@/components/vendor-package-detail";
 import { getDbVendorPackageById } from "@/lib/db/vendor-package-adapter";
 
@@ -21,7 +22,7 @@ export async function VendorPackageDetailRoute({ id }: { id: string }) {
   return (
     <>
       <div className="flex items-center justify-between gap-3">
-        <Link href={`/projects/${vendorPackage.projectId}`} className="text-sm font-medium text-slate-700 underline-offset-4 hover:underline">← 返回專案詳細頁</Link>
+        <Link href={`/projects/${getProjectRouteId({ id: vendorPackage.projectId, name: vendorPackage.projectName })}`} className="text-sm font-medium text-slate-700 underline-offset-4 hover:underline">← 返回專案詳細頁</Link>
       </div>
       <VendorPackageDetail vendorPackage={vendorPackage} />
     </>

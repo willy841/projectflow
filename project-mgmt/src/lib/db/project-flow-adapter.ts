@@ -1,4 +1,4 @@
-import type { Project, ProjectExecutionItem, ProjectExecutionSubItem } from '@/components/project-data';
+import { getProjectRouteId, type Project, ProjectExecutionItem, ProjectExecutionSubItem, slugifyProjectName } from '@/components/project-data';
 import { createPhase1DbClient } from '@/lib/db/phase1-client';
 import { createPhase1Repositories } from '@/lib/db/phase1-repositories';
 
@@ -130,6 +130,7 @@ export async function getDbProjectById(id: string): Promise<DbBackedProject | nu
     requirements: [],
     executionItems: rootItems.map((item) => mapExecutionItem(item, childrenByParent.get(item.id) ?? [])),
     designTasks: designTasks.map((task) => ({
+      id: task.id,
       title: task.title,
       assignee: '-',
       due: formatDateLike(project.event_date),
@@ -137,6 +138,7 @@ export async function getDbProjectById(id: string): Promise<DbBackedProject | nu
       sourceExecutionItemId: task.source_execution_item_id,
     })),
     procurementTasks: procurementTasks.map((task) => ({
+      id: task.id,
       title: task.title,
       buyer: '-',
       budget: task.budget_note ?? '未填寫',
@@ -144,6 +146,7 @@ export async function getDbProjectById(id: string): Promise<DbBackedProject | nu
       sourceExecutionItemId: task.source_execution_item_id,
     })),
     vendorTasks: vendorTasks.map((task) => ({
+      id: task.id,
       title: task.title,
       vendorName: vendorNameById.get(task.vendor_id) ?? '未指定廠商',
       status: task.status,
@@ -151,4 +154,14 @@ export async function getDbProjectById(id: string): Promise<DbBackedProject | nu
     })),
     source: 'db',
   };
+}
+
+export async function resolveDbProjectIdByRouteId(routeId: string): Promise<string | null> {
+  if (/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(routeId)) {
+    return routeId;
+  }
+
+  const projects = await listDbProjects();
+  const matched = projects.find((project) => slugifyProjectName(project.name) === routeId || getProjectRouteId(project) === routeId);
+  return matched?.id ?? null;
 }

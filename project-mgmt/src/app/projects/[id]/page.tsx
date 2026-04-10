@@ -1,15 +1,15 @@
 import { notFound } from "next/navigation";
 import { AppShell } from "@/components/app-shell";
 import { ProjectDetailShell } from "@/components/project-detail-shell";
-import { getProjectById } from "@/components/project-data";
+import { getProjectById, getProjectRouteId } from "@/components/project-data";
 import { projects } from "@/components/project-data";
-import { getDbProjectById } from "@/lib/db/project-flow-adapter";
+import { getDbProjectById, resolveDbProjectIdByRouteId } from "@/lib/db/project-flow-adapter";
 import { shouldUseDbProjectFlow } from "@/lib/db/project-flow-toggle";
 
 export const dynamic = "force-dynamic";
 
 export function generateStaticParams() {
-  return projects.map((project) => ({ id: project.id }));
+  return projects.map((project) => ({ id: getProjectRouteId(project) }));
 }
 
 export default async function ProjectDetailPage({
@@ -22,7 +22,9 @@ export default async function ProjectDetailPage({
   const { id } = await params;
   const resolvedSearchParams = (await searchParams) ?? {};
   const useDbProjectFlow = shouldUseDbProjectFlow();
-  const project = useDbProjectFlow ? await getDbProjectById(id) : getProjectById(id);
+  const project = useDbProjectFlow
+    ? await getDbProjectById((await resolveDbProjectIdByRouteId(id)) ?? id)
+    : getProjectById(id);
 
   if (!project) {
     notFound();
