@@ -864,11 +864,15 @@ type PersistedAssignmentPayload = {
   draft: DesignAssignmentDraft | ProcurementAssignmentDraft | VendorAssignmentDraft;
 };
 
+type AssignmentSaveResult = {
+  boardPath?: string;
+};
+
 type ExecutionTreeServerHandlers = {
   createExecutionItem?: (input: { title: string; parentId?: string | null }) => Promise<{ item: ImportedItem | ProjectExecutionSubItem; parentId?: string | null }>;
-  saveDesignAssignment?: (payload: PersistedAssignmentPayload & { draft: DesignAssignmentDraft }) => Promise<void>;
-  saveProcurementAssignment?: (payload: PersistedAssignmentPayload & { draft: ProcurementAssignmentDraft }) => Promise<void>;
-  saveVendorAssignment?: (payload: PersistedAssignmentPayload & { draft: VendorAssignmentDraft }) => Promise<void>;
+  saveDesignAssignment?: (payload: PersistedAssignmentPayload & { draft: DesignAssignmentDraft }) => Promise<AssignmentSaveResult | void>;
+  saveProcurementAssignment?: (payload: PersistedAssignmentPayload & { draft: ProcurementAssignmentDraft }) => Promise<AssignmentSaveResult | void>;
+  saveVendorAssignment?: (payload: PersistedAssignmentPayload & { draft: VendorAssignmentDraft }) => Promise<AssignmentSaveResult | void>;
 };
 
 function AssignmentDrawer({
@@ -1055,7 +1059,7 @@ export function ExecutionTree({
   initialDesignAssignments?: Record<string, DesignAssignmentDraft>;
   initialProcurementAssignments?: Record<string, ProcurementAssignmentDraft>;
   initialVendorAssignments?: Record<string, VendorAssignmentDraft>;
-  onAssignmentSaved?: (flowType: "design" | "procurement" | "vendor") => void;
+  onAssignmentSaved?: (payload: { flowType: "design" | "procurement" | "vendor"; targetId: string; boardPath?: string }) => void;
   serverHandlers?: ExecutionTreeServerHandlers;
 }) {
   const [expandedItemId, setExpandedItemId] = useState<string | null>(null);
@@ -1330,18 +1334,19 @@ export function ExecutionTree({
     setIsSubmittingAssignment(true);
     setAssignmentSaveError(null);
     try {
+      let saveResult: AssignmentSaveResult | void = undefined;
       if (serverHandlers?.saveDesignAssignment) {
         const title = localItems.find((item) => item.id === targetId)?.title
           ?? localItems.flatMap((item) => item.children ?? []).find((child) => child.id === targetId)?.title
           ?? targetId;
-        await serverHandlers.saveDesignAssignment({ targetId, title, draft });
+        saveResult = await serverHandlers.saveDesignAssignment({ targetId, title, draft });
       }
       setSavedDesignAssignments((prev) => ({
         ...prev,
         [targetId]: draft,
       }));
       setActiveAssignmentDrawer(null);
-      onAssignmentSaved?.("design");
+      onAssignmentSaved?.({ flowType: "design", targetId, boardPath: saveResult?.boardPath });
     } catch (error) {
       setAssignmentSaveError(error instanceof Error ? error.message : "設計交辦儲存失敗");
     } finally {
@@ -1353,18 +1358,19 @@ export function ExecutionTree({
     setIsSubmittingAssignment(true);
     setAssignmentSaveError(null);
     try {
+      let saveResult: AssignmentSaveResult | void = undefined;
       if (serverHandlers?.saveProcurementAssignment) {
         const title = localItems.find((item) => item.id === targetId)?.title
           ?? localItems.flatMap((item) => item.children ?? []).find((child) => child.id === targetId)?.title
           ?? targetId;
-        await serverHandlers.saveProcurementAssignment({ targetId, title, draft });
+        saveResult = await serverHandlers.saveProcurementAssignment({ targetId, title, draft });
       }
       setSavedProcurementAssignments((prev) => ({
         ...prev,
         [targetId]: draft,
       }));
       setActiveAssignmentDrawer(null);
-      onAssignmentSaved?.("procurement");
+      onAssignmentSaved?.({ flowType: "procurement", targetId, boardPath: saveResult?.boardPath });
     } catch (error) {
       setAssignmentSaveError(error instanceof Error ? error.message : "備品交辦儲存失敗");
     } finally {
@@ -1376,18 +1382,19 @@ export function ExecutionTree({
     setIsSubmittingAssignment(true);
     setAssignmentSaveError(null);
     try {
+      let saveResult: AssignmentSaveResult | void = undefined;
       if (serverHandlers?.saveVendorAssignment) {
         const title = localItems.find((item) => item.id === targetId)?.title
           ?? localItems.flatMap((item) => item.children ?? []).find((child) => child.id === targetId)?.title
           ?? targetId;
-        await serverHandlers.saveVendorAssignment({ targetId, title, draft });
+        saveResult = await serverHandlers.saveVendorAssignment({ targetId, title, draft });
       }
       setSavedVendorAssignments((prev) => ({
         ...prev,
         [targetId]: draft,
       }));
       setActiveAssignmentDrawer(null);
-      onAssignmentSaved?.("vendor");
+      onAssignmentSaved?.({ flowType: "vendor", targetId, boardPath: saveResult?.boardPath });
     } catch (error) {
       setAssignmentSaveError(error instanceof Error ? error.message : "廠商交辦儲存失敗");
     } finally {

@@ -20,18 +20,21 @@ type DesignAssignmentItem = {
   targetId: string;
   title: string;
   data: DesignAssignmentDraft;
+  boardPath?: string;
 };
 
 type ProcurementAssignmentItem = {
   targetId: string;
   title: string;
   data: ProcurementAssignmentDraft;
+  boardPath?: string;
 };
 
 export type VendorAssignmentItem = {
   targetId: string;
   title: string;
   data: VendorAssignmentDraft;
+  boardPath?: string;
 };
 
 function findExecutionTitle(project: Project, targetId: string) {
@@ -153,8 +156,8 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
       title: assignment.title,
       status: assignment.data.status,
       statusClass: getStatusClass(assignment.data.status),
-      href: `/design-tasks?project=${encodeURIComponent(project.id)}`,
-      ctaLabel: "前往設計任務板",
+      href: assignment.boardPath || `/design-tasks?project=${encodeURIComponent(project.id)}`,
+      ctaLabel: assignment.boardPath ? "前往設計任務詳情" : "前往設計任務板",
     }));
 
     const fromLegacyTasks = project.designTasks.map((task, index) => ({
@@ -177,8 +180,8 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
       title: assignment.data.item || assignment.title,
       status: assignment.data.status,
       statusClass: getStatusClass(assignment.data.status),
-      href: `/procurement-tasks?project=${encodeURIComponent(project.id)}`,
-      ctaLabel: "前往採購備品板",
+      href: assignment.boardPath || `/procurement-tasks?project=${encodeURIComponent(project.id)}`,
+      ctaLabel: assignment.boardPath ? "前往備品任務詳情" : "前往採購備品板",
     }));
 
     const fromLegacyTasks = project.procurementTasks.map((task, index) => ({
@@ -203,8 +206,8 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
           title: assignment.data.title || assignment.title,
           status: assignment.data.status,
           statusClass: getStatusClass(assignment.data.status),
-          href: `/vendor-assignments?project=${encodeURIComponent(project.id)}`,
-          ctaLabel: "前往廠商發包板",
+          href: assignment.boardPath || `/vendor-assignments?project=${encodeURIComponent(project.id)}`,
+          ctaLabel: assignment.boardPath ? "前往廠商任務詳情" : "前往廠商發包板",
         })),
         ...(project.vendorTasks ?? []).map((task, index) => ({
           id: `${task.sourceExecutionItemId ?? task.title}-vendor-${index}`,
@@ -303,6 +306,7 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
           });
           const result = await response.json();
           if (!response.ok || !result.ok) throw new Error(result.error || "設計交辦失敗");
+          return { boardPath: result.boardPath as string | undefined };
         },
         saveProcurementAssignment: async ({ targetId, title, draft }: { targetId: string; title: string; draft: ProcurementAssignmentDraft }) => {
           const response = await fetch(`/api/projects/${project.id}/dispatch`, {
@@ -321,6 +325,7 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
           });
           const result = await response.json();
           if (!response.ok || !result.ok) throw new Error(result.error || "備品交辦失敗");
+          return { boardPath: result.boardPath as string | undefined };
         },
         saveVendorAssignment: async ({ targetId, title, draft }: { targetId: string; title: string; draft: VendorAssignmentDraft }) => {
           const response = await fetch(`/api/projects/${project.id}/dispatch`, {
@@ -339,6 +344,7 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
           });
           const result = await response.json();
           if (!response.ok || !result.ok) throw new Error(result.error || "廠商交辦失敗");
+          return { boardPath: result.boardPath as string | undefined };
         },
       }
     : undefined;
@@ -353,16 +359,20 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
           onDesignAssignmentsChange={setDesignAssignments}
           onProcurementAssignmentsChange={setProcurementAssignments}
           onVendorAssignmentsChange={setVendorAssignments}
-          onAssignmentSaved={(flowType) => {
+          onAssignmentSaved={({ flowType, targetId, boardPath }) => {
             setOpenCategory(flowType);
+            if (boardPath) {
+              if (flowType === "design") {
+                setDesignAssignments((prev) => prev.map((assignment) => assignment.targetId === targetId ? { ...assignment, boardPath } : assignment));
+              } else if (flowType === "procurement") {
+                setProcurementAssignments((prev) => prev.map((assignment) => assignment.targetId === targetId ? { ...assignment, boardPath } : assignment));
+              } else {
+                setVendorAssignments((prev) => prev.map((assignment) => assignment.targetId === targetId ? { ...assignment, boardPath } : assignment));
+              }
+            }
             setSaveFeedback({
               category: flowType,
-              message:
-                flowType === "design"
-                  ? "設計交辦已建立，摘要清單已更新。"
-                  : flowType === "procurement"
-                    ? "備品交辦已建立，摘要清單已更新。"
-                    : "廠商交辦已建立，摘要清單已更新。",
+              message: "已建立，摘要已更新。",
             });
           }}
           initialDesignAssignments={initialDesignAssignments}
