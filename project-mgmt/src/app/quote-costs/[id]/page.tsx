@@ -14,5 +14,5 @@ export default async function QuoteCostDetailPage({ params }: { params: Promise<
     notFound();
   }
 
-  return <QuoteCostDetailClient project={seedProject ?? project} initialProject={project} mode="active" />;
+  return <QuoteCostDetailClient project={project} initialProject={project} mode="active" />;
 }
