@@ -511,9 +511,36 @@ export function AccountingCenterPage({
     },
   ];
 
-  function handleAddEmployee() {
+  async function handleAddEmployee() {
     const name = newEmployeeName.trim();
     if (!name) return;
+
+    if (initialDbMode) {
+      const response = await fetch('/api/accounting/personnel/employees', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, employeeType: newEmployeeType }),
+      });
+      const result = await response.json();
+      if (!response.ok || !result?.ok || !result?.row?.id) {
+        window.alert(result?.error ?? '建立員工失敗');
+        return;
+      }
+      const id = result.row.id as string;
+      setEmployeeRoster((current) => [...current.filter((employee) => employee.id !== id), { id, name, type: newEmployeeType }]);
+      if (newEmployeeType === 'full-time') {
+        setFullTimeDrafts((current) => ({ ...current, [id]: buildDefaultFullTimeDraft(id, name, workspaceMonth) }));
+      } else {
+        setPartTimeDrafts((current) => ({ ...current, [id]: buildDefaultPartTimeDraft(id, name, workspaceMonth) }));
+      }
+      setEmployeeFilter(newEmployeeType);
+      setEditingEmployeeId(id);
+      setNewEmployeeName('');
+      setNewEmployeeType('full-time');
+      setShowAddEmployeeModal(false);
+      return;
+    }
+
     const id = `${newEmployeeType === "full-time" ? "ft" : "pt"}-${name.toLowerCase().replace(/\s+/g, "-")}`;
     if (employeeRoster.some((employee) => employee.id === id || employee.name === name)) return;
 
@@ -538,11 +565,20 @@ export function AccountingCenterPage({
     setShowAddEmployeeModal(false);
   }
 
-  function handleDeleteEmployee(employeeId: string) {
+  async function handleDeleteEmployee(employeeId: string) {
     const target = employeeRoster.find((employee) => employee.id === employeeId);
     if (!target) return;
     const confirmed = window.confirm(`確認刪除員工「${target.name}」？這會把他從目前的人事輸入名單移除。`);
     if (!confirmed) return;
+
+    if (initialDbMode) {
+      const response = await fetch(`/api/accounting/personnel/employees/${employeeId}`, { method: 'DELETE' });
+      const result = await response.json();
+      if (!response.ok || !result?.ok) {
+        window.alert(result?.error ?? '刪除員工失敗');
+        return;
+      }
+    }
 
     setEmployeeRoster((current) => current.filter((employee) => employee.id !== employeeId));
     setFullTimeDrafts((current) => {
@@ -577,7 +613,44 @@ export function AccountingCenterPage({
     if (!employee) return;
 
     if (initialDbMode) {
-      window.alert('目前 DB-first mode 的 personnel submit 尚未接上此編輯器；請用正式 API 路徑驗證。');
+      const payload = employee.type === 'full-time'
+        ? (() => {
+            const draft = fullTimeDrafts[employeeId];
+            if (!draft) return null;
+            return {
+              baseSalary: draft.baseSalary,
+              allowances: draft.allowances,
+              bonuses: draft.bonuses,
+              otherPayments: draft.otherPayments,
+              overtime: draft.overtime,
+              deductions: draft.deductions,
+              employerContribution: draft.employerContribution,
+              totalCost: calculateFullTimeCost(draft),
+            };
+          })()
+        : (() => {
+            const draft = partTimeDrafts[employeeId];
+            if (!draft) return null;
+            return {
+              hours: draft.hours,
+              hourlyRate: draft.hourlyRate,
+              totalCost: calculatePartTimePay(draft),
+            };
+          })();
+      const salaryMonth = employee.type === 'full-time' ? fullTimeDrafts[employeeId]?.salaryMonth : partTimeDrafts[employeeId]?.salaryMonth;
+      if (!payload || !salaryMonth) return;
+      fetch('/api/accounting/personnel/records/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ employeeId, salaryMonth, payload }),
+      }).then(async (response) => {
+        const result = await response.json();
+        if (!response.ok || !result?.ok) {
+          window.alert(result?.error ?? '人事送出失敗');
+          return;
+        }
+        window.location.reload();
+      });
       return;
     }
 
