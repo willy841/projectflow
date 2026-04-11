@@ -87,8 +87,8 @@ export async function listDbVendorProjectRecordsByVendorId(vendorId: string): Pr
         payableSummary:
           (() => {
             const sourceCounts = new Map<string, number>();
-            for (const item of financialRecord.costItems) {
-              sourceCounts.set(item.sourceType, (sourceCounts.get(item.sourceType) ?? 0) + 1);
+            for (const group of financialRecord.reconciledGroups) {
+              sourceCounts.set(group.sourceType, (sourceCounts.get(group.sourceType) ?? 0) + 1);
             }
             const summary = Array.from(sourceCounts.entries())
               .map(([sourceType, count]) => `${sourceType} ${count} 筆`)
