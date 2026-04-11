@@ -111,6 +111,36 @@
 2. 將 `Accounting Center` 最新母 spec 與既有 `MD-MASTER` / handoff 鏈條進一步同步
 3. 視需要進入正式實作派工與 UI / 工程落地
 
+### E. 2026-04-11 新增校正（dispatch drawer 驗收標準）
+- 已新增：`MD57-projectflow-dispatch-drawer-completion-state-and-db-closure-alignment-2026-04-11.md`
+- 這份文件的重要性不在於新增功能 spec，而在於**正式校正驗收切點**：
+  - 不再以單一欄位局部互動作為主要驗收單位
+  - 改以整張 `dispatch drawer` 表單作為提交單位
+  - 驗收順序應為：
+    1. 前端完成態（進行中 / 成功 / 失敗）
+    2. 提交是否成功
+    3. summary / reload
+    4. downstream detail / document
+    5. 最後才判定 DB 閉環是否成立
+- 若之後續接 `Project Detail dispatch -> design/procurement` 主線，必須把 `MD57` 視為現行有效規則之一。
+
+### F. 2026-04-11 最新 live DB runtime 驗收結果（重要）
+- 已新增：`MD59-projectflow-live-db-runtime-validation-and-field-alignment-handoff-2026-04-11.md`
+- 這份文件的重要性在於：
+  - 不再只是 staged validation / 無 DB env 的理論判讀
+  - 而是已在 **Supabase live DB runtime** 下實際跑完：
+    - design：`dispatch -> reload -> detail -> document`
+    - procurement：`dispatch -> reload -> detail -> document`
+- 本輪已正式確認：
+  - `boardPath` 單一資料源修正完成
+  - summary CTA reload 後不再回退
+  - procurement `budget_note / requirement_text` 混寫已修正
+  - design 欄位語意已採 **A 方案**：上游維持 merged field，downstream 依此一致化
+- 因此目前主線狀態已更新為：
+  - **DB-first 主鏈路 PASS**
+  - 剩餘僅為非阻塞性的欄位 / 呈現細修
+- 若之後續接 `project detail dispatch -> design/procurement`，`MD59` 應視為目前最新的 live runtime 驗收 handoff。
+
 ## 快速續接閱讀順序速查表（2026-04-08）
 
 ### 若要續接上游主線
