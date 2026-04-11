@@ -180,6 +180,7 @@ function getComparableVendorValues(
     title: value.title,
     requirement_text: value.requirement_text ?? null,
     amount: value.amount ?? null,
+    vendor_name_text: value.vendor_name_text ?? null,
     sort_order: value.sort_order,
   };
 }

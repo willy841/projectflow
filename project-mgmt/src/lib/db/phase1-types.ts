@@ -108,6 +108,7 @@ export interface VendorTaskPlanRow extends BaseMutableRow {
   title: string;
   requirement_text: string | null;
   amount: string | null;
+  vendor_name_text: string | null;
   sort_order: number;
 }
 
@@ -149,6 +150,7 @@ export interface TaskConfirmationPlanPayloadByFlow {
     title: string;
     requirement_text: string | null;
     amount: string | null;
+    vendor_name_text: string | null;
   };
 }
 

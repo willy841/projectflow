@@ -296,6 +296,7 @@ export function createPhase1Services(repositories: Phase1Repositories): Phase1Se
           title: plan.title,
           requirement_text: plan.requirement_text,
           amount: plan.amount,
+          vendor_name_text: plan.vendor_name_text,
         };
 
         const snapshotInput: InsertTaskConfirmationPlanSnapshotInput<'vendor'> = {

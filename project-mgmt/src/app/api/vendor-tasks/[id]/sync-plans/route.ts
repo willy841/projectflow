@@ -18,6 +18,7 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
         title: string;
         requirement?: string;
         amount?: string;
+        vendorName?: string;
       }>;
     };
 
@@ -35,6 +36,7 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
           title: plan.title,
           requirement_text: plan.requirement ?? null,
           amount: plan.amount?.replace(/[^\d.-]/g, '') || null,
+          vendor_name_text: plan.vendorName ?? null,
           sort_order: index + 1,
         })),
     );

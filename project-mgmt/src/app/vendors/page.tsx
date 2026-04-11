@@ -1,10 +1,13 @@
-import { AppShell } from "@/components/app-shell";
-import { VendorListPage } from "@/components/vendor-list-page";
+import { AppShell } from '@/components/app-shell';
+import { VendorListPageDb } from '@/components/vendor-list-page-db';
+import { listDbVendors } from '@/lib/db/vendor-directory-adapter';
 
-export default function VendorsPage() {
+export default async function VendorsPage() {
+  const vendors = await listDbVendors();
+
   return (
     <AppShell activePath="/vendors">
-      <VendorListPage />
+      <VendorListPageDb vendors={vendors} />
     </AppShell>
   );
 }

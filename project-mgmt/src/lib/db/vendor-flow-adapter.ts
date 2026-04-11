@@ -139,83 +139,157 @@ export async function listDbVendorGroupsByProject(projectId: string): Promise<Db
   }));
 }
 
-async function mapDbVendorTaskRecord(id: string): Promise<DbVendorTaskRecord | null> {
+type VendorGroupTaskRow = {
+  taskId: string;
+  projectId: string;
+  projectName: string;
+  vendorId: string;
+  vendorName: string;
+  eventDate: string;
+  taskTitle: string;
+  taskRequirementText: string;
+  taskStatus: string;
+  planId: string | null;
+  planTitle: string | null;
+  planRequirementText: string | null;
+  planAmount: string | null;
+  planSortOrder: number | null;
+  snapshotTitle: string | null;
+  snapshotAmount: string | null;
+  snapshotSortOrder: number | null;
+};
+
+async function listVendorGroupTaskRows(projectId: string, vendorId: string): Promise<VendorGroupTaskRow[]> {
   const db = createPhase1DbClient();
-  const repositories = createPhase1Repositories(db);
-  const task = await repositories.vendorTasks.findById(id);
-  if (!task) return null;
+  const result = await db.query<VendorGroupTaskRow>(
+    `
+      with latest_confirmations as (
+        select distinct on (tc.task_id)
+          tc.id,
+          tc.task_id
+        from task_confirmations tc
+        where tc.flow_type = 'vendor'
+        order by tc.task_id, tc.confirmation_no desc, tc.confirmed_at desc nulls last, tc.created_at desc, tc.id desc
+      )
+      select
+        vt.id as "taskId",
+        vt.project_id as "projectId",
+        p.name as "projectName",
+        vt.vendor_id as "vendorId",
+        v.name as "vendorName",
+        coalesce(to_char(p.event_date, 'YYYY-MM-DD'), '-') as "eventDate",
+        vt.title as "taskTitle",
+        coalesce(vt.requirement_text, '') as "taskRequirementText",
+        vt.status as "taskStatus",
+        vtp.id as "planId",
+        vtp.title as "planTitle",
+        coalesce(vtp.requirement_text, '') as "planRequirementText",
+        case when vtp.amount is null then null else vtp.amount::text end as "planAmount",
+        vtp.sort_order as "planSortOrder",
+        tps.payload_json->>'title' as "snapshotTitle",
+        tps.payload_json->>'amount' as "snapshotAmount",
+        tps.sort_order as "snapshotSortOrder"
+      from vendor_tasks vt
+      inner join projects p on p.id = vt.project_id
+      inner join vendors v on v.id = vt.vendor_id
+      left join vendor_task_plans vtp on vtp.vendor_task_id = vt.id
+      left join latest_confirmations lc on lc.task_id = vt.id
+      left join task_confirmation_plan_snapshots tps on tps.task_confirmation_id = lc.id
+      where vt.project_id = $1 and vt.vendor_id = $2
+      order by vt.created_at asc, vt.id asc, vtp.sort_order asc nulls last, vtp.created_at asc nulls last, tps.sort_order asc nulls last, tps.created_at asc nulls last
+    `,
+    [projectId, vendorId],
+  );
+  return result.rows;
+}
 
-  const [project, plans, confirmations, vendor] = await Promise.all([
-    repositories.projects.findById(task.project_id),
-    repositories.vendorTaskPlans.listByTask(task.id),
-    repositories.taskConfirmations.listByTask('vendor', task.id),
-    repositories.vendors.findById(task.vendor_id),
-  ]);
+function mapVendorGroupRowsToRecords(rows: VendorGroupTaskRow[]): DbVendorTaskRecord[] {
+  const taskMap = new Map<string, DbVendorTaskRecord>();
+  const seenPlans = new Set<string>();
+  const seenSnapshotRows = new Set<string>();
 
-  const latestConfirmation = confirmations[0] ?? null;
-  const snapshots = latestConfirmation
-    ? await repositories.taskConfirmations.listSnapshots(latestConfirmation.id)
-    : [];
+  for (const row of rows) {
+    let task = taskMap.get(row.taskId);
+    if (!task) {
+      task = {
+        id: row.taskId,
+        projectId: row.projectId,
+        projectName: row.projectName,
+        vendorId: row.vendorId,
+        vendorName: row.vendorName,
+        title: row.taskTitle,
+        requirementText: row.taskRequirementText,
+        status: row.taskStatus,
+        plans: [],
+        documentRows: [],
+      };
+      taskMap.set(row.taskId, task);
+    }
 
-  const documentRows = snapshots.length
-    ? snapshots.map((snapshot, index) => {
-        const payload = snapshot.payload_json as { title?: string; amount?: string | null };
-        return {
-          id: index + 1,
-          item: payload.title || `處理方案 ${index + 1}`,
-          quantity: payload.amount ?? '未填寫',
-        };
-      })
-    : plans.map((plan, index) => ({
+    if (row.planId && !seenPlans.has(row.planId)) {
+      seenPlans.add(row.planId);
+      task.plans.push({
+        id: row.planId,
+        title: row.planTitle ?? '',
+        requirement: row.planRequirementText ?? '',
+        amount: row.planAmount ? `NT$ ${row.planAmount}` : '',
+      });
+    }
+
+    const snapshotKey = `${row.taskId}::${row.snapshotSortOrder ?? 'null'}::${row.snapshotTitle ?? ''}::${row.snapshotAmount ?? ''}`;
+    if (row.snapshotTitle && !seenSnapshotRows.has(snapshotKey)) {
+      seenSnapshotRows.add(snapshotKey);
+      task.documentRows.push({
+        id: task.documentRows.length + 1,
+        item: row.snapshotTitle || `處理方案 ${task.documentRows.length + 1}`,
+        quantity: row.snapshotAmount ?? '未填寫',
+      });
+    }
+  }
+
+  for (const task of taskMap.values()) {
+    if (!task.documentRows.length) {
+      task.documentRows = task.plans.map((plan, index) => ({
         id: index + 1,
         item: plan.title,
-        quantity: plan.amount ? `NT$ ${plan.amount}` : '未填寫',
+        quantity: plan.amount || '未填寫',
       }));
+    }
+  }
 
-  return {
-    id: task.id,
-    projectId: task.project_id,
-    projectName: project?.name ?? '未命名專案',
-    vendorId: task.vendor_id,
-    vendorName: vendor?.name ?? '未指定廠商',
-    title: task.title,
-    requirementText: task.requirement_text ?? '',
-    status: task.status,
-    plans: plans.map((plan) => ({
-      id: plan.id,
-      title: plan.title,
-      requirement: plan.requirement_text ?? '',
-      amount: plan.amount ? `NT$ ${plan.amount}` : '',
-    })),
-    documentRows,
-  };
+  return Array.from(taskMap.values());
 }
 
 export async function getDbVendorTaskById(id: string): Promise<DbVendorTaskRecord | null> {
-  return mapDbVendorTaskRecord(id);
+  const db = createPhase1DbClient();
+  const taskResult = await db.query<{ projectId: string; vendorId: string }>(
+    `
+      select project_id as "projectId", vendor_id as "vendorId"
+      from vendor_tasks
+      where id = $1
+      limit 1
+    `,
+    [id],
+  );
+  const task = taskResult.rows[0];
+  if (!task) return null;
+
+  const rows = await listVendorGroupTaskRows(task.projectId, task.vendorId);
+  const records = mapVendorGroupRowsToRecords(rows);
+  return records.find((record) => record.id === id) ?? null;
 }
 
 export async function getDbVendorGroupDetail(projectId: string, vendorId: string): Promise<DbVendorGroupDetail | null> {
-  const db = createPhase1DbClient();
-  const repositories = createPhase1Repositories(db);
-  const [project, vendor, tasks] = await Promise.all([
-    repositories.projects.findById(projectId),
-    repositories.vendors.findById(vendorId),
-    repositories.vendorTasks.listByProjectAndVendor(projectId, vendorId),
-  ]);
+  const rows = await listVendorGroupTaskRows(projectId, vendorId);
+  if (!rows.length) return null;
 
-  if (!project || !vendor || tasks.length === 0) return null;
-
-  const taskRecords = (await Promise.all(tasks.map((task) => mapDbVendorTaskRecord(task.id)))).filter(
-    (task): task is DbVendorTaskRecord => Boolean(task),
-  );
-
+  const first = rows[0];
   return {
     projectId,
-    projectName: project.name,
+    projectName: first.projectName,
     vendorId,
-    vendorName: vendor.name,
-    eventDate: project.event_date ? new Date(project.event_date).toISOString().slice(0, 10) : '-',
-    tasks: taskRecords,
+    vendorName: first.vendorName,
+    eventDate: first.eventDate,
+    tasks: mapVendorGroupRowsToRecords(rows),
   };
 }

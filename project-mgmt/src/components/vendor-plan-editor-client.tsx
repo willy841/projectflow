@@ -8,16 +8,17 @@ type VendorPlanInput = {
   title: string;
   requirement: string;
   amount: string;
+  vendorName?: string;
 };
 
-export function VendorPlanEditorClient({ taskId, initialPlans, showConfirmButton = true }: { taskId: string; initialPlans: VendorPlanInput[]; showConfirmButton?: boolean }) {
+export function VendorPlanEditorClient({ taskId, initialPlans, showConfirmButton = true, vendorName }: { taskId: string; initialPlans: VendorPlanInput[]; showConfirmButton?: boolean; vendorName?: string }) {
   const router = useRouter();
   const useDbActions = useMemo(
     () => /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(taskId),
     [taskId],
   );
   const [plans, setPlans] = useState<VendorPlanInput[]>(
-    initialPlans.length ? initialPlans : [{ id: `draft-${Date.now()}`, title: "", requirement: "", amount: "" }],
+    initialPlans.length ? initialPlans : [{ id: `draft-${Date.now()}`, title: "", requirement: "", amount: "", vendorName }],
   );
   const [message, setMessage] = useState("");
   const [saving, setSaving] = useState(false);
@@ -28,7 +29,7 @@ export function VendorPlanEditorClient({ taskId, initialPlans, showConfirmButton
   }
 
   function addPlan() {
-    setPlans((current) => [{ id: `draft-${Date.now()}-${current.length + 1}`, title: "", requirement: "", amount: "" }, ...current]);
+    setPlans((current) => [{ id: `draft-${Date.now()}-${current.length + 1}`, title: "", requirement: "", amount: "", vendorName }, ...current]);
   }
 
   function removePlan(id: string) {
@@ -40,7 +41,7 @@ export function VendorPlanEditorClient({ taskId, initialPlans, showConfirmButton
     const response = await fetch(`/api/vendor-tasks/${taskId}/sync-plans`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ plans: currentPlans }),
+      body: JSON.stringify({ plans: currentPlans.map((plan) => ({ ...plan, vendorName: plan.vendorName ?? vendorName ?? '' })) }),
     });
     if (!response.ok) {
       const payload = (await response.json().catch(() => null)) as { error?: string } | null;
@@ -57,8 +58,7 @@ export function VendorPlanEditorClient({ taskId, initialPlans, showConfirmButton
         return;
       }
       await persistCurrentPlans();
-      setMessage("已儲存 vendor 執行處理。\nlive plans 已改走 diff-based sync。\n重新整理後應看到最新結果。");
-      router.refresh();
+      setMessage("已儲存 vendor 執行處理。\nlive plans 已改走 diff-based sync。\n本頁先保留目前編輯狀態；需要時再手動重新整理。\n");
     } catch (error) {
       setMessage(`儲存失敗：${error instanceof Error ? error.message : "請稍後再試。"}`);
     } finally {

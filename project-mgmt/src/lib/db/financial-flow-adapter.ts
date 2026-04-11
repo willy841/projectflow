@@ -1,6 +1,7 @@
 import {
   quoteCostProjects,
   type CostLineItem,
+  type CostSourceType,
   type QuoteCostProject,
 } from '@/components/quote-cost-data';
 
@@ -145,12 +146,15 @@ async function listDbFinancialProjects(): Promise<DbFinancialProjectIdentity[]> 
         p.created_at::text
       ) as "latestFinancialActivityAt"
     from projects p
-    inner join summarized_financial_projects sfp on sfp.project_id = p.id
+    left join summarized_financial_projects sfp on sfp.project_id = p.id
     order by
-      greatest(
-        coalesce(sfp.latest_confirmation_at, '-infinity'::timestamp),
-        coalesce(sfp.latest_plan_cost_at, '-infinity'::timestamp),
-        coalesce(sfp.latest_manual_cost_at, '-infinity'::timestamp)
+      coalesce(
+        greatest(
+          coalesce(sfp.latest_confirmation_at, '-infinity'::timestamp),
+          coalesce(sfp.latest_plan_cost_at, '-infinity'::timestamp),
+          coalesce(sfp.latest_manual_cost_at, '-infinity'::timestamp)
+        ),
+        p.created_at
       ) desc,
       p.event_date desc nulls last,
       p.created_at desc
@@ -521,7 +525,99 @@ export async function getQuoteCostProjectsWithDbFinancials(): Promise<QuoteCostP
   }
 }
 
-export async function getQuoteCostProjectByIdWithDbFinancials(projectId: string): Promise<QuoteCostProject | null> {
+export type FinancialReconciliationGroup = {
+  key: string;
+  sourceType: Exclude<CostSourceType, '人工'>;
+  vendorName: string;
+  amountTotal: number;
+  itemCount: number;
+  items: CostLineItem[];
+  reconciliationStatus: '未對帳' | '已對帳';
+};
+
+export type QuoteCostProjectWithGroups = QuoteCostProject & {
+  reconciliationGroups: FinancialReconciliationGroup[];
+};
+
+function buildFinancialGroupKey(projectId: string, sourceType: Exclude<CostSourceType, '人工'>, vendorName: string) {
+  return `${projectId}::${sourceType}::${vendorName}`;
+}
+
+async function attachReconciliationGroups(project: QuoteCostProject): Promise<QuoteCostProjectWithGroups> {
+  const groupMap = new Map<string, FinancialReconciliationGroup>();
+
+  project.costItems
+    .filter((item): item is CostLineItem & { sourceType: Exclude<CostSourceType, '人工'> } => item.sourceType !== '人工')
+    .filter((item) => item.vendorName && item.includedInCost)
+    .forEach((item) => {
+      const vendorName = item.vendorName as string;
+      const key = buildFinancialGroupKey(project.id, item.sourceType, vendorName);
+      const existing = groupMap.get(key);
+      if (existing) {
+        existing.amountTotal += item.adjustedAmount;
+        existing.itemCount += 1;
+        existing.items.push(item);
+        return;
+      }
+
+      groupMap.set(key, {
+        key,
+        sourceType: item.sourceType,
+        vendorName,
+        amountTotal: item.adjustedAmount,
+        itemCount: 1,
+        items: [item],
+        reconciliationStatus: '未對帳',
+      });
+    });
+
+  const db = createPhase1DbClient();
+  const rows = await db.query<{
+    sourceType: '設計' | '備品' | '廠商';
+    vendorName: string;
+    reconciliationStatus: '未對帳' | '已對帳';
+  }>(
+    `
+      select
+        source_type as "sourceType",
+        vendor_name as "vendorName",
+        reconciliation_status as "reconciliationStatus"
+      from financial_reconciliation_groups
+      where project_id = $1
+    `,
+    [project.id],
+  );
+
+  for (const row of rows.rows) {
+    const key = buildFinancialGroupKey(project.id, row.sourceType, row.vendorName);
+    const existing = groupMap.get(key);
+    if (existing) {
+      existing.reconciliationStatus = row.reconciliationStatus;
+      continue;
+    }
+    groupMap.set(key, {
+      key,
+      sourceType: row.sourceType,
+      vendorName: row.vendorName,
+      amountTotal: 0,
+      itemCount: 0,
+      items: [],
+      reconciliationStatus: row.reconciliationStatus,
+    });
+  }
+
+  return {
+    ...project,
+    reconciliationGroups: Array.from(groupMap.values()),
+  };
+}
+
+export async function getQuoteCostProjectsWithDbFinancialsAndGroups(): Promise<QuoteCostProjectWithGroups[]> {
   const projects = await getQuoteCostProjectsWithDbFinancials();
+  return Promise.all(projects.map(attachReconciliationGroups));
+}
+
+export async function getQuoteCostProjectByIdWithDbFinancials(projectId: string): Promise<QuoteCostProjectWithGroups | null> {
+  const projects = await getQuoteCostProjectsWithDbFinancialsAndGroups();
   return projects.find((project) => project.id === projectId) ?? null;
 }
