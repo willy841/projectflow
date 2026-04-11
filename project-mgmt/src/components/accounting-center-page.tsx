@@ -337,6 +337,7 @@ export function AccountingCenterPage({
   initialOtherExpenses,
   initialRevenueSummary,
   initialPersonnelSummary,
+  initialEmployeeRoster,
 }: {
   initialDbMode?: boolean;
   initialWorkspaceMonth?: string;
@@ -347,6 +348,7 @@ export function AccountingCenterPage({
   initialOtherExpenses?: OtherExpense[];
   initialRevenueSummary?: RevenueSummary;
   initialPersonnelSummary?: { fullTimeCount: number; partTimeCount: number; fullTimeCost: number; partTimeCost: number; total: number };
+  initialEmployeeRoster?: EmployeeRoster[];
 } = {}) {
   const [workspaceMonth, setWorkspaceMonth] = useState<string>(initialWorkspaceMonth);
   const [revenueMonth, setRevenueMonth] = useState<string>(initialRevenueMonth);
@@ -363,7 +365,7 @@ export function AccountingCenterPage({
   const [rangeStart, setRangeStart] = useState("2026-03");
   const [rangeEnd, setRangeEnd] = useState("2026-04");
   const [yearSelection, setYearSelection] = useState("2026");
-  const [employeeRoster, setEmployeeRoster] = useState<EmployeeRoster[]>(initialPersonnelRoster);
+  const [employeeRoster, setEmployeeRoster] = useState<EmployeeRoster[]>(initialDbMode && initialEmployeeRoster ? initialEmployeeRoster : initialPersonnelRoster);
   const [officeCategories, setOfficeCategories] = useState(initialOfficeCategories ?? ["物流", "行政", "倉儲"]);
   const [fullTimeDrafts, setFullTimeDrafts] = useState<Record<string, FullTimeEmployee>>(() => buildInitialDrafts().fullTime);
   const [partTimeDrafts, setPartTimeDrafts] = useState<Record<string, PartTimeEmployee>>(() => buildInitialDrafts().partTime);
@@ -392,7 +394,7 @@ export function AccountingCenterPage({
     return {
       total,
       collected,
-      outstanding: total - collected,
+      outstanding: Math.max(total - collected, 0),
     };
   }, [monthData.activeProjects]);
 

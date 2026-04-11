@@ -4,6 +4,7 @@ import {
   AccountingOfficeCategoryRow,
   AccountingOfficeExpenseRow,
   AccountingOtherExpenseRow,
+  AccountingPersonnelEmployeeRow,
   AccountingPersonnelSummary,
   AccountingRevenueSummary,
 } from '@/lib/db/accounting-center-adapter';
@@ -17,6 +18,7 @@ export function AccountingCenterPageDb({
   otherExpenses,
   revenueSummary,
   personnelSummary,
+  personnelEmployees,
 }: {
   workspaceMonth: string;
   revenueMonth: string;
@@ -26,6 +28,7 @@ export function AccountingCenterPageDb({
   otherExpenses: AccountingOtherExpenseRow[];
   revenueSummary: AccountingRevenueSummary;
   personnelSummary: AccountingPersonnelSummary;
+  personnelEmployees: AccountingPersonnelEmployeeRow[];
 }) {
   return (
     <AccountingCenterPage
@@ -54,6 +57,7 @@ export function AccountingCenterPageDb({
       }))}
       initialRevenueSummary={revenueSummary}
       initialPersonnelSummary={personnelSummary}
+      initialEmployeeRoster={personnelEmployees.map((item) => ({ id: item.id, name: item.name, type: item.employeeType }))}
     />
   );
 }

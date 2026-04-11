@@ -6,6 +6,7 @@ import {
   listAccountingOfficeCategories,
   listAccountingOfficeExpensesByMonth,
   listAccountingOtherExpensesByMonth,
+  listAccountingPersonnelEmployees,
 } from '@/lib/db/accounting-center-adapter';
 
 export const dynamic = 'force-dynamic';
@@ -14,13 +15,14 @@ export default async function AccountingCenterRoute() {
   const workspaceMonth = '2026-04';
   const revenueMonth = '2026-04';
 
-  const [activeProjects, officeCategories, officeExpenses, otherExpenses, revenueSummary, personnelSummary] = await Promise.all([
+  const [activeProjects, officeCategories, officeExpenses, otherExpenses, revenueSummary, personnelSummary, personnelEmployees] = await Promise.all([
     listAccountingActiveProjectsByMonth(workspaceMonth),
     listAccountingOfficeCategories(),
     listAccountingOfficeExpensesByMonth(workspaceMonth),
     listAccountingOtherExpensesByMonth(workspaceMonth),
     getAccountingRevenueSummaryByMonth(revenueMonth),
     getAccountingPersonnelSummaryByMonth(workspaceMonth),
+    listAccountingPersonnelEmployees(),
   ]);
 
   return (
@@ -33,6 +35,7 @@ export default async function AccountingCenterRoute() {
       otherExpenses={otherExpenses}
       revenueSummary={revenueSummary}
       personnelSummary={personnelSummary}
+      personnelEmployees={personnelEmployees}
     />
   );
 }

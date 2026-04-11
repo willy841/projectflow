@@ -15,6 +15,12 @@ export type AccountingPersonnelSummary = {
   total: number;
 };
 
+export type AccountingPersonnelEmployeeRow = {
+  id: string;
+  name: string;
+  employeeType: 'full-time' | 'part-time';
+};
+
 export type AccountingActiveProjectRow = {
   projectId: string;
   projectName: string;
@@ -48,8 +54,15 @@ export type AccountingOfficeCategoryRow = {
   isActive: boolean;
 };
 
-function monthRange(month: string) {
-  return { start: `${month}-01`, next: new Date(`${month}-01T00:00:00Z`) };
+export async function listAccountingPersonnelEmployees(): Promise<AccountingPersonnelEmployeeRow[]> {
+  const db = createPhase1DbClient();
+  const rows = await db.query<AccountingPersonnelEmployeeRow>(`
+    select id, name, employee_type as "employeeType"
+    from accounting_personnel_employees
+    where is_active = true
+    order by employee_type asc, name asc
+  `);
+  return rows.rows;
 }
 
 function listMonthsInRange(startMonth: string, endMonth: string) {
