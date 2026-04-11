@@ -177,7 +177,7 @@ export async function listAccountingActiveProjectsByMonth(month: string): Promis
         eventDate: project.eventDate,
         totalAmount,
         collectedAmount,
-        outstandingAmount: totalAmount - collectedAmount,
+        outstandingAmount: Math.max(totalAmount - collectedAmount, 0),
       };
     });
 }
