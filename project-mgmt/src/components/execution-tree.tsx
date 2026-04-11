@@ -864,6 +864,11 @@ type PersistedAssignmentPayload = {
   draft: DesignAssignmentDraft | ProcurementAssignmentDraft | VendorAssignmentDraft;
 };
 
+type SavedAssignment<TDraft> = {
+  data: TDraft;
+  boardPath?: string;
+};
+
 type AssignmentSaveResult = {
   boardPath?: string;
 };
@@ -1082,18 +1087,30 @@ export function ExecutionTree({
     Record<string, DesignAssignmentDraft>
   >({});
   const [savedDesignAssignments, setSavedDesignAssignments] = useState<
-    Record<string, DesignAssignmentDraft>
-  >(initialDesignAssignments);
+    Record<string, SavedAssignment<DesignAssignmentDraft>>
+  >(
+    Object.fromEntries(
+      Object.entries(initialDesignAssignments).map(([targetId, data]) => [targetId, { data }]),
+    ),
+  );
   const [procurementAssignmentDrafts, setProcurementAssignmentDrafts] =
     useState<Record<string, ProcurementAssignmentDraft>>({});
   const [savedProcurementAssignments, setSavedProcurementAssignments] =
-    useState<Record<string, ProcurementAssignmentDraft>>(initialProcurementAssignments);
+    useState<Record<string, SavedAssignment<ProcurementAssignmentDraft>>>(
+      Object.fromEntries(
+        Object.entries(initialProcurementAssignments).map(([targetId, data]) => [targetId, { data }]),
+      ),
+    );
   const [vendorAssignmentDrafts, setVendorAssignmentDrafts] = useState<
     Record<string, VendorAssignmentDraft>
   >({});
   const [savedVendorAssignments, setSavedVendorAssignments] = useState<
-    Record<string, VendorAssignmentDraft>
-  >(initialVendorAssignments);
+    Record<string, SavedAssignment<VendorAssignmentDraft>>
+  >(
+    Object.fromEntries(
+      Object.entries(initialVendorAssignments).map(([targetId, data]) => [targetId, { data }]),
+    ),
+  );
   const [isSubmittingAssignment, setIsSubmittingAssignment] = useState(false);
   const [assignmentSaveError, setAssignmentSaveError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -1105,15 +1122,54 @@ export function ExecutionTree({
   useEffect(() => {
     if (serverHandlers || !projectId || typeof window === "undefined") return;
     const stored = readStoredExecutionTreeState(projectId);
-    setSavedDesignAssignments(stored.savedDesignAssignments ?? {});
-    setSavedProcurementAssignments(stored.savedProcurementAssignments ?? {});
-    setSavedVendorAssignments(stored.savedVendorAssignments ?? {});
+    setSavedDesignAssignments(
+      Object.fromEntries(
+        Object.entries(stored.savedDesignAssignments ?? {}).map(([targetId, value]) => [
+          targetId,
+          value && typeof value === "object" && "data" in value
+            ? (value as SavedAssignment<DesignAssignmentDraft>)
+            : { data: value as DesignAssignmentDraft },
+        ]),
+      ),
+    );
+    setSavedProcurementAssignments(
+      Object.fromEntries(
+        Object.entries(stored.savedProcurementAssignments ?? {}).map(([targetId, value]) => [
+          targetId,
+          value && typeof value === "object" && "data" in value
+            ? (value as SavedAssignment<ProcurementAssignmentDraft>)
+            : { data: value as ProcurementAssignmentDraft },
+        ]),
+      ),
+    );
+    setSavedVendorAssignments(
+      Object.fromEntries(
+        Object.entries(stored.savedVendorAssignments ?? {}).map(([targetId, value]) => [
+          targetId,
+          value && typeof value === "object" && "data" in value
+            ? (value as SavedAssignment<VendorAssignmentDraft>)
+            : { data: value as VendorAssignmentDraft },
+        ]),
+      ),
+    );
   }, [projectId, serverHandlers]);
 
   useEffect(() => {
-    setSavedDesignAssignments(initialDesignAssignments);
-    setSavedProcurementAssignments(initialProcurementAssignments);
-    setSavedVendorAssignments(initialVendorAssignments);
+    setSavedDesignAssignments(
+      Object.fromEntries(
+        Object.entries(initialDesignAssignments).map(([targetId, data]) => [targetId, { data }]),
+      ),
+    );
+    setSavedProcurementAssignments(
+      Object.fromEntries(
+        Object.entries(initialProcurementAssignments).map(([targetId, data]) => [targetId, { data }]),
+      ),
+    );
+    setSavedVendorAssignments(
+      Object.fromEntries(
+        Object.entries(initialVendorAssignments).map(([targetId, data]) => [targetId, { data }]),
+      ),
+    );
   }, [initialDesignAssignments, initialProcurementAssignments, initialVendorAssignments]);
 
   useEffect(() => {
@@ -1138,10 +1194,11 @@ export function ExecutionTree({
       );
     });
     onDesignAssignmentsChange(
-      Object.entries(savedDesignAssignments).map(([targetId, data]) => ({
+      Object.entries(savedDesignAssignments).map(([targetId, saved]) => ({
         targetId,
         title: titleMap.get(targetId) ?? targetId,
-        data,
+        data: saved.data,
+        boardPath: saved.boardPath,
       })),
     );
   }, [localItems, onDesignAssignmentsChange, savedDesignAssignments]);
@@ -1156,10 +1213,11 @@ export function ExecutionTree({
       );
     });
     onProcurementAssignmentsChange(
-      Object.entries(savedProcurementAssignments).map(([targetId, data]) => ({
+      Object.entries(savedProcurementAssignments).map(([targetId, saved]) => ({
         targetId,
         title: titleMap.get(targetId) ?? targetId,
-        data,
+        data: saved.data,
+        boardPath: saved.boardPath,
       })),
     );
   }, [localItems, onProcurementAssignmentsChange, savedProcurementAssignments]);
@@ -1174,10 +1232,11 @@ export function ExecutionTree({
       );
     });
     onVendorAssignmentsChange(
-      Object.entries(savedVendorAssignments).map(([targetId, data]) => ({
+      Object.entries(savedVendorAssignments).map(([targetId, saved]) => ({
         targetId,
         title: titleMap.get(targetId) ?? targetId,
-        data,
+        data: saved.data,
+        boardPath: saved.boardPath,
       })),
     );
   }, [localItems, onVendorAssignmentsChange, savedVendorAssignments]);
@@ -1276,7 +1335,7 @@ export function ExecutionTree({
       ...prev,
       [targetId]:
         prev[targetId] ??
-        savedDesignAssignments[targetId] ??
+        savedDesignAssignments[targetId]?.data ??
         defaultDesignAssignmentDraft,
     }));
     setActiveAssignmentDrawer({
@@ -1296,7 +1355,7 @@ export function ExecutionTree({
       ...prev,
       [targetId]:
         prev[targetId] ??
-        savedProcurementAssignments[targetId] ??
+        savedProcurementAssignments[targetId]?.data ??
         defaultProcurementAssignmentDraft,
     }));
     setActiveAssignmentDrawer({
@@ -1315,7 +1374,7 @@ export function ExecutionTree({
     setVendorAssignmentDrafts((prev) => ({
       ...prev,
       [targetId]: prev[targetId] ??
-        savedVendorAssignments[targetId] ?? {
+        savedVendorAssignments[targetId]?.data ?? {
           ...defaultVendorAssignmentDraft,
           title,
         },
@@ -1343,7 +1402,10 @@ export function ExecutionTree({
       }
       setSavedDesignAssignments((prev) => ({
         ...prev,
-        [targetId]: draft,
+        [targetId]: {
+          data: draft,
+          boardPath: saveResult?.boardPath,
+        },
       }));
       setActiveAssignmentDrawer(null);
       onAssignmentSaved?.({ flowType: "design", targetId, boardPath: saveResult?.boardPath });
@@ -1367,7 +1429,10 @@ export function ExecutionTree({
       }
       setSavedProcurementAssignments((prev) => ({
         ...prev,
-        [targetId]: draft,
+        [targetId]: {
+          data: draft,
+          boardPath: saveResult?.boardPath,
+        },
       }));
       setActiveAssignmentDrawer(null);
       onAssignmentSaved?.({ flowType: "procurement", targetId, boardPath: saveResult?.boardPath });
@@ -1391,7 +1456,10 @@ export function ExecutionTree({
       }
       setSavedVendorAssignments((prev) => ({
         ...prev,
-        [targetId]: draft,
+        [targetId]: {
+          data: draft,
+          boardPath: saveResult?.boardPath,
+        },
       }));
       setActiveAssignmentDrawer(null);
       onAssignmentSaved?.({ flowType: "vendor", targetId, boardPath: saveResult?.boardPath });
@@ -1845,7 +1913,7 @@ export function ExecutionTree({
         }
         savedDesign={
           activeAssignmentDrawer && activeAssignmentDrawer.flowType === "design"
-            ? savedDesignAssignments[activeAssignmentDrawer.targetId]
+            ? savedDesignAssignments[activeAssignmentDrawer.targetId]?.data
             : undefined
         }
         procurementDraft={
@@ -1855,7 +1923,7 @@ export function ExecutionTree({
         }
         savedProcurement={
           activeAssignmentDrawer && activeAssignmentDrawer.flowType === "procurement"
-            ? savedProcurementAssignments[activeAssignmentDrawer.targetId]
+            ? savedProcurementAssignments[activeAssignmentDrawer.targetId]?.data
             : undefined
         }
         vendorDraft={
@@ -1868,7 +1936,7 @@ export function ExecutionTree({
         }
         savedVendor={
           activeAssignmentDrawer && activeAssignmentDrawer.flowType === "vendor"
-            ? savedVendorAssignments[activeAssignmentDrawer.targetId]
+            ? savedVendorAssignments[activeAssignmentDrawer.targetId]?.data
             : undefined
         }
         onClose={() => setActiveAssignmentDrawer(null)}

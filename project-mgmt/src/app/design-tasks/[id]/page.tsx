@@ -57,13 +57,9 @@ export default async function DesignTaskDetailPage({
             <p className="text-xs text-slate-500">尺寸</p>
             <p className="mt-2 text-sm font-medium text-slate-900">{task.size}</p>
           </div>
-          <div className="rounded-2xl bg-slate-50 px-4 py-3">
-            <p className="text-xs text-slate-500">材質</p>
+          <div className="rounded-2xl bg-slate-50 px-4 py-3 md:col-span-2">
+            <p className="text-xs text-slate-500">材質 + 結構</p>
             <p className="mt-2 text-sm font-medium text-slate-900">{task.material}</p>
-          </div>
-          <div className="rounded-2xl bg-slate-50 px-4 py-3">
-            <p className="text-xs text-slate-500">結構</p>
-            <p className="mt-2 text-sm font-medium text-slate-900">{task.structureRequired}</p>
           </div>
           <div className="rounded-2xl bg-slate-50 px-4 py-3">
             <p className="text-xs text-slate-500">數量</p>

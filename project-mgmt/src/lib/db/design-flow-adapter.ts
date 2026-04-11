@@ -16,6 +16,7 @@ type DbDesignTaskSummary = {
   material: string;
   structureRequired: string;
   quantity: string;
+  materialStructure: string;
 };
 
 type DbDesignProjectSummary = {
@@ -45,7 +46,7 @@ function buildDocumentRowsFromPlans(
     id: index + 1,
     item: plan.title || `處理方案 ${index + 1}`,
     size: plan.size ?? '未填寫',
-    materialStructure: `${plan.material ?? '未填寫'} + ${plan.structure ?? '未填寫'}`,
+    materialStructure: plan.material ?? '未填寫',
     quantity: plan.quantity ?? '未填寫',
   }));
 }
@@ -80,7 +81,8 @@ export async function listDbDesignTasksByProject(projectId: string): Promise<DbD
         coalesce(dt.size, '未填寫') as size,
         coalesce(dt.material, '未填寫') as material,
         coalesce(dt.structure, '未填寫') as "structureRequired",
-        coalesce(dt.quantity, '未填寫') as quantity
+        coalesce(dt.quantity, '未填寫') as quantity,
+        coalesce(dt.material, '未填寫') as "materialStructure"
       from design_tasks dt
       inner join projects p on p.id = dt.project_id
       where dt.project_id = $1
@@ -124,7 +126,7 @@ export async function getDbDesignTaskById(id: string): Promise<DbBackedDesignTas
           id: index + 1,
           item: payload.title || `處理方案 ${index + 1}`,
           size: payload.size ?? '未填寫',
-          materialStructure: `${payload.material ?? '未填寫'} + ${payload.structure ?? '未填寫'}`,
+          materialStructure: payload.material ?? '未填寫',
           quantity: payload.quantity ?? '未填寫',
         };
       })
@@ -145,7 +147,7 @@ export async function getDbDesignTaskById(id: string): Promise<DbBackedDesignTas
     material: task.material ?? '未填寫',
     quantity: task.quantity ?? '未填寫',
     referenceUrl: task.reference_url ?? '',
-    structureRequired: task.structure ?? '未填寫',
+    structureRequired: task.material ?? '未填寫',
     outsourceStatus: latestConfirmation ? '已確認' : '待確認',
     outsourceTarget: plans[0]?.vendor_name_text ?? '尚未指定',
     cost: plans[0]?.amount ? `NT$ ${plans[0].amount}` : 'NT$ 0',
