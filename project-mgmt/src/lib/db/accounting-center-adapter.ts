@@ -21,6 +21,14 @@ export type AccountingPersonnelEmployeeRow = {
   employeeType: 'full-time' | 'part-time';
 };
 
+export type AccountingPersonnelRecordRow = {
+  employeeId: string;
+  name: string;
+  employeeType: 'full-time' | 'part-time';
+  salaryMonth: string;
+  payloadJson: Record<string, unknown>;
+};
+
 export type AccountingActiveProjectRow = {
   projectId: string;
   projectName: string;
@@ -122,21 +130,32 @@ export async function listAccountingOtherExpensesByMonth(month: string): Promise
   return rows.rows;
 }
 
-export async function getAccountingPersonnelSummaryByMonth(month: string): Promise<AccountingPersonnelSummary> {
+export async function listAccountingPersonnelRecordsByMonth(month: string): Promise<AccountingPersonnelRecordRow[]> {
   const db = createPhase1DbClient();
-  const personnel = await db.query<{ employeeType: string; payloadJson: Record<string, unknown> }>(`
-    select e.employee_type as "employeeType", r.payload_json as "payloadJson"
+  const rows = await db.query<AccountingPersonnelRecordRow>(`
+    select
+      e.id as "employeeId",
+      e.name,
+      e.employee_type as "employeeType",
+      r.salary_month as "salaryMonth",
+      r.payload_json as "payloadJson"
     from accounting_personnel_records r
     inner join accounting_personnel_employees e on e.id = r.employee_id
-    where r.salary_month = $1 and r.record_status = 'submitted'
+    where r.salary_month = $1 and r.record_status = 'submitted' and e.is_active = true
+    order by e.employee_type asc, e.name asc
   `, [month]);
+  return rows.rows;
+}
+
+export async function getAccountingPersonnelSummaryByMonth(month: string): Promise<AccountingPersonnelSummary> {
+  const personnel = await listAccountingPersonnelRecordsByMonth(month);
 
   let fullTimeCount = 0;
   let partTimeCount = 0;
   let fullTimeCost = 0;
   let partTimeCost = 0;
 
-  for (const row of personnel.rows) {
+  for (const row of personnel) {
     const cost = Number((row.payloadJson?.totalCost as number | string | undefined) ?? 0);
     if (row.employeeType === 'full-time') {
       fullTimeCount += 1;

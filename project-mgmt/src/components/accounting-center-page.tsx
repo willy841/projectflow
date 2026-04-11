@@ -338,6 +338,7 @@ export function AccountingCenterPage({
   initialRevenueSummary,
   initialPersonnelSummary,
   initialEmployeeRoster,
+  initialPersonnelRecords,
 }: {
   initialDbMode?: boolean;
   initialWorkspaceMonth?: string;
@@ -349,6 +350,7 @@ export function AccountingCenterPage({
   initialRevenueSummary?: RevenueSummary;
   initialPersonnelSummary?: { fullTimeCount: number; partTimeCount: number; fullTimeCost: number; partTimeCost: number; total: number };
   initialEmployeeRoster?: EmployeeRoster[];
+  initialPersonnelRecords?: Array<{ employeeId: string; name: string; employeeType: 'full-time' | 'part-time'; salaryMonth: string; payloadJson: Record<string, unknown> }>;
 } = {}) {
   const [workspaceMonth, setWorkspaceMonth] = useState<string>(initialWorkspaceMonth);
   const [revenueMonth, setRevenueMonth] = useState<string>(initialRevenueMonth);
@@ -369,7 +371,57 @@ export function AccountingCenterPage({
   const [officeCategories, setOfficeCategories] = useState(initialOfficeCategories ?? ["物流", "行政", "倉儲"]);
   const [fullTimeDrafts, setFullTimeDrafts] = useState<Record<string, FullTimeEmployee>>(() => buildInitialDrafts().fullTime);
   const [partTimeDrafts, setPartTimeDrafts] = useState<Record<string, PartTimeEmployee>>(() => buildInitialDrafts().partTime);
-  const [personnelRecordsByMonth, setPersonnelRecordsByMonth] = useState<Record<string, PersonnelDraft>>(() => buildInitialRecordsByMonth());
+  const [personnelRecordsByMonth, setPersonnelRecordsByMonth] = useState<Record<string, PersonnelDraft>>(() => {
+    if (!initialDbMode || !initialPersonnelRecords) return buildInitialRecordsByMonth();
+    const fullTime: Record<string, FullTimeEmployee> = {};
+    const partTime: Record<string, PartTimeEmployee> = {};
+    for (const record of initialPersonnelRecords) {
+      if (record.employeeType === 'full-time') {
+        const payload = record.payloadJson ?? {};
+        fullTime[record.employeeId] = {
+          id: record.employeeId,
+          name: record.name,
+          salaryMonth: record.salaryMonth,
+          baseSalary: Number(payload.baseSalary ?? 0),
+          allowances: Array.isArray(payload.allowances) ? payload.allowances as FullTimeEmployee['allowances'] : [],
+          bonuses: Array.isArray(payload.bonuses) ? payload.bonuses as FullTimeEmployee['bonuses'] : [],
+          otherPayments: Array.isArray(payload.otherPayments) ? payload.otherPayments as FullTimeEmployee['otherPayments'] : [],
+          overtime: Array.isArray(payload.overtime) ? payload.overtime as FullTimeEmployee['overtime'] : [
+            { label: '加班前兩小時', hours: 0, multiplier: 1.34, amount: 0 },
+            { label: '加班兩小時後', hours: 0, multiplier: 1.67, amount: 0 },
+            { label: '假日加班', hours: 0, multiplier: 2, amount: 0 },
+          ],
+          deductions: (payload.deductions as FullTimeEmployee['deductions']) ?? {
+            laborInsurance: 0,
+            healthInsurance: 0,
+            dependents: 0,
+            leaveDeduction: 0,
+            other: [],
+          },
+          employerContribution: (payload.employerContribution as FullTimeEmployee['employerContribution']) ?? {
+            laborInsurance: 0,
+            healthInsurance: 0,
+            occupationalInsurance: 0,
+            pension: 0,
+            other: [],
+          },
+        };
+      } else {
+        const payload = record.payloadJson ?? {};
+        const hours = Number(payload.hours ?? 0);
+        const hourlyRate = Number(payload.hourlyRate ?? 0);
+        const totalCost = Number(payload.totalCost ?? 0);
+        partTime[record.employeeId] = {
+          id: record.employeeId,
+          name: record.name,
+          salaryMonth: record.salaryMonth,
+          hours,
+          hourlyRate: hourlyRate || (hours > 0 ? totalCost / hours : totalCost),
+        };
+      }
+    }
+    return { [initialWorkspaceMonth]: { fullTime, partTime } };
+  });
   const [officeExpensesByMonth, setOfficeExpensesByMonth] = useState<Record<string, OfficeExpense[]>>(() => initialDbMode ? { [initialWorkspaceMonth]: initialOfficeExpenses ?? [] } : buildInitialOfficeExpensesByMonth());
   const [otherExpensesByMonth, setOtherExpensesByMonth] = useState<Record<string, OtherExpense[]>>(() => initialDbMode ? { [initialWorkspaceMonth]: initialOtherExpenses ?? [] } : buildInitialOtherExpensesByMonth());
   const [newEmployeeName, setNewEmployeeName] = useState("");
@@ -523,6 +575,11 @@ export function AccountingCenterPage({
   function handlePersonnelSubmit(employeeId: string) {
     const employee = employeeRoster.find((item) => item.id === employeeId);
     if (!employee) return;
+
+    if (initialDbMode) {
+      window.alert('目前 DB-first mode 的 personnel submit 尚未接上此編輯器；請用正式 API 路徑驗證。');
+      return;
+    }
 
     if (employee.type === "full-time") {
       const draft = fullTimeDrafts[employeeId];
