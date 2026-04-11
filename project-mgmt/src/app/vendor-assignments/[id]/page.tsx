@@ -57,6 +57,9 @@ export default async function VendorAssignmentTaskPage({ params }: { params: Pro
       </section>
 
       <div className="space-y-6">
+        <div className="rounded-2xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm text-sky-800">
+          vendor-group-db-editor-enabled
+        </div>
         {group.tasks.map((task, index) => (
           <section key={task.id} className="space-y-4 rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
             <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 pb-4">
@@ -75,11 +78,13 @@ export default async function VendorAssignmentTaskPage({ params }: { params: Pro
             <VendorPlanEditorClient
               taskId={task.id}
               showConfirmButton={false}
+              vendorName={group.vendorName}
               initialPlans={task.plans.map((plan) => ({
                 id: plan.id,
                 title: plan.title,
                 requirement: plan.requirement,
                 amount: plan.amount,
+                vendorName: group.vendorName,
               }))}
             />
           </section>

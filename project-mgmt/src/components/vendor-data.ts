@@ -75,13 +75,15 @@ export type VendorProjectRecord = {
   projectStatus: "執行中" | "已結案";
   adjustedCost: number;
   adjustedCostLabel: string;
-  procurementSummary: string;
-  procurementDetails: string[];
+  payableSummary: string;
+  sourceItemDetails: string[];
   costBreakdown: Array<{
     label: string;
     amount: string;
   }>;
   paymentStatus: VendorPaymentStatus;
+  hasUnreconciledGroups?: boolean;
+  reconciliationWarning?: string | null;
   packageId?: string;
 };
 
@@ -284,8 +286,8 @@ export const vendorProjectRecords: VendorProjectRecord[] = [
     projectStatus: "執行中",
     adjustedCost: 68000,
     adjustedCostLabel: formatCurrency(68000),
-    procurementSummary: "入口主背板輸出、裱板、現場安裝與收邊。",
-    procurementDetails: ["主背板輸出 1 式", "裱板與護膜", "現場安裝與收邊"],
+    payableSummary: "入口主背板輸出、裱板、現場安裝與收邊。",
+    sourceItemDetails: ["主背板輸出 1 式", "裱板與護膜", "現場安裝與收邊"],
     costBreakdown: [
       { label: "輸出製作", amount: formatCurrency(42000) },
       { label: "裱板與護膜", amount: formatCurrency(12000) },
@@ -303,8 +305,8 @@ export const vendorProjectRecords: VendorProjectRecord[] = [
     projectStatus: "執行中",
     adjustedCost: 24000,
     adjustedCostLabel: formatCurrency(24000),
-    procurementSummary: "入口指示、動線牌與收銀區桌牌輸出。",
-    procurementDetails: ["入口導視牌 3 面", "動線牌 5 面", "桌牌與收銀區標示"],
+    payableSummary: "入口指示、動線牌與收銀區桌牌輸出。",
+    sourceItemDetails: ["入口導視牌 3 面", "動線牌 5 面", "桌牌與收銀區標示"],
     costBreakdown: [
       { label: "導視輸出", amount: formatCurrency(15000) },
       { label: "桌牌與標示", amount: formatCurrency(9000) },
@@ -321,8 +323,8 @@ export const vendorProjectRecords: VendorProjectRecord[] = [
     projectStatus: "執行中",
     adjustedCost: 38500,
     adjustedCostLabel: formatCurrency(38500),
-    procurementSummary: "POP、價卡與檔期吊牌輸出。",
-    procurementDetails: ["POP 海報輸出 12 張", "價卡與吊牌 1 式", "櫥窗貼與現場補貼"],
+    payableSummary: "POP、價卡與檔期吊牌輸出。",
+    sourceItemDetails: ["POP 海報輸出 12 張", "價卡與吊牌 1 式", "櫥窗貼與現場補貼"],
     costBreakdown: [
       { label: "POP 輸出", amount: formatCurrency(18000) },
       { label: "價卡與吊牌", amount: formatCurrency(12500) },
@@ -339,8 +341,8 @@ export const vendorProjectRecords: VendorProjectRecord[] = [
     projectStatus: "執行中",
     adjustedCost: 146000,
     adjustedCostLabel: formatCurrency(146000),
-    procurementSummary: "接待區背牆木作、結構補強與面材處理。",
-    procurementDetails: ["木作背牆製作", "結構補強", "面材包覆與現場安裝"],
+    payableSummary: "接待區背牆木作、結構補強與面材處理。",
+    sourceItemDetails: ["木作背牆製作", "結構補強", "面材包覆與現場安裝"],
     costBreakdown: [
       { label: "木作結構", amount: formatCurrency(98000) },
       { label: "面材與油漆", amount: formatCurrency(26000) },
@@ -358,8 +360,8 @@ export const vendorProjectRecords: VendorProjectRecord[] = [
     projectStatus: "已結案",
     adjustedCost: 92000,
     adjustedCostLabel: formatCurrency(92000),
-    procurementSummary: "主舞台側翼木作、收邊與現場補強。",
-    procurementDetails: ["舞台側翼木作", "結構補強", "現場拆裝收邊"],
+    payableSummary: "主舞台側翼木作、收邊與現場補強。",
+    sourceItemDetails: ["舞台側翼木作", "結構補強", "現場拆裝收邊"],
     costBreakdown: [
       { label: "木作製作", amount: formatCurrency(62000) },
       { label: "現場安裝", amount: formatCurrency(18000) },
@@ -376,8 +378,8 @@ export const vendorProjectRecords: VendorProjectRecord[] = [
     projectStatus: "已結案",
     adjustedCost: 56000,
     adjustedCostLabel: formatCurrency(56000),
-    procurementSummary: "櫥窗貼、立體字與店頭導視整包輸出。",
-    procurementDetails: ["櫥窗貼 1 式", "立體字輸出", "店頭導視與桌牌"],
+    payableSummary: "櫥窗貼、立體字與店頭導視整包輸出。",
+    sourceItemDetails: ["櫥窗貼 1 式", "立體字輸出", "店頭導視與桌牌"],
     costBreakdown: [
       { label: "櫥窗貼", amount: formatCurrency(22000) },
       { label: "立體字", amount: formatCurrency(18000) },

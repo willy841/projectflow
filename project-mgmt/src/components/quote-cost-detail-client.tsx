@@ -22,10 +22,27 @@ import { getQuoteCostProjectsWithWorkflow } from "@/components/project-workflow-
 
 type DetailMode = "active" | "closed";
 
+type ReconciliationGroupView = {
+  key: string;
+  sourceType: '設計' | '備品' | '廠商';
+  vendorName: string;
+  amountTotal: number;
+  itemCount: number;
+  reconciliationStatus: '未對帳' | '已對帳';
+};
+
+function normalizeGroupStatus(groups: ReconciliationGroupView[]): '未開始' | '待確認' | '已完成' {
+  if (!groups.length) return '未開始';
+  const reconciledCount = groups.filter((group) => group.reconciliationStatus === '已對帳').length;
+  if (reconciledCount === 0) return '未開始';
+  if (reconciledCount === groups.length) return '已完成';
+  return '待確認';
+}
+
 type Props = {
   project: QuoteCostProject;
   mode?: DetailMode;
-  initialProject?: QuoteCostProject;
+  initialProject?: QuoteCostProject & { reconciliationGroups?: ReconciliationGroupView[] };
 };
 
 type EditableProjectState = QuoteCostProject;
@@ -33,10 +50,19 @@ type EditableProjectState = QuoteCostProject;
 export function QuoteCostDetailClient({ project, mode = "active", initialProject }: Props) {
   const router = useRouter();
   const workflowProject = initialProject ?? getQuoteCostProjectsWithWorkflow().find((item) => item.id === project.id) ?? project;
-  const [state, setState] = useState<EditableProjectState>(workflowProject);
+  const [reconciliationGroups, setReconciliationGroups] = useState<ReconciliationGroupView[]>(initialProject?.reconciliationGroups ?? []);
+  const [state, setState] = useState<EditableProjectState>(() => ({
+    ...workflowProject,
+    reconciliationStatus: normalizeGroupStatus(initialProject?.reconciliationGroups ?? []),
+  }));
+  const derivedReconciliationStatus = useMemo(
+    () => normalizeGroupStatus(reconciliationGroups),
+    [reconciliationGroups],
+  );
   const [manualSyncError, setManualSyncError] = useState<string | null>(null);
   const [manualSyncSuccess, setManualSyncSuccess] = useState<string | null>(null);
   const [isManualSyncing, setIsManualSyncing] = useState(false);
+  const [reconciliationSyncingKey, setReconciliationSyncingKey] = useState<string | null>(null);
   const [quoteImportIndex, setQuoteImportIndex] = useState(0);
   const [activeArchiveSource, setActiveArchiveSource] = useState<CostSourceType>("設計");
   const quoteImportOptions = sampleQuoteImports[project.id] ?? [project.quotationImport].filter(Boolean);
@@ -62,14 +88,17 @@ export function QuoteCostDetailClient({ project, mode = "active", initialProject
   function mutateCosts(mutator: (prev: EditableProjectState) => EditableProjectState) {
     setState((prev) => {
       const next = mutator(prev);
-      if (prev.reconciliationStatus === "已完成") {
+      if (derivedReconciliationStatus === "已完成") {
         return {
           ...next,
           reconciliationStatus: "待確認",
           closeStatus: next.closeStatus === "已結案" ? "未結案" : next.closeStatus,
         };
       }
-      return next;
+      return {
+        ...next,
+        reconciliationStatus: derivedReconciliationStatus,
+      };
     });
   }
 
@@ -161,9 +190,42 @@ export function QuoteCostDetailClient({ project, mode = "active", initialProject
     }));
   }
 
-  function handleConfirmReconciliation() {
-    if (!state.quotationImported || state.costItems.length === 0) return;
-    setState((prev) => ({ ...prev, reconciliationStatus: "已完成" }));
+  async function handleConfirmGroup(groupKey: string) {
+    const nextGroups = reconciliationGroups.map((group) =>
+      group.key === groupKey ? { ...group, reconciliationStatus: '已對帳' as const } : group,
+    );
+
+    setReconciliationSyncingKey(groupKey);
+    try {
+      const response = await fetch(`/api/financial-projects/${state.id}/reconciliation-groups/sync`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          groups: nextGroups.map((group) => ({
+            sourceType: group.sourceType,
+            vendorName: group.vendorName,
+            reconciliationStatus: group.reconciliationStatus,
+          })),
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('reconciliation-group-sync-failed');
+      }
+
+      const nextStatus = normalizeGroupStatus(nextGroups);
+      setReconciliationGroups(nextGroups);
+      setState((prev) => ({
+        ...prev,
+        reconciliationStatus: nextStatus,
+        closeStatus: prev.closeStatus === '已結案' && nextStatus !== '已完成' ? '未結案' : prev.closeStatus,
+      }));
+      router.refresh();
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setReconciliationSyncingKey(null);
+    }
   }
 
   function handleCloseProject() {
@@ -188,7 +250,7 @@ export function QuoteCostDetailClient({ project, mode = "active", initialProject
               <p className={`text-base font-semibold ${isClosedView ? "text-slate-900" : "text-white"}`}>{isClosedView ? "結案留存 / 最終結果確認" : "進行中控盤 / 成本管理 / 對帳推進"}</p>
             </div>
             <div className="grid grid-cols-2 gap-3 text-xs">
-              <QuickPanel value={state.reconciliationStatus} label="對帳狀態" archived={isClosedView} />
+              <QuickPanel value={derivedReconciliationStatus} label="對帳狀態" archived={isClosedView} />
               <QuickPanel value={state.closeStatus} label="結案狀態" archived={isClosedView} />
             </div>
             <Link href={isClosedView ? "/closeouts" : "/quote-costs"} className={`inline-flex items-center justify-center rounded-2xl px-4 py-2.5 text-sm font-semibold transition ${isClosedView ? "border border-slate-300 bg-white text-slate-800 hover:border-slate-400 hover:bg-slate-50" : "bg-white text-slate-900 hover:bg-slate-100"}`}>
@@ -273,16 +335,15 @@ export function QuoteCostDetailClient({ project, mode = "active", initialProject
                 + 新增人工成本
               </button>
             )}
-            {!isClosedView && (
+            {!isClosedView && reconciliationGroups.length === 0 ? (
               <button
                 type="button"
-                onClick={handleConfirmReconciliation}
-                disabled={!state.quotationImported || state.costItems.length === 0}
-                className="inline-flex items-center justify-center rounded-2xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:bg-slate-300"
+                disabled
+                className="inline-flex items-center justify-center rounded-2xl bg-slate-300 px-4 py-2.5 text-sm font-semibold text-white"
               >
-                確認對帳完成
+                尚無可對帳群組
               </button>
-            )}
+            ) : null}
             {isClosedView && (
               <span className="inline-flex items-center rounded-2xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700">
                 已結案留存版本
@@ -323,6 +384,56 @@ export function QuoteCostDetailClient({ project, mode = "active", initialProject
           </button>
         </div>
 
+        {reconciliationGroups.length ? (
+          <div className="mt-6 rounded-3xl border border-slate-200 bg-slate-50 p-5">
+            <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+              <div>
+                <h4 className="text-lg font-semibold text-slate-900">對帳群組</h4>
+                <p className="mt-1 text-sm text-slate-500">正式對帳單位採 `project × sourceType × vendor`。這裡先呈現群組，不先改 list UI。</p>
+              </div>
+              <div className="rounded-2xl bg-white px-4 py-3 text-sm text-slate-600 ring-1 ring-slate-200">
+                共 {reconciliationGroups.length} 組
+              </div>
+            </div>
+            <div className="mt-4 space-y-3">
+              {reconciliationGroups.map((group) => (
+                <div key={group.key} className="rounded-2xl border border-slate-200 bg-white p-4">
+                  <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
+                    <div className="min-w-0">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="inline-flex rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700 ring-1 ring-slate-200">{group.sourceType}</span>
+                        <span className="inline-flex rounded-full bg-white px-3 py-1 text-xs font-semibold text-slate-700 ring-1 ring-slate-200">{group.vendorName}</span>
+                        <span className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ring-1 ${group.reconciliationStatus === '已對帳' ? 'bg-emerald-50 text-emerald-700 ring-emerald-200' : 'bg-amber-50 text-amber-700 ring-amber-200'}`}>{group.reconciliationStatus}</span>
+                      </div>
+                      <p className="mt-2 text-sm text-slate-500">{group.itemCount} 筆來源項目</p>
+                    </div>
+                    <div className="flex flex-col items-start gap-3 xl:items-end">
+                      <div className="text-left xl:text-right">
+                        <p className="text-sm text-slate-500">群組金額總額</p>
+                        <p className="text-2xl font-semibold tracking-tight text-slate-900">{formatCurrency(group.amountTotal)}</p>
+                      </div>
+                      {!isClosedView ? (
+                        <button
+                          type="button"
+                          onClick={() => handleConfirmGroup(group.key)}
+                          disabled={group.reconciliationStatus === '已對帳' || reconciliationSyncingKey === group.key}
+                          className="inline-flex items-center justify-center rounded-2xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:bg-slate-300"
+                        >
+                          {group.reconciliationStatus === '已對帳'
+                            ? '已對帳'
+                            : reconciliationSyncingKey === group.key
+                              ? '對帳中...'
+                              : '確認對帳'}
+                        </button>
+                      ) : null}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : null}
+
         <div className="mt-6 rounded-3xl border border-slate-200 bg-white p-5">
           <div className="mb-5 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
             <h4 className="text-lg font-semibold text-slate-900">最終文件內容</h4>
@@ -339,7 +450,7 @@ export function QuoteCostDetailClient({ project, mode = "active", initialProject
                 <button
                   type="button"
                   onClick={handleCloseProject}
-                  disabled={!state.quotationImported || state.costItems.length === 0 || state.reconciliationStatus !== "已完成"}
+                  disabled={!state.quotationImported || state.costItems.length === 0 || derivedReconciliationStatus !== "已完成"}
                   className="inline-flex items-center justify-center rounded-2xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-300"
                 >
                   手動結案
@@ -358,7 +469,7 @@ export function QuoteCostDetailClient({ project, mode = "active", initialProject
                     : "目前人工新增費用已與正式資料同步。")}
             </div>
           ) : null}
-          <ArchiveContentPanel source={activeArchiveSource} manualItems={manualItems} isClosedView={isClosedView} onManualItemChange={handleManualItemChange} />
+          <ArchiveContentPanel source={activeArchiveSource} costItems={state.costItems} manualItems={manualItems} isClosedView={isClosedView} onManualItemChange={handleManualItemChange} />
         </div>
       </section>
       </AppShell>
@@ -409,43 +520,39 @@ function QuickPanel({ value, label, archived }: { value: string; label: string; 
 
 function ArchiveContentPanel({
   source,
+  costItems,
   manualItems,
   isClosedView,
   onManualItemChange,
 }: {
   source: CostSourceType;
+  costItems: CostLineItem[];
   manualItems: CostLineItem[];
   isClosedView: boolean;
   onManualItemChange: (itemId: string, field: "itemName" | "sourceRef" | "adjustedAmount", value: string) => void;
 }) {
   if (source === "設計") {
-    const rows = [
-      ["主視覺完稿", "W240 × H300cm", "PVC 貼膜", "木作背板", "1 式", formatCurrency(41800)],
-      ["POP 與價卡", "A3 / A4 混合規格", "雪銅紙", "桌卡 / 吊卡", "24 件", formatCurrency(22300)],
-      ["吊牌設計", "W12 × H18cm", "銅西卡", "雙孔掛繩", "80 張", formatCurrency(9700)],
-    ];
+    const rows = costItems
+      .filter((item) => item.sourceType === "設計" && item.includedInCost)
+      .map((item) => [item.itemName, item.sourceRef || '-', item.vendorName || '未指定廠商', formatCurrency(item.adjustedAmount)]);
 
-    return <ArchiveTable title="設計最終留存內容" headers={["標題", "尺寸", "材質", "結構", "數量", "金額"]} rows={rows} />;
+    return <ArchiveTable title="設計最終留存內容" headers={["標題", "來源摘要", "執行廠商", "金額"]} rows={rows} emptyText="目前沒有設計正式成本項目。" />;
   }
 
   if (source === "備品") {
-    const rows = [
-      ["展示架與五金配件", "12 組", formatCurrency(89500)],
-      ["贈品包材追加", "1 式", formatCurrency(23500)],
-      ["現場補件備品", "6 件", formatCurrency(8600)],
-    ];
+    const rows = costItems
+      .filter((item) => item.sourceType === "備品" && item.includedInCost)
+      .map((item) => [item.itemName, item.sourceRef || '-', item.vendorName || '未指定廠商', formatCurrency(item.adjustedAmount)]);
 
-    return <ArchiveTable title="備品最終留存內容" headers={["標題", "數量", "金額"]} rows={rows} compact />;
+    return <ArchiveTable title="備品最終留存內容" headers={["標題", "來源摘要", "供應廠商", "金額"]} rows={rows} emptyText="目前沒有備品正式成本項目。" />;
   }
 
   if (source === "廠商") {
-    const rows = [
-      ["春分印刷", "POP 與價卡輸出", "檔期 POP、價卡與吊牌最終輸出", formatCurrency(41800)],
-      ["青田展示製作", "展示架與五金配件", "展示架結構、五金配件與現場調整", formatCurrency(89500)],
-      ["禮品補給站", "贈品包材追加", "贈品包材補件與標示物追加", formatCurrency(23500)],
-    ];
+    const rows = costItems
+      .filter((item) => item.sourceType === "廠商" && item.includedInCost)
+      .map((item) => [item.vendorName || '未指定廠商', item.itemName, item.sourceRef || '-', formatCurrency(item.adjustedAmount)]);
 
-    return <ArchiveTable title="廠商最終留存內容" headers={["某廠商", "標題", "需求內容", "金額"]} rows={rows} />;
+    return <ArchiveTable title="廠商最終留存內容" headers={["廠商", "標題", "需求內容", "金額"]} rows={rows} emptyText="目前沒有廠商正式成本項目。" />;
   }
 
   return <ManualArchiveTable manualItems={manualItems} isClosedView={isClosedView} onManualItemChange={onManualItemChange} />;
@@ -487,32 +594,36 @@ function ManualArchiveTable({
   );
 }
 
-function ArchiveTable({ title, headers, rows, compact = false }: { title: string; headers: string[]; rows: string[][]; compact?: boolean }) {
+function ArchiveTable({ title, headers, rows, compact = false, emptyText = '目前沒有內容。' }: { title: string; headers: string[]; rows: string[][]; compact?: boolean; emptyText?: string }) {
   return (
     <div className="rounded-2xl border border-slate-200 bg-white p-4">
       <h5 className="text-base font-semibold text-slate-900">{title}</h5>
-      <div className="mt-4 overflow-x-auto rounded-2xl border border-slate-200">
-        <table className="min-w-full divide-y divide-slate-200 text-left text-sm">
-          <thead className="bg-slate-50 text-slate-500">
-            <tr>
-              {headers.map((header) => (
-                <th key={header} className="px-4 py-3 font-medium whitespace-nowrap">{header}</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-100 bg-white">
-            {rows.map((row, rowIndex) => (
-              <tr key={`${title}-${rowIndex}`}>
-                {row.map((cell, cellIndex) => (
-                  <td key={`${cell}-${cellIndex}`} className={`px-4 ${compact ? "py-3" : "py-4"} ${cellIndex === 0 ? "font-semibold text-slate-900" : "text-slate-600"}`}>
-                    {cell}
-                  </td>
+      {rows.length ? (
+        <div className="mt-4 overflow-x-auto rounded-2xl border border-slate-200">
+          <table className="min-w-full divide-y divide-slate-200 text-left text-sm">
+            <thead className="bg-slate-50 text-slate-500">
+              <tr>
+                {headers.map((header) => (
+                  <th key={header} className="px-4 py-3 font-medium whitespace-nowrap">{header}</th>
                 ))}
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody className="divide-y divide-slate-100 bg-white">
+              {rows.map((row, rowIndex) => (
+                <tr key={`${title}-${rowIndex}`}>
+                  {row.map((cell, cellIndex) => (
+                    <td key={`${cell}-${cellIndex}`} className={`px-4 ${compact ? "py-3" : "py-4"} ${cellIndex === 0 ? "font-semibold text-slate-900" : "text-slate-600"}`}>
+                      {cell}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ) : (
+        <div className="mt-4 rounded-2xl border border-dashed border-slate-300 p-5 text-sm text-slate-500">{emptyText}</div>
+      )}
     </div>
   );
 }

@@ -216,7 +216,7 @@ export function VendorDetailShell({ vendorId }: Props) {
     const keyword = historyKeyword.trim().toLowerCase();
     return historySourceRecords.filter((record) => {
       const matchesKeyword =
-        !keyword || [record.projectName, record.procurementSummary].join(" ").toLowerCase().includes(keyword);
+        !keyword || [record.projectName, record.payableSummary].join(" ").toLowerCase().includes(keyword);
       const matchesStatus = historyProjectStatus === "all" || record.projectStatus === historyProjectStatus;
       return matchesKeyword && matchesStatus;
     });
@@ -559,7 +559,7 @@ export function VendorDetailShell({ vendorId }: Props) {
                         <div className="rounded-2xl bg-white p-4 ring-1 ring-slate-200">
                           <p className="text-sm font-semibold text-slate-900">發包內容明細</p>
                           <ul className="mt-3 space-y-2 text-sm text-slate-600">
-                            {record.procurementDetails.map((item) => (
+                            {record.sourceItemDetails.map((item) => (
                               <li key={`${record.id}-${item}`} className="rounded-2xl bg-slate-50 px-3 py-2">• {item}</li>
                             ))}
                           </ul>
