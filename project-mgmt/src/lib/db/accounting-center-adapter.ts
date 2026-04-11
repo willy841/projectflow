@@ -7,6 +7,14 @@ export type AccountingRevenueSummary = {
   operatingExpense: number;
 };
 
+export type AccountingPersonnelSummary = {
+  fullTimeCount: number;
+  partTimeCount: number;
+  fullTimeCost: number;
+  partTimeCost: number;
+  total: number;
+};
+
 export type AccountingActiveProjectRow = {
   projectId: string;
   projectName: string;
@@ -101,17 +109,41 @@ export async function listAccountingOtherExpensesByMonth(month: string): Promise
   return rows.rows;
 }
 
+export async function getAccountingPersonnelSummaryByMonth(month: string): Promise<AccountingPersonnelSummary> {
+  const db = createPhase1DbClient();
+  const personnel = await db.query<{ employeeType: string; payloadJson: Record<string, unknown> }>(`
+    select e.employee_type as "employeeType", r.payload_json as "payloadJson"
+    from accounting_personnel_records r
+    inner join accounting_personnel_employees e on e.id = r.employee_id
+    where r.salary_month = $1 and r.record_status = 'submitted'
+  `, [month]);
+
+  let fullTimeCount = 0;
+  let partTimeCount = 0;
+  let fullTimeCost = 0;
+  let partTimeCost = 0;
+
+  for (const row of personnel.rows) {
+    const cost = Number((row.payloadJson?.totalCost as number | string | undefined) ?? 0);
+    if (row.employeeType === 'full-time') {
+      fullTimeCount += 1;
+      fullTimeCost += cost;
+    } else {
+      partTimeCount += 1;
+      partTimeCost += cost;
+    }
+  }
+
+  return { fullTimeCount, partTimeCount, fullTimeCost, partTimeCost, total: fullTimeCost + partTimeCost };
+}
+
 export async function getAccountingOperatingExpenseSummaryByMonth(month: string) {
   const db = createPhase1DbClient();
   const office = await db.query<{ total: number }>(`select coalesce(sum(amount), 0)::float8 as total from accounting_office_expenses where expense_month = $1`, [month]);
   const other = await db.query<{ total: number }>(`select coalesce(sum(amount), 0)::float8 as total from accounting_other_expenses where expense_month = $1`, [month]);
-  const personnel = await db.query<{ payloadJson: Record<string, unknown> }>(`
-    select payload_json as "payloadJson"
-    from accounting_personnel_records
-    where salary_month = $1 and record_status = 'submitted'
-  `, [month]);
+  const personnelSummary = await getAccountingPersonnelSummaryByMonth(month);
 
-  const personnelTotal = personnel.rows.reduce((sum, row) => sum + Number((row.payloadJson?.totalCost as number | string | undefined) ?? 0), 0);
+  const personnelTotal = personnelSummary.total;
   const officeTotal = office.rows[0]?.total ?? 0;
   const otherTotal = other.rows[0]?.total ?? 0;
 
@@ -137,7 +169,7 @@ export async function listAccountingActiveProjectsByMonth(month: string): Promis
   return projects
     .filter((project) => project.projectStatus === '執行中' && project.eventDate.startsWith(month))
     .map((project) => {
-      const totalAmount = project.quotationItems.reduce((sum, item) => sum + item.quantity * item.unitPrice, 0);
+      const totalAmount = project.costItems.filter((item) => item.includedInCost).reduce((sum, item) => sum + item.adjustedAmount, 0);
       const collectedAmount = collectedMap.get(project.id) ?? 0;
       return {
         projectId: project.id,

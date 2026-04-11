@@ -336,6 +336,7 @@ export function AccountingCenterPage({
   initialOfficeExpenses,
   initialOtherExpenses,
   initialRevenueSummary,
+  initialPersonnelSummary,
 }: {
   initialDbMode?: boolean;
   initialWorkspaceMonth?: string;
@@ -345,6 +346,7 @@ export function AccountingCenterPage({
   initialOfficeExpenses?: OfficeExpense[];
   initialOtherExpenses?: OtherExpense[];
   initialRevenueSummary?: RevenueSummary;
+  initialPersonnelSummary?: { fullTimeCount: number; partTimeCount: number; fullTimeCost: number; partTimeCost: number; total: number };
 } = {}) {
   const [workspaceMonth, setWorkspaceMonth] = useState<string>(initialWorkspaceMonth);
   const [revenueMonth, setRevenueMonth] = useState<string>(initialRevenueMonth);
@@ -400,6 +402,9 @@ export function AccountingCenterPage({
   const fullTimeRecords = Object.values(monthPersonnelRecords.fullTime);
   const partTimeRecords = Object.values(monthPersonnelRecords.partTime);
   const personnelSummary = useMemo(() => {
+    if (initialDbMode && initialPersonnelSummary) {
+      return initialPersonnelSummary;
+    }
     const fullTimeCost = fullTimeRecords.reduce((sum, record) => sum + calculateFullTimeCost(record), 0);
     const partTimeCost = partTimeRecords.reduce((sum, record) => sum + calculatePartTimePay(record), 0);
     return {
@@ -409,7 +414,7 @@ export function AccountingCenterPage({
       partTimeCost,
       total: fullTimeCost + partTimeCost,
     };
-  }, [fullTimeRecords, partTimeRecords]);
+  }, [fullTimeRecords, initialDbMode, initialPersonnelSummary, partTimeRecords]);
 
   const officeExpenseSummary = currentOfficeExpenses.reduce((sum, item) => sum + item.amount, 0);
   const otherExpenseSummary = currentOtherExpenses.reduce((sum, item) => sum + item.amount, 0);

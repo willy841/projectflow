@@ -1,5 +1,6 @@
 import { AccountingCenterPageDb } from '@/components/accounting-center-page-db';
 import {
+  getAccountingPersonnelSummaryByMonth,
   getAccountingRevenueSummaryByMonth,
   listAccountingActiveProjectsByMonth,
   listAccountingOfficeCategories,
@@ -13,12 +14,13 @@ export default async function AccountingCenterRoute() {
   const workspaceMonth = '2026-04';
   const revenueMonth = '2026-04';
 
-  const [activeProjects, officeCategories, officeExpenses, otherExpenses, revenueSummary] = await Promise.all([
+  const [activeProjects, officeCategories, officeExpenses, otherExpenses, revenueSummary, personnelSummary] = await Promise.all([
     listAccountingActiveProjectsByMonth(workspaceMonth),
     listAccountingOfficeCategories(),
     listAccountingOfficeExpensesByMonth(workspaceMonth),
     listAccountingOtherExpensesByMonth(workspaceMonth),
     getAccountingRevenueSummaryByMonth(revenueMonth),
+    getAccountingPersonnelSummaryByMonth(workspaceMonth),
   ]);
 
   return (
@@ -30,6 +32,7 @@ export default async function AccountingCenterRoute() {
       officeExpenses={officeExpenses}
       otherExpenses={otherExpenses}
       revenueSummary={revenueSummary}
+      personnelSummary={personnelSummary}
     />
   );
 }
