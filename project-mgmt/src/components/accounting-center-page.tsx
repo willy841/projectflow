@@ -327,9 +327,27 @@ const initialPersonnelRoster: EmployeeRoster[] = [
   { id: "pt-neo", name: "Neo", type: "part-time" },
 ];
 
-export function AccountingCenterPage() {
-  const [workspaceMonth, setWorkspaceMonth] = useState<string>("2026-04");
-  const [revenueMonth, setRevenueMonth] = useState<string>("2026-04");
+export function AccountingCenterPage({
+  initialDbMode = false,
+  initialWorkspaceMonth = '2026-04',
+  initialRevenueMonth = '2026-04',
+  initialActiveProjects,
+  initialOfficeCategories,
+  initialOfficeExpenses,
+  initialOtherExpenses,
+  initialRevenueSummary,
+}: {
+  initialDbMode?: boolean;
+  initialWorkspaceMonth?: string;
+  initialRevenueMonth?: string;
+  initialActiveProjects?: ActiveProjectRow[];
+  initialOfficeCategories?: string[];
+  initialOfficeExpenses?: OfficeExpense[];
+  initialOtherExpenses?: OtherExpense[];
+  initialRevenueSummary?: RevenueSummary;
+} = {}) {
+  const [workspaceMonth, setWorkspaceMonth] = useState<string>(initialWorkspaceMonth);
+  const [revenueMonth, setRevenueMonth] = useState<string>(initialRevenueMonth);
   const [employeeFilter, setEmployeeFilter] = useState<FormEmployeeType>("full-time");
   const [showAddEmployeeModal, setShowAddEmployeeModal] = useState(false);
   const [showManageOfficeCategories, setShowManageOfficeCategories] = useState(false);
@@ -344,19 +362,28 @@ export function AccountingCenterPage() {
   const [rangeEnd, setRangeEnd] = useState("2026-04");
   const [yearSelection, setYearSelection] = useState("2026");
   const [employeeRoster, setEmployeeRoster] = useState<EmployeeRoster[]>(initialPersonnelRoster);
-  const [officeCategories, setOfficeCategories] = useState(["物流", "行政", "倉儲"]);
+  const [officeCategories, setOfficeCategories] = useState(initialOfficeCategories ?? ["物流", "行政", "倉儲"]);
   const [fullTimeDrafts, setFullTimeDrafts] = useState<Record<string, FullTimeEmployee>>(() => buildInitialDrafts().fullTime);
   const [partTimeDrafts, setPartTimeDrafts] = useState<Record<string, PartTimeEmployee>>(() => buildInitialDrafts().partTime);
   const [personnelRecordsByMonth, setPersonnelRecordsByMonth] = useState<Record<string, PersonnelDraft>>(() => buildInitialRecordsByMonth());
-  const [officeExpensesByMonth, setOfficeExpensesByMonth] = useState<Record<string, OfficeExpense[]>>(() => buildInitialOfficeExpensesByMonth());
-  const [otherExpensesByMonth, setOtherExpensesByMonth] = useState<Record<string, OtherExpense[]>>(() => buildInitialOtherExpensesByMonth());
+  const [officeExpensesByMonth, setOfficeExpensesByMonth] = useState<Record<string, OfficeExpense[]>>(() => initialDbMode ? { [initialWorkspaceMonth]: initialOfficeExpenses ?? [] } : buildInitialOfficeExpensesByMonth());
+  const [otherExpensesByMonth, setOtherExpensesByMonth] = useState<Record<string, OtherExpense[]>>(() => initialDbMode ? { [initialWorkspaceMonth]: initialOtherExpenses ?? [] } : buildInitialOtherExpensesByMonth());
   const [newEmployeeName, setNewEmployeeName] = useState("");
   const [newEmployeeType, setNewEmployeeType] = useState<FormEmployeeType>("full-time");
   const [newOfficeCategory, setNewOfficeCategory] = useState("");
   const [officeExpenseForm, setOfficeExpenseForm] = useState<{ mode: "create" | "edit"; id?: string; item: string; category: string; amount: string; note: string } | null>(null);
   const [otherExpenseForm, setOtherExpenseForm] = useState<{ mode: "create" | "edit"; id?: string; item: string; amount: string; note: string } | null>(null);
 
-  const monthData = accountingDataByMonth[workspaceMonth];
+  const monthData = initialDbMode
+    ? {
+        activeProjects: initialActiveProjects ?? [],
+        fullTimeEmployees: [],
+        partTimeEmployees: [],
+        officeExpenses: initialOfficeExpenses ?? [],
+        otherExpenses: initialOtherExpenses ?? [],
+        revenueSummary: initialRevenueSummary ?? { closedRevenue: 0, closedCost: 0, operatingExpense: 0 },
+      }
+    : accountingDataByMonth[workspaceMonth];
   const activeProjectSummary = useMemo(() => {
     const total = monthData.activeProjects.reduce((sum, item) => sum + item.totalAmount, 0);
     const collected = monthData.activeProjects.reduce((sum, item) => sum + item.collectedAmount, 0);
@@ -391,6 +418,9 @@ export function AccountingCenterPage() {
   const filteredRoster = employeeRoster.filter((employee) => employee.type === employeeFilter);
 
   const revenueSnapshot = useMemo(() => {
+    if (initialDbMode) {
+      return initialRevenueSummary ?? { closedRevenue: 0, closedCost: 0, operatingExpense: 0 };
+    }
     const scopedMonths = getScopedMonths(revenueMode, revenueMonth, yearSelection, rangeStart, rangeEnd);
     return scopedMonths.reduce(
       (acc, monthKey) => {
@@ -408,7 +438,7 @@ export function AccountingCenterPage() {
       },
       { closedRevenue: 0, closedCost: 0, operatingExpense: 0 },
     );
-  }, [officeExpensesByMonth, otherExpensesByMonth, personnelRecordsByMonth, rangeEnd, rangeStart, revenueMode, revenueMonth, yearSelection]);
+  }, [initialDbMode, initialRevenueSummary, officeExpensesByMonth, otherExpensesByMonth, personnelRecordsByMonth, rangeEnd, rangeStart, revenueMode, revenueMonth, yearSelection]);
 
   const revenueCards = [
     { label: "已結案總收入", value: formatCurrency(revenueSnapshot.closedRevenue), hint: "承接 Closeout 已結案專案的收入摘要" },

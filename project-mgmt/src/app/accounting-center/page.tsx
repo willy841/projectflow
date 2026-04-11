@@ -1,5 +1,35 @@
-import { AccountingCenterPage } from "@/components/accounting-center-page";
+import { AccountingCenterPageDb } from '@/components/accounting-center-page-db';
+import {
+  getAccountingRevenueSummaryByMonth,
+  listAccountingActiveProjectsByMonth,
+  listAccountingOfficeCategories,
+  listAccountingOfficeExpensesByMonth,
+  listAccountingOtherExpensesByMonth,
+} from '@/lib/db/accounting-center-adapter';
 
-export default function AccountingCenterRoute() {
-  return <AccountingCenterPage />;
+export const dynamic = 'force-dynamic';
+
+export default async function AccountingCenterRoute() {
+  const workspaceMonth = '2026-04';
+  const revenueMonth = '2026-04';
+
+  const [activeProjects, officeCategories, officeExpenses, otherExpenses, revenueSummary] = await Promise.all([
+    listAccountingActiveProjectsByMonth(workspaceMonth),
+    listAccountingOfficeCategories(),
+    listAccountingOfficeExpensesByMonth(workspaceMonth),
+    listAccountingOtherExpensesByMonth(workspaceMonth),
+    getAccountingRevenueSummaryByMonth(revenueMonth),
+  ]);
+
+  return (
+    <AccountingCenterPageDb
+      workspaceMonth={workspaceMonth}
+      revenueMonth={revenueMonth}
+      activeProjects={activeProjects}
+      officeCategories={officeCategories}
+      officeExpenses={officeExpenses}
+      otherExpenses={otherExpenses}
+      revenueSummary={revenueSummary}
+    />
+  );
 }
