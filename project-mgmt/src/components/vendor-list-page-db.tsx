@@ -1,10 +1,10 @@
 import Link from 'next/link';
-import { formatCurrency, getVendorOutstandingTotal, type VendorBasicProfile } from '@/components/vendor-data';
+import { formatCurrency, type VendorBasicProfile } from '@/components/vendor-data';
 
 export function VendorListPageDb({ vendors }: { vendors: VendorBasicProfile[] }) {
   const vendorCards = vendors.map((vendor) => ({
     ...vendor,
-    outstandingTotal: getVendorOutstandingTotal(vendor.id),
+    outstandingTotal: (vendor as VendorBasicProfile & { outstandingTotal?: number }).outstandingTotal ?? 0,
   }));
 
   const totalOutstanding = vendorCards.reduce((sum, vendor) => sum + vendor.outstandingTotal, 0);

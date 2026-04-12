@@ -32,6 +32,19 @@ export interface ProjectRow extends BaseMutableRow {
 export interface VendorRow extends BaseMutableRow {
   name: string;
   normalized_name: string;
+  trade_label: string | null;
+  contact_name: string | null;
+  phone: string | null;
+  email: string | null;
+  line_id: string | null;
+  address: string | null;
+  bank_name: string | null;
+  account_name: string | null;
+  account_number: string | null;
+  labor_name: string | null;
+  labor_id_no: string | null;
+  labor_birthday_roc: string | null;
+  labor_union_membership: string | null;
 }
 
 export interface ProjectExecutionItemRow extends BaseMutableRow {

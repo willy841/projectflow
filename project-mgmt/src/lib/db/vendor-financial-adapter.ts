@@ -5,6 +5,7 @@ export type VendorFinancialSummary = {
   unpaidTotal: number;
   records: Array<{
     projectId: string;
+    vendorId: string | null;
     projectName: string;
     projectStatus: '執行中' | '已結案';
     reconciliationStatus: string;
@@ -21,12 +22,17 @@ export type VendorFinancialSummary = {
   }>;
 };
 
-export async function getVendorFinancialSummary(vendorName: string): Promise<VendorFinancialSummary> {
+function normalizeVendorName(value: string) {
+  return value.trim();
+}
+
+export async function getVendorFinancialSummary({ vendorId, vendorName }: { vendorId?: string; vendorName: string }): Promise<VendorFinancialSummary> {
   const projects = await getQuoteCostProjectsWithDbFinancialsAndGroups();
+  const normalizedVendorName = normalizeVendorName(vendorName);
 
   const records = projects
     .map((project) => {
-      const vendorGroups = project.reconciliationGroups.filter((group) => group.vendorName === vendorName);
+      const vendorGroups = project.reconciliationGroups.filter((group) => normalizeVendorName(group.vendorName) === normalizedVendorName);
       const matchedGroups = vendorGroups.filter((group) => group.reconciliationStatus === '已對帳');
       const hasUnreconciledGroups = vendorGroups.some((group) => group.reconciliationStatus !== '已對帳');
       const costItems = matchedGroups.flatMap((group) => group.items);
@@ -35,6 +41,7 @@ export async function getVendorFinancialSummary(vendorName: string): Promise<Ven
 
       return {
         projectId: project.id,
+        vendorId: vendorId ?? null,
         projectName: project.projectName,
         projectStatus: project.projectStatus,
         reconciliationStatus: groupStatus,

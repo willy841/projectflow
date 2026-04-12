@@ -5,6 +5,7 @@ import type { VendorBasicProfile, VendorProjectRecord } from '@/components/vendo
 export type VendorPaymentRecord = {
   id: string;
   projectId: string;
+  vendorId: string | null;
   vendorName: string;
   paidOn: string;
   amount: number;
@@ -14,27 +15,43 @@ import { listDbVendorPackages } from '@/lib/db/vendor-package-adapter';
 import { listDbVendorTasksByProject } from '@/lib/db/vendor-flow-adapter';
 import { getVendorFinancialSummary } from '@/lib/db/vendor-financial-adapter';
 
+function mapVendorRowToProfile(vendor: Awaited<ReturnType<ReturnType<typeof createPhase1Repositories>['vendors']['findById']>> extends infer T ? NonNullable<T> : never): VendorBasicProfile {
+  return {
+    id: vendor.id,
+    name: vendor.name,
+    category: vendor.trade_label?.trim() || '待補充',
+    tradeLabel: vendor.trade_label?.trim() || '待補充',
+    tradeLabels: vendor.trade_label?.trim() ? [vendor.trade_label.trim()] : [],
+    contactName: vendor.contact_name ?? '',
+    phone: vendor.phone ?? '',
+    email: vendor.email ?? '',
+    lineId: vendor.line_id ?? '',
+    address: vendor.address ?? '',
+    note: '',
+    bankName: vendor.bank_name ?? '',
+    bankCode: '',
+    accountName: vendor.account_name ?? '',
+    accountNumber: vendor.account_number ?? '',
+  };
+}
+
 export async function listDbVendors(): Promise<VendorBasicProfile[]> {
   const repositories = createPhase1Repositories(createPhase1DbClient());
   const vendors = await repositories.vendors.list();
+  const financialSummaries = await Promise.all(
+    vendors.map(async (vendor) => ({
+      vendorId: vendor.id,
+      summary: await getVendorFinancialSummary({ vendorId: vendor.id, vendorName: vendor.name }),
+    })),
+  );
+  const outstandingByVendorId = new Map(
+    financialSummaries.map((entry) => [entry.vendorId, entry.summary.records.reduce((sum, record) => sum + record.adjustedCost, 0)]),
+  );
 
   return vendors.map((vendor) => ({
-    id: vendor.id,
-    name: vendor.name,
-    category: '待補充',
-    tradeLabel: '待補充',
-    tradeLabels: [],
-    contactName: '',
-    phone: '',
-    email: '',
-    lineId: '',
-    address: '',
-    note: '',
-    bankName: '',
-    bankCode: '',
-    accountName: '',
-    accountNumber: '',
-  }));
+    ...mapVendorRowToProfile(vendor),
+    outstandingTotal: outstandingByVendorId.get(vendor.id) ?? 0,
+  })) as VendorBasicProfile[];
 }
 
 export async function getDbVendorById(id: string): Promise<VendorBasicProfile | null> {
@@ -42,23 +59,7 @@ export async function getDbVendorById(id: string): Promise<VendorBasicProfile | 
   const vendor = await repositories.vendors.findById(id);
   if (!vendor) return null;
 
-  return {
-    id: vendor.id,
-    name: vendor.name,
-    category: '待補充',
-    tradeLabel: '待補充',
-    tradeLabels: [],
-    contactName: '',
-    phone: '',
-    email: '',
-    lineId: '',
-    address: '',
-    note: '',
-    bankName: '',
-    bankCode: '',
-    accountName: '',
-    accountNumber: '',
-  };
+  return mapVendorRowToProfile(vendor);
 }
 
 export async function listDbVendorPaymentRecordsByVendorId(vendorId: string): Promise<VendorPaymentRecord[]> {
@@ -66,11 +67,11 @@ export async function listDbVendorPaymentRecordsByVendorId(vendorId: string): Pr
   if (!vendor) return [];
   const db = createPhase1DbClient();
   const result = await db.query<VendorPaymentRecord>(`
-    select id, project_id as "projectId", vendor_name as "vendorName", to_char(paid_on, 'YYYY-MM-DD') as "paidOn", amount::float8 as amount, coalesce(note, '') as note
+    select id, project_id as "projectId", vendor_id as "vendorId", vendor_name as "vendorName", to_char(paid_on, 'YYYY-MM-DD') as "paidOn", amount::float8 as amount, coalesce(note, '') as note
     from project_vendor_payment_records
-    where vendor_name = $1
+    where vendor_id = $1 or (vendor_id is null and vendor_name = $2)
     order by paid_on desc, created_at desc
-  `, [vendor.name]);
+  `, [vendorId, vendor.name]);
   return result.rows;
 }
 
@@ -80,7 +81,7 @@ export async function listDbVendorProjectRecordsByVendorId(vendorId: string): Pr
 
   const [packages, financial, paymentRecords] = await Promise.all([
     listDbVendorPackages(),
-    getVendorFinancialSummary(vendor.name),
+    getVendorFinancialSummary({ vendorId, vendorName: vendor.name }),
     listDbVendorPaymentRecordsByVendorId(vendorId),
   ]);
 

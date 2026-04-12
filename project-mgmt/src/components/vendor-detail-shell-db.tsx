@@ -41,7 +41,7 @@ export function VendorDetailShellDb({ vendor, records, paymentRecords }: { vendo
       return;
     }
     setPayments((current) => [
-      { id: result.id, projectId: paymentForm.projectId, vendorName: vendor.name, paidOn: paymentForm.paidOn, amount, note: paymentForm.note },
+      { id: result.id, projectId: paymentForm.projectId, vendorId: vendor.id, vendorName: vendor.name, paidOn: paymentForm.paidOn, amount, note: paymentForm.note },
       ...current,
     ]);
     window.location.reload();

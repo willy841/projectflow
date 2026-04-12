@@ -25,11 +25,11 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
 
     const result = await db.query<{ id: string }>(
       `
-        insert into project_vendor_payment_records (project_id, vendor_name, paid_on, amount, note)
-        values ($1, $2, $3, $4, $5)
+        insert into project_vendor_payment_records (project_id, vendor_id, vendor_name, paid_on, amount, note)
+        values ($1, $2, $3, $4, $5, $6)
         returning id
       `,
-      [body.projectId, vendor.name, body.paidOn, body.amount, body.note ?? ''],
+      [body.projectId, vendor.id, vendor.name, body.paidOn, body.amount, body.note ?? ''],
     );
 
     return NextResponse.json({ ok: true, id: result.rows[0]?.id ?? null });
