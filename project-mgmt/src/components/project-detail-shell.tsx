@@ -345,7 +345,7 @@ export function ProjectDetailShell({ project, entryContext }: { project: Project
           </div>
         </article>
 
-        <RequirementsPanel initialItems={projectView.requirements} />
+        <RequirementsPanel projectId={isDbProject ? project.id : undefined} initialItems={projectView.requirements} />
       </section>
 
       <ExecutionTreeSection project={projectView} />

@@ -3,31 +3,23 @@
 import { useState } from "react";
 
 type RequirementItem = {
+  id?: string;
   title: string;
   date: string;
 };
 
-function getCurrentTimestamp() {
-  const now = new Date();
-  const yyyy = now.getFullYear();
-  const mm = String(now.getMonth() + 1).padStart(2, "0");
-  const dd = String(now.getDate()).padStart(2, "0");
-  const hh = String(now.getHours()).padStart(2, "0");
-  const mi = String(now.getMinutes()).padStart(2, "0");
-  return `${yyyy}-${mm}-${dd} ${hh}:${mi}`;
-}
-
 export function RequirementsPanel({
+  projectId,
   initialItems,
 }: {
-  initialItems: { title: string }[];
+  projectId?: string;
+  initialItems: { id?: string; title: string; date?: string }[];
 }) {
-  const initialTimestamp = getCurrentTimestamp();
-
   const [items, setItems] = useState<RequirementItem[]>(
     initialItems.map((item) => ({
+      id: item.id,
       title: item.title,
-      date: initialTimestamp,
+      date: item.date ?? '-',
     }))
   );
   const [showCreate, setShowCreate] = useState(false);
@@ -38,11 +30,26 @@ export function RequirementsPanel({
     setFormTitle("");
   }
 
-  function handleCreate() {
+  async function handleCreate() {
     const title = formTitle.trim();
     if (!title) return;
 
-    setItems((prev) => [{ title, date: getCurrentTimestamp() }, ...prev]);
+    if (!projectId) {
+      setItems((prev) => [{ title, date: '-' }, ...prev]);
+      resetForm();
+      setShowCreate(false);
+      return;
+    }
+
+    const response = await fetch(`/api/projects/${projectId}/requirements`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title }),
+    });
+    const result = await response.json();
+    if (!response.ok || !result?.ok || !result.item) return;
+
+    setItems((prev) => [{ id: result.item.id, title: result.item.title, date: result.item.updatedAt }, ...prev]);
     resetForm();
     setShowCreate(false);
   }
@@ -53,26 +60,51 @@ export function RequirementsPanel({
     setFormTitle(items[index].title);
   }
 
-  function handleSaveEdit() {
+  async function handleSaveEdit() {
     if (editingIndex === null) return;
     const title = formTitle.trim();
     if (!title) return;
 
+    const target = items[editingIndex];
+    if (!target) return;
+
+    if (!projectId || !target.id) {
+      setItems((prev) => {
+        const updatedItem = { ...target, title, date: target.date };
+        return [updatedItem, ...prev.filter((_, index) => index !== editingIndex)];
+      });
+      setEditingIndex(null);
+      resetForm();
+      return;
+    }
+
+    const response = await fetch(`/api/project-requirements/${target.id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title }),
+    });
+    const result = await response.json();
+    if (!response.ok || !result?.ok || !result.item) return;
+
     setItems((prev) => {
-      const updatedItem = { title, date: getCurrentTimestamp() };
-      return [
-        updatedItem,
-        ...prev.filter((_, index) => index !== editingIndex),
-      ];
+      const updatedItem = { id: result.item.id, title: result.item.title, date: result.item.updatedAt };
+      return [updatedItem, ...prev.filter((_, index) => index !== editingIndex)];
     });
 
     setEditingIndex(null);
     resetForm();
   }
 
-  function handleDelete(index: number) {
+  async function handleDelete(index: number) {
     const confirmed = window.confirm("確定要刪除這筆需求溝通紀錄嗎？");
     if (!confirmed) return;
+
+    const target = items[index];
+    if (projectId && target?.id) {
+      const response = await fetch(`/api/project-requirements/${target.id}`, { method: 'DELETE' });
+      const result = await response.json();
+      if (!response.ok || !result?.ok) return;
+    }
 
     setItems((prev) => prev.filter((_, itemIndex) => itemIndex !== index));
     if (editingIndex === index) {

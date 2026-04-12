@@ -31,11 +31,11 @@ export function VendorGroupConfirmClient({
         throw new Error(payload?.error || "group confirm failed");
       }
 
-      setMessage(`已完成同 project + vendor 群組確認，共承接 ${payload.taskCount ?? 0} 筆任務。正在前往最終文件頁。`);
+      setMessage(`已完成同 project + vendor 群組全部確認，共承接 ${payload.taskCount ?? 0} 筆任務。正在前往文件頁。`);
       router.push(`/vendor-packages/${packageId}`);
       router.refresh();
     } catch (error) {
-      setMessage(`群組確認失敗：${error instanceof Error ? error.message : "請稍後再試。"}`);
+      setMessage(`全部確認失敗：${error instanceof Error ? error.message : "請稍後再試。"}`);
     } finally {
       setConfirming(false);
     }
@@ -50,7 +50,7 @@ export function VendorGroupConfirmClient({
           disabled={confirming}
           className="inline-flex items-center justify-center rounded-2xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white disabled:opacity-60"
         >
-          {confirming ? "群組確認中..." : "全部確認並前往最終文件頁"}
+          {confirming ? "全部確認中..." : "全部確認"}
         </button>
       </div>
       {message ? <p className="text-xs leading-5 text-slate-500 xl:max-w-sm">{message}</p> : null}

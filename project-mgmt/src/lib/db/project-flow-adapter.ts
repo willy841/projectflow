@@ -80,15 +80,22 @@ export async function listDbProjects(): Promise<DbBackedProject[]> {
 }
 
 export async function getDbProjectById(id: string): Promise<DbBackedProject | null> {
-  const repositories = createPhase1Repositories(createPhase1DbClient());
+  const db = createPhase1DbClient();
+  const repositories = createPhase1Repositories(db);
   const project = await repositories.projects.findById(id);
   if (!project) return null;
 
-  const [executionItems, designTasks, procurementTasks, vendorTasks] = await Promise.all([
+  const [executionItems, designTasks, procurementTasks, vendorTasks, requirementRows] = await Promise.all([
     repositories.executionItems.listByProject(id),
     repositories.designTasks.listByProject(id),
     repositories.procurementTasks.listByProject(id),
     repositories.vendorTasks.listByProject(id),
+    db.query<{ id: string; title: string; updatedAt: string }>(`
+      select id, title, to_char(updated_at, 'YYYY-MM-DD HH24:MI') as "updatedAt"
+      from project_requirements
+      where project_id = $1
+      order by updated_at desc, created_at desc
+    `, [id]).catch(() => ({ rows: [] })),
   ]);
 
   const rootItems = executionItems.filter((item) => !item.parent_id).sort((a, b) => a.sort_order - b.sort_order);
@@ -127,7 +134,7 @@ export async function getDbProjectById(id: string): Promise<DbBackedProject | nu
     budget: 'NT$ 0',
     cost: 'NT$ 0',
     note: '',
-    requirements: [],
+    requirements: requirementRows.rows.map((item) => ({ id: item.id, title: item.title, date: item.updatedAt })),
     executionItems: rootItems.map((item) => mapExecutionItem(item, childrenByParent.get(item.id) ?? [])),
     designTasks: designTasks.map((task) => ({
       id: task.id,

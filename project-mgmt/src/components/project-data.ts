@@ -48,9 +48,11 @@ export type Project = {
   cost: string;
   note: string;
   requirements: Array<{
+    id?: string;
     title: string;
-    status: string;
-    category: string;
+    status?: string;
+    category?: string;
+    date?: string;
   }>;
   executionItems: ProjectExecutionItem[];
   designTasks: Array<{
