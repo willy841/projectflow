@@ -39,10 +39,17 @@ function normalizeGroupStatus(groups: ReconciliationGroupView[]): '未開始' | 
   return '待確認';
 }
 
+type CollectionRecordView = {
+  id: string;
+  collectedOn: string;
+  amount: number;
+  note: string;
+};
+
 type Props = {
   project: QuoteCostProject;
   mode?: DetailMode;
-  initialProject?: QuoteCostProject & { reconciliationGroups?: ReconciliationGroupView[] };
+  initialProject?: QuoteCostProject & { reconciliationGroups?: ReconciliationGroupView[]; collectionRecords?: CollectionRecordView[] };
 };
 
 type EditableProjectState = QuoteCostProject;
@@ -63,6 +70,8 @@ export function QuoteCostDetailClient({ project, mode = "active", initialProject
   const [manualSyncSuccess, setManualSyncSuccess] = useState<string | null>(null);
   const [isManualSyncing, setIsManualSyncing] = useState(false);
   const [reconciliationSyncingKey, setReconciliationSyncingKey] = useState<string | null>(null);
+  const [collectionRecords, setCollectionRecords] = useState<CollectionRecordView[]>(initialProject?.collectionRecords ?? []);
+  const [collectionForm, setCollectionForm] = useState<{ collectedOn: string; amount: string; note: string } | null>(null);
   const [quoteImportIndex, setQuoteImportIndex] = useState(0);
   const [activeArchiveSource, setActiveArchiveSource] = useState<CostSourceType>("設計");
   const quoteImportOptions = sampleQuoteImports[project.id] ?? [project.quotationImport].filter(Boolean);
@@ -70,6 +79,8 @@ export function QuoteCostDetailClient({ project, mode = "active", initialProject
   const isClosedView = mode === "closed";
 
   const quotationTotal = useMemo(() => getQuotationTotal(state.quotationItems), [state.quotationItems]);
+  const collectedTotal = useMemo(() => collectionRecords.reduce((sum, record) => sum + record.amount, 0), [collectionRecords]);
+  const outstandingTotal = useMemo(() => Math.max(quotationTotal - collectedTotal, 0), [quotationTotal, collectedTotal]);
   const originalCostTotal = useMemo(() => getFormalOriginalCostTotal(state.costItems), [state.costItems]);
   const additionalManualCostTotal = useMemo(() => getAdditionalManualCostTotal(state.costItems), [state.costItems]);
   const projectCostTotal = useMemo(() => originalCostTotal + additionalManualCostTotal, [originalCostTotal, additionalManualCostTotal]);
@@ -228,6 +239,43 @@ export function QuoteCostDetailClient({ project, mode = "active", initialProject
     }
   }
 
+  async function handleAddCollectionRecord() {
+    if (!collectionForm) return;
+    const collectedOn = collectionForm.collectedOn.trim();
+    const amount = Number(collectionForm.amount);
+    if (!collectedOn || Number.isNaN(amount) || amount <= 0) return;
+
+    const response = await fetch(`/api/accounting/projects/${state.id}/collections`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ collectedOn, amount, note: collectionForm.note.trim() }),
+    });
+    const result = await response.json();
+    if (!response.ok || !result?.ok || !result?.id) {
+      window.alert(result?.error ?? '新增收款失敗');
+      return;
+    }
+    setCollectionRecords((current) => [
+      { id: result.id as string, collectedOn, amount, note: collectionForm.note.trim() },
+      ...current,
+    ]);
+    setCollectionForm(null);
+    router.refresh();
+  }
+
+  async function handleDeleteCollectionRecord(id: string) {
+    const confirmed = window.confirm('確認刪除這筆收款紀錄？');
+    if (!confirmed) return;
+    const response = await fetch(`/api/accounting/collections/${id}`, { method: 'DELETE' });
+    const result = await response.json();
+    if (!response.ok || !result?.ok) {
+      window.alert(result?.error ?? '刪除收款失敗');
+      return;
+    }
+    setCollectionRecords((current) => current.filter((record) => record.id !== id));
+    router.refresh();
+  }
+
   function handleCloseProject() {
     if (!state.quotationImported || state.costItems.length === 0 || state.reconciliationStatus !== "已完成") return;
     setState((prev) => ({ ...prev, projectStatus: "已結案", closeStatus: "已結案" }));
@@ -261,12 +309,44 @@ export function QuoteCostDetailClient({ project, mode = "active", initialProject
       </header>
 
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <SummaryCard title="對外報價總額" value={formatCurrency(quotationTotal)} mode={mode} />
-        <SummaryCard title="原始總成本總額" value={formatCurrency(originalCostTotal)} mode={mode} />
-        <SummaryCard title="新增費用" value={formatCurrency(additionalManualCostTotal)} mode={mode} highlight={!isClosedView} />
+        <SummaryCard title="應收總金額" value={formatCurrency(quotationTotal)} mode={mode} />
+        <SummaryCard title="已收款" value={formatCurrency(collectedTotal)} mode={mode} />
+        <SummaryCard title="未收款" value={formatCurrency(outstandingTotal)} mode={mode} highlight={!isClosedView} />
         <SummaryCard title="毛利" value={formatCurrency(grossProfit)} mode={mode} />
       </section>
 
+      <section className={`rounded-[28px] border p-6 shadow-sm ${isClosedView ? "border-slate-200 bg-white" : "border-slate-200 bg-white"}`}>
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+          <SimpleSectionTitle title="收款管理" />
+          {!isClosedView ? (
+            <button type="button" onClick={() => setCollectionForm({ collectedOn: state.eventDate, amount: '', note: '' })} className="inline-flex items-center justify-center rounded-2xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800">新增收款</button>
+          ) : null}
+        </div>
+        <div className="mt-5 overflow-x-auto rounded-2xl border border-slate-200">
+          <table className="min-w-full divide-y divide-slate-200 text-left text-sm">
+            <thead className="bg-slate-50 text-slate-500">
+              <tr>
+                <th className="px-4 py-3 font-medium">收款日期</th>
+                <th className="px-4 py-3 font-medium">收款金額</th>
+                <th className="px-4 py-3 font-medium">備註</th>
+                <th className="px-4 py-3 font-medium">刪除</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100 bg-white">
+              {collectionRecords.map((record) => (
+                <tr key={record.id}>
+                  <td className="px-4 py-3 text-slate-700">{record.collectedOn}</td>
+                  <td className="px-4 py-3 font-semibold text-slate-900">{formatCurrency(record.amount)}</td>
+                  <td className="px-4 py-3 text-slate-600">{record.note || '-'}</td>
+                  <td className="px-4 py-3">
+                    {!isClosedView ? <button type="button" onClick={() => handleDeleteCollectionRecord(record.id)} className="inline-flex items-center justify-center rounded-2xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm font-semibold text-rose-700 transition hover:bg-rose-100">刪除</button> : null}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
 
       <section className={`rounded-[28px] border p-6 shadow-sm ${isClosedView ? "border-slate-200 bg-white" : "border-slate-200 bg-white"}`}>
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
@@ -472,9 +552,29 @@ export function QuoteCostDetailClient({ project, mode = "active", initialProject
           <ArchiveContentPanel source={activeArchiveSource} costItems={state.costItems} manualItems={manualItems} isClosedView={isClosedView} onManualItemChange={handleManualItemChange} />
         </div>
       </section>
+      {collectionForm ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/35 px-4">
+          <div className="w-full max-w-xl rounded-3xl bg-white p-6 shadow-2xl ring-1 ring-slate-200">
+            <h3 className="text-xl font-semibold text-slate-900">新增收款</h3>
+            <div className="mt-5 space-y-4">
+              <Field label="收款日期"><input value={collectionForm.collectedOn} onChange={(event) => setCollectionForm((current) => current ? { ...current, collectedOn: event.target.value } : current)} className="h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400" /></Field>
+              <Field label="收款金額"><input value={collectionForm.amount} onChange={(event) => setCollectionForm((current) => current ? { ...current, amount: event.target.value } : current)} inputMode="numeric" className="h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400" /></Field>
+              <Field label="備註"><input value={collectionForm.note} onChange={(event) => setCollectionForm((current) => current ? { ...current, note: event.target.value } : current)} className="h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400" /></Field>
+            </div>
+            <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+              <button type="button" onClick={() => setCollectionForm(null)} className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">取消</button>
+              <button type="button" onClick={handleAddCollectionRecord} className="inline-flex items-center justify-center rounded-2xl border border-slate-900 bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800">建立收款</button>
+            </div>
+          </div>
+        </div>
+      ) : null}
       </AppShell>
     </>
   );
+}
+
+function Field({ label, children }: { label: string; children: React.ReactNode }) {
+  return <div><p className="mb-1.5 text-sm font-semibold text-slate-700">{label}</p>{children}</div>;
 }
 
 function getCostSourceSummary(costItems: CostLineItem[], projectId: string) {
