@@ -48,6 +48,7 @@ export function AccountingCenterPageDb({
         initialWorkspaceMonth={workspaceMonth}
         initialRevenueMonth={revenueMonth}
         initialActiveProjects={activeProjects.map((item) => ({
+          projectId: item.projectId,
           project: item.projectName,
           eventDate: item.eventDate,
           totalAmount: item.totalAmount,

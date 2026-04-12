@@ -201,7 +201,7 @@ export async function listAccountingActiveProjectsByMonth(month: string): Promis
   return projects
     .filter((project) => project.projectStatus === '執行中' && project.eventDate.startsWith(month))
     .map((project) => {
-      const totalAmount = project.costItems.filter((item) => item.includedInCost).reduce((sum, item) => sum + item.adjustedAmount, 0);
+      const totalAmount = project.quotationItems.reduce((sum, item) => sum + item.quantity * item.unitPrice, 0);
       const collectedAmount = collectedMap.get(project.id) ?? 0;
       return {
         projectId: project.id,

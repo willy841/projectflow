@@ -11,6 +11,7 @@ type MonthOption = {
 };
 
 type ActiveProjectRow = {
+  projectId?: string;
   project: string;
   eventDate: string;
   totalAmount: number;
@@ -1103,7 +1104,7 @@ export function AccountingCenterPage({
                         <td className="px-4 py-3 text-slate-900">{formatCurrency(project.collectedAmount)}</td>
                         <td className="px-4 py-3 font-semibold text-amber-700">{formatCurrency(Math.max(project.totalAmount - project.collectedAmount, 0))}</td>
                         <td className="px-4 py-3">
-                          <Link href="/quote-costs" className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-800 transition hover:border-slate-400 hover:bg-slate-50">查看詳情</Link>
+                          <Link href={project.projectId ? `/quote-costs/${project.projectId}` : '/quote-costs'} className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-800 transition hover:border-slate-400 hover:bg-slate-50">查看詳情</Link>
                         </td>
                       </tr>
                     ))}
