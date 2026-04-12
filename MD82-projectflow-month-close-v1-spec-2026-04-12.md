@@ -2,11 +2,17 @@
 
 > Status: ACTIVE
 > Note: 本文件是 `month close v1` 的正式規格主入口。
+> Alignment: `MD83-projectflow-accounting-center-month-close-aggregation-alignment-2026-04-12.md`
 
 
 ## 1. 文件定位
 
 本文件用來正式定義 `projectflow` 下一階段 financial lifecycle 中，`month close v1` 的使用情境、月份歸屬規則、真值邊界與 UI 承接規則。
+
+重要校正：
+- 依 `MD83`，`month close v1` 在 `Accounting Center` 中的定位，僅限於 **aggregation / readback layer**
+- `Accounting Center` 不做任何金額確認
+- 所有金額成立與確認，仍以 `quote-cost / financial detail` 為唯一主線
 
 本文件目的：
 - 把 `month close` 先收斂成清楚可執行的產品規格
