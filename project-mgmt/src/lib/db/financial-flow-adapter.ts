@@ -49,13 +49,13 @@ function buildFinancialProjectNote({
   const notes = ['正式 Financial project source'];
 
   if (quotationReadModel.status === 'missing-schema-seed-fallback') {
-    notes.push('quotation 正式 DB schema/read model 尚未存在，暫由獨立 quotation read-model 邊界承接 seed projection');
+    notes.push('quotation 正式 DB schema/read model 尚未存在，暫由 quotation fallback 承接');
   } else if (quotationReadModel.status === 'query-failed-seed-fallback') {
-    notes.push('quotation DB schema 已存在，但本次 query/readback 失敗，暫回退獨立 quotation seed projection');
+    notes.push('quotation DB readback 失敗，暫回退 quotation fallback');
   }
 
   if (hasSeedCostFallback) {
-    notes.push('僅保留 DB 尚未接管的 seed cost source 作過渡 fallback');
+    notes.push('僅保留 DB 尚未接管的成本來源作過渡 fallback');
   }
 
   return `${notes.join('；')}。`;
@@ -66,11 +66,13 @@ function buildMergedFinancialProject({
   matchedSeed,
   quotationReadModel,
   dbItems,
+  reconciliationStatus,
 }: {
   dbProject: DbFinancialProjectIdentity;
   matchedSeed?: QuoteCostProject;
   quotationReadModel: QuotationReadModel;
   dbItems: CostLineItem[];
+  reconciliationStatus: QuoteCostProject['reconciliationStatus'];
 }): QuoteCostProject {
   const mergedCostItems = mergeDbAndSeedCostItems(matchedSeed, dbItems);
   const hasSeedCostFallback = Boolean(matchedSeed) && mergedCostItems.length > dbItems.length;
@@ -84,8 +86,8 @@ function buildMergedFinancialProject({
     projectStatus: dbProject.projectStatus,
     quotationImported: quotationReadModel.quotationImported,
     quotationImport: quotationReadModel.quotationImport,
-    reconciliationStatus: quotationReadModel.reconciliationStatus,
-    closeStatus: dbProject.projectStatus === '已結案' ? '已結案' : quotationReadModel.closeStatus,
+    reconciliationStatus,
+    closeStatus: dbProject.projectStatus === '已結案' ? '已結案' : '未結案',
     quotationItems: quotationReadModel.quotationItems,
     costItems: mergedCostItems,
     note: buildFinancialProjectNote({
@@ -96,7 +98,7 @@ function buildMergedFinancialProject({
 }
 
 async function loadFinancialItemsSafely<T>(
-  label: 'design' | 'procurement' | 'vendor' | 'manual',
+  label: 'design' | 'procurement' | 'vendor' | 'manual' | 'reconciliation',
   loader: () => Promise<T>,
   fallback: T,
 ): Promise<T> {
@@ -255,6 +257,12 @@ type ManualCostRow = {
   includedInCost: boolean;
 };
 
+type ReconciliationGroupStatusRow = {
+  projectId: string;
+  reconciledCount: number;
+  totalCount: number;
+};
+
 const CANONICAL_CONFIRMATIONS_CTE = `
   with canonical_task_confirmations as (
     select
@@ -317,6 +325,46 @@ async function hasFinancialManualCostsIncludedInCostColumn() {
   `);
 
   return rows.rows[0]?.exists ?? false;
+}
+
+async function hasFinancialReconciliationGroupsTable() {
+  const db = createPhase1DbClient();
+  const rows = await db.query<TableExistsRow>(`
+    select to_regclass('public.financial_reconciliation_groups') is not null as exists
+  `);
+
+  return rows.rows[0]?.exists ?? false;
+}
+
+function summarizeProjectReconciliationStatus(row?: ReconciliationGroupStatusRow): QuoteCostProject['reconciliationStatus'] {
+  if (!row || row.totalCount <= 0) return '未開始';
+  if (row.reconciledCount <= 0) return '未開始';
+  if (row.reconciledCount >= row.totalCount) return '已完成';
+  return '待確認';
+}
+
+async function loadProjectReconciliationStatusIndex(projectIds: string[]) {
+  const result = new Map<string, QuoteCostProject['reconciliationStatus']>();
+
+  if (!projectIds.length) return result;
+  if (!(await hasFinancialReconciliationGroupsTable())) return result;
+
+  const db = createPhase1DbClient();
+  const rows = await db.query<ReconciliationGroupStatusRow>(`
+    select
+      project_id as "projectId",
+      count(*)::int as "totalCount",
+      count(*) filter (where reconciliation_status = '已對帳')::int as "reconciledCount"
+    from financial_reconciliation_groups
+    where project_id = any($1::uuid[])
+    group by project_id
+  `, [projectIds]);
+
+  for (const row of rows.rows) {
+    result.set(row.projectId, summarizeProjectReconciliationStatus(row));
+  }
+
+  return result;
 }
 
 async function listDesignFinancialItems(): Promise<CostLineItem[]> {
@@ -473,12 +521,13 @@ export async function getQuoteCostProjectsWithDbFinancials(): Promise<QuoteCostP
       projectStatus: traceDbProject?.projectStatus ?? null,
     });
 
-    const [designItems, procurementItems, vendorItems, manualItems, quotationReadModelIndex] = await Promise.all([
+    const [designItems, procurementItems, vendorItems, manualItems, quotationReadModelIndex, reconciliationStatusIndex] = await Promise.all([
       loadFinancialItemsSafely('design', listDesignFinancialItems, [] as CostLineItem[]),
       loadFinancialItemsSafely('procurement', listProcurementFinancialItems, [] as CostLineItem[]),
       loadFinancialItemsSafely('vendor', listVendorFinancialItems, [] as CostLineItem[]),
       loadFinancialItemsSafely('manual', listManualFinancialItems, [] as Array<{ projectId: string; item: CostLineItem }>),
       loadQuotationReadModelIndex(dbProjects.map((project) => project.id)),
+      loadFinancialItemsSafely('reconciliation', () => loadProjectReconciliationStatusIndex(dbProjects.map((project) => project.id)), new Map<string, QuoteCostProject['reconciliationStatus']>()),
     ]);
 
     const byProject = new Map<string, CostLineItem[]>();
@@ -551,6 +600,7 @@ export async function getQuoteCostProjectsWithDbFinancials(): Promise<QuoteCostP
         matchedSeed,
         quotationReadModel,
         dbItems,
+        reconciliationStatus: reconciliationStatusIndex.get(dbProject.id) ?? '未開始',
       });
     });
 
