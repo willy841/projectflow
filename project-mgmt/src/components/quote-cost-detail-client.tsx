@@ -20,6 +20,14 @@ import { getQuoteCostDetailPresenter, type QuoteCostDetailPresenter } from "@/co
 
 type DetailMode = "active" | "closed";
 
+type ReconciliationGroupItemView = {
+  id: string;
+  itemName: string;
+  sourceRef: string;
+  vendorName: string | null;
+  adjustedAmount: number;
+};
+
 type ReconciliationGroupView = {
   key: string;
   sourceType: '設計' | '備品' | '廠商';
@@ -27,6 +35,7 @@ type ReconciliationGroupView = {
   amountTotal: number;
   itemCount: number;
   reconciliationStatus: '未對帳' | '已對帳';
+  items?: ReconciliationGroupItemView[];
 };
 
 function normalizeGroupStatus(groups: ReconciliationGroupView[]): '未開始' | '待確認' | '已完成' {
@@ -49,6 +58,8 @@ type VendorPaymentView = {
   payableAmount: number;
   paidAmount: number;
 };
+
+type CloseoutWriteState = 'idle' | 'submitting';
 
 type Props = {
   project: QuoteCostProject;
@@ -78,6 +89,8 @@ export function QuoteCostDetailClient({ project, mode = "active", presenter = ge
   const [collectionRecords, setCollectionRecords] = useState<CollectionRecordView[]>(initialProject?.collectionRecords ?? []);
   const [collectionForm, setCollectionForm] = useState<{ collectedOn: string; amount: string; note: string } | null>(null);
   const [vendorPaymentRecords] = useState<VendorPaymentView[]>(initialProject?.vendorPaymentRecords ?? []);
+  const [closeoutWriteState, setCloseoutWriteState] = useState<CloseoutWriteState>('idle');
+  const [closeoutError, setCloseoutError] = useState<string | null>(null);
   const [activeArchiveSource, setActiveArchiveSource] = useState<CostSourceType>("設計");
   const quoteImportRecord = state.quotationImport;
   const isClosedView = presenter.archived;
@@ -254,7 +267,7 @@ export function QuoteCostDetailClient({ project, mode = "active", presenter = ge
   }
 
   async function handleDeleteCollectionRecord(id: string) {
-    const confirmed = window.confirm('確認刪除這筆收款紀錄？');
+    const confirmed = window.confirm('確認刪除這筆收款紀錄?');
     if (!confirmed) return;
     const response = await fetch(`/api/accounting/collections/${id}`, { method: 'DELETE' });
     const result = await response.json();
@@ -266,9 +279,39 @@ export function QuoteCostDetailClient({ project, mode = "active", presenter = ge
     router.refresh();
   }
 
-  function handleCloseProject() {
-    if (!state.quotationImported || state.costItems.length === 0 || state.reconciliationStatus !== "已完成") return;
-    setState((prev) => ({ ...prev, projectStatus: "已結案", closeStatus: "已結案" }));
+  const canCloseProject = state.quotationImported && outstandingTotal === 0 && derivedReconciliationStatus === "已完成";
+
+  async function handleCloseProject() {
+    if (!canCloseProject || closeoutWriteState === 'submitting') return;
+
+    setCloseoutWriteState('submitting');
+    setCloseoutError(null);
+
+    try {
+      const response = await fetch(`/api/financial-projects/${state.id}/closeout`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          expectedOutstandingTotal: outstandingTotal,
+          expectedReconciliationStatus: derivedReconciliationStatus,
+        }),
+      });
+      const result = await response.json();
+
+      if (!response.ok || !result?.ok) {
+        setCloseoutError(result?.error ?? '結案失敗');
+        return;
+      }
+
+      setState((prev) => ({ ...prev, projectStatus: '已結案', closeStatus: '已結案' }));
+      router.refresh();
+      router.push(`/closeout/${state.id}`);
+    } catch (error) {
+      console.error(error);
+      setCloseoutError('結案失敗');
+    } finally {
+      setCloseoutWriteState('idle');
+    }
   }
 
   return (
@@ -278,8 +321,7 @@ export function QuoteCostDetailClient({ project, mode = "active", presenter = ge
         <div className="flex flex-col gap-5 xl:flex-row xl:items-center xl:justify-between">
           <div className="min-w-0 flex-1 xl:self-center">
             <h2 className={`text-3xl font-semibold tracking-tight ${isClosedView ? "text-slate-900" : "text-white"}`}>{state.projectName}</h2>
-            <div className={`mt-4 grid gap-3 sm:grid-cols-2 xl:max-w-[520px] ${isClosedView ? "text-slate-600" : "text-slate-200"}`}>
-              <OverviewRow label="客戶" value={state.clientName} archived={isClosedView} />
+            <div className={`mt-4 grid gap-3 sm:grid-cols-1 xl:max-w-[320px] ${isClosedView ? "text-slate-600" : "text-slate-200"}`}>
               <OverviewRow label="活動日期" value={state.eventDate} archived={isClosedView} />
             </div>
           </div>
@@ -291,9 +333,11 @@ export function QuoteCostDetailClient({ project, mode = "active", presenter = ge
               <QuickPanel value={derivedReconciliationStatus} label="對帳狀態" archived={isClosedView} />
               <QuickPanel value={state.closeStatus} label="結案狀態" archived={isClosedView} />
             </div>
-            <Link href={presenter.listHref} className={`inline-flex items-center justify-center rounded-2xl px-4 py-2.5 text-sm font-semibold transition ${isClosedView ? "border border-slate-300 bg-white text-slate-800 hover:border-slate-400 hover:bg-slate-50" : "bg-white text-slate-900 hover:bg-slate-100"}`}>
-              返回{presenter.listLabel}
-            </Link>
+            {!presenter.archived ? null : (
+              <Link href={presenter.listHref} className={`inline-flex items-center justify-center rounded-2xl px-4 py-2.5 text-sm font-semibold transition ${isClosedView ? "border border-slate-300 bg-white text-slate-800 hover:border-slate-400 hover:bg-slate-50" : "bg-white text-slate-900 hover:bg-slate-100"}`}>
+                返回{presenter.listLabel}
+              </Link>
+            )}
           </div>
         </div>
       </header>
@@ -341,7 +385,7 @@ export function QuoteCostDetailClient({ project, mode = "active", presenter = ge
       <section className={`rounded-[28px] border p-6 shadow-sm ${isClosedView ? "border-slate-200 bg-white" : "border-slate-200 bg-white"}`}>
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
           <SimpleSectionTitle title="廠商付款狀態" />
-          <p className="text-sm text-slate-500">這裡只做 project 視角 readback；實際付款主入口在 Vendor Data detail。</p>
+          <p className="text-sm text-slate-500">這裡只做 project 視角 readback;實際付款主入口在 Vendor Data detail。</p>
         </div>
         <div className="mt-5 overflow-x-auto rounded-2xl border border-slate-200">
           <table className="min-w-full divide-y divide-slate-200 text-left text-sm">
@@ -490,7 +534,7 @@ export function QuoteCostDetailClient({ project, mode = "active", presenter = ge
             <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
               <div>
                 <h4 className="text-lg font-semibold text-slate-900">對帳群組</h4>
-                <p className="mt-1 text-sm text-slate-500">正式對帳單位採 `project × sourceType × vendor`。這裡先呈現群組，不先改 list UI。</p>
+                <p className="mt-1 text-sm text-slate-500">正式對帳單位採 `project × sourceType × vendor`。這裡先呈現群組,不先改 list UI。</p>
               </div>
               <div className="rounded-2xl bg-white px-4 py-3 text-sm text-slate-600 ring-1 ring-slate-200">
                 共 {reconciliationGroups.length} 組
@@ -499,8 +543,8 @@ export function QuoteCostDetailClient({ project, mode = "active", presenter = ge
             <div className="mt-4 space-y-3">
               {reconciliationGroups.map((group) => (
                 <div key={group.key} className="rounded-2xl border border-slate-200 bg-white p-4">
-                  <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
-                    <div className="min-w-0">
+                  <div className="flex flex-col gap-3 xl:flex-row xl:items-start xl:justify-between">
+                    <div className="min-w-0 flex-1">
                       <div className="flex flex-wrap items-center gap-2">
                         <span className="inline-flex rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700 ring-1 ring-slate-200">{group.sourceType}</span>
                         <span className="inline-flex rounded-full bg-white px-3 py-1 text-xs font-semibold text-slate-700 ring-1 ring-slate-200">{group.vendorName}</span>
@@ -529,6 +573,33 @@ export function QuoteCostDetailClient({ project, mode = "active", presenter = ge
                       ) : null}
                     </div>
                   </div>
+
+                  <div className="mt-4 overflow-x-auto rounded-2xl border border-slate-200">
+                    <table className="min-w-full divide-y divide-slate-200 text-left text-sm">
+                      <thead className="bg-slate-50 text-slate-500">
+                        <tr>
+                          <th className="px-4 py-3 font-medium">來源項目</th>
+                          <th className="px-4 py-3 font-medium">來源摘要</th>
+                          <th className="px-4 py-3 font-medium">廠商</th>
+                          <th className="px-4 py-3 font-medium">金額</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100 bg-white">
+                        {(group.items ?? []).length ? (group.items ?? []).map((item) => (
+                          <tr key={item.id}>
+                            <td className="px-4 py-3 font-medium text-slate-900">{item.itemName}</td>
+                            <td className="px-4 py-3 text-slate-600">{item.sourceRef || '-'}</td>
+                            <td className="px-4 py-3 text-slate-600">{item.vendorName || '未指定廠商'}</td>
+                            <td className="px-4 py-3 font-semibold text-slate-900">{formatCurrency(item.adjustedAmount)}</td>
+                          </tr>
+                        )) : (
+                          <tr>
+                            <td colSpan={4} className="px-4 py-4 text-sm text-slate-500">目前沒有可顯示的對帳明細。</td>
+                          </tr>
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
               ))}
             </div>
@@ -537,9 +608,9 @@ export function QuoteCostDetailClient({ project, mode = "active", presenter = ge
 
         <div className="mt-6 rounded-3xl border border-slate-200 bg-white p-5">
           <div className="mb-5 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-            <h4 className="text-lg font-semibold text-slate-900">最終文件內容</h4>
-            {presenter.canPersistManualCosts && activeArchiveSource === "人工" ? (
-              <div className="flex flex-wrap items-center justify-end gap-2">
+            <h4 className="text-lg font-semibold text-slate-900">成本明細</h4>
+            <div className="flex flex-wrap items-center justify-end gap-2">
+              {presenter.canPersistManualCosts && activeArchiveSource === "人工" ? (
                 <button
                   type="button"
                   onClick={handleSaveManualCosts}
@@ -548,18 +619,18 @@ export function QuoteCostDetailClient({ project, mode = "active", presenter = ge
                 >
                   {isManualSyncing ? "儲存中..." : "儲存人工新增費用"}
                 </button>
-                {presenter.canCloseProject ? (
-                  <button
-                    type="button"
-                    onClick={handleCloseProject}
-                    disabled={!state.quotationImported || state.costItems.length === 0 || derivedReconciliationStatus !== "已完成"}
-                    className="inline-flex items-center justify-center rounded-2xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-300"
-                  >
-                    手動結案
-                  </button>
-                ) : null}
-              </div>
-            ) : null}
+              ) : null}
+              {presenter.canCloseProject ? (
+                <button
+                  type="button"
+                  onClick={handleCloseProject}
+                  disabled={!canCloseProject || closeoutWriteState === 'submitting'}
+                  className="inline-flex items-center justify-center rounded-2xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-300"
+                >
+                  {closeoutWriteState === 'submitting' ? '結案中...' : '確認結案'}
+                </button>
+              ) : null}
+            </div>
           </div>
           {presenter.canPersistManualCosts && activeArchiveSource === "人工" ? (
             <div className={`mb-4 text-xs ${manualSyncError ? "text-rose-600" : manualSyncSuccess ? "text-emerald-600" : hasUnsavedManualChanges ? "text-amber-600" : "text-slate-400"}`}>
@@ -569,7 +640,15 @@ export function QuoteCostDetailClient({ project, mode = "active", presenter = ge
                   ? "人工新增費用儲存中..."
                   : hasUnsavedManualChanges
                     ? "你目前有尚未儲存的人工新增費用;按下「儲存」後才會同步到 list / detail / closeout。"
-                    : "目前人工新增費用已與正式資料同步。")}
+                    : "目前人工新增費用已與正式資料同步。")} 
+            </div>
+          ) : null}
+          {presenter.canCloseProject ? (
+            <div className={`mb-4 text-xs ${closeoutError ? 'text-rose-600' : canCloseProject ? 'text-emerald-600' : 'text-amber-600'}`}>
+              {closeoutError
+                ?? (canCloseProject
+                  ? '已符合結案條件：未收款 = 0 且全部對帳完畢。'
+                  : `尚未符合結案條件：目前未收款 ${formatCurrency(outstandingTotal)}，對帳狀態 ${derivedReconciliationStatus}。`)}
             </div>
           ) : null}
           <ArchiveContentPanel source={activeArchiveSource} costItems={state.costItems} manualItems={manualItems} isClosedView={isClosedView} onManualItemChange={handleManualItemChange} />

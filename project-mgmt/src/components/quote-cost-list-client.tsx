@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { AppShell } from "@/components/app-shell";
-import { getCloseStatusClass } from "@/components/quote-cost-data";
 import { getQuoteCostProjectsWithWorkflow } from "@/components/project-workflow-store";
 import type { QuoteCostProject } from "@/components/quote-cost-data";
 
@@ -93,9 +92,6 @@ export function QuoteCostListClient({ mode = "active", initialProjects }: { mode
                       className={`inline-flex rounded-full px-4 py-1.5 text-sm font-semibold ring-1 ${project.quotationImported ? "bg-emerald-100 text-emerald-800 ring-emerald-300" : "bg-amber-100 text-amber-800 ring-amber-300"}`}
                     >
                       {project.quotationImported ? "已上傳" : "未上傳"}
-                    </span>
-                    <span className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ring-1 ${getCloseStatusClass(project.closeStatus)}`}>
-                      {project.closeStatus}
                     </span>
                   </div>
                   <p className="text-sm text-slate-500">活動日期 {project.eventDate}</p>
