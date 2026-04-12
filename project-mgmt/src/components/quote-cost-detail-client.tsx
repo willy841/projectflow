@@ -16,6 +16,7 @@ import {
   type CostLineItem,
   type CostSourceType,
 } from "@/components/quote-cost-data";
+import { getQuoteCostDetailPresenter, type QuoteCostDetailPresenter } from "@/components/quote-cost-detail-presenter";
 
 type DetailMode = "active" | "closed";
 
@@ -52,12 +53,13 @@ type VendorPaymentView = {
 type Props = {
   project: QuoteCostProject;
   mode?: DetailMode;
+  presenter?: QuoteCostDetailPresenter;
   initialProject?: QuoteCostProject & { reconciliationGroups?: ReconciliationGroupView[]; collectionRecords?: CollectionRecordView[]; vendorPaymentRecords?: VendorPaymentView[] };
 };
 
 type EditableProjectState = QuoteCostProject;
 
-export function QuoteCostDetailClient({ project, mode = "active", initialProject }: Props) {
+export function QuoteCostDetailClient({ project, mode = "active", presenter = getQuoteCostDetailPresenter(mode), initialProject }: Props) {
   const router = useRouter();
   const resolvedProject = initialProject ?? project;
   const [reconciliationGroups, setReconciliationGroups] = useState<ReconciliationGroupView[]>(initialProject?.reconciliationGroups ?? []);
@@ -78,7 +80,7 @@ export function QuoteCostDetailClient({ project, mode = "active", initialProject
   const [vendorPaymentRecords] = useState<VendorPaymentView[]>(initialProject?.vendorPaymentRecords ?? []);
   const [activeArchiveSource, setActiveArchiveSource] = useState<CostSourceType>("設計");
   const quoteImportRecord = state.quotationImport;
-  const isClosedView = mode === "closed";
+  const isClosedView = presenter.archived;
 
   const quotationTotal = useMemo(() => getQuotationTotal(state.quotationItems), [state.quotationItems]);
   const collectedTotal = useMemo(() => collectionRecords.reduce((sum, record) => sum + record.amount, 0), [collectionRecords]);
@@ -271,7 +273,7 @@ export function QuoteCostDetailClient({ project, mode = "active", initialProject
 
   return (
     <>
-      <AppShell activePath={isClosedView ? "/closeouts" : "/quote-costs"}>
+      <AppShell activePath={presenter.activePath}>
       <header className={`overflow-hidden rounded-[28px] border p-6 shadow-sm xl:p-7 ${isClosedView ? "border-slate-200 bg-linear-to-br from-slate-50 to-white" : "border-slate-200 bg-linear-to-br from-slate-900 via-slate-800 to-slate-900 text-white"}`}>
         <div className="flex flex-col gap-5 xl:flex-row xl:items-center xl:justify-between">
           <div className="min-w-0 flex-1 xl:self-center">
@@ -283,14 +285,14 @@ export function QuoteCostDetailClient({ project, mode = "active", initialProject
           </div>
           <div className={`grid gap-3 rounded-3xl border p-4 text-sm sm:min-w-[300px] ${isClosedView ? "border-slate-200 bg-slate-50 text-slate-600" : "border-white/10 bg-white/6 text-slate-200"}`}>
             <div>
-              <p className={`text-base font-semibold ${isClosedView ? "text-slate-900" : "text-white"}`}>{isClosedView ? "結案留存 / 最終結果確認" : "進行中控盤 / 成本管理 / 對帳推進"}</p>
+              <p className={`text-base font-semibold ${isClosedView ? "text-slate-900" : "text-white"}`}>{presenter.shellTitle}</p>
             </div>
             <div className="grid grid-cols-2 gap-3 text-xs">
               <QuickPanel value={derivedReconciliationStatus} label="對帳狀態" archived={isClosedView} />
               <QuickPanel value={state.closeStatus} label="結案狀態" archived={isClosedView} />
             </div>
-            <Link href={isClosedView ? "/closeouts" : "/quote-costs"} className={`inline-flex items-center justify-center rounded-2xl px-4 py-2.5 text-sm font-semibold transition ${isClosedView ? "border border-slate-300 bg-white text-slate-800 hover:border-slate-400 hover:bg-slate-50" : "bg-white text-slate-900 hover:bg-slate-100"}`}>
-              返回{isClosedView ? "結案列表" : "報價成本列表"}
+            <Link href={presenter.listHref} className={`inline-flex items-center justify-center rounded-2xl px-4 py-2.5 text-sm font-semibold transition ${isClosedView ? "border border-slate-300 bg-white text-slate-800 hover:border-slate-400 hover:bg-slate-50" : "bg-white text-slate-900 hover:bg-slate-100"}`}>
+              返回{presenter.listLabel}
             </Link>
           </div>
         </div>
@@ -305,9 +307,9 @@ export function QuoteCostDetailClient({ project, mode = "active", initialProject
 
       <section className={`rounded-[28px] border p-6 shadow-sm ${isClosedView ? "border-slate-200 bg-white" : "border-slate-200 bg-white"}`}>
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-          <SimpleSectionTitle title="收款管理" />
-          {!isClosedView ? (
-            <button type="button" onClick={() => setCollectionForm({ collectedOn: state.eventDate, amount: '', note: '' })} className="inline-flex items-center justify-center rounded-2xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800">新增收款</button>
+          <SimpleSectionTitle title={presenter.collectionTitle} />
+          {presenter.canCreateCollectionRecord ? (
+            <button type="button" onClick={() => setCollectionForm({ collectedOn: state.eventDate, amount: '', note: '' })} className="inline-flex items-center justify-center rounded-2xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800">{presenter.collectionPrimaryActionLabel}</button>
           ) : null}
         </div>
         <div className="mt-5 overflow-x-auto rounded-2xl border border-slate-200">
@@ -327,7 +329,7 @@ export function QuoteCostDetailClient({ project, mode = "active", initialProject
                   <td className="px-4 py-3 font-semibold text-slate-900">{formatCurrency(record.amount)}</td>
                   <td className="px-4 py-3 text-slate-600">{record.note || '-'}</td>
                   <td className="px-4 py-3">
-                    {!isClosedView ? <button type="button" onClick={() => handleDeleteCollectionRecord(record.id)} className="inline-flex items-center justify-center rounded-2xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm font-semibold text-rose-700 transition hover:bg-rose-100">刪除</button> : null}
+                    {presenter.canDeleteCollectionRecord ? <button type="button" onClick={() => handleDeleteCollectionRecord(record.id)} className="inline-flex items-center justify-center rounded-2xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm font-semibold text-rose-700 transition hover:bg-rose-100">刪除</button> : null}
                   </td>
                 </tr>
               ))}
@@ -377,7 +379,7 @@ export function QuoteCostDetailClient({ project, mode = "active", initialProject
           <div className="flex flex-wrap gap-2">
             {isClosedView ? (
               <span className="inline-flex items-center rounded-2xl border border-slate-200 bg-slate-50 px-4 py-2 text-sm font-semibold text-slate-700">
-                結案版本已鎖定
+                {presenter.quotationLockedLabel}
               </span>
             ) : quoteImportRecord ? (
               <span className="inline-flex items-center rounded-2xl border border-slate-200 bg-slate-50 px-4 py-2 text-sm font-semibold text-slate-700">
@@ -425,7 +427,7 @@ export function QuoteCostDetailClient({ project, mode = "active", initialProject
         <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
           <SimpleSectionTitle title="成本管理" />
           <div className="flex flex-wrap gap-2">
-            {!isClosedView && (
+            {presenter.canAddManualCost && (
               <button
                 type="button"
                 onClick={handleAddManualCost}
@@ -434,7 +436,7 @@ export function QuoteCostDetailClient({ project, mode = "active", initialProject
                 + 新增人工成本
               </button>
             )}
-            {!isClosedView && reconciliationGroups.length === 0 ? (
+            {presenter.canConfirmReconciliationGroup && reconciliationGroups.length === 0 ? (
               <button
                 type="button"
                 disabled
@@ -445,7 +447,7 @@ export function QuoteCostDetailClient({ project, mode = "active", initialProject
             ) : null}
             {isClosedView && (
               <span className="inline-flex items-center rounded-2xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700">
-                已結案留存版本
+                {presenter.costSectionLockedLabel}
               </span>
             )}
           </div>
@@ -511,7 +513,7 @@ export function QuoteCostDetailClient({ project, mode = "active", initialProject
                         <p className="text-sm text-slate-500">群組金額總額</p>
                         <p className="text-2xl font-semibold tracking-tight text-slate-900">{formatCurrency(group.amountTotal)}</p>
                       </div>
-                      {!isClosedView ? (
+                      {presenter.canConfirmReconciliationGroup ? (
                         <button
                           type="button"
                           onClick={() => handleConfirmGroup(group.key)}
@@ -536,7 +538,7 @@ export function QuoteCostDetailClient({ project, mode = "active", initialProject
         <div className="mt-6 rounded-3xl border border-slate-200 bg-white p-5">
           <div className="mb-5 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
             <h4 className="text-lg font-semibold text-slate-900">最終文件內容</h4>
-            {!isClosedView && activeArchiveSource === "人工" ? (
+            {presenter.canPersistManualCosts && activeArchiveSource === "人工" ? (
               <div className="flex flex-wrap items-center justify-end gap-2">
                 <button
                   type="button"
@@ -546,18 +548,20 @@ export function QuoteCostDetailClient({ project, mode = "active", initialProject
                 >
                   {isManualSyncing ? "儲存中..." : "儲存人工新增費用"}
                 </button>
-                <button
-                  type="button"
-                  onClick={handleCloseProject}
-                  disabled={!state.quotationImported || state.costItems.length === 0 || derivedReconciliationStatus !== "已完成"}
-                  className="inline-flex items-center justify-center rounded-2xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-300"
-                >
-                  手動結案
-                </button>
+                {presenter.canCloseProject ? (
+                  <button
+                    type="button"
+                    onClick={handleCloseProject}
+                    disabled={!state.quotationImported || state.costItems.length === 0 || derivedReconciliationStatus !== "已完成"}
+                    className="inline-flex items-center justify-center rounded-2xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-300"
+                  >
+                    手動結案
+                  </button>
+                ) : null}
               </div>
             ) : null}
           </div>
-          {!isClosedView && activeArchiveSource === "人工" ? (
+          {presenter.canPersistManualCosts && activeArchiveSource === "人工" ? (
             <div className={`mb-4 text-xs ${manualSyncError ? "text-rose-600" : manualSyncSuccess ? "text-emerald-600" : hasUnsavedManualChanges ? "text-amber-600" : "text-slate-400"}`}>
               {manualSyncError
                 ?? manualSyncSuccess

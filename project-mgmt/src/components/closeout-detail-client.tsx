@@ -1,10 +1,12 @@
 "use client";
 
 import { QuoteCostDetailClient } from '@/components/quote-cost-detail-client';
+import { getCloseoutRetainedPresenter } from '@/components/quote-cost-detail-presenter';
 import type { CloseoutArchiveDetailReadModel } from '@/lib/db/closeout-detail-read-model';
 
 export function CloseoutDetailClient({ readModel }: { readModel: CloseoutArchiveDetailReadModel }) {
   const { archiveProject, archiveCollections, archiveVendorPayments } = readModel;
+  const presenter = getCloseoutRetainedPresenter();
 
   return (
     <QuoteCostDetailClient
@@ -14,7 +16,8 @@ export function CloseoutDetailClient({ readModel }: { readModel: CloseoutArchive
         collectionRecords: archiveCollections,
         vendorPaymentRecords: archiveVendorPayments,
       }}
-      mode="closed"
+      mode={presenter.mode}
+      presenter={presenter}
     />
   );
 }
