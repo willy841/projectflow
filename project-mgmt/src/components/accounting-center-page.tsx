@@ -369,10 +369,8 @@ export function AccountingCenterPage({
   const [yearSelection, setYearSelection] = useState("2026");
   const [employeeRoster, setEmployeeRoster] = useState<EmployeeRoster[]>(initialDbMode && initialEmployeeRoster ? initialEmployeeRoster : initialPersonnelRoster);
   const [officeCategories, setOfficeCategories] = useState(initialOfficeCategories ?? ["物流", "行政", "倉儲"]);
-  const [fullTimeDrafts, setFullTimeDrafts] = useState<Record<string, FullTimeEmployee>>(() => buildInitialDrafts().fullTime);
-  const [partTimeDrafts, setPartTimeDrafts] = useState<Record<string, PartTimeEmployee>>(() => buildInitialDrafts().partTime);
-  const [personnelRecordsByMonth, setPersonnelRecordsByMonth] = useState<Record<string, PersonnelDraft>>(() => {
-    if (!initialDbMode || !initialPersonnelRecords) return buildInitialRecordsByMonth();
+  const initialDbPersonnelDrafts = (() => {
+    if (!initialDbMode || !initialPersonnelRecords) return null;
     const fullTime: Record<string, FullTimeEmployee> = {};
     const partTime: Record<string, PartTimeEmployee> = {};
     for (const record of initialPersonnelRecords) {
@@ -420,6 +418,32 @@ export function AccountingCenterPage({
         };
       }
     }
+    return { fullTime, partTime };
+  })();
+  const [fullTimeDrafts, setFullTimeDrafts] = useState<Record<string, FullTimeEmployee>>(() => {
+    if (!initialDbMode || !initialEmployeeRoster) return initialDbPersonnelDrafts?.fullTime ?? buildInitialDrafts().fullTime;
+    const base = { ...(initialDbPersonnelDrafts?.fullTime ?? {}) };
+    for (const employee of initialEmployeeRoster.filter((item) => item.type === 'full-time')) {
+      if (!base[employee.id]) {
+        base[employee.id] = buildDefaultFullTimeDraft(employee.id, employee.name, initialWorkspaceMonth);
+      }
+    }
+    return base;
+  });
+  const [partTimeDrafts, setPartTimeDrafts] = useState<Record<string, PartTimeEmployee>>(() => {
+    if (!initialDbMode || !initialEmployeeRoster) return initialDbPersonnelDrafts?.partTime ?? buildInitialDrafts().partTime;
+    const base = { ...(initialDbPersonnelDrafts?.partTime ?? {}) };
+    for (const employee of initialEmployeeRoster.filter((item) => item.type === 'part-time')) {
+      if (!base[employee.id]) {
+        base[employee.id] = buildDefaultPartTimeDraft(employee.id, employee.name, initialWorkspaceMonth);
+      }
+    }
+    return base;
+  });
+  const [personnelRecordsByMonth, setPersonnelRecordsByMonth] = useState<Record<string, PersonnelDraft>>(() => {
+    if (!initialDbMode || !initialPersonnelRecords) return buildInitialRecordsByMonth();
+    const fullTime = { ...(initialDbPersonnelDrafts?.fullTime ?? {}) };
+    const partTime = { ...(initialDbPersonnelDrafts?.partTime ?? {}) };
     return { [initialWorkspaceMonth]: { fullTime, partTime } };
   });
   const [officeExpensesByMonth, setOfficeExpensesByMonth] = useState<Record<string, OfficeExpense[]>>(() => initialDbMode ? { [initialWorkspaceMonth]: initialOfficeExpenses ?? [] } : buildInitialOfficeExpensesByMonth());
@@ -608,9 +632,13 @@ export function AccountingCenterPage({
     }
   }
 
-  function handlePersonnelSubmit(employeeId: string) {
+  async function handlePersonnelSubmit(employeeId: string) {
+    console.info('[accounting][personnel][submit][entry]', { employeeId, editingEmployeeId, personnelViewMode });
     const employee = employeeRoster.find((item) => item.id === employeeId);
-    if (!employee) return;
+    if (!employee) {
+      console.warn('[accounting][personnel][submit][abort][missing-employee]', { employeeId });
+      return;
+    }
 
     if (initialDbMode) {
       const payload = employee.type === 'full-time'
@@ -638,18 +666,34 @@ export function AccountingCenterPage({
             };
           })();
       const salaryMonth = employee.type === 'full-time' ? fullTimeDrafts[employeeId]?.salaryMonth : partTimeDrafts[employeeId]?.salaryMonth;
-      if (!payload || !salaryMonth) return;
-      fetch('/api/accounting/personnel/records/submit', {
+      console.info('[accounting][personnel][submit][draft-state]', {
+        employeeId,
+        employeeType: employee.type,
+        hasPayload: Boolean(payload),
+        salaryMonth,
+        fullTimeDraft: employee.type === 'full-time' ? fullTimeDrafts[employeeId] : null,
+        partTimeDraft: employee.type === 'part-time' ? partTimeDrafts[employeeId] : null,
+      });
+      if (!payload || !salaryMonth) {
+        console.warn('[accounting][personnel][submit][abort][missing-payload-or-month]', { employeeId, salaryMonth, payload });
+        return;
+      }
+      console.info('[accounting][personnel][submit][client][checkpoint-before-fetch]', { employeeId, salaryMonth, payload });
+      await fetch('/api/accounting/personnel/records/submit', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ employeeId, salaryMonth, payload }),
       }).then(async (response) => {
         const result = await response.json();
+        console.info('[accounting][personnel][submit][client][checkpoint-after-fetch]', { status: response.status, result });
         if (!response.ok || !result?.ok) {
           window.alert(result?.error ?? '人事送出失敗');
           return;
         }
         window.location.reload();
+      }).catch((error) => {
+        console.error('[accounting][personnel][submit][client][error]', error);
+        window.alert('人事送出失敗');
       });
       return;
     }
@@ -997,6 +1041,13 @@ export function AccountingCenterPage({
                   </div>
 
                   {expenseEditorTab === "personnel" ? (
+                    initialDbMode ? (
+                      <Panel title="人事費用管理" description="DB mode 已改由獨立 personnel editor 元件承接；此處不再渲染舊版 editor。">
+                        <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-4 py-6 text-sm text-slate-600">
+                          這個舊版 editor 已停用，請使用新的獨立人事 editor 工作流。
+                        </div>
+                      </Panel>
+                    ) : (
                     <Panel title="人事費用管理" actions={<button type="button" onClick={() => setShowAddEmployeeModal(true)} className="inline-flex items-center justify-center rounded-2xl border border-slate-900 bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800">新增員工</button>}>
                       <div className="space-y-4">
                         <div className="grid gap-3 sm:grid-cols-2">
@@ -1010,12 +1061,12 @@ export function AccountingCenterPage({
                             const rosterPartTimeDraft = employee.type === "part-time" ? partTimeDrafts[employee.id] : null;
 
                             return (
-                              <div key={employee.id} className="space-y-3">
-                                <div onClick={() => { if (editingEmployeeId === employee.id && personnelViewMode === "preview") { setEditingEmployeeId(null); } else { setEditingEmployeeId(employee.id); setPersonnelViewMode("preview"); } }} className="flex cursor-pointer flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-200 px-4 py-2.5 transition hover:border-slate-300 hover:bg-slate-50">
+                              <div key={employee.id} data-testid={`personnel-card-${employee.id}`} className="space-y-3">
+                                <div data-testid={`personnel-preview-toggle-${employee.id}`} onClick={() => { if (editingEmployeeId === employee.id && personnelViewMode === "preview") { setEditingEmployeeId(null); } else { setEditingEmployeeId(employee.id); setPersonnelViewMode("preview"); } }} className="flex cursor-pointer flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-200 px-4 py-2.5 transition hover:border-slate-300 hover:bg-slate-50">
                                   <div className="flex items-center gap-3"><p className="font-semibold text-slate-900">{employee.name}</p><span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ring-1 ${employee.type === "full-time" ? "bg-sky-50 text-sky-700 ring-sky-200" : "bg-violet-50 text-violet-700 ring-violet-200"}`}>{employee.type === "full-time" ? "正職" : "兼職"}</span></div>
                                   <div className="flex gap-2" onClick={(event) => event.stopPropagation()}>
-                                    <button type="button" onClick={() => { if (editingEmployeeId === employee.id && personnelViewMode === "edit") { setEditingEmployeeId(null); } else { setEditingEmployeeId(employee.id); setPersonnelViewMode("edit"); } }} className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-800 transition hover:bg-slate-50">編輯</button>
-                                    <button type="button" onClick={() => handleDeleteEmployee(employee.id)} className="inline-flex items-center justify-center px-2 py-2 text-sm font-semibold text-rose-600 transition hover:text-rose-700">刪除</button>
+                                    <button data-testid={`personnel-edit-toggle-${employee.id}`} type="button" onClick={() => { if (editingEmployeeId === employee.id && personnelViewMode === "edit") { setEditingEmployeeId(null); } else { setEditingEmployeeId(employee.id); setPersonnelViewMode("edit"); } }} className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-800 transition hover:bg-slate-50">編輯</button>
+                                    <button data-testid={`personnel-delete-${employee.id}`} type="button" onClick={() => handleDeleteEmployee(employee.id)} className="inline-flex items-center justify-center px-2 py-2 text-sm font-semibold text-rose-600 transition hover:text-rose-700">刪除</button>
                                   </div>
                                 </div>
 
@@ -1046,7 +1097,7 @@ export function AccountingCenterPage({
                                     <DetailGroup title="加班計算區" indexLabel="2" tone="amber">{personnelViewMode === "edit" ? <div className="grid gap-4 xl:grid-cols-3">{rosterFullTimeDraft.overtime.map((row, index) => <div key={row.label} className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm"><p className="mb-3 text-sm font-semibold text-slate-700">{row.label}</p><div className="grid gap-4"><EditableNumberPair label="時數" value={row.hours} onChange={(value) => setFullTimeDrafts((current) => { const nextOvertime = [...rosterFullTimeDraft.overtime]; nextOvertime[index] = { ...row, hours: value }; return { ...current, [employee.id]: { ...rosterFullTimeDraft, overtime: nextOvertime } }; })} /><EditableNumberPair label="係數" value={row.multiplier} onChange={(value) => setFullTimeDrafts((current) => { const nextOvertime = [...rosterFullTimeDraft.overtime]; nextOvertime[index] = { ...row, multiplier: value }; return { ...current, [employee.id]: { ...rosterFullTimeDraft, overtime: nextOvertime } }; })} /><ReadOnlyPair label="加班金額" value={formatCurrency(calculateOvertimeAmount(rosterFullTimeDraft.baseSalary, row))} /></div></div>)}</div> : rosterFullTimeDraft.overtime.map((row) => <SummaryLine key={row.label} label={`${row.label}｜${row.hours} 小時 × ${row.multiplier}`} value={formatCurrency(calculateOvertimeAmount(rosterFullTimeDraft.baseSalary, row))} />)}<SummaryLine label="加班費合計" value={formatCurrency(calculateOvertimeTotal(rosterFullTimeDraft))} emphasize /></DetailGroup>
                                     <DetailGroup title="應扣項目區" indexLabel="3" tone="rose">{personnelViewMode === "edit" ? <div className="grid gap-4 xl:grid-cols-2"><EditableNumberPair label="勞保費" value={rosterFullTimeDraft.deductions.laborInsurance} onChange={(value) => setFullTimeDrafts((current) => ({ ...current, [employee.id]: { ...rosterFullTimeDraft, deductions: { ...rosterFullTimeDraft.deductions, laborInsurance: value } } }))} /><EditableNumberPair label="健保費" value={rosterFullTimeDraft.deductions.healthInsurance} onChange={(value) => setFullTimeDrafts((current) => ({ ...current, [employee.id]: { ...rosterFullTimeDraft, deductions: { ...rosterFullTimeDraft.deductions, healthInsurance: value } } }))} /><EditableNumberPair label="眷屬負擔" value={rosterFullTimeDraft.deductions.dependents} onChange={(value) => setFullTimeDrafts((current) => ({ ...current, [employee.id]: { ...rosterFullTimeDraft, deductions: { ...rosterFullTimeDraft.deductions, dependents: value } } }))} /><EditableNumberPair label="請假扣款" value={rosterFullTimeDraft.deductions.leaveDeduction} onChange={(value) => setFullTimeDrafts((current) => ({ ...current, [employee.id]: { ...rosterFullTimeDraft, deductions: { ...rosterFullTimeDraft.deductions, leaveDeduction: value } } }))} /><EditableNumberPair label="其他扣項" value={rosterFullTimeDraft.deductions.other[0]?.amount ?? 0} onChange={(value) => setFullTimeDrafts((current) => ({ ...current, [employee.id]: { ...rosterFullTimeDraft, deductions: { ...rosterFullTimeDraft.deductions, other: [{ label: rosterFullTimeDraft.deductions.other[0]?.label ?? "其他扣項", amount: value }] } } }))} /></div> : <><SummaryLine label="勞保費" value={formatCurrency(rosterFullTimeDraft.deductions.laborInsurance)} /><SummaryLine label="健保費" value={formatCurrency(rosterFullTimeDraft.deductions.healthInsurance)} /><SummaryLine label="眷屬負擔" value={formatCurrency(rosterFullTimeDraft.deductions.dependents)} /><SummaryLine label="請假扣款" value={formatCurrency(rosterFullTimeDraft.deductions.leaveDeduction)} /><InlineAmountList title="其他扣項明細" items={rosterFullTimeDraft.deductions.other} /></>}<SummaryLine label="應扣合計" value={formatCurrency(calculateFullTimeDeduction(rosterFullTimeDraft))} emphasize /><SummaryLine label="實領金額" value={formatCurrency(calculateFullTimeNetPay(rosterFullTimeDraft))} emphasize /></DetailGroup>
                                     <DetailGroup title="公司負擔" indexLabel="4" tone="sky">{personnelViewMode === "edit" ? <div className="grid gap-4 xl:grid-cols-2"><EditableNumberPair label="單位負擔勞保" value={rosterFullTimeDraft.employerContribution.laborInsurance} onChange={(value) => setFullTimeDrafts((current) => ({ ...current, [employee.id]: { ...rosterFullTimeDraft, employerContribution: { ...rosterFullTimeDraft.employerContribution, laborInsurance: value } } }))} /><EditableNumberPair label="單位負擔健保" value={rosterFullTimeDraft.employerContribution.healthInsurance} onChange={(value) => setFullTimeDrafts((current) => ({ ...current, [employee.id]: { ...rosterFullTimeDraft, employerContribution: { ...rosterFullTimeDraft.employerContribution, healthInsurance: value } } }))} /><EditableNumberPair label="職保" value={rosterFullTimeDraft.employerContribution.occupationalInsurance} onChange={(value) => setFullTimeDrafts((current) => ({ ...current, [employee.id]: { ...rosterFullTimeDraft, employerContribution: { ...rosterFullTimeDraft.employerContribution, occupationalInsurance: value } } }))} /><EditableNumberPair label="勞退" value={rosterFullTimeDraft.employerContribution.pension} onChange={(value) => setFullTimeDrafts((current) => ({ ...current, [employee.id]: { ...rosterFullTimeDraft, employerContribution: { ...rosterFullTimeDraft.employerContribution, pension: value } } }))} /><EditableNumberPair label="其他單位負擔" value={rosterFullTimeDraft.employerContribution.other[0]?.amount ?? 0} onChange={(value) => setFullTimeDrafts((current) => ({ ...current, [employee.id]: { ...rosterFullTimeDraft, employerContribution: { ...rosterFullTimeDraft.employerContribution, other: [{ label: rosterFullTimeDraft.employerContribution.other[0]?.label ?? "其他單位負擔", amount: value }] } } }))} /></div> : <><SummaryLine label="單位負擔勞保" value={formatCurrency(rosterFullTimeDraft.employerContribution.laborInsurance)} /><SummaryLine label="單位負擔健保" value={formatCurrency(rosterFullTimeDraft.employerContribution.healthInsurance)} /><SummaryLine label="職保" value={formatCurrency(rosterFullTimeDraft.employerContribution.occupationalInsurance)} /><SummaryLine label="勞退" value={formatCurrency(rosterFullTimeDraft.employerContribution.pension)} /><InlineAmountList title="其他單位負擔明細" items={rosterFullTimeDraft.employerContribution.other} /></>}<SummaryLine label="單位負擔合計" value={formatCurrency(calculateFullTimeEmployerContribution(rosterFullTimeDraft))} emphasize /><SummaryLine label="人事成本總支出" value={formatCurrency(calculateFullTimeCost(rosterFullTimeDraft))} emphasize /></DetailGroup>
-                                    {personnelViewMode === "edit" ? <FooterActions onSubmit={() => handlePersonnelSubmit(employee.id)} /> : null}
+                                    {personnelViewMode === "edit" ? <FooterActions testId={`personnel-${employee.id}`} onSubmit={() => handlePersonnelSubmit(employee.id)} /> : null}
                                   </EditableBlock>
                                 ) : null}
 
@@ -1059,12 +1110,12 @@ export function AccountingCenterPage({
                                     </div>
                                     <DetailGroup title="應支付項目區" indexLabel="1" tone="slate">
                                       <div className="grid gap-4 xl:grid-cols-2">
-                                        {personnelViewMode === "edit" ? <EditableNumberPair label="本月工作時數" value={rosterPartTimeDraft.hours} onChange={(value) => setPartTimeDrafts((current) => ({ ...current, [employee.id]: { ...rosterPartTimeDraft, hours: value } }))} /> : <ReadOnlyPair label="本月工作時數" value={`${rosterPartTimeDraft.hours} 小時`} />}
-                                        {personnelViewMode === "edit" ? <EditableNumberPair label="每小時薪資金額" value={rosterPartTimeDraft.hourlyRate} onChange={(value) => setPartTimeDrafts((current) => ({ ...current, [employee.id]: { ...rosterPartTimeDraft, hourlyRate: value } }))} /> : <ReadOnlyPair label="每小時薪資金額" value={formatCurrency(rosterPartTimeDraft.hourlyRate)} />}
+                                        {personnelViewMode === "edit" ? <EditableNumberPair testId={`personnel-hours-${employee.id}`} label="本月工作時數" value={rosterPartTimeDraft.hours} onChange={(value) => setPartTimeDrafts((current) => ({ ...current, [employee.id]: { ...rosterPartTimeDraft, hours: value } }))} /> : <ReadOnlyPair label="本月工作時數" value={`${rosterPartTimeDraft.hours} 小時`} />}
+                                        {personnelViewMode === "edit" ? <EditableNumberPair testId={`personnel-hourly-${employee.id}`} label="每小時薪資金額" value={rosterPartTimeDraft.hourlyRate} onChange={(value) => setPartTimeDrafts((current) => ({ ...current, [employee.id]: { ...rosterPartTimeDraft, hourlyRate: value } }))} /> : <ReadOnlyPair label="每小時薪資金額" value={formatCurrency(rosterPartTimeDraft.hourlyRate)} />}
                                       </div>
                                       <SummaryLine label="本月應支金額" value={formatCurrency(calculatePartTimePay(rosterPartTimeDraft))} emphasize />
                                     </DetailGroup>
-                                    {personnelViewMode === "edit" ? <FooterActions onSubmit={() => handlePersonnelSubmit(employee.id)} /> : null}
+                                    {personnelViewMode === "edit" ? <FooterActions testId={`personnel-${employee.id}`} onSubmit={() => handlePersonnelSubmit(employee.id)} /> : null}
                                   </EditableBlock>
                                 ) : null}
                               </div>
@@ -1073,6 +1124,7 @@ export function AccountingCenterPage({
                         </div>
                       </div>
                     </Panel>
+                    )
                   ) : null}
 
                   {expenseEditorTab === "office" ? (
@@ -1092,6 +1144,7 @@ export function AccountingCenterPage({
           )}
         </section>
       </div>
+
 
       {showAddEmployeeModal ? (
         <ModalShell title="新增員工" badge="">
@@ -1255,16 +1308,16 @@ function DetailGroup({ title, children, indexLabel, tone = "slate" }: { title: s
   );
 }
 
-function FooterActions({ onSubmit }: { onSubmit: () => void }) {
+function FooterActions({ onSubmit, testId }: { onSubmit: () => void; testId?: string }) {
   return (
-    <div className="flex flex-col-reverse gap-3 border-t border-slate-200 pt-4 sm:flex-row sm:justify-end">
+    <div data-testid={testId ? `${testId}-footer` : undefined} className="flex flex-col-reverse gap-3 border-t border-slate-200 pt-4 sm:flex-row sm:justify-end">
       <button type="button" className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
         取消
       </button>
       <button type="button" className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
         暫存
       </button>
-      <button type="button" onClick={onSubmit} className="inline-flex items-center justify-center rounded-2xl border border-slate-900 bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800">
+      <button data-testid={testId ? `${testId}-submit` : undefined} type="button" onClick={onSubmit} className="inline-flex items-center justify-center rounded-2xl border border-slate-900 bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800">
         送出
       </button>
     </div>
@@ -1346,11 +1399,12 @@ function ReadOnlyPair({ label, value }: { label: string; value: string }) {
   );
 }
 
-function EditablePair({ label, value, onChange, placeholder, inputMode, listId }: { label: string; value: string; onChange: (value: string) => void; placeholder?: string; inputMode?: React.HTMLAttributes<HTMLInputElement>["inputMode"]; listId?: string }) {
+function EditablePair({ label, value, onChange, placeholder, inputMode, listId, testId }: { label: string; value: string; onChange: (value: string) => void; placeholder?: string; inputMode?: React.HTMLAttributes<HTMLInputElement>["inputMode"]; listId?: string; testId?: string }) {
   return (
     <div>
       <p className="mb-1.5 text-sm font-semibold text-slate-700">{label}</p>
       <input
+        data-testid={testId}
         value={value}
         list={listId}
         inputMode={inputMode}
@@ -1362,8 +1416,8 @@ function EditablePair({ label, value, onChange, placeholder, inputMode, listId }
   );
 }
 
-function EditableNumberPair({ label, value, onChange }: { label: string; value: number; onChange: (value: number) => void }) {
-  return <EditablePair label={label} value={String(value)} onChange={(next) => onChange(Number(next) || 0)} inputMode="numeric" />;
+function EditableNumberPair({ label, value, onChange, testId }: { label: string; value: number; onChange: (value: number) => void; testId?: string }) {
+  return <EditablePair label={label} value={String(value)} onChange={(next) => onChange(Number(next) || 0)} inputMode="numeric" testId={testId} />;
 }
 
 function InlineAmountList({ title, items }: { title: string; items: Array<{ label: string; amount: number }> }) {
