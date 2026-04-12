@@ -3,6 +3,8 @@ import {
   type CostLineItem,
   type CostSourceType,
   type QuoteCostProject,
+  type QuoteImportRecord,
+  type QuoteLineItem,
 } from '@/components/quote-cost-data';
 
 const TRACE_PROJECT_ID = '11111111-1111-4111-8111-111111111111';
@@ -30,12 +32,90 @@ type DbFinancialProjectIdentity = {
   latestFinancialActivityAt: string;
 };
 
+type QuoteSeedProjection = Pick<
+  QuoteCostProject,
+  'quotationImported' | 'quotationImport' | 'quotationItems' | 'reconciliationStatus' | 'closeStatus'
+>;
+
 function normalizeProjectName(value: string) {
   return value.replace(/\s+/g, '').trim().toLowerCase();
 }
 
 function logQuoteCostTrace(stage: string, payload: Record<string, unknown>) {
   console.info(`[quote-costs][trace] ${stage}`, payload);
+}
+
+function resolveQuoteSeedProjection(project: QuoteCostProject | undefined): QuoteSeedProjection {
+  return {
+    quotationImported: project?.quotationImported ?? EMPTY_QUOTE_PROJECT_FIELDS.quotationImported,
+    quotationImport: project?.quotationImport ?? EMPTY_QUOTE_PROJECT_FIELDS.quotationImport,
+    quotationItems: project?.quotationItems ?? EMPTY_QUOTE_PROJECT_FIELDS.quotationItems,
+    reconciliationStatus: project?.reconciliationStatus ?? EMPTY_QUOTE_PROJECT_FIELDS.reconciliationStatus,
+    closeStatus: project?.closeStatus ?? EMPTY_QUOTE_PROJECT_FIELDS.closeStatus,
+  };
+}
+
+function mergeDbAndSeedCostItems(seedProject: QuoteCostProject | undefined, dbItems: CostLineItem[]) {
+  if (!seedProject) return dbItems;
+
+  const dbSourceTypes = new Set(dbItems.map((dbItem) => dbItem.sourceType));
+  const fallbackSeedCostItems = seedProject.costItems.filter((item) => !dbSourceTypes.has(item.sourceType));
+
+  return [...fallbackSeedCostItems, ...dbItems];
+}
+
+function buildFinancialProjectNote({
+  hasSeedQuotationFallback,
+  hasSeedCostFallback,
+}: {
+  hasSeedQuotationFallback: boolean;
+  hasSeedCostFallback: boolean;
+}) {
+  const notes = ['正式 Financial project source'];
+
+  if (hasSeedQuotationFallback) {
+    notes.push('quotation 正式 DB read model 尚未到位，暫以既有 seed projection 補位');
+  }
+
+  if (hasSeedCostFallback) {
+    notes.push('僅保留 DB 尚未接管的 seed cost source 作過渡 fallback');
+  }
+
+  return `${notes.join('；')}。`;
+}
+
+function buildMergedFinancialProject({
+  dbProject,
+  matchedSeed,
+  dbItems,
+}: {
+  dbProject: DbFinancialProjectIdentity;
+  matchedSeed?: QuoteCostProject;
+  dbItems: CostLineItem[];
+}): QuoteCostProject {
+  const quoteSeedProjection = resolveQuoteSeedProjection(matchedSeed);
+  const mergedCostItems = mergeDbAndSeedCostItems(matchedSeed, dbItems);
+  const hasSeedQuotationFallback = quoteSeedProjection.quotationImported || quoteSeedProjection.quotationItems.length > 0;
+  const hasSeedCostFallback = Boolean(matchedSeed) && mergedCostItems.length > dbItems.length;
+
+  return {
+    id: dbProject.id,
+    projectCode: matchedSeed?.projectCode ?? dbProject.projectCode,
+    projectName: dbProject.projectName,
+    clientName: matchedSeed?.clientName ?? dbProject.clientName,
+    eventDate: dbProject.eventDate,
+    projectStatus: dbProject.projectStatus,
+    quotationImported: quoteSeedProjection.quotationImported,
+    quotationImport: quoteSeedProjection.quotationImport as QuoteImportRecord | null,
+    reconciliationStatus: quoteSeedProjection.reconciliationStatus,
+    closeStatus: dbProject.projectStatus === '已結案' ? '已結案' : quoteSeedProjection.closeStatus,
+    quotationItems: quoteSeedProjection.quotationItems as QuoteLineItem[],
+    costItems: mergedCostItems,
+    note: buildFinancialProjectNote({
+      hasSeedQuotationFallback,
+      hasSeedCostFallback,
+    }),
+  };
 }
 
 async function loadFinancialItemsSafely<T>(
@@ -479,30 +559,12 @@ export async function getQuoteCostProjectsWithDbFinancials(): Promise<QuoteCostP
     const mergedProjects = dbProjects.map((dbProject) => {
       const matchedSeed = seedById.get(dbProject.id) ?? seedByName.get(normalizeProjectName(dbProject.projectName));
       const dbItems = byProject.get(dbProject.id) ?? [];
-      const dbSourceTypes = new Set(dbItems.map((dbItem) => dbItem.sourceType));
-      const preservedSeedItems = matchedSeed
-        ? matchedSeed.costItems.filter((item) => !dbSourceTypes.has(item.sourceType))
-        : [];
 
-      return {
-        ...(matchedSeed ?? EMPTY_QUOTE_PROJECT_FIELDS),
-        id: dbProject.id,
-        projectCode: matchedSeed?.projectCode ?? dbProject.projectCode,
-        projectName: dbProject.projectName,
-        clientName: matchedSeed?.clientName ?? dbProject.clientName,
-        eventDate: dbProject.eventDate,
-        projectStatus: dbProject.projectStatus,
-        quotationImported: matchedSeed?.quotationImported ?? EMPTY_QUOTE_PROJECT_FIELDS.quotationImported,
-        quotationImport: matchedSeed?.quotationImport ?? EMPTY_QUOTE_PROJECT_FIELDS.quotationImport,
-        reconciliationStatus: matchedSeed?.reconciliationStatus ?? EMPTY_QUOTE_PROJECT_FIELDS.reconciliationStatus,
-        closeStatus:
-          dbProject.projectStatus === '已結案'
-            ? '已結案'
-            : (matchedSeed?.closeStatus ?? EMPTY_QUOTE_PROJECT_FIELDS.closeStatus),
-        quotationItems: matchedSeed?.quotationItems ?? EMPTY_QUOTE_PROJECT_FIELDS.quotationItems,
-        costItems: [...preservedSeedItems, ...dbItems],
-        note: matchedSeed?.note ?? EMPTY_QUOTE_PROJECT_FIELDS.note,
-      };
+      return buildMergedFinancialProject({
+        dbProject,
+        matchedSeed,
+        dbItems,
+      });
     });
 
     const tracedMergedProject = mergedProjects.find((project) => project.id === TRACE_PROJECT_ID) ?? null;
