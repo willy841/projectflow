@@ -46,6 +46,8 @@ export function VendorDetailShellDb({ vendor, records, paymentRecords }: { vendo
   const [profileSaving, setProfileSaving] = useState(false);
   const [profileMessage, setProfileMessage] = useState('');
   const [expandedRecordIds, setExpandedRecordIds] = useState<string[]>([]);
+  const [historyKeyword, setHistoryKeyword] = useState('');
+  const [historySort, setHistorySort] = useState<'project-asc' | 'project-desc' | 'amount-desc' | 'amount-asc'>('project-asc');
   const [paymentForm, setPaymentForm] = useState<{ projectId: string; projectName: string; paidOn: string; amount: string; note: string } | null>(null);
   const [payments, setPayments] = useState<VendorPaymentRecord[]>(paymentRecords);
 
@@ -58,6 +60,30 @@ export function VendorDetailShellDb({ vendor, records, paymentRecords }: { vendo
     }
     return map;
   }, [payments]);
+
+  const filteredHistoryRecords = useMemo(() => {
+    const keyword = historyKeyword.trim().toLowerCase();
+    const next = records.filter((record) => {
+      if (!keyword) return true;
+      return [record.projectName, record.payableSummary, ...record.sourceItemDetails].join(' ').toLowerCase().includes(keyword);
+    });
+
+    next.sort((a, b) => {
+      switch (historySort) {
+        case 'project-desc':
+          return b.projectName.localeCompare(a.projectName, 'zh-Hant');
+        case 'amount-desc':
+          return (b.unpaidAmount ?? b.adjustedCost) - (a.unpaidAmount ?? a.adjustedCost);
+        case 'amount-asc':
+          return (a.unpaidAmount ?? a.adjustedCost) - (b.unpaidAmount ?? b.adjustedCost);
+        case 'project-asc':
+        default:
+          return a.projectName.localeCompare(b.projectName, 'zh-Hant');
+      }
+    });
+
+    return next;
+  }, [historyKeyword, historySort, records]);
 
   function updateProfileField(field: keyof VendorEditableForm, value: string) {
     setProfileForm((current) => ({ ...current, [field]: value }));
@@ -232,8 +258,23 @@ export function VendorDetailShellDb({ vendor, records, paymentRecords }: { vendo
           <h3 className="text-xl font-semibold text-slate-900">付款紀錄</h3>
           <p className="mt-2 text-sm text-slate-600">這裡是這個廠商在各專案底下的付款紀錄真值。付款狀態由這些紀錄聚合而成；下方查看明細則作為 archive-oriented 的歷史 readback。</p>
         </div>
+        <div className="mb-4 grid gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4 lg:grid-cols-[minmax(0,1fr)_220px] lg:items-end">
+          <label className="block">
+            <span className="mb-1.5 block text-[11px] font-semibold tracking-wide text-slate-500">搜尋付款/歷史紀錄</span>
+            <input type="search" value={historyKeyword} onChange={(event) => setHistoryKeyword(event.target.value)} placeholder="搜尋專案名稱、摘要或發包內容" className="h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400" />
+          </label>
+          <label className="block">
+            <span className="mb-1.5 block text-[11px] font-semibold tracking-wide text-slate-500">排序方式</span>
+            <select value={historySort} onChange={(event) => setHistorySort(event.target.value as typeof historySort)} className="h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400">
+              <option value="project-asc">專案名稱 A → Z</option>
+              <option value="project-desc">專案名稱 Z → A</option>
+              <option value="amount-desc">未付款金額高 → 低</option>
+              <option value="amount-asc">未付款金額低 → 高</option>
+            </select>
+          </label>
+        </div>
         <div className="space-y-4">
-          {records.length ? records.map((record) => {
+          {filteredHistoryRecords.length ? filteredHistoryRecords.map((record) => {
             const projectPayments = paymentMap.get(record.projectId) ?? [];
             const isExpanded = expandedRecordIds.includes(record.id);
             return (
@@ -294,7 +335,7 @@ export function VendorDetailShellDb({ vendor, records, paymentRecords }: { vendo
                 </div>
               </div>
             );
-          }) : <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-5 py-6 text-sm text-slate-500">目前沒有任何 DB 往來紀錄。</div>}
+          }) : <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-5 py-6 text-sm text-slate-500">目前沒有符合條件的 DB 往來紀錄。</div>}
         </div>
       </article>
 
