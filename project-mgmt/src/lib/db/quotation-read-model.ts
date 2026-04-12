@@ -1,9 +1,8 @@
 import {
-  type QuoteCostProject,
   type QuoteImportRecord,
   type QuoteLineItem,
-  quoteCostProjects,
 } from '@/components/quote-cost-data';
+import { quoteCostProjectFixtures } from '@/components/quote-cost-fixtures';
 import { createPhase1DbClient } from '@/lib/db/phase1-client';
 
 export type QuotationReadModelStatus = 'db-read-model' | 'missing-schema-seed-fallback' | 'query-failed-seed-fallback';
@@ -12,8 +11,6 @@ export type QuotationReadModel = {
   quotationImported: boolean;
   quotationImport: QuoteImportRecord | null;
   quotationItems: QuoteLineItem[];
-  reconciliationStatus: QuoteCostProject['reconciliationStatus'];
-  closeStatus: QuoteCostProject['closeStatus'];
   status: QuotationReadModelStatus;
 };
 
@@ -21,18 +18,16 @@ const EMPTY_QUOTATION_READ_MODEL: QuotationReadModel = {
   quotationImported: false,
   quotationImport: null,
   quotationItems: [],
-  reconciliationStatus: '未開始',
-  closeStatus: '未結案',
   status: 'query-failed-seed-fallback',
 };
 
-function buildSeedProjection(project: QuoteCostProject | undefined, status: QuotationReadModelStatus): QuotationReadModel {
+function buildSeedProjection(projectId: string, status: QuotationReadModelStatus): QuotationReadModel {
+  const fixtureProject = quoteCostProjectFixtures.find((project) => project.id === projectId);
+
   return {
-    quotationImported: project?.quotationImported ?? EMPTY_QUOTATION_READ_MODEL.quotationImported,
-    quotationImport: project?.quotationImport ?? EMPTY_QUOTATION_READ_MODEL.quotationImport,
-    quotationItems: project?.quotationItems ?? EMPTY_QUOTATION_READ_MODEL.quotationItems,
-    reconciliationStatus: project?.reconciliationStatus ?? EMPTY_QUOTATION_READ_MODEL.reconciliationStatus,
-    closeStatus: project?.closeStatus ?? EMPTY_QUOTATION_READ_MODEL.closeStatus,
+    quotationImported: fixtureProject?.quotationImported ?? EMPTY_QUOTATION_READ_MODEL.quotationImported,
+    quotationImport: fixtureProject?.quotationImport ?? EMPTY_QUOTATION_READ_MODEL.quotationImport,
+    quotationItems: fixtureProject?.quotationItems ?? EMPTY_QUOTATION_READ_MODEL.quotationItems,
     status,
   };
 }
@@ -130,7 +125,6 @@ async function loadQuotationLineItems(importIds: string[]) {
 }
 
 export async function loadQuotationReadModelIndex(projectIds: string[]): Promise<Map<string, QuotationReadModel>> {
-  const seedById = new Map(quoteCostProjects.map((project) => [project.id, project]));
   const result = new Map<string, QuotationReadModel>();
 
   if (!projectIds.length) return result;
@@ -144,7 +138,7 @@ export async function loadQuotationReadModelIndex(projectIds: string[]): Promise
 
   if (!hasSchema) {
     for (const projectId of projectIds) {
-      result.set(projectId, buildSeedProjection(seedById.get(projectId), 'missing-schema-seed-fallback'));
+      result.set(projectId, buildSeedProjection(projectId, 'missing-schema-seed-fallback'));
     }
     return result;
   }
@@ -170,7 +164,6 @@ export async function loadQuotationReadModelIndex(projectIds: string[]): Promise
     }
 
     for (const projectId of projectIds) {
-      const seedProject = seedById.get(projectId);
       const importRow = importByProjectId.get(projectId);
       result.set(projectId, {
         quotationImported: Boolean(importRow),
@@ -182,8 +175,6 @@ export async function loadQuotationReadModelIndex(projectIds: string[]): Promise
             }
           : null,
         quotationItems: lineItemsByProjectId.get(projectId) ?? [],
-        reconciliationStatus: seedProject?.reconciliationStatus ?? EMPTY_QUOTATION_READ_MODEL.reconciliationStatus,
-        closeStatus: seedProject?.closeStatus ?? EMPTY_QUOTATION_READ_MODEL.closeStatus,
         status: 'db-read-model',
       });
     }
@@ -191,7 +182,7 @@ export async function loadQuotationReadModelIndex(projectIds: string[]): Promise
     return result;
   } catch {
     for (const projectId of projectIds) {
-      result.set(projectId, buildSeedProjection(seedById.get(projectId), 'query-failed-seed-fallback'));
+      result.set(projectId, buildSeedProjection(projectId, 'query-failed-seed-fallback'));
     }
     return result;
   }

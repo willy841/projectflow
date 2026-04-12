@@ -1,12 +1,12 @@
 import { notFound } from "next/navigation";
 import { QuoteCostDetailClient } from "@/components/quote-cost-detail-client";
-import { getQuoteCostProjectByIdWithDbFinancials } from "@/lib/db/financial-flow-adapter";
+import { getCloseoutArchiveProjectById } from "@/lib/db/closeout-archive-source";
 
 export default async function CloseoutDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const project = await getQuoteCostProjectByIdWithDbFinancials(id);
+  const project = await getCloseoutArchiveProjectById(id);
 
-  if (!project || project.projectStatus !== "已結案") {
+  if (!project) {
     notFound();
   }
 

@@ -1,9 +1,9 @@
 import {
-  quoteCostProjects,
   type CostLineItem,
   type CostSourceType,
   type QuoteCostProject,
 } from '@/components/quote-cost-data';
+import { quoteCostProjectFixtures } from '@/components/quote-cost-fixtures';
 
 const TRACE_PROJECT_ID = '11111111-1111-4111-8111-111111111111';
 import { createPhase1DbClient } from '@/lib/db/phase1-client';
@@ -506,7 +506,7 @@ export async function getQuoteCostProjectsWithDbFinancials(): Promise<QuoteCostP
     logQuoteCostTrace('adapter-no-db-connection-string', {
       traceProjectId: TRACE_PROJECT_ID,
     });
-    return quoteCostProjects;
+    return quoteCostProjectFixtures;
   }
 
   try {
@@ -573,14 +573,14 @@ export async function getQuoteCostProjectsWithDbFinancials(): Promise<QuoteCostP
       byProject.get(manualEntry.projectId)?.push(manualEntry.item);
     }
 
-    const seedById = new Map(quoteCostProjects.map((project) => [project.id, project]));
-    const seedByName = new Map(quoteCostProjects.map((project) => [normalizeProjectName(project.projectName), project]));
+    const seedById = new Map(quoteCostProjectFixtures.map((project) => [project.id, project]));
+    const seedByName = new Map(quoteCostProjectFixtures.map((project) => [normalizeProjectName(project.projectName), project]));
 
     if (!dbProjects.length) {
       logQuoteCostTrace('adapter-db-project-source-empty', {
         traceProjectId: TRACE_PROJECT_ID,
       });
-      return quoteCostProjects;
+      return quoteCostProjectFixtures;
     }
 
     const mergedProjects = dbProjects.map((dbProject) => {
@@ -590,8 +590,6 @@ export async function getQuoteCostProjectsWithDbFinancials(): Promise<QuoteCostP
         quotationImported: matchedSeed?.quotationImported ?? false,
         quotationImport: matchedSeed?.quotationImport ?? null,
         quotationItems: matchedSeed?.quotationItems ?? [],
-        reconciliationStatus: matchedSeed?.reconciliationStatus ?? '未開始',
-        closeStatus: matchedSeed?.closeStatus ?? '未結案',
         status: 'missing-schema-seed-fallback' as const,
       };
 
@@ -620,7 +618,7 @@ export async function getQuoteCostProjectsWithDbFinancials(): Promise<QuoteCostP
       traceProjectId: TRACE_PROJECT_ID,
       error: error instanceof Error ? error.message : String(error),
     });
-    return quoteCostProjects;
+    return quoteCostProjectFixtures;
   }
 }
 
