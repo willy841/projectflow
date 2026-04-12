@@ -46,10 +46,16 @@ type CollectionRecordView = {
   note: string;
 };
 
+type VendorPaymentView = {
+  vendorName: string;
+  payableAmount: number;
+  paidAmount: number;
+};
+
 type Props = {
   project: QuoteCostProject;
   mode?: DetailMode;
-  initialProject?: QuoteCostProject & { reconciliationGroups?: ReconciliationGroupView[]; collectionRecords?: CollectionRecordView[] };
+  initialProject?: QuoteCostProject & { reconciliationGroups?: ReconciliationGroupView[]; collectionRecords?: CollectionRecordView[]; vendorPaymentRecords?: VendorPaymentView[] };
 };
 
 type EditableProjectState = QuoteCostProject;
@@ -72,6 +78,7 @@ export function QuoteCostDetailClient({ project, mode = "active", initialProject
   const [reconciliationSyncingKey, setReconciliationSyncingKey] = useState<string | null>(null);
   const [collectionRecords, setCollectionRecords] = useState<CollectionRecordView[]>(initialProject?.collectionRecords ?? []);
   const [collectionForm, setCollectionForm] = useState<{ collectedOn: string; amount: string; note: string } | null>(null);
+  const [vendorPaymentRecords] = useState<VendorPaymentView[]>(initialProject?.vendorPaymentRecords ?? []);
   const [quoteImportIndex, setQuoteImportIndex] = useState(0);
   const [activeArchiveSource, setActiveArchiveSource] = useState<CostSourceType>("設計");
   const quoteImportOptions = sampleQuoteImports[project.id] ?? [project.quotationImport].filter(Boolean);
@@ -343,6 +350,41 @@ export function QuoteCostDetailClient({ project, mode = "active", initialProject
                   </td>
                 </tr>
               ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section className={`rounded-[28px] border p-6 shadow-sm ${isClosedView ? "border-slate-200 bg-white" : "border-slate-200 bg-white"}`}>
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+          <SimpleSectionTitle title="廠商付款狀態" />
+          <p className="text-sm text-slate-500">這裡只做 project 視角 readback；實際付款主入口在 Vendor Data detail。</p>
+        </div>
+        <div className="mt-5 overflow-x-auto rounded-2xl border border-slate-200">
+          <table className="min-w-full divide-y divide-slate-200 text-left text-sm">
+            <thead className="bg-slate-50 text-slate-500">
+              <tr>
+                <th className="px-4 py-3 font-medium">廠商</th>
+                <th className="px-4 py-3 font-medium">目前應付</th>
+                <th className="px-4 py-3 font-medium">已付款</th>
+                <th className="px-4 py-3 font-medium">未付款</th>
+                <th className="px-4 py-3 font-medium">付款狀態</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100 bg-white">
+              {vendorPaymentRecords.map((record) => {
+                const unpaid = Math.max(record.payableAmount - record.paidAmount, 0);
+                const status = record.paidAmount <= 0 ? '未付款' : record.paidAmount < record.payableAmount ? '部分付款' : '已付款';
+                return (
+                  <tr key={record.vendorName}>
+                    <td className="px-4 py-3 font-medium text-slate-900">{record.vendorName}</td>
+                    <td className="px-4 py-3 text-slate-700">{formatCurrency(record.payableAmount)}</td>
+                    <td className="px-4 py-3 text-slate-700">{formatCurrency(record.paidAmount)}</td>
+                    <td className="px-4 py-3 text-slate-700">{formatCurrency(unpaid)}</td>
+                    <td className="px-4 py-3"><span className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ring-1 ${status === '已付款' ? 'bg-emerald-50 text-emerald-700 ring-emerald-200' : status === '部分付款' ? 'bg-sky-50 text-sky-700 ring-sky-200' : 'bg-amber-50 text-amber-700 ring-amber-200'}`}>{status}</span></td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>

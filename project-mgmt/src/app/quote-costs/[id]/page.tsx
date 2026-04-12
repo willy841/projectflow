@@ -22,5 +22,23 @@ export default async function QuoteCostDetailPage({ params }: { params: Promise<
     notFound();
   }
 
-  return <QuoteCostDetailClient project={project} initialProject={{ ...project, collectionRecords: collectionRows.rows }} mode="active" />;
+  const paymentRows = await db.query<{ vendorName: string; paidAmount: number }>(`
+    select vendor_name as "vendorName", sum(amount)::float8 as "paidAmount"
+    from project_vendor_payment_records
+    where project_id = $1
+    group by vendor_name
+    order by vendor_name asc
+  `, [id]);
+  const paidMap = new Map(paymentRows.rows.map((row) => [row.vendorName, row.paidAmount]));
+  const payableMap = new Map<string, number>();
+  for (const group of project.reconciliationGroups.filter((group) => group.reconciliationStatus === '已對帳')) {
+    payableMap.set(group.vendorName, (payableMap.get(group.vendorName) ?? 0) + group.amountTotal);
+  }
+  const vendorPaymentRows = Array.from(payableMap.entries()).map(([vendorName, payableAmount]) => ({
+    vendorName,
+    payableAmount,
+    paidAmount: paidMap.get(vendorName) ?? 0,
+  }));
+
+  return <QuoteCostDetailClient project={project} initialProject={{ ...project, collectionRecords: collectionRows.rows, vendorPaymentRecords: vendorPaymentRows }} mode="active" />;
 }
