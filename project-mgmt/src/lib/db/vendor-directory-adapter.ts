@@ -32,7 +32,11 @@ function mapVendorRowToProfile(vendor: Awaited<ReturnType<ReturnType<typeof crea
     bankCode: '',
     accountName: vendor.account_name ?? '',
     accountNumber: vendor.account_number ?? '',
-  };
+    laborName: vendor.labor_name ?? '',
+    nationalId: vendor.labor_id_no ?? '',
+    birthDateRoc: vendor.labor_birthday_roc ?? '',
+    unionMembership: vendor.labor_union_membership ?? '',
+  } as VendorBasicProfile;
 }
 
 export async function listDbVendors(): Promise<VendorBasicProfile[]> {

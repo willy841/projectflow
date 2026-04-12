@@ -5,9 +5,46 @@ import { useMemo, useState } from 'react';
 import { formatCurrency, getVendorPaymentStatusClass, type VendorBasicProfile, type VendorProjectRecord } from '@/components/vendor-data';
 import type { VendorPaymentRecord } from '@/lib/db/vendor-directory-adapter';
 
+type VendorEditableForm = {
+  tradeLabel: string;
+  contactName: string;
+  phone: string;
+  email: string;
+  lineId: string;
+  address: string;
+  bankName: string;
+  accountName: string;
+  accountNumber: string;
+  laborName: string;
+  nationalId: string;
+  birthDateRoc: string;
+  unionMembership: string;
+};
+
+function buildVendorEditableForm(vendor: VendorBasicProfile): VendorEditableForm {
+  return {
+    tradeLabel: vendor.tradeLabel || '',
+    contactName: vendor.contactName || '',
+    phone: vendor.phone || '',
+    email: vendor.email || '',
+    lineId: vendor.lineId || '',
+    address: vendor.address || '',
+    bankName: vendor.bankName || '',
+    accountName: vendor.accountName || '',
+    accountNumber: vendor.accountNumber || '',
+    laborName: (vendor as VendorBasicProfile & { laborName?: string }).laborName || '',
+    nationalId: (vendor as VendorBasicProfile & { nationalId?: string }).nationalId || '',
+    birthDateRoc: (vendor as VendorBasicProfile & { birthDateRoc?: string }).birthDateRoc || '',
+    unionMembership: (vendor as VendorBasicProfile & { unionMembership?: string }).unionMembership || '',
+  };
+}
+
 export function VendorDetailShellDb({ vendor, records, paymentRecords }: { vendor: VendorBasicProfile; records: VendorProjectRecord[]; paymentRecords: VendorPaymentRecord[] }) {
   const unpaidRecords = records.filter((record) => record.paymentStatus !== '已付款');
   const totalOutstanding = unpaidRecords.reduce((sum, record) => sum + (record.unpaidAmount ?? record.adjustedCost), 0);
+  const [profileForm, setProfileForm] = useState<VendorEditableForm>(() => buildVendorEditableForm(vendor));
+  const [profileSaving, setProfileSaving] = useState(false);
+  const [profileMessage, setProfileMessage] = useState('');
   const [paymentForm, setPaymentForm] = useState<{ projectId: string; projectName: string; paidOn: string; amount: string; note: string } | null>(null);
   const [payments, setPayments] = useState<VendorPaymentRecord[]>(paymentRecords);
 
@@ -20,6 +57,29 @@ export function VendorDetailShellDb({ vendor, records, paymentRecords }: { vendo
     }
     return map;
   }, [payments]);
+
+  function updateProfileField(field: keyof VendorEditableForm, value: string) {
+    setProfileForm((current) => ({ ...current, [field]: value }));
+    if (profileMessage) setProfileMessage('');
+  }
+
+  async function handleSaveProfile() {
+    setProfileSaving(true);
+    setProfileMessage('');
+    const response = await fetch(`/api/vendors/${vendor.id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(profileForm),
+    });
+    const result = await response.json();
+    setProfileSaving(false);
+    if (!response.ok || !result?.ok) {
+      window.alert(result?.error ?? '儲存廠商資料失敗');
+      return;
+    }
+    setProfileMessage('已儲存，重新整理後已從 DB readback。');
+    window.location.reload();
+  }
 
   async function handleCreatePayment() {
     if (!paymentForm) return;
@@ -79,22 +139,49 @@ export function VendorDetailShellDb({ vendor, records, paymentRecords }: { vendo
 
       <section className="grid gap-6 xl:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] xl:items-start">
         <article className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
-          <div className="mb-5">
-            <h3 className="text-xl font-semibold text-slate-900">廠商資訊</h3>
+          <div className="mb-5 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+            <div>
+              <h3 className="text-xl font-semibold text-slate-900">廠商資訊</h3>
+              <p className="mt-2 text-sm text-slate-600">這裡現在已改為 Vendor master DB 寫入入口，儲存後會重新從 DB readback。</p>
+            </div>
+            <div className="flex items-center gap-3">
+              {profileMessage ? <p className="text-xs text-emerald-700">{profileMessage}</p> : null}
+              <button type="button" onClick={handleSaveProfile} disabled={profileSaving} className="inline-flex items-center justify-center rounded-2xl border border-slate-900 bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60">{profileSaving ? '儲存中…' : '儲存廠商資料'}</button>
+            </div>
           </div>
           <div className="grid gap-4 md:grid-cols-2">
             {[
-              ['聯絡人', vendor.contactName || '未填寫'],
-              ['電話', vendor.phone || '未填寫'],
-              ['Email', vendor.email || '未填寫'],
-              ['LINE', vendor.lineId || '未填寫'],
-              ['地址', vendor.address || '未填寫'],
-              ['銀行', vendor.bankName || '未填寫'],
-              ['戶名', vendor.accountName || '未填寫'],
-              ['帳號', vendor.accountNumber || '未填寫'],
-            ].map(([label, value]) => (
-              <div key={label} className="rounded-2xl bg-slate-50 p-4"><p className="text-sm text-slate-500">{label}</p><p className="mt-2 text-sm font-medium text-slate-900">{value}</p></div>
+              ['工種', 'tradeLabel', '請輸入工種，例如：輸出'],
+              ['聯絡人', 'contactName', '請輸入聯絡人'],
+              ['電話', 'phone', '請輸入電話'],
+              ['Email', 'email', '請輸入 Email'],
+              ['LINE', 'lineId', '請輸入 LINE'],
+              ['地址', 'address', '請輸入地址'],
+              ['銀行', 'bankName', '請輸入銀行名稱'],
+              ['戶名', 'accountName', '請輸入戶名'],
+              ['帳號', 'accountNumber', '請輸入帳號'],
+            ].map(([label, field, placeholder]) => (
+              <label key={String(field)} className="rounded-2xl bg-slate-50 p-4">
+                <p className="text-sm text-slate-500">{label}</p>
+                <input value={profileForm[field as keyof VendorEditableForm]} onChange={(event) => updateProfileField(field as keyof VendorEditableForm, event.target.value)} placeholder={String(placeholder)} className="mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400" />
+              </label>
             ))}
+          </div>
+          <div className="mt-6 rounded-3xl border border-slate-200 bg-slate-50/60 p-5">
+            <h4 className="text-base font-semibold text-slate-900">勞報資訊</h4>
+            <div className="mt-4 grid gap-4 md:grid-cols-2">
+              {[
+                ['勞報姓名', 'laborName', '請輸入勞報姓名'],
+                ['身分證字號', 'nationalId', '請輸入身分證字號'],
+                ['出生年月日（民國）', 'birthDateRoc', '例如：78/05/21'],
+                ['參加工會', 'unionMembership', '請輸入公會或會員資訊'],
+              ].map(([label, field, placeholder]) => (
+                <label key={String(field)} className="rounded-2xl bg-white p-4 ring-1 ring-slate-200">
+                  <p className="text-sm text-slate-500">{label}</p>
+                  <input value={profileForm[field as keyof VendorEditableForm]} onChange={(event) => updateProfileField(field as keyof VendorEditableForm, event.target.value)} placeholder={String(placeholder)} className="mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400" />
+                </label>
+              ))}
+            </div>
           </div>
         </article>
 
