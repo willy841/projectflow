@@ -3,8 +3,6 @@ import {
   type CostLineItem,
   type CostSourceType,
   type QuoteCostProject,
-  type QuoteImportRecord,
-  type QuoteLineItem,
 } from '@/components/quote-cost-data';
 
 const TRACE_PROJECT_ID = '11111111-1111-4111-8111-111111111111';
@@ -12,15 +10,7 @@ import { createPhase1DbClient } from '@/lib/db/phase1-client';
 import { shouldUseDbDesignFlow } from '@/lib/db/design-flow-toggle';
 import { shouldUseDbProcurementFlow } from '@/lib/db/procurement-flow-toggle';
 import { shouldUseDbVendorFlow } from '@/lib/db/vendor-flow-toggle';
-
-const EMPTY_QUOTE_PROJECT_FIELDS = {
-  quotationImported: false,
-  quotationImport: null,
-  reconciliationStatus: '未開始' as const,
-  closeStatus: '未結案' as const,
-  quotationItems: [],
-  note: '正式 Financial project source，尚未套用 seed 報價資料。',
-};
+import { loadQuotationReadModelIndex, type QuotationReadModel } from '@/lib/db/quotation-read-model';
 
 type DbFinancialProjectIdentity = {
   id: string;
@@ -32,27 +22,12 @@ type DbFinancialProjectIdentity = {
   latestFinancialActivityAt: string;
 };
 
-type QuoteSeedProjection = Pick<
-  QuoteCostProject,
-  'quotationImported' | 'quotationImport' | 'quotationItems' | 'reconciliationStatus' | 'closeStatus'
->;
-
 function normalizeProjectName(value: string) {
   return value.replace(/\s+/g, '').trim().toLowerCase();
 }
 
 function logQuoteCostTrace(stage: string, payload: Record<string, unknown>) {
   console.info(`[quote-costs][trace] ${stage}`, payload);
-}
-
-function resolveQuoteSeedProjection(project: QuoteCostProject | undefined): QuoteSeedProjection {
-  return {
-    quotationImported: project?.quotationImported ?? EMPTY_QUOTE_PROJECT_FIELDS.quotationImported,
-    quotationImport: project?.quotationImport ?? EMPTY_QUOTE_PROJECT_FIELDS.quotationImport,
-    quotationItems: project?.quotationItems ?? EMPTY_QUOTE_PROJECT_FIELDS.quotationItems,
-    reconciliationStatus: project?.reconciliationStatus ?? EMPTY_QUOTE_PROJECT_FIELDS.reconciliationStatus,
-    closeStatus: project?.closeStatus ?? EMPTY_QUOTE_PROJECT_FIELDS.closeStatus,
-  };
 }
 
 function mergeDbAndSeedCostItems(seedProject: QuoteCostProject | undefined, dbItems: CostLineItem[]) {
@@ -65,16 +40,18 @@ function mergeDbAndSeedCostItems(seedProject: QuoteCostProject | undefined, dbIt
 }
 
 function buildFinancialProjectNote({
-  hasSeedQuotationFallback,
+  quotationReadModel,
   hasSeedCostFallback,
 }: {
-  hasSeedQuotationFallback: boolean;
+  quotationReadModel: QuotationReadModel;
   hasSeedCostFallback: boolean;
 }) {
   const notes = ['正式 Financial project source'];
 
-  if (hasSeedQuotationFallback) {
-    notes.push('quotation 正式 DB read model 尚未到位，暫以既有 seed projection 補位');
+  if (quotationReadModel.status === 'missing-schema-seed-fallback') {
+    notes.push('quotation 正式 DB schema/read model 尚未存在，暫由獨立 quotation read-model 邊界承接 seed projection');
+  } else if (quotationReadModel.status === 'seed-only-fallback') {
+    notes.push('quotation DB schema 已可探測，但正式 query/readback 尚未實作，暫由獨立 quotation read-model 邊界保留 seed projection');
   }
 
   if (hasSeedCostFallback) {
@@ -87,15 +64,15 @@ function buildFinancialProjectNote({
 function buildMergedFinancialProject({
   dbProject,
   matchedSeed,
+  quotationReadModel,
   dbItems,
 }: {
   dbProject: DbFinancialProjectIdentity;
   matchedSeed?: QuoteCostProject;
+  quotationReadModel: QuotationReadModel;
   dbItems: CostLineItem[];
 }): QuoteCostProject {
-  const quoteSeedProjection = resolveQuoteSeedProjection(matchedSeed);
   const mergedCostItems = mergeDbAndSeedCostItems(matchedSeed, dbItems);
-  const hasSeedQuotationFallback = quoteSeedProjection.quotationImported || quoteSeedProjection.quotationItems.length > 0;
   const hasSeedCostFallback = Boolean(matchedSeed) && mergedCostItems.length > dbItems.length;
 
   return {
@@ -105,14 +82,14 @@ function buildMergedFinancialProject({
     clientName: matchedSeed?.clientName ?? dbProject.clientName,
     eventDate: dbProject.eventDate,
     projectStatus: dbProject.projectStatus,
-    quotationImported: quoteSeedProjection.quotationImported,
-    quotationImport: quoteSeedProjection.quotationImport as QuoteImportRecord | null,
-    reconciliationStatus: quoteSeedProjection.reconciliationStatus,
-    closeStatus: dbProject.projectStatus === '已結案' ? '已結案' : quoteSeedProjection.closeStatus,
-    quotationItems: quoteSeedProjection.quotationItems as QuoteLineItem[],
+    quotationImported: quotationReadModel.quotationImported,
+    quotationImport: quotationReadModel.quotationImport,
+    reconciliationStatus: quotationReadModel.reconciliationStatus,
+    closeStatus: dbProject.projectStatus === '已結案' ? '已結案' : quotationReadModel.closeStatus,
+    quotationItems: quotationReadModel.quotationItems,
     costItems: mergedCostItems,
     note: buildFinancialProjectNote({
-      hasSeedQuotationFallback,
+      quotationReadModel,
       hasSeedCostFallback,
     }),
   };
@@ -496,11 +473,12 @@ export async function getQuoteCostProjectsWithDbFinancials(): Promise<QuoteCostP
       projectStatus: traceDbProject?.projectStatus ?? null,
     });
 
-    const [designItems, procurementItems, vendorItems, manualItems] = await Promise.all([
+    const [designItems, procurementItems, vendorItems, manualItems, quotationReadModelIndex] = await Promise.all([
       loadFinancialItemsSafely('design', listDesignFinancialItems, [] as CostLineItem[]),
       loadFinancialItemsSafely('procurement', listProcurementFinancialItems, [] as CostLineItem[]),
       loadFinancialItemsSafely('vendor', listVendorFinancialItems, [] as CostLineItem[]),
       loadFinancialItemsSafely('manual', listManualFinancialItems, [] as Array<{ projectId: string; item: CostLineItem }>),
+      loadQuotationReadModelIndex(dbProjects.map((project) => project.id)),
     ]);
 
     const byProject = new Map<string, CostLineItem[]>();
@@ -559,10 +537,19 @@ export async function getQuoteCostProjectsWithDbFinancials(): Promise<QuoteCostP
     const mergedProjects = dbProjects.map((dbProject) => {
       const matchedSeed = seedById.get(dbProject.id) ?? seedByName.get(normalizeProjectName(dbProject.projectName));
       const dbItems = byProject.get(dbProject.id) ?? [];
+      const quotationReadModel = quotationReadModelIndex.get(dbProject.id) ?? {
+        quotationImported: matchedSeed?.quotationImported ?? false,
+        quotationImport: matchedSeed?.quotationImport ?? null,
+        quotationItems: matchedSeed?.quotationItems ?? [],
+        reconciliationStatus: matchedSeed?.reconciliationStatus ?? '未開始',
+        closeStatus: matchedSeed?.closeStatus ?? '未結案',
+        status: 'missing-schema-seed-fallback' as const,
+      };
 
       return buildMergedFinancialProject({
         dbProject,
         matchedSeed,
+        quotationReadModel,
         dbItems,
       });
     });
