@@ -45,6 +45,7 @@ export function VendorDetailShellDb({ vendor, records, paymentRecords }: { vendo
   const [profileForm, setProfileForm] = useState<VendorEditableForm>(() => buildVendorEditableForm(vendor));
   const [profileSaving, setProfileSaving] = useState(false);
   const [profileMessage, setProfileMessage] = useState('');
+  const [expandedRecordIds, setExpandedRecordIds] = useState<string[]>([]);
   const [paymentForm, setPaymentForm] = useState<{ projectId: string; projectName: string; paidOn: string; amount: string; note: string } | null>(null);
   const [payments, setPayments] = useState<VendorPaymentRecord[]>(paymentRecords);
 
@@ -79,6 +80,10 @@ export function VendorDetailShellDb({ vendor, records, paymentRecords }: { vendo
     }
     setProfileMessage('已儲存，重新整理後已從 DB readback。');
     window.location.reload();
+  }
+
+  function toggleExpandedRecord(id: string) {
+    setExpandedRecordIds((current) => (current.includes(id) ? current.filter((item) => item !== id) : [...current, id]));
   }
 
   async function handleCreatePayment() {
@@ -225,11 +230,12 @@ export function VendorDetailShellDb({ vendor, records, paymentRecords }: { vendo
       <article className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
         <div className="mb-5">
           <h3 className="text-xl font-semibold text-slate-900">付款紀錄</h3>
-          <p className="mt-2 text-sm text-slate-600">這裡是這個廠商在各專案底下的付款紀錄真值。付款狀態由這些紀錄聚合而成。</p>
+          <p className="mt-2 text-sm text-slate-600">這裡是這個廠商在各專案底下的付款紀錄真值。付款狀態由這些紀錄聚合而成；下方查看明細則作為 archive-oriented 的歷史 readback。</p>
         </div>
         <div className="space-y-4">
           {records.length ? records.map((record) => {
             const projectPayments = paymentMap.get(record.projectId) ?? [];
+            const isExpanded = expandedRecordIds.includes(record.id);
             return (
               <div key={record.id} className="rounded-3xl border border-slate-200 bg-slate-50/70 p-5">
                 <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
@@ -239,12 +245,39 @@ export function VendorDetailShellDb({ vendor, records, paymentRecords }: { vendo
                       <span className="inline-flex h-8 items-center rounded-full bg-slate-100 px-3 text-xs font-medium text-slate-700 ring-1 ring-slate-200">{record.projectStatus}</span>
                       <span className={`inline-flex h-8 items-center rounded-full px-3 text-xs font-medium ring-1 ${getVendorPaymentStatusClass(record.paymentStatus)}`}>{record.paymentStatus}</span>
                     </div>
+                    <p className="mt-2 text-sm text-slate-500">{record.payableSummary}</p>
                   </div>
-                  <div className="text-left xl:text-right">
-                    <p className="text-sm text-slate-500">目前應付 / 未付款</p>
-                    <p className="text-2xl font-semibold tracking-tight text-slate-900">{record.adjustedCostLabel} / {formatCurrency(record.unpaidAmount ?? record.adjustedCost)}</p>
+                  <div className="flex flex-wrap items-center gap-3 xl:justify-end">
+                    <div className="text-left xl:text-right">
+                      <p className="text-sm text-slate-500">目前應付 / 未付款</p>
+                      <p className="text-2xl font-semibold tracking-tight text-slate-900">{record.adjustedCostLabel} / {formatCurrency(record.unpaidAmount ?? record.adjustedCost)}</p>
+                    </div>
+                    <button type="button" onClick={() => toggleExpandedRecord(record.id)} className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 transition hover:bg-slate-100">{isExpanded ? '收合明細' : '查看明細'}</button>
                   </div>
                 </div>
+                {isExpanded ? (
+                  <div className="mt-5 grid gap-4 xl:grid-cols-2">
+                    <div className="rounded-2xl bg-white p-4 ring-1 ring-slate-200">
+                      <p className="text-sm font-semibold text-slate-900">成本明細</p>
+                      <div className="mt-3 space-y-3">
+                        {record.costBreakdown.map((item) => (
+                          <div key={`${record.id}-${item.label}`} className="flex items-center justify-between gap-3 text-sm">
+                            <span className="text-slate-600">{item.label}</span>
+                            <span className="font-medium text-slate-900">{item.amount}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="rounded-2xl bg-white p-4 ring-1 ring-slate-200">
+                      <p className="text-sm font-semibold text-slate-900">發包內容明細</p>
+                      <ul className="mt-3 space-y-2 text-sm text-slate-600">
+                        {record.sourceItemDetails.map((item) => (
+                          <li key={`${record.id}-${item}`} className="rounded-2xl bg-slate-50 px-3 py-2">• {item}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+                ) : null}
                 <div className="mt-5 space-y-3">
                   {projectPayments.length ? projectPayments.map((payment) => (
                     <div key={payment.id} className="flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-white px-4 py-3 ring-1 ring-slate-200">
