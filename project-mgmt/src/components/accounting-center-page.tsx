@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { ReactNode, useMemo, useState } from "react";
 import { AppShell } from "@/components/app-shell";
 
@@ -352,6 +353,10 @@ export function AccountingCenterPage({
   initialEmployeeRoster?: EmployeeRoster[];
   initialPersonnelRecords?: Array<{ employeeId: string; name: string; employeeType: 'full-time' | 'part-time'; salaryMonth: string; payloadJson: Record<string, unknown> }>;
 } = {}) {
+  const searchParams = useSearchParams();
+  const initialWorkspaceTab = searchParams.get('workspaceTab') === 'operating-expenses' ? 'operating-expenses' : 'active-projects';
+  const initialExpenseTab = searchParams.get('expenseTab') === 'personnel' || searchParams.get('expenseTab') === 'office' || searchParams.get('expenseTab') === 'other' || searchParams.get('expenseTab') === 'editor' ? searchParams.get('expenseTab') as "personnel" | "office" | "other" | "editor" : 'personnel';
+
   const [workspaceMonth, setWorkspaceMonth] = useState<string>(initialWorkspaceMonth);
   const [revenueMonth, setRevenueMonth] = useState<string>(initialRevenueMonth);
   const [employeeFilter, setEmployeeFilter] = useState<FormEmployeeType>("full-time");
@@ -360,8 +365,8 @@ export function AccountingCenterPage({
   const [editingEmployeeId, setEditingEmployeeId] = useState<string | null>(null);
   const [personnelViewMode, setPersonnelViewMode] = useState<"preview" | "edit">("preview");
   const [recordDrawer, setRecordDrawer] = useState<{ type: "full-time" | "part-time" | "office" | "other"; id: string } | null>(null);
-  const [workspaceTab, setWorkspaceTab] = useState<"active-projects" | "operating-expenses">("active-projects");
-  const [expenseTab, setExpenseTab] = useState<"personnel" | "office" | "other" | "editor">("personnel");
+  const [workspaceTab, setWorkspaceTab] = useState<"active-projects" | "operating-expenses">(initialWorkspaceTab);
+  const [expenseTab, setExpenseTab] = useState<"personnel" | "office" | "other" | "editor">(initialExpenseTab);
   const [expenseEditorTab, setExpenseEditorTab] = useState<"personnel" | "office" | "other">("personnel");
   const [revenueMode, setRevenueMode] = useState<RevenueMode>("month");
   const [rangeStart, setRangeStart] = useState("2026-03");
@@ -1470,7 +1475,7 @@ function ModalActions({ onCancel, onSubmit, submitLabel }: { onCancel: () => voi
 function DrawerShell({ title, children, onClose }: { title: string; children: ReactNode; onClose: () => void }) {
   return (
     <div className="fixed inset-0 z-50 flex justify-end bg-slate-950/25">
-      <div className="h-full w-full max-w-2xl overflow-y-auto bg-white p-6 shadow-2xl ring-1 ring-slate-200">
+      <div data-testid="record-drawer" className="h-full w-full max-w-2xl overflow-y-auto bg-white p-6 shadow-2xl ring-1 ring-slate-200">
         <div className="flex items-center justify-between gap-3">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">查看詳情 / drawer</p>
@@ -1527,16 +1532,16 @@ function renderDrawerContent(
     const record = source.partTimeRecords.find((item) => item.id === drawer.id);
     if (!record) return <p className="text-sm text-slate-500">找不到這筆兼職記錄。</p>;
     return (
-      <>
-        <ReadOnlyPair label="姓名" value={record.name} />
-        <ReadOnlyPair label="類型" value="兼職" />
-        <ReadOnlyPair label="薪資日期" value={record.salaryMonth} />
+      <div data-testid="part-time-drawer-content">
+        <div data-testid="part-time-drawer-name"><ReadOnlyPair label="姓名" value={record.name} /></div>
+        <div data-testid="part-time-drawer-type"><ReadOnlyPair label="類型" value="兼職" /></div>
+        <div data-testid="part-time-drawer-salary-month"><ReadOnlyPair label="薪資日期" value={record.salaryMonth} /></div>
         <DetailGroup title="兼職薪資摘要區">
-          <SummaryLine label="本月工作時數" value={`${record.hours} 小時`} />
-          <SummaryLine label="每小時薪資金額" value={formatCurrency(record.hourlyRate)} />
-          <SummaryLine label="本月應支金額" value={formatCurrency(calculatePartTimePay(record))} emphasize />
+          <div data-testid="part-time-drawer-hours"><SummaryLine label="本月工作時數" value={`${record.hours} 小時`} /></div>
+          <div data-testid="part-time-drawer-hourly-rate"><SummaryLine label="每小時薪資金額" value={formatCurrency(record.hourlyRate)} /></div>
+          <div data-testid="part-time-drawer-total-cost"><SummaryLine label="本月應支金額" value={formatCurrency(calculatePartTimePay(record))} emphasize /></div>
         </DetailGroup>
-      </>
+      </div>
     );
   }
 

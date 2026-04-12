@@ -15,7 +15,7 @@ async function queryDb<T = Record<string, unknown>>(sql: string, params: unknown
 }
 
 test.describe('Accounting personnel E2E PT flow', () => {
-  test('E2E PT submit -> DB row -> delete inactive', async ({ page }) => {
+  test('E2E PT submit -> list -> drawer -> delete inactive', async ({ page }) => {
     test.setTimeout(120_000);
 
     const employeeRows = await queryDb<{ id: string; name: string }>(
@@ -27,7 +27,6 @@ test.describe('Accounting personnel E2E PT flow', () => {
     await page.goto('/accounting-center');
     await expect(page.getByRole('heading', { name: '帳務中心' })).toBeVisible();
 
-    await page.getByRole('button', { name: '帳務管理' }).isVisible().catch(() => {});
     await page.getByRole('button', { name: '管銷成本' }).click();
     await page.getByRole('button', { name: '管銷編輯' }).click();
     await page.getByRole('button', { name: '兼職員工' }).click();
@@ -39,6 +38,7 @@ test.describe('Accounting personnel E2E PT flow', () => {
     await expect(page.getByTestId(`personnel-hours-${employeeId}`)).toBeVisible();
     await page.getByTestId(`personnel-hours-${employeeId}`).fill('12');
     await page.getByTestId(`personnel-hourly-${employeeId}`).fill('280');
+
     const submitButton = page.getByTestId(`personnel-${employeeId}-submit`);
     await expect(submitButton).toBeEnabled();
     await submitButton.click();
@@ -54,10 +54,22 @@ test.describe('Accounting personnel E2E PT flow', () => {
       return submittedRows[0]?.payload_json ?? null;
     }, { timeout: 15000 }).toMatchObject({ hours: 12, hourlyRate: 280, totalCost: 3360 });
 
-    await page.getByRole('button', { name: '人事' }).click();
+    await page.getByRole('button', { name: '人事', exact: true }).click();
+    await expect(page.getByText('E2E PT')).toBeVisible();
     await expect(page.getByText('12 小時')).toBeVisible();
     await expect(page.getByText('$280')).toBeVisible();
     await expect(page.getByText('$3,360')).toBeVisible();
+
+    const e2eRow = page.getByRole('row', { name: /E2E PT.*12 小時.*\$280.*\$3,360/ });
+    await expect(e2eRow).toBeVisible();
+    await e2eRow.getByRole('button', { name: '查看詳情' }).click();
+    const drawer = page.getByTestId('record-drawer');
+    await expect(drawer.getByRole('heading', { name: '兼職記錄詳情' })).toBeVisible();
+    await expect(drawer.getByTestId('part-time-drawer-name')).toContainText('E2E PT');
+    await expect(drawer.getByTestId('part-time-drawer-hours')).toContainText('12 小時');
+    await expect(drawer.getByTestId('part-time-drawer-hourly-rate')).toContainText('$280');
+    await expect(drawer.getByTestId('part-time-drawer-total-cost')).toContainText('$3,360');
+    await drawer.getByRole('button', { name: '關閉' }).click();
 
     await page.getByRole('button', { name: '管銷編輯' }).click();
     await page.getByRole('button', { name: '兼職員工' }).click();
@@ -65,11 +77,14 @@ test.describe('Accounting personnel E2E PT flow', () => {
     await page.getByTestId(`personnel-card-${employeeId}`).getByTestId(`personnel-delete-${employeeId}`).click();
     await page.waitForLoadState('networkidle');
 
-    const inactiveRows = await queryDb<{ is_active: boolean }>(
-      `select is_active from accounting_personnel_employees where id = $1`,
-      [employeeId],
-    );
-    expect(inactiveRows[0]?.is_active).toBe(false);
+    await expect.poll(async () => {
+      const inactiveRows = await queryDb<{ is_active: boolean }>(
+        `select is_active from accounting_personnel_employees where id = $1`,
+        [employeeId],
+      );
+      return inactiveRows[0]?.is_active;
+    }, { timeout: 15000 }).toBe(false);
+
     await expect(page.getByTestId(`personnel-card-${employeeId}`)).toHaveCount(0);
   });
 });

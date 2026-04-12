@@ -118,7 +118,7 @@ export function AccountingPersonnelEditor({ month, employees, records }: Props) 
         window.alert(result?.error ?? '送出失敗');
         return;
       }
-      window.location.reload();
+      window.location.href = '/accounting-center?workspaceTab=operating-expenses&expenseTab=personnel';
     } finally {
       setSaving(false);
     }
