@@ -306,6 +306,22 @@
 - 但若涉及較深層的 DB-first / payable lifecycle / month close / Accounting Center 判斷，仍需同步回查 `MD76`、`MD78`、`MD80`～`MD86`
 - 若 `MD100`～`MD107` 與更早期 handoff 在語意或責任邊界上衝突，優先以 `MD100`～`MD107` 與本母檔最新補充為準
 
+### Q. 2026-04-13 DB-first 實作總批次藍圖（最新版）
+- 已新增：`MD108-projectflow-db-first-implementation-batch-plan-2026-04-13.md`
+- 這份文件的重要性在於：
+  - 它不是單一模組 spec，而是下一階段 DB-first / same-source closure / 功能補完的總執行地圖
+  - 目的是把大範圍工程拆成可在 context 壓力下穩定推進的批次 work packages
+- 本輪正式建議批次順序為：
+  1. Vendor Data same-source closure
+  2. Quote-cost reconciliation / payable / closeout ingress closure
+  3. Closeout retained read-model / performance closure
+  4. Upstream + execution lines write/read closure
+  5. Home overview active aggregation closure（排除本月金額）
+- 正式規則：
+  - 每一批都要以獨立 work package + closure handoff 推進
+  - 每一批都必須符合「frontend 實際操作 + backend DB truth comparison」驗收標準
+  - 首頁總覽中的 `本月專案總額 / 本月金額` 仍屬 Accounting Center 邊界，暫不正式對接
+
 ## 快速續接閱讀順序速查表（2026-04-08）
 
 ### 若要續接上游主線
