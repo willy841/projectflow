@@ -35,7 +35,7 @@ export async function getCloseoutListReadModel(): Promise<CloseoutListRow[]> {
       select
         project_id,
         coalesce(sum(amount) filter (where included_in_cost = true), 0)::float8 as total
-      from financial_manual_cost_items
+      from financial_manual_costs
       group by project_id
     ),
     quotation_totals as (
