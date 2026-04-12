@@ -1,6 +1,15 @@
 import { createPhase1DbClient } from '@/lib/db/phase1-client';
 import { createPhase1Repositories } from '@/lib/db/phase1-repositories';
 import type { VendorBasicProfile, VendorProjectRecord } from '@/components/vendor-data';
+
+export type VendorPaymentRecord = {
+  id: string;
+  projectId: string;
+  vendorName: string;
+  paidOn: string;
+  amount: number;
+  note: string;
+};
 import { listDbVendorPackages } from '@/lib/db/vendor-package-adapter';
 import { listDbVendorTasksByProject } from '@/lib/db/vendor-flow-adapter';
 import { getVendorFinancialSummary } from '@/lib/db/vendor-financial-adapter';
@@ -52,13 +61,27 @@ export async function getDbVendorById(id: string): Promise<VendorBasicProfile | 
   };
 }
 
+export async function listDbVendorPaymentRecordsByVendorId(vendorId: string): Promise<VendorPaymentRecord[]> {
+  const vendor = await getDbVendorById(vendorId);
+  if (!vendor) return [];
+  const db = createPhase1DbClient();
+  const result = await db.query<VendorPaymentRecord>(`
+    select id, project_id as "projectId", vendor_name as "vendorName", to_char(paid_on, 'YYYY-MM-DD') as "paidOn", amount::float8 as amount, coalesce(note, '') as note
+    from project_vendor_payment_records
+    where vendor_name = $1
+    order by paid_on desc, created_at desc
+  `, [vendor.name]);
+  return result.rows;
+}
+
 export async function listDbVendorProjectRecordsByVendorId(vendorId: string): Promise<VendorProjectRecord[]> {
   const vendor = await getDbVendorById(vendorId);
   if (!vendor) return [];
 
-  const [packages, financial] = await Promise.all([
+  const [packages, financial, paymentRecords] = await Promise.all([
     listDbVendorPackages(),
     getVendorFinancialSummary(vendor.name),
+    listDbVendorPaymentRecordsByVendorId(vendorId),
   ]);
 
   const packageByProjectId = new Map(
@@ -74,6 +97,12 @@ export async function listDbVendorProjectRecordsByVendorId(vendorId: string): Pr
         ...financialRecord.costItems.map((item) => item.sourceRef || item.itemName).filter(Boolean),
         ...vendorTasks.map((task) => task.requirementText || task.title).filter(Boolean),
       ];
+
+      const paidAmount = paymentRecords
+        .filter((record) => record.projectId === financialRecord.projectId)
+        .reduce((sum, record) => sum + record.amount, 0);
+      const unpaidAmount = Math.max(financialRecord.adjustedCost - paidAmount, 0);
+      const paymentStatus = paidAmount <= 0 ? '未付款' : paidAmount < financialRecord.adjustedCost ? '部分付款' : '已付款';
 
       return {
         id: pkg?.id ?? `vendor-record-${financialRecord.projectId}-${vendorId}`,
@@ -102,10 +131,12 @@ export async function listDbVendorProjectRecordsByVendorId(vendorId: string): Pr
               amount: `NT$ ${item.adjustedAmount.toLocaleString('zh-TW')}`,
             }))
           : [{ label: '尚無已對帳成本', amount: 'NT$ 0' }],
-        paymentStatus: financialRecord.adjustedCost > 0 ? '未付款' : '已付款',
+        paymentStatus,
         hasUnreconciledGroups: financialRecord.hasUnreconciledGroups,
         reconciliationWarning: financialRecord.hasUnreconciledGroups ? '此專案內該廠商尚未全部對帳' : null,
         packageId: pkg?.id,
+        paidAmount,
+        unpaidAmount,
       } satisfies VendorProjectRecord;
     }),
   );

@@ -1,6 +1,6 @@
 export type VendorAssignmentStatus = "draft" | "done";
 export type VendorDocumentStatus = "未生成" | "已生成" | "需更新";
-export type VendorPaymentStatus = "未付款" | "已付款";
+export type VendorPaymentStatus = "未付款" | "部分付款" | "已付款";
 
 export type VendorReply = {
   id: string;
@@ -82,6 +82,8 @@ export type VendorProjectRecord = {
     amount: string;
   }>;
   paymentStatus: VendorPaymentStatus;
+  paidAmount?: number;
+  unpaidAmount?: number;
   hasUnreconciledGroups?: boolean;
   reconciliationWarning?: string | null;
   packageId?: string;
@@ -102,9 +104,9 @@ export function getVendorDocumentStatusClass(status: VendorDocumentStatus) {
 }
 
 export function getVendorPaymentStatusClass(status: VendorPaymentStatus) {
-  return status === "已付款"
-    ? "bg-emerald-50 text-emerald-700 ring-emerald-200"
-    : "bg-amber-50 text-amber-700 ring-amber-200";
+  if (status === "已付款") return "bg-emerald-50 text-emerald-700 ring-emerald-200";
+  if (status === "部分付款") return "bg-sky-50 text-sky-700 ring-sky-200";
+  return "bg-amber-50 text-amber-700 ring-amber-200";
 }
 
 export const vendorAssignments: VendorAssignment[] = [

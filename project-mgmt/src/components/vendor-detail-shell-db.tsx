@@ -1,9 +1,64 @@
-import Link from 'next/link';
-import { formatCurrency, getVendorPaymentStatusClass, type VendorBasicProfile, type VendorProjectRecord } from '@/components/vendor-data';
+"use client";
 
-export function VendorDetailShellDb({ vendor, records }: { vendor: VendorBasicProfile; records: VendorProjectRecord[] }) {
-  const unpaidRecords = records.filter((record) => record.paymentStatus === '未付款');
-  const totalOutstanding = unpaidRecords.reduce((sum, record) => sum + record.adjustedCost, 0);
+import Link from 'next/link';
+import { useMemo, useState } from 'react';
+import { formatCurrency, getVendorPaymentStatusClass, type VendorBasicProfile, type VendorProjectRecord } from '@/components/vendor-data';
+import type { VendorPaymentRecord } from '@/lib/db/vendor-directory-adapter';
+
+export function VendorDetailShellDb({ vendor, records, paymentRecords }: { vendor: VendorBasicProfile; records: VendorProjectRecord[]; paymentRecords: VendorPaymentRecord[] }) {
+  const unpaidRecords = records.filter((record) => record.paymentStatus !== '已付款');
+  const totalOutstanding = unpaidRecords.reduce((sum, record) => sum + (record.unpaidAmount ?? record.adjustedCost), 0);
+  const [paymentForm, setPaymentForm] = useState<{ projectId: string; projectName: string; paidOn: string; amount: string; note: string } | null>(null);
+  const [payments, setPayments] = useState<VendorPaymentRecord[]>(paymentRecords);
+
+  const paymentMap = useMemo(() => {
+    const map = new Map<string, VendorPaymentRecord[]>();
+    for (const record of payments) {
+      const current = map.get(record.projectId) ?? [];
+      current.push(record);
+      map.set(record.projectId, current);
+    }
+    return map;
+  }, [payments]);
+
+  async function handleCreatePayment() {
+    if (!paymentForm) return;
+    const amount = Number(paymentForm.amount);
+    if (!paymentForm.projectId || !paymentForm.paidOn || Number.isNaN(amount) || amount <= 0) return;
+    const response = await fetch(`/api/vendors/${vendor.id}/payments`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        projectId: paymentForm.projectId,
+        paidOn: paymentForm.paidOn,
+        amount,
+        note: paymentForm.note,
+      }),
+    });
+    const result = await response.json();
+    if (!response.ok || !result?.ok || !result?.id) {
+      window.alert(result?.error ?? '新增付款失敗');
+      return;
+    }
+    setPayments((current) => [
+      { id: result.id, projectId: paymentForm.projectId, vendorName: vendor.name, paidOn: paymentForm.paidOn, amount, note: paymentForm.note },
+      ...current,
+    ]);
+    window.location.reload();
+  }
+
+  async function handleDeletePayment(id: string) {
+    const confirmed = window.confirm('確認刪除這筆付款紀錄？');
+    if (!confirmed) return;
+    const response = await fetch(`/api/vendor-payments/${id}`, { method: 'DELETE' });
+    const result = await response.json();
+    if (!response.ok || !result?.ok) {
+      window.alert(result?.error ?? '刪除付款失敗');
+      return;
+    }
+    setPayments((current) => current.filter((item) => item.id !== id));
+    window.location.reload();
+  }
 
   return (
     <div className="space-y-6">
@@ -12,18 +67,12 @@ export function VendorDetailShellDb({ vendor, records }: { vendor: VendorBasicPr
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-3">
               <h2 className="text-3xl font-semibold tracking-tight text-slate-900">{vendor.name}</h2>
-              <span className="inline-flex rounded-full bg-sky-50 px-3 py-1 text-xs font-medium text-sky-700 ring-1 ring-sky-200">
-                {vendor.tradeLabel || vendor.category || '待補充'}
-              </span>
-              <span className="inline-flex rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700 ring-1 ring-slate-200">
-                DB-first（唯讀）
-              </span>
+              <span className="inline-flex rounded-full bg-sky-50 px-3 py-1 text-xs font-medium text-sky-700 ring-1 ring-sky-200">{vendor.tradeLabel || vendor.category || '待補充'}</span>
+              <span className="inline-flex rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700 ring-1 ring-emerald-200">DB-first 付款主入口</span>
             </div>
           </div>
           <div className="flex flex-wrap gap-3">
-            <Link href="/vendors" className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-800 shadow-sm transition hover:border-slate-400 hover:bg-slate-50">
-              返回廠商列表
-            </Link>
+            <Link href="/vendors" className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-800 shadow-sm transition hover:border-slate-400 hover:bg-slate-50">返回廠商列表</Link>
           </div>
         </div>
       </header>
@@ -44,10 +93,7 @@ export function VendorDetailShellDb({ vendor, records }: { vendor: VendorBasicPr
               ['戶名', vendor.accountName || '未填寫'],
               ['帳號', vendor.accountNumber || '未填寫'],
             ].map(([label, value]) => (
-              <div key={label} className="rounded-2xl bg-slate-50 p-4">
-                <p className="text-sm text-slate-500">{label}</p>
-                <p className="mt-2 text-sm font-medium text-slate-900">{value}</p>
-              </div>
+              <div key={label} className="rounded-2xl bg-slate-50 p-4"><p className="text-sm text-slate-500">{label}</p><p className="mt-2 text-sm font-medium text-slate-900">{value}</p></div>
             ))}
           </div>
         </article>
@@ -55,11 +101,9 @@ export function VendorDetailShellDb({ vendor, records }: { vendor: VendorBasicPr
         <article className="rounded-3xl border border-amber-200 bg-amber-50/60 p-6 shadow-sm ring-1 ring-amber-100">
           <div className="mb-5">
             <h3 className="text-xl font-semibold text-slate-900">未付款專案</h3>
-            <p className="mt-2 text-sm text-slate-600">這裡只顯示目前仍在執行中、且尚未付款的專案。主目的為提醒付款與快速篩選；若尚未全部對帳，會同步顯示提醒。</p>
+            <p className="mt-2 text-sm text-slate-600">這裡顯示目前仍有未付款餘額的專案。付款狀態依付款紀錄聚合得出；若尚未全部對帳，warning 仍會保留。</p>
           </div>
-          <div className="rounded-2xl bg-white px-4 py-3 text-sm text-slate-700 ring-1 ring-amber-200">
-            <p className="font-semibold text-slate-900">未付款總額 {formatCurrency(totalOutstanding)}</p>
-          </div>
+          <div className="rounded-2xl bg-white px-4 py-3 text-sm text-slate-700 ring-1 ring-amber-200"><p className="font-semibold text-slate-900">未付款總額 {formatCurrency(totalOutstanding)}</p></div>
           <div className="mt-4 space-y-3">
             {unpaidRecords.length ? unpaidRecords.map((record) => (
               <div key={record.id} className="rounded-2xl border border-amber-200 bg-white p-4 ring-1 ring-amber-100">
@@ -72,13 +116,19 @@ export function VendorDetailShellDb({ vendor, records }: { vendor: VendorBasicPr
                       <span className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ring-1 ${getVendorPaymentStatusClass(record.paymentStatus)}`}>{record.paymentStatus}</span>
                     </div>
                   </div>
-                  <p className="text-xl font-semibold text-slate-900">{record.adjustedCostLabel}</p>
-                </div>
-                {record.reconciliationWarning ? (
-                  <div className="mt-3 rounded-2xl border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800">
-                    {record.reconciliationWarning}
+                  <div className="text-right">
+                    <p className="text-sm text-slate-500">未付款餘額</p>
+                    <p className="text-xl font-semibold text-slate-900">{formatCurrency(record.unpaidAmount ?? record.adjustedCost)}</p>
                   </div>
-                ) : null}
+                </div>
+                <div className="mt-3 grid gap-2 text-sm text-slate-600">
+                  <div className="flex items-center justify-between"><span>目前應付</span><span className="font-medium text-slate-900">{record.adjustedCostLabel}</span></div>
+                  <div className="flex items-center justify-between"><span>已付款</span><span className="font-medium text-slate-900">{formatCurrency(record.paidAmount ?? 0)}</span></div>
+                </div>
+                {record.reconciliationWarning ? <div className="mt-3 rounded-2xl border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800">{record.reconciliationWarning}</div> : null}
+                <div className="mt-4 flex justify-end">
+                  <button type="button" onClick={() => setPaymentForm({ projectId: record.projectId, projectName: record.projectName, paidOn: record.projectStatus === '已結案' ? '' : new Date().toISOString().slice(0, 10), amount: String(record.unpaidAmount ?? record.adjustedCost), note: '' })} className="inline-flex items-center justify-center rounded-2xl border border-slate-900 bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800">登記付款</button>
+                </div>
               </div>
             )) : <div className="rounded-2xl border border-dashed border-amber-300 bg-white px-5 py-6 text-sm text-slate-500">目前沒有未付款專案。</div>}
           </div>
@@ -87,52 +137,68 @@ export function VendorDetailShellDb({ vendor, records }: { vendor: VendorBasicPr
 
       <article className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
         <div className="mb-5">
-          <h3 className="text-xl font-semibold text-slate-900">往來紀錄</h3>
-          <p className="mt-2 text-sm text-slate-600">這裡是歷史存檔與查看明細區。主要用來回看這個廠商在各專案當時到底發包了哪些內容，而不是作為當前付款提醒主區。</p>
+          <h3 className="text-xl font-semibold text-slate-900">付款紀錄</h3>
+          <p className="mt-2 text-sm text-slate-600">這裡是這個廠商在各專案底下的付款紀錄真值。付款狀態由這些紀錄聚合而成。</p>
         </div>
         <div className="space-y-4">
-          {records.length ? records.map((record) => (
-            <div key={record.id} className="rounded-3xl border border-slate-200 bg-slate-50/70 p-5">
-              <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
-                <div className="min-w-0">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <h4 className="flex h-8 items-center text-lg font-semibold text-slate-900">{record.projectName}</h4>
-                    <span className="inline-flex h-8 items-center rounded-full bg-slate-100 px-3 text-xs font-medium text-slate-700 ring-1 ring-slate-200">{record.projectStatus}</span>
-                    <span className={`inline-flex h-8 items-center rounded-full px-3 text-xs font-medium ring-1 ${getVendorPaymentStatusClass(record.paymentStatus)}`}>
-                      {record.paymentStatus}
-                    </span>
+          {records.length ? records.map((record) => {
+            const projectPayments = paymentMap.get(record.projectId) ?? [];
+            return (
+              <div key={record.id} className="rounded-3xl border border-slate-200 bg-slate-50/70 p-5">
+                <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
+                  <div className="min-w-0">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <h4 className="flex h-8 items-center text-lg font-semibold text-slate-900">{record.projectName}</h4>
+                      <span className="inline-flex h-8 items-center rounded-full bg-slate-100 px-3 text-xs font-medium text-slate-700 ring-1 ring-slate-200">{record.projectStatus}</span>
+                      <span className={`inline-flex h-8 items-center rounded-full px-3 text-xs font-medium ring-1 ${getVendorPaymentStatusClass(record.paymentStatus)}`}>{record.paymentStatus}</span>
+                    </div>
+                  </div>
+                  <div className="text-left xl:text-right">
+                    <p className="text-sm text-slate-500">目前應付 / 未付款</p>
+                    <p className="text-2xl font-semibold tracking-tight text-slate-900">{record.adjustedCostLabel} / {formatCurrency(record.unpaidAmount ?? record.adjustedCost)}</p>
                   </div>
                 </div>
-                <div className="text-left xl:text-right">
-                  <p className="text-sm text-slate-500">調整後成本總額</p>
-                  <p className="text-2xl font-semibold tracking-tight text-slate-900">{record.adjustedCostLabel}</p>
-                </div>
-              </div>
-              <div className="mt-5 grid gap-4 xl:grid-cols-2">
-                <div className="rounded-2xl bg-white p-4 ring-1 ring-slate-200">
-                  <p className="text-sm font-semibold text-slate-900">成本明細</p>
-                  <div className="mt-3 space-y-3">
-                    {record.costBreakdown.map((item) => (
-                      <div key={`${record.id}-${item.label}`} className="flex items-center justify-between gap-3 text-sm">
-                        <span className="text-slate-600">{item.label}</span>
-                        <span className="font-medium text-slate-900">{item.amount}</span>
+                <div className="mt-5 space-y-3">
+                  {projectPayments.length ? projectPayments.map((payment) => (
+                    <div key={payment.id} className="flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-white px-4 py-3 ring-1 ring-slate-200">
+                      <div>
+                        <p className="text-sm font-semibold text-slate-900">{payment.paidOn}</p>
+                        <p className="mt-1 text-sm text-slate-600">{payment.note || '—'}</p>
                       </div>
-                    ))}
-                  </div>
-                </div>
-                <div className="rounded-2xl bg-white p-4 ring-1 ring-slate-200">
-                  <p className="text-sm font-semibold text-slate-900">發包內容明細</p>
-                  <ul className="mt-3 space-y-2 text-sm text-slate-600">
-                    {record.sourceItemDetails.map((item) => (
-                      <li key={`${record.id}-${item}`} className="rounded-2xl bg-slate-50 px-3 py-2">• {item}</li>
-                    ))}
-                  </ul>
+                      <div className="flex items-center gap-3">
+                        <p className="text-sm font-semibold text-slate-900">{formatCurrency(payment.amount)}</p>
+                        <button type="button" onClick={() => handleDeletePayment(payment.id)} className="inline-flex items-center justify-center rounded-2xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm font-semibold text-rose-700 transition hover:bg-rose-100">刪除</button>
+                      </div>
+                    </div>
+                  )) : <div className="rounded-2xl border border-dashed border-slate-300 bg-white px-5 py-6 text-sm text-slate-500">目前沒有付款紀錄。</div>}
                 </div>
               </div>
-            </div>
-          )) : <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-5 py-6 text-sm text-slate-500">目前沒有任何 DB 往來紀錄。</div>}
+            );
+          }) : <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-5 py-6 text-sm text-slate-500">目前沒有任何 DB 往來紀錄。</div>}
         </div>
       </article>
+
+      {paymentForm ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/35 px-4">
+          <div className="w-full max-w-xl rounded-3xl bg-white p-6 shadow-2xl ring-1 ring-slate-200">
+            <h3 className="text-xl font-semibold text-slate-900">登記付款</h3>
+            <p className="mt-2 text-sm text-slate-500">{paymentForm.projectName}</p>
+            <div className="mt-5 space-y-4">
+              <Field label="付款日期"><input value={paymentForm.paidOn} onChange={(event) => setPaymentForm((current) => current ? { ...current, paidOn: event.target.value } : current)} className="h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400" /></Field>
+              <Field label="付款金額"><input value={paymentForm.amount} onChange={(event) => setPaymentForm((current) => current ? { ...current, amount: event.target.value } : current)} inputMode="numeric" className="h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400" /></Field>
+              <Field label="備註"><input value={paymentForm.note} onChange={(event) => setPaymentForm((current) => current ? { ...current, note: event.target.value } : current)} className="h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400" /></Field>
+            </div>
+            <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+              <button type="button" onClick={() => setPaymentForm(null)} className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">取消</button>
+              <button type="button" onClick={handleCreatePayment} className="inline-flex items-center justify-center rounded-2xl border border-slate-900 bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800">建立付款</button>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
+}
+
+function Field({ label, children }: { label: string; children: React.ReactNode }) {
+  return <div><p className="mb-1.5 text-sm font-semibold text-slate-700">{label}</p>{children}</div>;
 }
