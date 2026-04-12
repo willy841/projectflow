@@ -39,6 +39,38 @@
 ## 3. Accounting Center / financial 近期 MD 狀態
 
 ### ACTIVE
+- `MD100-projectflow-upstream-usage-scenario-alignment-summary-2026-04-12.md`
+  - 狀態：ACTIVE
+  - 用途：上游 / Project Detail / 任務發布 / 任務檢視使用情境對齊摘要
+
+- `MD101-projectflow-design-line-usage-scenario-alignment-summary-2026-04-13.md`
+  - 狀態：ACTIVE
+  - 用途：設計線使用情境對齊摘要
+
+- `MD102-projectflow-procurement-line-usage-scenario-alignment-summary-2026-04-13.md`
+  - 狀態：ACTIVE
+  - 用途：備品線使用情境對齊摘要
+
+- `MD103-projectflow-vendor-line-usage-scenario-alignment-summary-2026-04-13.md`
+  - 狀態：ACTIVE
+  - 用途：廠商線使用情境對齊摘要
+
+- `MD104-projectflow-quote-cost-line-usage-scenario-alignment-summary-2026-04-13.md`
+  - 狀態：ACTIVE
+  - 用途：報價成本線使用情境對齊摘要
+
+- `MD105-projectflow-vendor-data-usage-scenario-alignment-summary-2026-04-13.md`
+  - 狀態：ACTIVE
+  - 用途：Vendor Data 使用情境對齊摘要
+
+- `MD106-projectflow-closeout-usage-scenario-alignment-summary-2026-04-13.md`
+  - 狀態：ACTIVE
+  - 用途：closeout / 結案紀錄使用情境對齊摘要
+
+- `MD107-projectflow-home-overview-usage-scenario-alignment-summary-2026-04-13.md`
+  - 狀態：ACTIVE
+  - 用途：首頁總覽使用情境對齊摘要
+
 - `MD76-projectflow-client-collection-source-of-truth-and-quote-cost-detail-entry-spec-2026-04-12.md`
   - 狀態：ACTIVE
   - 用途：client collection 主線責任拍板
@@ -117,6 +149,12 @@
 ---
 
 ## 4. 續接建議
+
+### 若要續接使用情境對齊後的主線
+優先讀：
+1. `MD100`
+2. 視模組回查：`MD101`～`MD107`
+3. 若任務涉及既有 DB-first / payable / month-close 判斷，再同步回查：`MD76`、`MD78`、`MD80`～`MD86`
 
 ### 若要續接 Accounting Center
 優先讀：

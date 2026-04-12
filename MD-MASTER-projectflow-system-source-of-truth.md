@@ -141,6 +141,171 @@
   - 剩餘僅為非阻塞性的欄位 / 呈現細修
 - 若之後續接 `project detail dispatch -> design/procurement`，`MD59` 應視為目前最新的 live runtime 驗收 handoff。
 
+### G. 2026-04-11 本輪最新總整理 / 規則 / 未完成項對齊（重要）
+- 已新增：`MD62-projectflow-current-round-completion-rules-and-open-items-alignment-2026-04-11.md`
+- 這份文件的重要性在於：
+  - 它不是單點 handoff，而是把 **本輪完成項、已拍板規則、未完成項** 一次整理對齊
+  - 明確區分：
+    1. upstream / midstream 哪些已 PASS
+    2. vendor assignment / package 主線哪些已正式 DB 驗收完成
+    3. 哪些規則已拍板不可漂移（UI lock、dispatch 驗收切點、reconciliation 單位、Vendor Data aggregation 規則）
+    4. 哪些 downstream 項目仍未完成（quote-cost list all-projects、quote-cost detail 更完整 group-driven 化、Vendor Data monetary layer）
+- 特別重要的校正是：
+  - **vendor 發包主線 PASS，不等於 Vendor Data 全模組 PASS**
+  - 後續若續接 vendor / downstream financial / Vendor Data，必須以這條邊界為準
+- 若之後續接本輪下游主線，`MD62` 應和 `MD61` 一起視為最新總整理 handoff。
+
+### H. 2026-04-11 downstream financial 進度刷新（重要）
+- 已新增：`MD63-projectflow-downstream-financial-progress-refresh-2026-04-11.md`
+- 這份文件的重要性在於：
+  - 補記本輪後段 downstream financial 主線的最新進展
+  - 明確確認：
+    1. `/quote-costs` list source = all projects 已完成
+    2. `quote-cost detail` 的 group-driven control state 已成立
+    3. `ArchiveContentPanel` 已開始承接動態 financial items，而非硬編碼假表
+    4. `Vendor Data monetary layer` 已能與 quote-cost detail 的 reconciled group readback 對上
+- 這份文件也同時說清楚目前尚未完全收尾的地方：
+  - `quote-cost detail` deeper summary / archive 語意仍偏過渡版
+  - `Vendor Data` detail 文案與 payment domain 仍未正式化
+- 若之後續接目前最新 downstream financial 主線，`MD63` 應和 `MD62` 一起視為最新 refresh handoff。
+
+### I. 2026-04-11 Vendor Data 未付款專區 partial reconciliation 規則（重要）
+- 已新增：`MD64-projectflow-vendor-data-unpaid-zone-partial-reconciliation-rule-2026-04-11.md`
+- 這份文件的重要性在於：
+  - 正式拍板 `Vendor Data / 未付款專區` 採 **方案二**
+  - 也就是：
+    1. 只要有 group 被勾成 `已對帳`，就即時累加顯示目前金額
+    2. 但若該 `project × vendor` 尚未全部對帳完成，必須同步提示使用者
+- 這份文件也正式切清：
+  - `quote-cost detail` 管 group-level reconciliation
+  - `Vendor Data detail` 管 `project × vendor` 的 current payable amount + completeness warning
+- 若之後續接 Vendor Data monetary layer / payment reminder / reconciliation completeness，必須以 `MD64` 為準。
+
+### J. 2026-04-12 Vendor Data detail 語意定稿（重要）
+- 已新增：`MD65-projectflow-vendor-data-detail-action-vs-archive-semantics-2026-04-12.md`
+- 這份文件的重要性在於：
+  - 正式把 `vendors/[id] detail` 拆成兩個區塊語意：
+    1. 未付款列表 = action-oriented 的付款提醒區
+    2. 往來記錄 / 查看明細 = archive-oriented 的歷史存檔區
+  - 並明確切清：
+    - Financial = 主語意
+    - Task / Package = 輔助語意
+- 若之後續接 Vendor Data detail 的 UI / 呈現 /欄位命名，應以 `MD65` 為準。
+
+### K. 2026-04-12 Vendor Data detail 驗收刷新（重要）
+- 已新增：`MD66-projectflow-vendor-data-detail-validation-refresh-2026-04-12.md`
+- 這份文件的重要性在於：
+  - 補記 `Vendor Data detail` 在本輪的實際驗收結果
+  - 明確確認：
+    1. 未付款專區 partial reconciliation 規則已落地
+    2. incompleteness warning 已落地
+    3. partial / full reconciliation 前端驗證已完成
+    4. 使用者已拍板 `發包內容明細` 維持現狀，不再調整
+- 若之後續接 `vendors/[id]` detail，`MD66` 應視為目前最新的驗收 refresh handoff。
+
+### L. 2026-04-12 最新全局盤點刷新（重要）
+- 已新增：`MD67-projectflow-latest-global-progress-refresh-2026-04-12.md`
+- 這份文件的重要性在於：
+  - 補記截至目前為止整個 `projectflow` 的最新全局盤點
+  - 明確區分：
+    1. 哪些已 DB 化且可視為 PASS
+    2. 哪些已部分完成但尚未完全收尾
+    3. 哪些主線仍未完成
+    4. 哪些 spec 仍可能需要後續討論
+- 若之後要開新對話續接，`MD67` 應視為最快掌握當前全局進度的 refresh handoff。
+
+### M. 2026-04-12 晚間更新：Accounting Center Phase A 與 Phase B payable lifecycle 已完成收口（重要）
+- 已新增：`MD-INDEX-projectflow-status-board-2026-04-12.md`
+  - 這份文件是近期 MD 的狀態總表，用來標記 `ACTIVE / COMPLETED / SUPERSEDED / HISTORICAL`
+  - 若要續接 2026-04-12 這一輪之後的新主線，應先看這份索引，不要直接亂從單一 handoff 開始
+- 已新增：`MD76-projectflow-client-collection-source-of-truth-and-quote-cost-detail-entry-spec-2026-04-12.md`
+  - client collection 主線正式拍板文件
+  - 現況：**ACTIVE**
+- 已新增：`MD77-projectflow-client-collection-mainline-closure-and-accounting-center-active-projects-alignment-2026-04-12.md`
+  - client collection 主線落地 closure 記錄
+  - 現況：**COMPLETED**
+- 已新增：`MD78-projectflow-accounting-center-phase-a-closure-and-lock-recommendation-2026-04-12.md`
+  - `Accounting Center DB-first Phase A` closure / lock 建議
+  - 現況：**ACTIVE**
+- 已新增：`MD80-projectflow-payable-lifecycle-v1-spec-2026-04-12.md`
+  - payable lifecycle v1 正式規格
+  - 現況：**ACTIVE**
+- 已新增：`MD81-projectflow-payable-lifecycle-v1-closure-and-lock-recommendation-2026-04-12.md`
+  - payable lifecycle v1 closure / lock 建議
+  - 現況：**ACTIVE**
+
+### N. 2026-04-12 晚間後續續接順序（最新版）
+若要續接 2026-04-12 晚間之後的主線，建議優先依下列順序閱讀：
+1. `MD-MASTER-projectflow-system-source-of-truth.md`
+2. `MD-INDEX-projectflow-status-board-2026-04-12.md`
+3. 若續接 `Accounting Center`：
+   - `MD78-projectflow-accounting-center-phase-a-closure-and-lock-recommendation-2026-04-12.md`
+   - 視需要回查 `MD76`、`MD77`
+4. 若續接 `payable lifecycle`：
+   - `MD80-projectflow-payable-lifecycle-v1-spec-2026-04-12.md`
+   - `MD81-projectflow-payable-lifecycle-v1-closure-and-lock-recommendation-2026-04-12.md`
+   - 視需要回查 `MD64`、`MD65`、`MD66`
+
+正式規則：
+- `MD69`、`MD73`、`MD75`、`MD79` 目前都應視為 **SUPERSEDED**，不可再作主入口
+- `MD74`、`MD77` 應視為 **COMPLETED**，可用於 closure 回查，但不應再視為待辦入口
+
+### O. 2026-04-13 使用情境逐區對齊回合（最新版）
+2026-04-13 新增了一組以「使用情境 → 功能責任 → 資料承接 → 與現有架構是否吻合」為主的對齊文件鏈，用來把目前 `projectflow` 的主要模組重新逐區盤點、收斂與固定語意。
+
+本輪新增文件包括：
+1. `MD100-projectflow-upstream-usage-scenario-alignment-summary-2026-04-12.md`
+2. `MD101-projectflow-design-line-usage-scenario-alignment-summary-2026-04-13.md`
+3. `MD102-projectflow-procurement-line-usage-scenario-alignment-summary-2026-04-13.md`
+4. `MD103-projectflow-vendor-line-usage-scenario-alignment-summary-2026-04-13.md`
+5. `MD104-projectflow-quote-cost-line-usage-scenario-alignment-summary-2026-04-13.md`
+6. `MD105-projectflow-vendor-data-usage-scenario-alignment-summary-2026-04-13.md`
+7. `MD106-projectflow-closeout-usage-scenario-alignment-summary-2026-04-13.md`
+8. `MD107-projectflow-home-overview-usage-scenario-alignment-summary-2026-04-13.md`
+
+這組文件的重要性在於：
+- 不再只從工程 handoff / spec 角度續接
+- 而是改用使用者實際操作心智重新逐區盤點
+- 把哪些地方已與現有架構吻合、哪些仍待 same-source 驗證、哪些 UI 冗餘應移除、哪些規則尚未定稿，一次整理成對齊摘要
+
+本輪已明確盤點完成的區塊包括：
+- 上游 / 專案建立 / Project Detail
+- 設計線
+- 備品線
+- 廠商線
+- 報價成本線
+- 廠商資料（Vendor Data）
+- 結案紀錄（closeout）
+- 首頁總覽（Home Overview）
+
+本輪明確保留到下一段才正式續接的主線：
+- `Accounting Center`
+
+### P. 2026-04-13 後續續接建議順序（使用情境對齊版）
+若要續接 2026-04-13 這一輪之後的新主線，建議優先依下列順序閱讀：
+1. `MD-MASTER-projectflow-system-source-of-truth.md`
+2. `MD-INDEX-projectflow-status-board-2026-04-12.md`
+3. `MD100-projectflow-upstream-usage-scenario-alignment-summary-2026-04-12.md`
+4. 依任務所屬模組補讀：
+   - 上游 / Project Detail：`MD100`
+   - 設計線：`MD101`
+   - 備品線：`MD102`
+   - 廠商線：`MD103`
+   - 報價成本線：`MD104`
+   - 廠商資料：`MD105`
+   - 結案紀錄：`MD106`
+   - 首頁總覽：`MD107`
+5. 若任務涉及 `Accounting Center`，再回到：
+   - `MD78`
+   - `MD80`
+   - `MD81`
+   - `MD82`～`MD86`
+
+正式規則：
+- `MD100`～`MD107` 屬於目前最新一輪「使用情境對齊摘要」，可直接作為續接入口
+- 但若涉及較深層的 DB-first / payable lifecycle / month close / Accounting Center 判斷，仍需同步回查 `MD76`、`MD78`、`MD80`～`MD86`
+- 若 `MD100`～`MD107` 與更早期 handoff 在語意或責任邊界上衝突，優先以 `MD100`～`MD107` 與本母檔最新補充為準
+
 ## 快速續接閱讀順序速查表（2026-04-08）
 
 ### 若要續接上游主線
