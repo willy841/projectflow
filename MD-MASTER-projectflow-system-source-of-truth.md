@@ -322,6 +322,27 @@
   - 每一批都必須符合「frontend 實際操作 + backend DB truth comparison」驗收標準
   - 首頁總覽中的 `本月專案總額 / 本月金額` 仍屬 Accounting Center 邊界，暫不正式對接
 
+### R. 2026-04-13 Batch 1 正式施工單（Vendor Data）
+- 已新增：`MD109-projectflow-vendor-data-db-first-gap-closure-work-package-2026-04-13.md`
+- 這份文件的重要性在於：
+  - 它是 `MD108` 的第一批正式 work package
+  - 並且已明確鎖定：**不是重做 Vendor Data，而是現況盤點 + gap closure + DB-first 收口**
+- 本批正式範圍包括：
+  1. Vendor Data list 的 vendor master / trade / unpaid total source closure
+  2. Vendor detail profile / labor-report write path closure
+  3. unpaid projects / paid status / history tabs / inline document-layer readback closure
+  4. 搜尋 / 排序 / 工種管理 closure
+- 本批正式不做：
+  - Accounting Center
+  - 首頁本月金額
+  - closeout list performance
+  - quote-cost 主體重做
+  - Vendor Data 全頁重寫
+- 正式規則：
+  - 先做 source-map audit
+  - 再補 read-model / adapter / write-path closure
+  - 驗收仍必須符合「frontend 實際操作 + backend DB truth comparison」
+
 ## 快速續接閱讀順序速查表（2026-04-08）
 
 ### 若要續接上游主線
