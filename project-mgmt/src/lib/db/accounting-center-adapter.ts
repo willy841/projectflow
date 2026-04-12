@@ -1,4 +1,5 @@
 import { createPhase1DbClient } from '@/lib/db/phase1-client';
+import { buildAccountingMonthCloseRows } from '@/lib/accounting-month-close';
 import { getQuoteCostProjectsWithDbFinancials } from '@/lib/db/financial-flow-adapter';
 
 export type AccountingRevenueSummary = {
@@ -37,6 +38,11 @@ export type AccountingActiveProjectRow = {
   collectedAmount: number;
   outstandingAmount: number;
 };
+
+function normalizeMoney(value: number | null | undefined) {
+  const amount = Number(value ?? 0);
+  return Number.isFinite(amount) ? amount : 0;
+}
 
 export type AccountingOfficeExpenseRow = {
   id: string;
@@ -193,25 +199,11 @@ export async function listAccountingActiveProjectsByMonth(month: string): Promis
   const rows = await db.query<{ projectId: string; collectedAmount: number }>(`
     select project_id as "projectId", coalesce(sum(amount), 0)::float8 as "collectedAmount"
     from project_collection_records
-    where to_char(collected_on, 'YYYY-MM') = $1
     group by project_id
-  `, [month]);
-  const collectedMap = new Map(rows.rows.map((row) => [row.projectId, row.collectedAmount]));
+  `);
+  const collectedMap = new Map(rows.rows.map((row) => [row.projectId, normalizeMoney(row.collectedAmount)]));
 
-  return projects
-    .filter((project) => project.projectStatus === '執行中' && project.eventDate.startsWith(month))
-    .map((project) => {
-      const totalAmount = project.quotationItems.reduce((sum, item) => sum + item.quantity * item.unitPrice, 0);
-      const collectedAmount = collectedMap.get(project.id) ?? 0;
-      return {
-        projectId: project.id,
-        projectName: project.projectName,
-        eventDate: project.eventDate,
-        totalAmount,
-        collectedAmount,
-        outstandingAmount: Math.max(totalAmount - collectedAmount, 0),
-      };
-    });
+  return buildAccountingMonthCloseRows(projects, collectedMap, month);
 }
 
 export async function getAccountingRevenueSummaryByMonths(months: string[]): Promise<AccountingRevenueSummary> {
