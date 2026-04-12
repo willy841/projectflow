@@ -38,7 +38,7 @@ export function AccountingCenterPageDb({
     id: item.id,
     name: item.name,
     type: item.employeeType,
-    isActive: item.isActive,
+    isActive: true,
   }));
 
   return (
