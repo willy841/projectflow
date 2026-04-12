@@ -39,6 +39,14 @@
 ## 3. Accounting Center / financial 近期 MD 狀態
 
 ### ACTIVE
+- `MD119-projectflow-md108-batch1-to-batch4-completion-summary-and-next-scope-2026-04-13.md`
+  - 狀態：ACTIVE
+  - 用途：正式切分 `MD108` 已完成範圍與下一輪工作邊界
+
+- `MD120-projectflow-post-md108-hardening-validation-extension-blueprint-2026-04-13.md`
+  - 狀態：ACTIVE
+  - 用途：作為 `MD108` 完成後的下一輪總控藍圖母檔
+
 - `MD100-projectflow-upstream-usage-scenario-alignment-summary-2026-04-12.md`
   - 狀態：ACTIVE
   - 用途：上游 / Project Detail / 任務發布 / 任務檢視使用情境對齊摘要
@@ -149,6 +157,13 @@
 ---
 
 ## 4. 續接建議
+
+### 若要續接 post-MD108 新階段
+優先讀：
+1. `MD119`
+2. `MD120`
+3. 再視模組回查：`MD100`～`MD107`
+4. 若任務涉及既有 DB-first / payable / month-close / Accounting Center 判斷，再同步回查：`MD76`、`MD78`、`MD80`～`MD86`
 
 ### 若要續接使用情境對齊後的主線
 優先讀：

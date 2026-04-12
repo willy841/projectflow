@@ -343,6 +343,23 @@
   - 再補 read-model / adapter / write-path closure
   - 驗收仍必須符合「frontend 實際操作 + backend DB truth comparison」
 
+### S. 2026-04-13 深夜更新：`MD108` 主批次已完成，已進入 post-MD108 新階段（最新版）
+- 已新增：`MD119-projectflow-md108-batch1-to-batch4-completion-summary-and-next-scope-2026-04-13.md`
+  - 作用：正式切清 `MD108 Batch 1–4` 已完成，與後續未來工作邊界
+- 已新增：`MD120-projectflow-post-md108-hardening-validation-extension-blueprint-2026-04-13.md`
+  - 作用：作為 `MD108` 完成後的新一輪藍圖母檔
+  - 重要：**這不是 `MD108 Batch 5`，而是 post-MD108 新階段藍圖**
+
+正式規則更新如下：
+1. `MD108` 應視為已完成的前一輪 DB-first implementation batch blueprint
+2. `MD119` 應視為 `MD108` 與下一輪之間的 completion boundary / scope split 文件
+3. `MD120` 應視為下一輪主入口，不可把新工作再混回 `MD108`
+4. 若之後要續接 post-MD108，建議優先順序應改為：
+   - `MD-MASTER-projectflow-system-source-of-truth.md`
+   - `MD-INDEX-projectflow-status-board-2026-04-12.md`
+   - `MD119-projectflow-md108-batch1-to-batch4-completion-summary-and-next-scope-2026-04-13.md`
+   - `MD120-projectflow-post-md108-hardening-validation-extension-blueprint-2026-04-13.md`
+
 ## 快速續接閱讀順序速查表（2026-04-08）
 
 ### 若要續接上游主線
