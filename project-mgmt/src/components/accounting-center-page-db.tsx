@@ -53,7 +53,7 @@ export function AccountingCenterPageDb({
           totalAmount: item.totalAmount,
           collectedAmount: item.collectedAmount,
         }))}
-        initialOfficeCategories={officeCategories.map((item) => item.name)}
+        initialOfficeCategories={officeCategories.map((item) => ({ id: item.id, name: item.name }))}
         initialOfficeExpenses={officeExpenses.map((item) => ({
           id: item.id,
           item: item.itemName,

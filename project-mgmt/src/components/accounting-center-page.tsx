@@ -93,6 +93,11 @@ type EmployeeRoster = {
   type: FormEmployeeType;
 };
 
+type OfficeCategoryOption = {
+  id: string;
+  name: string;
+};
+
 const monthOptions: MonthOption[] = [
   { key: "2026-02", label: "2026 / 2 月" },
   { key: "2026-03", label: "2026 / 3 月" },
@@ -345,7 +350,7 @@ export function AccountingCenterPage({
   initialWorkspaceMonth?: string;
   initialRevenueMonth?: string;
   initialActiveProjects?: ActiveProjectRow[];
-  initialOfficeCategories?: string[];
+  initialOfficeCategories?: Array<string | OfficeCategoryOption>;
   initialOfficeExpenses?: OfficeExpense[];
   initialOtherExpenses?: OtherExpense[];
   initialRevenueSummary?: RevenueSummary;
@@ -372,8 +377,13 @@ export function AccountingCenterPage({
   const [rangeStart, setRangeStart] = useState("2026-03");
   const [rangeEnd, setRangeEnd] = useState("2026-04");
   const [yearSelection, setYearSelection] = useState("2026");
+  const normalizedOfficeCategories = useMemo<OfficeCategoryOption[]>(() => {
+    const raw = initialOfficeCategories ?? ["物流", "行政", "倉儲"];
+    return raw.map((item) => typeof item === 'string' ? { id: item, name: item } : item);
+  }, [initialOfficeCategories]);
+
   const [employeeRoster, setEmployeeRoster] = useState<EmployeeRoster[]>(initialDbMode && initialEmployeeRoster ? initialEmployeeRoster : initialPersonnelRoster);
-  const [officeCategories, setOfficeCategories] = useState(initialOfficeCategories ?? ["物流", "行政", "倉儲"]);
+  const [officeCategories, setOfficeCategories] = useState<OfficeCategoryOption[]>(normalizedOfficeCategories);
   const initialDbPersonnelDrafts = (() => {
     if (!initialDbMode || !initialPersonnelRecords) return null;
     const fullTime: Record<string, FullTimeEmployee> = {};
@@ -751,28 +761,88 @@ export function AccountingCenterPage({
     setEditingEmployeeId(null);
   }
 
-  function handleAddOfficeCategory() {
+  async function handleAddOfficeCategory() {
     const label = newOfficeCategory.trim();
-    if (!label || officeCategories.includes(label)) return;
-    setOfficeCategories((current) => [...current, label]);
+    if (!label || officeCategories.some((item) => item.name === label)) return;
+
+    if (initialDbMode) {
+      const response = await fetch('/api/accounting/office-categories', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: label }),
+      });
+      const result = await response.json();
+      if (!response.ok || !result?.ok) {
+        window.alert(result?.error ?? '新增分類失敗');
+        return;
+      }
+      window.location.reload();
+      return;
+    }
+
+    setOfficeCategories((current) => [...current, { id: label, name: label }]);
     setNewOfficeCategory("");
   }
 
-  function handleDeleteOfficeCategory(label: string) {
+  async function handleDeleteOfficeCategory(label: string) {
+    const category = officeCategories.find((item) => item.name === label);
+    if (!category) return;
+
+    if (initialDbMode) {
+      const response = await fetch(`/api/accounting/office-categories/${category.id}`, { method: 'DELETE' });
+      const result = await response.json();
+      if (!response.ok || !result?.ok) {
+        window.alert(result?.error ?? '刪除分類失敗');
+        return;
+      }
+      window.location.reload();
+      return;
+    }
+
     const used = Object.values(officeExpensesByMonth).some((items) => items.some((item) => item.category === label));
     if (used) {
       window.alert(`分類「${label}」已有既有支出使用，這一輪前端 workflow 先禁止刪除。`);
       return;
     }
-    setOfficeCategories((current) => current.filter((category) => category !== label));
+    setOfficeCategories((current) => current.filter((item) => item.name !== label));
   }
 
-  function handleSubmitOfficeExpense() {
+  async function handleSubmitOfficeExpense() {
     if (!officeExpenseForm) return;
     const item = officeExpenseForm.item.trim();
     const category = officeExpenseForm.category.trim();
     const amount = Number(officeExpenseForm.amount);
     if (!item || !category || Number.isNaN(amount)) return;
+
+    if (initialDbMode) {
+      const categoryRow = officeCategories.find((entry) => entry.name === category);
+      if (!categoryRow) {
+        window.alert('請先選擇有效的庶務分類');
+        return;
+      }
+      const url = officeExpenseForm.mode === 'edit' && officeExpenseForm.id
+        ? `/api/accounting/office-expenses/${officeExpenseForm.id}`
+        : '/api/accounting/office-expenses';
+      const method = officeExpenseForm.mode === 'edit' ? 'PATCH' : 'POST';
+      const response = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          expenseMonth: workspaceMonth,
+          itemName: item,
+          categoryId: categoryRow.id,
+          amount,
+          note: officeExpenseForm.note.trim(),
+        }),
+      });
+      const result = await response.json();
+      if (!response.ok || !result?.ok) {
+        window.alert(result?.error ?? '庶務支出寫入失敗');
+        return;
+      }
+      window.location.reload();
+      return;
+    }
 
     setOfficeExpensesByMonth((current) => {
       const currentMonthItems = current[workspaceMonth] ?? [];
@@ -793,11 +863,35 @@ export function AccountingCenterPage({
     setOfficeExpenseForm(null);
   }
 
-  function handleSubmitOtherExpense() {
+  async function handleSubmitOtherExpense() {
     if (!otherExpenseForm) return;
     const item = otherExpenseForm.item.trim();
     const amount = Number(otherExpenseForm.amount);
     if (!item || Number.isNaN(amount)) return;
+
+    if (initialDbMode) {
+      const url = otherExpenseForm.mode === 'edit' && otherExpenseForm.id
+        ? `/api/accounting/other-expenses/${otherExpenseForm.id}`
+        : '/api/accounting/other-expenses';
+      const method = otherExpenseForm.mode === 'edit' ? 'PATCH' : 'POST';
+      const response = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          expenseMonth: workspaceMonth,
+          itemName: item,
+          amount,
+          note: otherExpenseForm.note.trim(),
+        }),
+      });
+      const result = await response.json();
+      if (!response.ok || !result?.ok) {
+        window.alert(result?.error ?? '其他支出寫入失敗');
+        return;
+      }
+      window.location.reload();
+      return;
+    }
 
     setOtherExpensesByMonth((current) => {
       const currentMonthItems = current[workspaceMonth] ?? [];
@@ -817,16 +911,40 @@ export function AccountingCenterPage({
     setOtherExpenseForm(null);
   }
 
-  function handleDeleteOfficeExpense(id: string) {
+  async function handleDeleteOfficeExpense(id: string) {
     if (!window.confirm("確認刪除這筆庶務支出？")) return;
+
+    if (initialDbMode) {
+      const response = await fetch(`/api/accounting/office-expenses/${id}`, { method: 'DELETE' });
+      const result = await response.json();
+      if (!response.ok || !result?.ok) {
+        window.alert(result?.error ?? '刪除庶務支出失敗');
+        return;
+      }
+      window.location.reload();
+      return;
+    }
+
     setOfficeExpensesByMonth((current) => ({
       ...current,
       [workspaceMonth]: (current[workspaceMonth] ?? []).filter((item) => item.id !== id),
     }));
   }
 
-  function handleDeleteOtherExpense(id: string) {
+  async function handleDeleteOtherExpense(id: string) {
     if (!window.confirm("確認刪除這筆其他支出？")) return;
+
+    if (initialDbMode) {
+      const response = await fetch(`/api/accounting/other-expenses/${id}`, { method: 'DELETE' });
+      const result = await response.json();
+      if (!response.ok || !result?.ok) {
+        window.alert(result?.error ?? '刪除其他支出失敗');
+        return;
+      }
+      window.location.reload();
+      return;
+    }
+
     setOtherExpensesByMonth((current) => ({
       ...current,
       [workspaceMonth]: (current[workspaceMonth] ?? []).filter((item) => item.id !== id),
@@ -1133,14 +1251,14 @@ export function AccountingCenterPage({
                   ) : null}
 
                   {expenseEditorTab === "office" ? (
-                  <Panel title="庶務項目" actions={<><button type="button" onClick={() => setShowManageOfficeCategories(true)} className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-800 transition hover:bg-slate-50">管理分類</button><button type="button" onClick={() => setOfficeExpenseForm({ mode: "create", item: "", category: officeCategories[0] ?? "", amount: "", note: "" })} className="inline-flex items-center justify-center rounded-2xl border border-slate-900 bg-slate-900 px-3 py-2 text-sm font-semibold text-white transition hover:bg-slate-800">新增支出</button></>}>
-                    <div className="mt-5"><ListBlock title="" headers={["項目名稱", "分類", "金額", "編輯", "刪除"]} rows={currentOfficeExpenses.map((expense) => [expense.item, expense.category, formatCurrency(expense.amount)])} actionLabel="編輯" secondaryActionLabel="刪除" onAction={(index) => { const target = currentOfficeExpenses[index]; setOfficeExpenseForm({ mode: "edit", id: target.id, item: target.item, category: target.category, amount: String(target.amount), note: target.note }); }} onSecondaryAction={(index) => handleDeleteOfficeExpense(currentOfficeExpenses[index].id)} /></div>
+                  <Panel title="庶務項目" actions={<><button type="button" onClick={() => setShowManageOfficeCategories(true)} className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-800 transition hover:bg-slate-50">管理分類</button><button type="button" onClick={() => setOfficeExpenseForm({ mode: "create", item: "", category: officeCategories[0]?.name ?? "", amount: "", note: "" })} className="inline-flex items-center justify-center rounded-2xl border border-slate-900 bg-slate-900 px-3 py-2 text-sm font-semibold text-white transition hover:bg-slate-800">新增支出</button></>}>
+                    <div className="mt-5"><ListBlock title="" headers={["項目名稱", "分類", "金額", "編輯", "刪除"]} rows={currentOfficeExpenses.map((expense) => [expense.item, expense.category, formatCurrency(expense.amount)])} actionLabel="編輯" secondaryActionLabel="刪除" onAction={(index) => { const target = currentOfficeExpenses[index]; setOfficeExpenseForm({ mode: "edit", id: target.id, item: target.item, category: target.category, amount: String(target.amount), note: target.note }); }} onSecondaryAction={(index) => void handleDeleteOfficeExpense(currentOfficeExpenses[index].id)} /></div>
                   </Panel>
                   ) : null}
 
                   {expenseEditorTab === "other" ? (
                   <Panel title="其他項目" actions={<button type="button" onClick={() => setOtherExpenseForm({ mode: "create", item: "", amount: "", note: "" })} className="inline-flex items-center justify-center rounded-2xl border border-slate-900 bg-slate-900 px-3 py-2 text-sm font-semibold text-white transition hover:bg-slate-800">新增支出</button>}>
-                    <div className="mt-5"><ListBlock title="" headers={["項目名稱", "金額", "備註", "編輯", "刪除"]} rows={currentOtherExpenses.map((expense) => [expense.item, formatCurrency(expense.amount), expense.note || "-"])} actionLabel="編輯" secondaryActionLabel="刪除" onAction={(index) => { const target = currentOtherExpenses[index]; setOtherExpenseForm({ mode: "edit", id: target.id, item: target.item, amount: String(target.amount), note: target.note }); }} onSecondaryAction={(index) => handleDeleteOtherExpense(currentOtherExpenses[index].id)} /></div>
+                    <div className="mt-5"><ListBlock title="" headers={["項目名稱", "金額", "備註", "編輯", "刪除"]} rows={currentOtherExpenses.map((expense) => [expense.item, formatCurrency(expense.amount), expense.note || "-"])} actionLabel="編輯" secondaryActionLabel="刪除" onAction={(index) => { const target = currentOtherExpenses[index]; setOtherExpenseForm({ mode: "edit", id: target.id, item: target.item, amount: String(target.amount), note: target.note }); }} onSecondaryAction={(index) => void handleDeleteOtherExpense(currentOtherExpenses[index].id)} /></div>
                   </Panel>
                   ) : null}
                 </div>
@@ -1198,11 +1316,11 @@ export function AccountingCenterPage({
             </div>
             <div className="space-y-2">
               {officeCategories.map((category) => (
-                <div key={category} className="flex items-center justify-between rounded-2xl border border-slate-200 px-4 py-3">
-                  <span className="font-medium text-slate-800">{category}</span>
+                <div key={category.id} className="flex items-center justify-between rounded-2xl border border-slate-200 px-4 py-3">
+                  <span className="font-medium text-slate-800">{category.name}</span>
                   <button
                     type="button"
-                    onClick={() => handleDeleteOfficeCategory(category)}
+                    onClick={() => void handleDeleteOfficeCategory(category.name)}
                     className="inline-flex items-center justify-center rounded-2xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm font-semibold text-rose-700 transition hover:bg-rose-100"
                   >
                     刪除
@@ -1221,7 +1339,7 @@ export function AccountingCenterPage({
             <EditablePair label="項目名稱" value={officeExpenseForm.item} onChange={(value) => setOfficeExpenseForm((current) => current ? { ...current, item: value } : current)} />
             <EditablePair label="分類" value={officeExpenseForm.category} onChange={(value) => setOfficeExpenseForm((current) => current ? { ...current, category: value } : current)} listId="office-category-list" />
             <datalist id="office-category-list">
-              {officeCategories.map((category) => <option key={category} value={category} />)}
+              {officeCategories.map((category) => <option key={category.id} value={category.name} />)}
             </datalist>
             <EditablePair label="金額" value={officeExpenseForm.amount} onChange={(value) => setOfficeExpenseForm((current) => current ? { ...current, amount: value } : current)} inputMode="numeric" />
             <EditablePair label="備註" value={officeExpenseForm.note} onChange={(value) => setOfficeExpenseForm((current) => current ? { ...current, note: value } : current)} />
