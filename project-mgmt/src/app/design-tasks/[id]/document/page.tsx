@@ -44,6 +44,7 @@ export default async function DesignTaskDocumentPage({
         <div className="mb-4 flex items-center justify-between">
           <div>
             <h3 className="text-xl font-semibold text-slate-900">最終文件頁</h3>
+            <p className="mt-2 text-sm text-slate-500">此頁承接最新一次「全部確認」的正式結果；若尚未確認，才回退顯示目前執行處理內容。</p>
           </div>
         </div>
 
