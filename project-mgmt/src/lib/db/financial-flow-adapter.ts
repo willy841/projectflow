@@ -50,8 +50,8 @@ function buildFinancialProjectNote({
 
   if (quotationReadModel.status === 'missing-schema-seed-fallback') {
     notes.push('quotation 正式 DB schema/read model 尚未存在，暫由獨立 quotation read-model 邊界承接 seed projection');
-  } else if (quotationReadModel.status === 'seed-only-fallback') {
-    notes.push('quotation DB schema 已可探測，但正式 query/readback 尚未實作，暫由獨立 quotation read-model 邊界保留 seed projection');
+  } else if (quotationReadModel.status === 'query-failed-seed-fallback') {
+    notes.push('quotation DB schema 已存在，但本次 query/readback 失敗，暫回退獨立 quotation seed projection');
   }
 
   if (hasSeedCostFallback) {
