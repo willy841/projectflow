@@ -63,6 +63,10 @@
   - 狀態：ACTIVE
   - 用途：Accounting Center month close aggregation / readback 邊界校正
 
+- `MD84-projectflow-month-close-aggregation-detail-readback-rule-2026-04-12.md`
+  - 狀態：ACTIVE
+  - 用途：month close aggregation detail / readback 規則
+
 ### COMPLETED
 - `MD74-projectflow-accounting-center-personnel-closure-and-global-next-step-recommendation-2026-04-12.md`
   - 狀態：COMPLETED
@@ -126,12 +130,13 @@
 優先讀：
 1. `MD83`
 2. `MD82`
-3. `MD78`
-4. `MD76`
-5. `MD77`
+3. `MD84`
+4. `MD78`
+5. `MD76`
+6. `MD77`
 
 ---
 
 ## 5. 一句話總結
 
-> 目前 `projectflow` 近期 MD 檔中，`MD76`、`MD78`、`MD80`、`MD81`、`MD82`、`MD83` 可視為 active source-of-truth；`MD74`、`MD77` 為 completed closure 記錄；`MD69`、`MD73`、`MD75`、`MD79` 屬於已被後續文件覆蓋的 superseded 文件，續接時不應再把它們當成主入口。
+> 目前 `projectflow` 近期 MD 檔中，`MD76`、`MD78`、`MD80`、`MD81`、`MD82`、`MD83`、`MD84` 可視為 active source-of-truth；`MD74`、`MD77` 為 completed closure 記錄；`MD69`、`MD73`、`MD75`、`MD79` 屬於已被後續文件覆蓋的 superseded 文件，續接時不應再把它們當成主入口。
