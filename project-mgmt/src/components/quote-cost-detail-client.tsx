@@ -13,12 +13,9 @@ import {
   getQuotationTotal,
   getReconciliationStatusClass,
   QuoteCostProject,
-  sampleQuoteImports,
-  sampleQuoteLineItemsByProject,
   type CostLineItem,
   type CostSourceType,
 } from "@/components/quote-cost-data";
-import { getQuoteCostProjectsWithWorkflow } from "@/components/project-workflow-store";
 
 type DetailMode = "active" | "closed";
 
@@ -62,10 +59,10 @@ type EditableProjectState = QuoteCostProject;
 
 export function QuoteCostDetailClient({ project, mode = "active", initialProject }: Props) {
   const router = useRouter();
-  const workflowProject = initialProject ?? getQuoteCostProjectsWithWorkflow().find((item) => item.id === project.id) ?? project;
+  const resolvedProject = initialProject ?? project;
   const [reconciliationGroups, setReconciliationGroups] = useState<ReconciliationGroupView[]>(initialProject?.reconciliationGroups ?? []);
   const [state, setState] = useState<EditableProjectState>(() => ({
-    ...workflowProject,
+    ...resolvedProject,
     reconciliationStatus: normalizeGroupStatus(initialProject?.reconciliationGroups ?? []),
   }));
   const derivedReconciliationStatus = useMemo(
@@ -79,10 +76,8 @@ export function QuoteCostDetailClient({ project, mode = "active", initialProject
   const [collectionRecords, setCollectionRecords] = useState<CollectionRecordView[]>(initialProject?.collectionRecords ?? []);
   const [collectionForm, setCollectionForm] = useState<{ collectedOn: string; amount: string; note: string } | null>(null);
   const [vendorPaymentRecords] = useState<VendorPaymentView[]>(initialProject?.vendorPaymentRecords ?? []);
-  const [quoteImportIndex, setQuoteImportIndex] = useState(0);
   const [activeArchiveSource, setActiveArchiveSource] = useState<CostSourceType>("設計");
-  const quoteImportOptions = sampleQuoteImports[project.id] ?? [project.quotationImport].filter(Boolean);
-  const quoteLineItemOptions = sampleQuoteLineItemsByProject[project.id] ?? [project.quotationItems];
+  const quoteImportRecord = state.quotationImport;
   const isClosedView = mode === "closed";
 
   const quotationTotal = useMemo(() => getQuotationTotal(state.quotationItems), [state.quotationItems]);
@@ -146,20 +141,6 @@ export function QuoteCostDetailClient({ project, mode = "active", initialProject
     } finally {
       setIsManualSyncing(false);
     }
-  }
-
-  function handleImportQuote(index: number) {
-    const quotationImport = quoteImportOptions[index] ?? null;
-    const quotationItems = quoteLineItemOptions[index] ?? quoteLineItemOptions[0] ?? state.quotationItems;
-    setQuoteImportIndex(index);
-    setState((prev) => ({
-      ...prev,
-      quotationImported: true,
-      quotationImport,
-      quotationItems,
-      closeStatus: prev.closeStatus === "已結案" ? "未結案" : prev.closeStatus,
-      reconciliationStatus: prev.reconciliationStatus === "已完成" ? "待確認" : prev.reconciliationStatus,
-    }));
   }
 
   function handleIncludeToggle(itemId: string, included: boolean) {
@@ -398,18 +379,14 @@ export function QuoteCostDetailClient({ project, mode = "active", initialProject
               <span className="inline-flex items-center rounded-2xl border border-slate-200 bg-slate-50 px-4 py-2 text-sm font-semibold text-slate-700">
                 結案版本已鎖定
               </span>
+            ) : quoteImportRecord ? (
+              <span className="inline-flex items-center rounded-2xl border border-slate-200 bg-slate-50 px-4 py-2 text-sm font-semibold text-slate-700">
+                已承接正式報價版本
+              </span>
             ) : (
-              <button
-                type="button"
-                onClick={() => {
-                  if (quoteImportOptions.length === 0) return;
-                  handleImportQuote((quoteImportIndex + 1) % quoteImportOptions.length);
-                }}
-                disabled={quoteImportOptions.length === 0}
-                className="rounded-2xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-800 transition hover:border-slate-400 hover:bg-slate-50 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
-              >
-                匯入報價單
-              </button>
+              <span className="inline-flex items-center rounded-2xl border border-amber-200 bg-amber-50 px-4 py-2 text-sm font-semibold text-amber-700">
+                尚無正式報價資料
+              </span>
             )}
           </div>
         </div>
