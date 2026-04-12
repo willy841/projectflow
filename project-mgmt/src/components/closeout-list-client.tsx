@@ -3,66 +3,36 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { AppShell } from "@/components/app-shell";
-import {
-  formatCurrency,
-  getCloseStatusClass,
-  getGrossProfit,
-  getProjectCostTotal,
-  getQuotationTotal,
-  getReconciliationStatusClass,
-} from "@/components/quote-cost-data";
-import { getQuoteCostProjectsWithWorkflow } from "@/components/project-workflow-store";
-import type { QuoteCostProject } from "@/components/quote-cost-data";
+import { formatCurrency } from "@/components/quote-cost-data";
+import type { CloseoutListRow } from "@/lib/db/closeout-list-read-model";
 
 const ITEMS_PER_PAGE = 10;
 
-export function CloseoutListClient({ initialProjects }: { initialProjects?: QuoteCostProject[] }) {
+export function CloseoutListClient({ initialProjects }: { initialProjects: CloseoutListRow[] }) {
   const [searchKeyword, setSearchKeyword] = useState("");
   const [selectedYear, setSelectedYear] = useState("all");
   const [dateSortOrder, setDateSortOrder] = useState<"desc" | "asc">("desc");
   const [page, setPage] = useState(1);
 
-  const sourceProjects = initialProjects ?? getQuoteCostProjectsWithWorkflow();
-
-  const closedProjects = sourceProjects
-    .filter((project) => project.projectStatus === "已結案")
-    .map((project) => {
-      const quotationTotal = getQuotationTotal(project.quotationItems);
-      const projectCostTotal = getProjectCostTotal(project.costItems);
-      const grossProfit = getGrossProfit(quotationTotal, projectCostTotal);
-      const manualCostCount = project.costItems.filter((item) => item.isManual).length;
-      const excludedCostCount = project.costItems.filter((item) => !item.includedInCost).length;
-
-      return {
-        project,
-        quotationTotal,
-        projectCostTotal,
-        grossProfit,
-        manualCostCount,
-        excludedCostCount,
-      };
-    });
-
   const yearOptions = useMemo(() => {
-    return Array.from(new Set(closedProjects.map(({ project }) => String(new Date(project.eventDate).getFullYear())))).sort((a, b) => Number(b) - Number(a));
-  }, [closedProjects]);
+    return Array.from(new Set(initialProjects.map((project) => project.eventYear))).filter((year) => year !== '-').sort((a, b) => Number(b) - Number(a));
+  }, [initialProjects]);
 
   const filteredProjects = useMemo(() => {
     const keyword = searchKeyword.trim().toLowerCase();
 
-    const next = closedProjects.filter(({ project }) => {
-      const matchesKeyword = !keyword || [project.projectName, project.clientName, project.projectCode].join(" ").toLowerCase().includes(keyword);
-      const year = String(new Date(project.eventDate).getFullYear());
-      const matchesYear = selectedYear === "all" || year === selectedYear;
+    const next = initialProjects.filter((project) => {
+      const matchesKeyword = !keyword || [project.projectName, project.clientName].join(" ").toLowerCase().includes(keyword);
+      const matchesYear = selectedYear === "all" || project.eventYear === selectedYear;
       return matchesKeyword && matchesYear;
     });
 
     next.sort((a, b) => dateSortOrder === "desc"
-      ? b.project.eventDate.localeCompare(a.project.eventDate)
-      : a.project.eventDate.localeCompare(b.project.eventDate));
+      ? b.eventDate.localeCompare(a.eventDate)
+      : a.eventDate.localeCompare(b.eventDate));
 
     return next;
-  }, [closedProjects, dateSortOrder, searchKeyword, selectedYear]);
+  }, [dateSortOrder, initialProjects, searchKeyword, selectedYear]);
 
   const totalPages = Math.max(1, Math.ceil(filteredProjects.length / ITEMS_PER_PAGE));
   const currentPage = Math.min(page, totalPages);
@@ -88,7 +58,7 @@ export function CloseoutListClient({ initialProjects }: { initialProjects?: Quot
                 setSearchKeyword(event.target.value);
                 setPage(1);
               }}
-              placeholder="搜尋專案名稱 / 客戶 / 專案代碼"
+              placeholder="搜尋活動標題 / 客戶名稱"
               className="h-11 w-full rounded-2xl border border-slate-200 px-4 text-sm outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-200 sm:max-w-sm"
             />
             <select
@@ -115,19 +85,11 @@ export function CloseoutListClient({ initialProjects }: { initialProjects?: Quot
         </div>
 
         <div className="space-y-4">
-          {pagedProjects.map(({ project, quotationTotal, projectCostTotal, grossProfit, manualCostCount, excludedCostCount }) => (
+          {pagedProjects.map((project) => (
             <article key={project.id} className="rounded-3xl border border-slate-200 p-5">
               <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
                 <div>
-                  <div className="flex flex-wrap items-center gap-2">
-                    <h4 className="text-xl font-semibold text-slate-900">{project.projectName}</h4>
-                    <span className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ring-1 ${getReconciliationStatusClass(project.reconciliationStatus)}`}>
-                      {project.reconciliationStatus}
-                    </span>
-                    <span className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ring-1 ${getCloseStatusClass(project.closeStatus)}`}>
-                      {project.closeStatus}
-                    </span>
-                  </div>
+                  <h4 className="text-xl font-semibold text-slate-900">{project.projectName}</h4>
                   <p className="mt-2 text-sm text-slate-600">{project.clientName} ・ 活動日期 {project.eventDate}</p>
                 </div>
 
@@ -139,11 +101,10 @@ export function CloseoutListClient({ initialProjects }: { initialProjects?: Quot
                 </Link>
               </div>
 
-              <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-                <ArchiveValueCard label="對外報價總額" value={formatCurrency(quotationTotal)} />
-                <ArchiveValueCard label="專案成本" value={formatCurrency(projectCostTotal)} />
-                <ArchiveValueCard label="毛利" value={formatCurrency(grossProfit)} />
-                <ArchiveValueCard label="留存備註" value={excludedCostCount > 0 || manualCostCount > 0 ? `${excludedCostCount} 筆未計入 / ${manualCostCount} 筆人工` : "無額外例外"} />
+              <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+                <ArchiveValueCard label="對外報價總額" value={formatCurrency(project.quotationTotal)} />
+                <ArchiveValueCard label="專案成本" value={formatCurrency(project.projectCostTotal)} />
+                <ArchiveValueCard label="毛利" value={formatCurrency(project.grossProfit)} />
               </div>
             </article>
           ))}

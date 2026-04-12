@@ -1,9 +1,9 @@
 import { CloseoutListClient } from "@/components/closeout-list-client";
-import { getCloseoutArchiveProjects } from "@/lib/db/closeout-archive-source";
+import { getCloseoutListReadModel } from "@/lib/db/closeout-list-read-model";
 
 export const dynamic = "force-dynamic";
 
 export default async function CloseoutPage() {
-  const projects = await getCloseoutArchiveProjects();
+  const projects = await getCloseoutListReadModel();
   return <CloseoutListClient initialProjects={projects} />;
 }

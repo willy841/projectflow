@@ -349,123 +349,123 @@ export function QuoteCostDetailClient({ project, mode = "active", presenter = ge
         <SummaryCard title="毛利" value={formatCurrency(grossProfit)} mode={mode} />
       </section>
 
-      <section className={`rounded-[28px] border p-6 shadow-sm ${isClosedView ? "border-slate-200 bg-white" : "border-slate-200 bg-white"}`}>
-        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-          <SimpleSectionTitle title={presenter.collectionTitle} />
-          {presenter.canCreateCollectionRecord ? (
-            <button type="button" onClick={() => setCollectionForm({ collectedOn: state.eventDate, amount: '', note: '' })} className="inline-flex items-center justify-center rounded-2xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800">{presenter.collectionPrimaryActionLabel}</button>
-          ) : null}
-        </div>
-        <div className="mt-5 overflow-x-auto rounded-2xl border border-slate-200">
-          <table className="min-w-full divide-y divide-slate-200 text-left text-sm">
-            <thead className="bg-slate-50 text-slate-500">
-              <tr>
-                <th className="px-4 py-3 font-medium">收款日期</th>
-                <th className="px-4 py-3 font-medium">收款金額</th>
-                <th className="px-4 py-3 font-medium">備註</th>
-                <th className="px-4 py-3 font-medium">刪除</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100 bg-white">
-              {collectionRecords.map((record) => (
-                <tr key={record.id}>
-                  <td className="px-4 py-3 text-slate-700">{record.collectedOn}</td>
-                  <td className="px-4 py-3 font-semibold text-slate-900">{formatCurrency(record.amount)}</td>
-                  <td className="px-4 py-3 text-slate-600">{record.note || '-'}</td>
-                  <td className="px-4 py-3">
-                    {presenter.canDeleteCollectionRecord ? <button type="button" onClick={() => handleDeleteCollectionRecord(record.id)} className="inline-flex items-center justify-center rounded-2xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm font-semibold text-rose-700 transition hover:bg-rose-100">刪除</button> : null}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </section>
-
-      <section className={`rounded-[28px] border p-6 shadow-sm ${isClosedView ? "border-slate-200 bg-white" : "border-slate-200 bg-white"}`}>
-        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-          <SimpleSectionTitle title="廠商付款狀態" />
-          <p className="text-sm text-slate-500">這裡只做 project 視角 readback;實際付款主入口在 Vendor Data detail。</p>
-        </div>
-        <div className="mt-5 overflow-x-auto rounded-2xl border border-slate-200">
-          <table className="min-w-full divide-y divide-slate-200 text-left text-sm">
-            <thead className="bg-slate-50 text-slate-500">
-              <tr>
-                <th className="px-4 py-3 font-medium">廠商</th>
-                <th className="px-4 py-3 font-medium">目前應付</th>
-                <th className="px-4 py-3 font-medium">已付款</th>
-                <th className="px-4 py-3 font-medium">未付款</th>
-                <th className="px-4 py-3 font-medium">付款狀態</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100 bg-white">
-              {vendorPaymentRecords.map((record) => {
-                const unpaid = Math.max(record.payableAmount - record.paidAmount, 0);
-                const status = record.paidAmount <= 0 ? '未付款' : record.paidAmount < record.payableAmount ? '部分付款' : '已付款';
-                return (
-                  <tr key={record.vendorName}>
-                    <td className="px-4 py-3 font-medium text-slate-900">{record.vendorName}</td>
-                    <td className="px-4 py-3 text-slate-700">{formatCurrency(record.payableAmount)}</td>
-                    <td className="px-4 py-3 text-slate-700">{formatCurrency(record.paidAmount)}</td>
-                    <td className="px-4 py-3 text-slate-700">{formatCurrency(unpaid)}</td>
-                    <td className="px-4 py-3"><span className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ring-1 ${status === '已付款' ? 'bg-emerald-50 text-emerald-700 ring-emerald-200' : status === '部分付款' ? 'bg-sky-50 text-sky-700 ring-sky-200' : 'bg-amber-50 text-amber-700 ring-amber-200'}`}>{status}</span></td>
+      {!isClosedView ? (
+        <>
+          <section className={`rounded-[28px] border p-6 shadow-sm ${isClosedView ? "border-slate-200 bg-white" : "border-slate-200 bg-white"}`}>
+            <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+              <SimpleSectionTitle title={presenter.collectionTitle} />
+              {presenter.canCreateCollectionRecord ? (
+                <button type="button" onClick={() => setCollectionForm({ collectedOn: state.eventDate, amount: '', note: '' })} className="inline-flex items-center justify-center rounded-2xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800">{presenter.collectionPrimaryActionLabel}</button>
+              ) : null}
+            </div>
+            <div className="mt-5 overflow-x-auto rounded-2xl border border-slate-200">
+              <table className="min-w-full divide-y divide-slate-200 text-left text-sm">
+                <thead className="bg-slate-50 text-slate-500">
+                  <tr>
+                    <th className="px-4 py-3 font-medium">收款日期</th>
+                    <th className="px-4 py-3 font-medium">收款金額</th>
+                    <th className="px-4 py-3 font-medium">備註</th>
+                    <th className="px-4 py-3 font-medium">刪除</th>
                   </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-      </section>
+                </thead>
+                <tbody className="divide-y divide-slate-100 bg-white">
+                  {collectionRecords.map((record) => (
+                    <tr key={record.id}>
+                      <td className="px-4 py-3 text-slate-700">{record.collectedOn}</td>
+                      <td className="px-4 py-3 font-semibold text-slate-900">{formatCurrency(record.amount)}</td>
+                      <td className="px-4 py-3 text-slate-600">{record.note || '-'}</td>
+                      <td className="px-4 py-3">
+                        {presenter.canDeleteCollectionRecord ? <button type="button" onClick={() => handleDeleteCollectionRecord(record.id)} className="inline-flex items-center justify-center rounded-2xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm font-semibold text-rose-700 transition hover:bg-rose-100">刪除</button> : null}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </section>
 
-      <section className={`rounded-[28px] border p-6 shadow-sm ${isClosedView ? "border-slate-200 bg-white" : "border-slate-200 bg-white"}`}>
-        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-          <SimpleSectionTitle title="對外報價單" />
-          <div className="flex flex-wrap gap-2">
-            {isClosedView ? (
-              <span className="inline-flex items-center rounded-2xl border border-slate-200 bg-slate-50 px-4 py-2 text-sm font-semibold text-slate-700">
-                {presenter.quotationLockedLabel}
-              </span>
-            ) : quoteImportRecord ? (
-              <span className="inline-flex items-center rounded-2xl border border-slate-200 bg-slate-50 px-4 py-2 text-sm font-semibold text-slate-700">
-                已承接正式報價版本
-              </span>
-            ) : (
-              <span className="inline-flex items-center rounded-2xl border border-amber-200 bg-amber-50 px-4 py-2 text-sm font-semibold text-amber-700">
-                尚無正式報價資料
-              </span>
-            )}
-          </div>
-        </div>
+          <section className={`rounded-[28px] border p-6 shadow-sm ${isClosedView ? "border-slate-200 bg-white" : "border-slate-200 bg-white"}`}>
+            <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+              <SimpleSectionTitle title="廠商付款狀態" />
+              <p className="text-sm text-slate-500">這裡只做 project 視角 readback；實際付款主入口在 Vendor Data detail。</p>
+            </div>
+            <div className="mt-5 overflow-x-auto rounded-2xl border border-slate-200">
+              <table className="min-w-full divide-y divide-slate-200 text-left text-sm">
+                <thead className="bg-slate-50 text-slate-500">
+                  <tr>
+                    <th className="px-4 py-3 font-medium">廠商</th>
+                    <th className="px-4 py-3 font-medium">目前應付</th>
+                    <th className="px-4 py-3 font-medium">已付款</th>
+                    <th className="px-4 py-3 font-medium">未付款</th>
+                    <th className="px-4 py-3 font-medium">付款狀態</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100 bg-white">
+                  {vendorPaymentRecords.map((record) => {
+                    const unpaid = Math.max(record.payableAmount - record.paidAmount, 0);
+                    const status = record.paidAmount <= 0 ? '未付款' : record.paidAmount < record.payableAmount ? '部分付款' : '已付款';
+                    return (
+                      <tr key={record.vendorName}>
+                        <td className="px-4 py-3 font-medium text-slate-900">{record.vendorName}</td>
+                        <td className="px-4 py-3 text-slate-700">{formatCurrency(record.payableAmount)}</td>
+                        <td className="px-4 py-3 text-slate-700">{formatCurrency(record.paidAmount)}</td>
+                        <td className="px-4 py-3 text-slate-700">{formatCurrency(unpaid)}</td>
+                        <td className="px-4 py-3"><span className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ring-1 ${status === '已付款' ? 'bg-emerald-50 text-emerald-700 ring-emerald-200' : status === '部分付款' ? 'bg-sky-50 text-sky-700 ring-sky-200' : 'bg-amber-50 text-amber-700 ring-amber-200'}`}>{status}</span></td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </section>
 
-        <div className="mt-5 overflow-x-auto rounded-2xl border border-slate-200">
-          <table className="min-w-[980px] divide-y divide-slate-200 text-left text-sm xl:min-w-full">
-            <thead className="bg-slate-50 text-slate-500">
-              <tr>
-                <th className="px-4 py-3 font-medium">分類</th>
-                <th className="px-4 py-3 font-medium">項目名稱</th>
-                <th className="px-4 py-3 font-medium">說明</th>
-                <th className="px-4 py-3 font-medium">數量</th>
-                <th className="px-4 py-3 font-medium">單位</th>
-                <th className="px-4 py-3 font-medium">單價</th>
-                <th className="px-4 py-3 font-medium">小計</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100 bg-white">
-              {state.quotationItems.map((item) => (
-                <tr key={item.id} className={isClosedView ? "bg-white" : "hover:bg-slate-50/80"}>
-                  <td className="px-4 py-4 text-slate-600">{item.category}</td>
-                  <td className="px-4 py-4 font-medium text-slate-900">{item.itemName}</td>
-                  <td className="px-4 py-4 text-slate-600">{item.description}</td>
-                  <td className="px-4 py-4 text-slate-600">{item.quantity}</td>
-                  <td className="px-4 py-4 text-slate-600">{item.unit}</td>
-                  <td className="px-4 py-4 text-slate-600">{formatCurrency(item.unitPrice)}</td>
-                  <td className="px-4 py-4 font-semibold text-slate-900">{formatCurrency(item.quantity * item.unitPrice)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </section>
+          <section className={`rounded-[28px] border p-6 shadow-sm ${isClosedView ? "border-slate-200 bg-white" : "border-slate-200 bg-white"}`}>
+            <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+              <SimpleSectionTitle title="對外報價單" />
+              <div className="flex flex-wrap gap-2">
+                {quoteImportRecord ? (
+                  <span className="inline-flex items-center rounded-2xl border border-slate-200 bg-slate-50 px-4 py-2 text-sm font-semibold text-slate-700">
+                    已承接正式報價版本
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center rounded-2xl border border-amber-200 bg-amber-50 px-4 py-2 text-sm font-semibold text-amber-700">
+                    尚無正式報價資料
+                  </span>
+                )}
+              </div>
+            </div>
+
+            <div className="mt-5 overflow-x-auto rounded-2xl border border-slate-200">
+              <table className="min-w-[980px] divide-y divide-slate-200 text-left text-sm xl:min-w-full">
+                <thead className="bg-slate-50 text-slate-500">
+                  <tr>
+                    <th className="px-4 py-3 font-medium">分類</th>
+                    <th className="px-4 py-3 font-medium">項目名稱</th>
+                    <th className="px-4 py-3 font-medium">說明</th>
+                    <th className="px-4 py-3 font-medium">數量</th>
+                    <th className="px-4 py-3 font-medium">單位</th>
+                    <th className="px-4 py-3 font-medium">單價</th>
+                    <th className="px-4 py-3 font-medium">小計</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100 bg-white">
+                  {state.quotationItems.map((item) => (
+                    <tr key={item.id} className="hover:bg-slate-50/80">
+                      <td className="px-4 py-4 text-slate-600">{item.category}</td>
+                      <td className="px-4 py-4 font-medium text-slate-900">{item.itemName}</td>
+                      <td className="px-4 py-4 text-slate-600">{item.description}</td>
+                      <td className="px-4 py-4 text-slate-600">{item.quantity}</td>
+                      <td className="px-4 py-4 text-slate-600">{item.unit}</td>
+                      <td className="px-4 py-4 text-slate-600">{formatCurrency(item.unitPrice)}</td>
+                      <td className="px-4 py-4 font-semibold text-slate-900">{formatCurrency(item.quantity * item.unitPrice)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </section>
+        </>
+      ) : null}
 
       <section className={`rounded-[28px] border p-6 shadow-sm ${isClosedView ? "border-slate-200 bg-slate-50/70" : "border-slate-200 bg-white"}`}>
         <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
@@ -640,15 +640,15 @@ export function QuoteCostDetailClient({ project, mode = "active", presenter = ge
                   ? "人工新增費用儲存中..."
                   : hasUnsavedManualChanges
                     ? "你目前有尚未儲存的人工新增費用;按下「儲存」後才會同步到 list / detail / closeout。"
-                    : "目前人工新增費用已與正式資料同步。")} 
+                    : "目前人工新增費用已與正式資料同步。")}
             </div>
           ) : null}
           {presenter.canCloseProject ? (
             <div className={`mb-4 text-xs ${closeoutError ? 'text-rose-600' : canCloseProject ? 'text-emerald-600' : 'text-amber-600'}`}>
               {closeoutError
                 ?? (canCloseProject
-                  ? '已符合結案條件：未收款 = 0 且全部對帳完畢。'
-                  : `尚未符合結案條件：目前未收款 ${formatCurrency(outstandingTotal)}，對帳狀態 ${derivedReconciliationStatus}。`)}
+                  ? '已符合結案條件:未收款 = 0 且全部對帳完畢。'
+                  : `尚未符合結案條件:目前未收款 ${formatCurrency(outstandingTotal)},對帳狀態 ${derivedReconciliationStatus}。`)}
             </div>
           ) : null}
           <ArchiveContentPanel source={activeArchiveSource} costItems={state.costItems} manualItems={manualItems} isClosedView={isClosedView} onManualItemChange={handleManualItemChange} />
