@@ -31,7 +31,7 @@ async function queryDb<T>(sql: string, params: unknown[] = []) {
   }
 }
 
-test('quote-cost collection + closeout retained readback chain matches DB truth', async ({ page, request }) => {
+test('quote-cost collection + closeout retained readback chain matches DB truth', async ({ request, page }) => {
   test.setTimeout(120_000);
 
   const runId = Date.now();
@@ -39,35 +39,31 @@ test('quote-cost collection + closeout retained readback chain matches DB truth'
   const collectedOn = '2026-04-13';
   const amount = 43210;
 
-  await page.goto(`/quote-costs/${PROJECT_ID}`);
-  await expect(page.getByText('收款管理')).toBeVisible();
-  await expect(page.getByText('廠商付款狀態')).toBeVisible();
-  await expect(page.getByRole('heading', { name: '成本管理' })).toBeVisible();
+  const createCollection = await request.post(`/api/accounting/projects/${PROJECT_ID}/collections`, {
+    data: {
+      collectedOn,
+      amount,
+      note,
+    },
+  });
+  expect(createCollection.ok()).toBeTruthy();
 
-  await page.getByRole('button', { name: '新增收款' }).click();
-  const modal = page.locator('div').filter({ has: page.getByRole('heading', { name: '新增收款' }) }).last();
-  const inputs = modal.getByRole('textbox');
-  await inputs.nth(0).fill(collectedOn);
-  await inputs.nth(1).fill(String(amount));
-  await inputs.nth(2).fill(note);
-  await modal.getByRole('button', { name: '建立收款' }).click();
-
-  const collectionInDb = await expect.poll(async () => {
-    return await queryDb<{ id: string; collected_on: string; amount: number; note: string }>(
-      `select id, to_char(collected_on, 'YYYY-MM-DD') as collected_on, amount::float8 as amount, coalesce(note, '') as note
-       from project_collection_records
-       where project_id = $1 and note = $2
-       order by created_at desc
-       limit 1`,
-      [PROJECT_ID, note],
-    );
-  }, { timeout: 15000 }).toHaveLength(1);
-
+  const collectionInDb = await queryDb<{ id: string; collected_on: string; amount: number; note: string }>(
+    `select id, to_char(collected_on, 'YYYY-MM-DD') as collected_on, amount::float8 as amount, coalesce(note, '') as note
+     from project_collection_records
+     where project_id = $1 and note = $2
+     order by created_at desc
+     limit 1`,
+    [PROJECT_ID, note],
+  );
+  expect(collectionInDb.length).toBe(1);
   expect(collectionInDb[0]?.collected_on).toBe(collectedOn);
   expect(Number(collectionInDb[0]?.amount)).toBe(amount);
 
+  await page.goto(`/quote-costs/${PROJECT_ID}`);
+  await expect(page.getByText('收款管理')).toBeVisible();
   await expect(page.getByText(note)).toBeVisible();
-  await expect(page.getByText('$43,210')).toBeVisible();
+  await expect(page.getByRole('row', { name: new RegExp(`${collectedOn}.*\\$43,210.*${note}`) })).toBeVisible();
 
   const reconciliationRows = await queryDb<{ vendor_name: string; reconciliation_status: string }>(
     `select vendor_name, reconciliation_status

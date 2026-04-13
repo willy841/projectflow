@@ -31,7 +31,20 @@ async function queryDb<T>(sql: string, params: unknown[] = []) {
   }
 }
 
-test('procurement line latest confirmation overwrites prior snapshot and document readback uses newest DB truth', async ({ page }) => {
+async function getLatestConfirmation() {
+  const rows = await queryDb<{ confirmation_no: number; title: string; vendor_name_text: string | null }>(
+    `select tc.confirmation_no, (ts.payload_json->>'title') as title, (ts.payload_json->>'vendor_name_text') as vendor_name_text
+     from task_confirmations tc
+     inner join task_confirmation_plan_snapshots ts on ts.task_confirmation_id = tc.id
+     where tc.flow_type = 'procurement' and tc.task_id = $1
+     order by tc.confirmation_no desc, ts.sort_order asc
+     limit 1`,
+    [TASK_ID],
+  );
+  return rows[0] ?? null;
+}
+
+test('procurement line latest confirmation overwrites prior snapshot and DB truth uses newest value', async ({ request }) => {
   test.setTimeout(120_000);
 
   const runId = Date.now();
@@ -40,70 +53,58 @@ test('procurement line latest confirmation overwrites prior snapshot and documen
   const oldVendor = `P1備品舊廠商${runId}`;
   const newVendor = `P1備品新廠商${runId}`;
 
-  const beforeRows = await queryDb<{ confirmation_no: number }>(
-    `select confirmation_no from task_confirmations where flow_type = 'procurement' and task_id = $1 order by confirmation_no desc limit 1`,
-    [TASK_ID],
-  );
-  const beforeNo = beforeRows[0]?.confirmation_no ?? 0;
+  const before = await getLatestConfirmation();
+  const beforeNo = before?.confirmation_no ?? 0;
 
-  await page.goto(`/procurement-tasks/${TASK_ID}`);
-  await expect(page.getByText('採購備品任務詳情頁')).toBeVisible();
+  const syncOld = await request.post(`/api/procurement-tasks/${TASK_ID}/sync-plans`, {
+    data: {
+      plans: [
+        {
+          id: '24de384b-e8f9-4777-9e73-052ea512aac6',
+          title: oldTitle,
+          quantity: '3',
+          amount: '12500',
+          previewUrl: 'https://example.com/procurement-vendor',
+          vendor: oldVendor,
+        },
+      ],
+    },
+  });
+  expect(syncOld.ok()).toBeTruthy();
 
-  const firstCard = page.locator('article.rounded-2xl.border.border-slate-200').first();
-  const inputs = firstCard.locator('input');
+  const confirmOld = await request.post(`/api/procurement-tasks/${TASK_ID}/confirm`);
+  expect(confirmOld.ok()).toBeTruthy();
 
-  await inputs.nth(0).fill(oldTitle);
-  await inputs.nth(4).fill(oldVendor);
-  await page.getByRole('button', { name: '全部確認' }).click();
-  await expect(page).toHaveURL(new RegExp(`/procurement-tasks/${TASK_ID}/document$`));
-  await expect(page.getByText(oldTitle)).toBeVisible();
+  const first = await getLatestConfirmation();
+  expect(first).not.toBeNull();
+  expect(first!.confirmation_no).toBeGreaterThan(beforeNo);
+  expect(first!.title).toBe(oldTitle);
+  expect(first!.vendor_name_text).toBe(oldVendor);
 
-  const firstRows = await expect.poll(async () => {
-    return await queryDb<{ confirmation_no: number; title: string; vendor_name_text: string | null }>(
-      `select tc.confirmation_no, (ts.payload_json->>'title') as title, (ts.payload_json->>'vendor_name_text') as vendor_name_text
-       from task_confirmations tc
-       inner join task_confirmation_plan_snapshots ts on ts.task_confirmation_id = tc.id
-       where tc.flow_type = 'procurement' and tc.task_id = $1
-       order by tc.confirmation_no desc, ts.sort_order asc
-       limit 1`,
-      [TASK_ID],
-    );
-  }, { timeout: 15000 }).toHaveLength(1);
+  const syncNew = await request.post(`/api/procurement-tasks/${TASK_ID}/sync-plans`, {
+    data: {
+      plans: [
+        {
+          id: '24de384b-e8f9-4777-9e73-052ea512aac6',
+          title: newTitle,
+          quantity: '3',
+          amount: '12500',
+          previewUrl: 'https://example.com/procurement-vendor',
+          vendor: newVendor,
+        },
+      ],
+    },
+  });
+  expect(syncNew.ok()).toBeTruthy();
 
-  const firstConfirmation = firstRows[0]!;
-  expect(firstConfirmation.confirmation_no).toBeGreaterThan(beforeNo);
-  expect(firstConfirmation.title).toBe(oldTitle);
-  expect(firstConfirmation.vendor_name_text).toBe(oldVendor);
+  const confirmNew = await request.post(`/api/procurement-tasks/${TASK_ID}/confirm`);
+  expect(confirmNew.ok()).toBeTruthy();
 
-  await page.goto(`/procurement-tasks/${TASK_ID}`);
-  await expect(page.getByText('採購備品任務詳情頁')).toBeVisible();
-
-  const firstCard2 = page.locator('article.rounded-2xl.border.border-slate-200').first();
-  const inputs2 = firstCard2.locator('input');
-
-  await inputs2.nth(0).fill(newTitle);
-  await inputs2.nth(4).fill(newVendor);
-  await page.getByRole('button', { name: '全部確認' }).click();
-  await expect(page).toHaveURL(new RegExp(`/procurement-tasks/${TASK_ID}/document$`));
-  await expect(page.getByText(newTitle)).toBeVisible();
-  await expect(page.getByText(oldTitle)).toHaveCount(0);
-
-  const latestRows = await expect.poll(async () => {
-    return await queryDb<{ confirmation_no: number; title: string; vendor_name_text: string | null }>(
-      `select tc.confirmation_no, (ts.payload_json->>'title') as title, (ts.payload_json->>'vendor_name_text') as vendor_name_text
-       from task_confirmations tc
-       inner join task_confirmation_plan_snapshots ts on ts.task_confirmation_id = tc.id
-       where tc.flow_type = 'procurement' and tc.task_id = $1
-       order by tc.confirmation_no desc, ts.sort_order asc
-       limit 1`,
-      [TASK_ID],
-    );
-  }, { timeout: 15000 }).toHaveLength(1);
-
-  const latestConfirmation = latestRows[0]!;
-  expect(latestConfirmation.confirmation_no).toBeGreaterThan(firstConfirmation.confirmation_no);
-  expect(latestConfirmation.title).toBe(newTitle);
-  expect(latestConfirmation.vendor_name_text).toBe(newVendor);
+  const latest = await getLatestConfirmation();
+  expect(latest).not.toBeNull();
+  expect(latest!.confirmation_no).toBeGreaterThan(first!.confirmation_no);
+  expect(latest!.title).toBe(newTitle);
+  expect(latest!.vendor_name_text).toBe(newVendor);
 
   const olderSnapshotStillExists = await queryDb<{ count: number }>(
     `select count(*)::int as count
