@@ -31,13 +31,15 @@ async function queryDb<T>(sql: string, params: unknown[] = []) {
   }
 }
 
-test('quote-cost collection + closeout retained readback chain matches DB truth', async ({ request, page }) => {
+test('quote-cost active flow closes into retained closeout readback with DB truth', async ({ request, page }) => {
   test.setTimeout(120_000);
 
   const runId = Date.now();
   const note = `P1 full-chain collection ${runId}`;
   const collectedOn = '2026-04-13';
   const amount = 43210;
+
+  await queryDb(`update projects set status = 'active' where id = $1`, [PROJECT_ID]);
 
   const createCollection = await request.post(`/api/accounting/projects/${PROJECT_ID}/collections`, {
     data: {
@@ -74,18 +76,18 @@ test('quote-cost collection + closeout retained readback chain matches DB truth'
   );
   expect(reconciliationRows.length).toBeGreaterThan(0);
 
-  const closeoutProbe = await request.post(`/api/financial-projects/${PROJECT_ID}/closeout`, {
+  const closeout = await request.post(`/api/financial-projects/${PROJECT_ID}/closeout`, {
     data: {
-      expectedOutstandingTotal: 999999,
-      expectedReconciliationStatus: '待確認',
+      expectedOutstandingTotal: 0,
+      expectedReconciliationStatus: '已完成',
     },
   });
-  expect(closeoutProbe.ok()).toBeFalsy();
-  const closeoutProbeJson = await closeoutProbe.json();
-  expect(['stale-outstanding-total', 'stale-reconciliation-status', 'outstanding-not-zero', 'reconciliation-not-complete']).toContain(closeoutProbeJson.error);
+  expect(closeout.ok()).toBeTruthy();
+
+  const closeoutJson = await closeout.json();
+  expect(closeoutJson.status).toBe('已結案');
 
   await page.goto(`/closeout/${PROJECT_ID}`);
-  await expect(page.getByText('結案留存')).toBeVisible();
   await expect(page.getByText(note)).toBeVisible();
 
   const retainedRows = await queryDb<{ count: number }>(

@@ -349,42 +349,43 @@ export function QuoteCostDetailClient({ project, mode = "active", presenter = ge
         <SummaryCard title="毛利" value={formatCurrency(grossProfit)} mode={mode} />
       </section>
 
-      {!isClosedView ? (
-        <>
-          <section className={`rounded-[28px] border p-6 shadow-sm ${isClosedView ? "border-slate-200 bg-white" : "border-slate-200 bg-white"}`}>
-            <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-              <SimpleSectionTitle title={presenter.collectionTitle} />
-              {presenter.canCreateCollectionRecord ? (
-                <button type="button" onClick={() => setCollectionForm({ collectedOn: state.eventDate, amount: '', note: '' })} className="inline-flex items-center justify-center rounded-2xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800">{presenter.collectionPrimaryActionLabel}</button>
-              ) : null}
-            </div>
-            <div className="mt-5 overflow-x-auto rounded-2xl border border-slate-200">
-              <table className="min-w-full divide-y divide-slate-200 text-left text-sm">
-                <thead className="bg-slate-50 text-slate-500">
-                  <tr>
-                    <th className="px-4 py-3 font-medium">收款日期</th>
-                    <th className="px-4 py-3 font-medium">收款金額</th>
-                    <th className="px-4 py-3 font-medium">備註</th>
-                    <th className="px-4 py-3 font-medium">刪除</th>
+      <>
+        <section className={`rounded-[28px] border p-6 shadow-sm ${isClosedView ? "border-slate-200 bg-white" : "border-slate-200 bg-white"}`}>
+          <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+            <SimpleSectionTitle title={presenter.collectionTitle} />
+            {presenter.canCreateCollectionRecord ? (
+              <button type="button" onClick={() => setCollectionForm({ collectedOn: state.eventDate, amount: '', note: '' })} className="inline-flex items-center justify-center rounded-2xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800">{presenter.collectionPrimaryActionLabel}</button>
+            ) : null}
+          </div>
+          <div className="mt-5 overflow-x-auto rounded-2xl border border-slate-200">
+            <table className="min-w-full divide-y divide-slate-200 text-left text-sm">
+              <thead className="bg-slate-50 text-slate-500">
+                <tr>
+                  <th className="px-4 py-3 font-medium">收款日期</th>
+                  <th className="px-4 py-3 font-medium">收款金額</th>
+                  <th className="px-4 py-3 font-medium">備註</th>
+                  <th className="px-4 py-3 font-medium">刪除</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100 bg-white">
+                {collectionRecords.map((record) => (
+                  <tr key={record.id}>
+                    <td className="px-4 py-3 text-slate-700">{record.collectedOn}</td>
+                    <td className="px-4 py-3 font-semibold text-slate-900">{formatCurrency(record.amount)}</td>
+                    <td className="px-4 py-3 text-slate-600">{record.note || '-'}</td>
+                    <td className="px-4 py-3">
+                      {presenter.canDeleteCollectionRecord ? <button type="button" onClick={() => handleDeleteCollectionRecord(record.id)} className="inline-flex items-center justify-center rounded-2xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm font-semibold text-rose-700 transition hover:bg-rose-100">刪除</button> : null}
+                    </td>
                   </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100 bg-white">
-                  {collectionRecords.map((record) => (
-                    <tr key={record.id}>
-                      <td className="px-4 py-3 text-slate-700">{record.collectedOn}</td>
-                      <td className="px-4 py-3 font-semibold text-slate-900">{formatCurrency(record.amount)}</td>
-                      <td className="px-4 py-3 text-slate-600">{record.note || '-'}</td>
-                      <td className="px-4 py-3">
-                        {presenter.canDeleteCollectionRecord ? <button type="button" onClick={() => handleDeleteCollectionRecord(record.id)} className="inline-flex items-center justify-center rounded-2xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm font-semibold text-rose-700 transition hover:bg-rose-100">刪除</button> : null}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </section>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
 
-          <section className={`rounded-[28px] border p-6 shadow-sm ${isClosedView ? "border-slate-200 bg-white" : "border-slate-200 bg-white"}`}>
+        {!isClosedView ? (
+          <>
+            <section className={`rounded-[28px] border p-6 shadow-sm ${isClosedView ? "border-slate-200 bg-white" : "border-slate-200 bg-white"}`}>
             <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
               <SimpleSectionTitle title="廠商付款狀態" />
               <p className="text-sm text-slate-500">這裡只做 project 視角 readback；實際付款主入口在 Vendor Data detail。</p>
@@ -464,8 +465,9 @@ export function QuoteCostDetailClient({ project, mode = "active", presenter = ge
               </table>
             </div>
           </section>
-        </>
-      ) : null}
+          </>
+        ) : null}
+      </>
 
       <section className={`rounded-[28px] border p-6 shadow-sm ${isClosedView ? "border-slate-200 bg-slate-50/70" : "border-slate-200 bg-white"}`}>
         <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
