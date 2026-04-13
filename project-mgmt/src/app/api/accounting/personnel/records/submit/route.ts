@@ -8,6 +8,7 @@ export async function POST(request: Request) {
       salaryMonth?: string;
       payload?: Record<string, unknown>;
     };
+    console.info('[accounting][personnel][submit][api][request]', body);
     if (!body.employeeId || !body.salaryMonth) {
       return NextResponse.json({ ok: false, error: 'employeeId 與 salaryMonth 為必填' }, { status: 400 });
     }
@@ -19,8 +20,10 @@ export async function POST(request: Request) {
       do update set payload_json = excluded.payload_json, submitted_at = excluded.submitted_at
       returning id
     `, [body.employeeId, body.salaryMonth, JSON.stringify(body.payload ?? {})]);
+    console.info('[accounting][personnel][submit][api][ok]', { id: result.rows[0]?.id ?? null, employeeId: body.employeeId, salaryMonth: body.salaryMonth });
     return NextResponse.json({ ok: true, id: result.rows[0]?.id ?? null });
   } catch (error) {
+    console.error('[accounting][personnel][submit][api][error]', error instanceof Error ? error.message : error);
     return NextResponse.json({ ok: false, error: error instanceof Error ? error.message : 'Unknown personnel submit error' }, { status: 500 });
   }
 }
