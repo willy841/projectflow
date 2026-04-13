@@ -2,6 +2,7 @@ import { createPhase1DbClient } from '@/lib/db/phase1-client';
 import { createPhase1Repositories } from '@/lib/db/phase1-repositories';
 import type { VendorPackage } from '@/components/vendor-data';
 import type { TaskConfirmationRow } from '@/lib/db/phase1-types';
+import { getLatestConfirmationPriorityRule, mapVendorSnapshotToDocumentLine, type VendorDocumentSnapshotPayload } from '@/lib/db/vendor-document-contract';
 
 type PackageSnapshotSeed = {
   confirmationId: string;
@@ -167,12 +168,13 @@ export async function listDbVendorPackages(): Promise<VendorPackage[]> {
 
       const items = sortedItemGroups.flatMap(({ row, snapshots }) =>
         snapshots.map((snapshot, index) => {
-          const payload = snapshot.payload_json as { title?: string; requirement_text?: string | null };
+          const payload = snapshot.payload_json as VendorDocumentSnapshotPayload;
+          const line = mapVendorSnapshotToDocumentLine(payload, index);
           return {
             id: snapshot.id,
             assignmentId: row.vendorTaskId,
-            itemName: payload.title || `處理方案 ${index + 1}`,
-            requirementText: payload.requirement_text ?? '',
+            itemName: line.itemName,
+            requirementText: line.requirementText,
           };
         }),
       );
@@ -199,3 +201,5 @@ export async function getDbVendorPackageById(id: string): Promise<VendorPackage 
   const packages = await listDbVendorPackages();
   return packages.find((pkg) => pkg.id === id) ?? null;
 }
+
+export const vendorDocumentPriorityRule = getLatestConfirmationPriorityRule();
