@@ -2183,6 +2183,26 @@ export function ExecutionTree({
                                   <h5 className="font-medium text-slate-900">
                                     {child.title}
                                   </h5>
+                                  {savedDesignAssignments[child.id] ? (
+                                    <span className="inline-flex items-center justify-center rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700 ring-1 ring-slate-200">
+                                      已建立設計交辦
+                                    </span>
+                                  ) : null}
+                                  {savedProcurementAssignments[child.id] ? (
+                                    <span className="inline-flex items-center justify-center rounded-full bg-amber-50 px-3 py-1 text-xs font-medium text-amber-700 ring-1 ring-amber-200">
+                                      已建立備品交辦
+                                    </span>
+                                  ) : null}
+                                  {savedVendorAssignments[child.id] ? (
+                                    <span className="inline-flex items-center justify-center rounded-full bg-violet-50 px-3 py-1 text-xs font-medium text-violet-700 ring-1 ring-violet-200">
+                                      已建立廠商交辦
+                                    </span>
+                                  ) : null}
+                                  {!hasChildAssignment ? (
+                                    <span className="inline-flex items-center justify-center rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-500 ring-1 ring-slate-200">
+                                      尚未建立交辦
+                                    </span>
+                                  ) : null}
                                 </div>
                                 {child.note ? (
                                   <p className="mt-2 text-sm text-slate-500">
