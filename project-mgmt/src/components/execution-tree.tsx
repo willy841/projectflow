@@ -2035,7 +2035,7 @@ export function ExecutionTree({
             data-execution-item-id={item.id}
             className="rounded-3xl border border-slate-300 bg-white p-5 shadow-sm transition hover:border-slate-400"
           >
-            <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
+            <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
               <div className="flex min-w-0 flex-1 items-start gap-4">
                 <button
                   type="button"
@@ -2107,13 +2107,15 @@ export function ExecutionTree({
                         ) : null}
                       </div>
                       {!hasMainAssignment ? (
-                        <div className="mt-3 text-xs text-slate-500">尚未建立交辦</div>
+                        <span className="inline-flex items-center justify-center rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-500 ring-1 ring-slate-200">
+                          尚未建立交辦
+                        </span>
                       ) : null}
                     </>
                   )}
                 </div>
               </div>
-              <div className="flex w-full flex-wrap gap-2 sm:w-auto">
+              <div className="flex w-full flex-wrap items-center gap-2 self-center sm:w-auto sm:justify-end">
                 <AssignmentMenu
                   targetId={item.id}
                   isActive={activeAssignMenu === item.id}
