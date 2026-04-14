@@ -1090,7 +1090,7 @@ export function AccountingCenterPage({
                 <table className="min-w-full divide-y divide-slate-200 text-left text-sm">
                   <thead className="bg-slate-50 text-slate-500">
                     <tr>
-                      {['專案名稱', '活動日期', '總金額', '已收款', '未收款', '查看詳情'].map((header) => (
+                      {['專案名稱', '活動日期', '總金額', '已收款', '未收款', '查看'].map((header) => (
                         <th key={header} className="px-4 py-3 font-medium whitespace-nowrap">{header}</th>
                       ))}
                     </tr>
@@ -1104,7 +1104,7 @@ export function AccountingCenterPage({
                         <td className="px-4 py-3 text-slate-900">{formatCurrency(project.collectedAmount)}</td>
                         <td className="px-4 py-3 font-semibold text-amber-700">{formatCurrency(Math.max(project.totalAmount - project.collectedAmount, 0))}</td>
                         <td className="px-4 py-3">
-                          <Link href={project.projectId ? `/quote-costs/${project.projectId}` : '/quote-costs'} className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-800 transition hover:border-slate-400 hover:bg-slate-50">查看詳情</Link>
+                          <Link href={project.projectId ? `/quote-costs/${project.projectId}` : '/quote-costs'} className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-800 transition hover:border-slate-400 hover:bg-slate-50">查看</Link>
                         </td>
                       </tr>
                     ))}
@@ -1138,21 +1138,21 @@ export function AccountingCenterPage({
                       <MetricCard label="人事總成本" value={formatCurrency(personnelSummary.total)} hint="本月人事總成本" tone="amber" compact />
                     </div>
                     <div className="mt-5 space-y-4">
-                      <ListBlock title="正職記錄" headers={["姓名", "應支合計", "應扣合計", "單位負擔合計", "人事成本總支出", "查看詳情"]} rows={fullTimeRecords.map((record) => [record.name, formatCurrency(calculateFullTimeGross(record)), formatCurrency(calculateFullTimeDeduction(record)), formatCurrency(calculateFullTimeEmployerContribution(record)), formatCurrency(calculateFullTimeCost(record))])} actionLabel="查看詳情" onAction={(index) => setRecordDrawer({ type: "full-time", id: fullTimeRecords[index].id })} />
-                      <ListBlock title="兼職記錄" headers={["姓名", "本月工作時數", "每小時薪資金額", "本月應支金額", "查看詳情"]} rows={partTimeRecords.map((record) => [record.name, `${record.hours} 小時`, formatCurrency(record.hourlyRate), formatCurrency(calculatePartTimePay(record))])} actionLabel="查看詳情" onAction={(index) => setRecordDrawer({ type: "part-time", id: partTimeRecords[index].id })} />
+                      <ListBlock title="正職記錄" headers={["姓名", "應支合計", "應扣合計", "單位負擔合計", "人事成本總支出", "查看"]} rows={fullTimeRecords.map((record) => [record.name, formatCurrency(calculateFullTimeGross(record)), formatCurrency(calculateFullTimeDeduction(record)), formatCurrency(calculateFullTimeEmployerContribution(record)), formatCurrency(calculateFullTimeCost(record))])} actionLabel="查看" onAction={(index) => setRecordDrawer({ type: "full-time", id: fullTimeRecords[index].id })} />
+                      <ListBlock title="兼職記錄" headers={["姓名", "本月工作時數", "每小時薪資金額", "本月應支金額", "查看"]} rows={partTimeRecords.map((record) => [record.name, `${record.hours} 小時`, formatCurrency(record.hourlyRate), formatCurrency(calculatePartTimePay(record))])} actionLabel="查看" onAction={(index) => setRecordDrawer({ type: "part-time", id: partTimeRecords[index].id })} />
                     </div>
                   </Panel>
               ) : null}
 
               {expenseTab === "office" ? (
                 <Panel title="本月庶務支出">
-                  <div className="mt-5"><ListBlock title="庶務記錄區" headers={["項目名稱", "分類", "金額", "備註", "查看詳情"]} rows={currentOfficeExpenses.map((expense) => [expense.item, expense.category, formatCurrency(expense.amount), expense.note || "-"])} actionLabel="查看詳情" onAction={(index) => setRecordDrawer({ type: "office", id: currentOfficeExpenses[index].id })} /></div>
+                  <div className="mt-5"><ListBlock title="庶務記錄區" headers={["項目名稱", "分類", "金額", "備註", "查看"]} rows={currentOfficeExpenses.map((expense) => [expense.item, expense.category, formatCurrency(expense.amount), expense.note || "-"])} actionLabel="查看" onAction={(index) => setRecordDrawer({ type: "office", id: currentOfficeExpenses[index].id })} /></div>
                 </Panel>
               ) : null}
 
               {expenseTab === "other" ? (
                 <Panel title="其他支出">
-                  <div className="mt-5"><ListBlock title="其他記錄區" headers={["項目名稱", "金額", "備註", "查看詳情"]} rows={currentOtherExpenses.map((expense) => [expense.item, formatCurrency(expense.amount), expense.note || "-"])} actionLabel="查看詳情" onAction={(index) => setRecordDrawer({ type: "other", id: currentOtherExpenses[index].id })} /></div>
+                  <div className="mt-5"><ListBlock title="其他記錄區" headers={["項目名稱", "金額", "備註", "查看"]} rows={currentOtherExpenses.map((expense) => [expense.item, formatCurrency(expense.amount), expense.note || "-"])} actionLabel="查看" onAction={(index) => setRecordDrawer({ type: "other", id: currentOtherExpenses[index].id })} /></div>
                 </Panel>
               ) : null}
 
