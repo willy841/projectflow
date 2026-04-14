@@ -165,7 +165,7 @@ export default async function DesignTasksPage({
                         href={`/design-tasks/${task.id}`}
                         className="inline-flex items-center justify-center rounded-2xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-700"
                       >
-                        查看任務
+                        查看
                       </Link>
                     </div>
                   </div>

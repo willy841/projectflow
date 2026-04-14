@@ -108,7 +108,7 @@ export default async function ProcurementTasksPage({
                       <div className="rounded-2xl bg-slate-50 px-4 py-3"><p className="text-xs text-slate-500">預算</p><p className="mt-2 text-sm font-medium text-slate-900">{task.costLabel}</p></div>
                     </div>
                     <div className="flex justify-end">
-                      <Link href={`/procurement-tasks/${task.id}`} className="inline-flex items-center justify-center rounded-2xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-700">查看任務</Link>
+                      <Link href={`/procurement-tasks/${task.id}`} className="inline-flex items-center justify-center rounded-2xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-700">查看</Link>
                     </div>
                   </div>
                 </article>

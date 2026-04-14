@@ -71,7 +71,7 @@ export function QuoteCostListClient({ mode = "active", initialProjects }: { mode
           <input
             value={searchKeyword}
             onChange={(event) => setSearchKeyword(event.target.value)}
-            placeholder="搜尋專案名稱 / 客戶 / 專案代碼"
+            placeholder="搜尋專案名稱 / 客戶"
             className="h-11 w-full rounded-2xl border border-slate-200 px-4 text-sm outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-200 lg:max-w-sm"
           />
         </div>

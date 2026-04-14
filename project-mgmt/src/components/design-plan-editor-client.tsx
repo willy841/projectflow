@@ -205,7 +205,7 @@ export function DesignPlanEditorClient({
               <input value={plan.amount} onChange={(e) => updatePlan(plan.id, "amount", e.target.value)} className="mt-2 h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm font-medium text-slate-900" />
             </label>
             <label className="rounded-2xl bg-slate-50 px-4 py-3 xl:col-span-2">
-              <p className="text-xs text-slate-500">預覽位置</p>
+              <p className="text-xs text-slate-500">預覽連結</p>
               <input value={plan.previewUrl} onChange={(e) => updatePlan(plan.id, "previewUrl", e.target.value)} className="mt-2 h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm font-medium text-slate-900" />
             </label>
             <label className="rounded-2xl bg-slate-50 px-4 py-3 xl:col-span-2">

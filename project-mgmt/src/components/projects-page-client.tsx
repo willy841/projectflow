@@ -124,7 +124,7 @@ export function ProjectsPageClient({ initialProjects }: { initialProjects: Proje
             <input
               value={searchKeyword}
               onChange={(event) => setSearchKeyword(event.target.value)}
-              placeholder="搜尋專案 / 客戶 / 地點 / 專案代碼"
+              placeholder="搜尋專案 / 客戶 / 地點"
               className="h-11 w-full min-w-0 rounded-2xl border border-slate-200 px-4 text-sm outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-200 sm:w-80 xl:w-72"
             />
           </div>
