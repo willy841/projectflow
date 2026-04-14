@@ -24,7 +24,7 @@ export default async function VendorPackagesPage() {
       <section className="space-y-4">
         {packages.length ? packages.map((vendorPackage) => (
           <article key={vendorPackage.id} className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm ring-1 ring-slate-200">
-            <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
+            <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
               <div>
                 <p className="text-sm text-slate-500">{vendorPackage.code}</p>
                 <h3 className="mt-1 text-2xl font-semibold tracking-tight text-slate-900">{vendorPackage.vendorName}</h3>

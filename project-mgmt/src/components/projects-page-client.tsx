@@ -206,7 +206,7 @@ export function ProjectsPageClient({ initialProjects }: { initialProjects: Proje
 
       {pendingDeleteProject ? (
         <section className="rounded-3xl border border-rose-200 bg-rose-50/70 p-6 shadow-sm ring-1 ring-rose-100">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <h3 className="text-xl font-semibold text-slate-900">確認刪除專案</h3>
               <p className="mt-1 text-sm text-slate-600">

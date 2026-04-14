@@ -72,7 +72,7 @@ export default async function DesignTaskDetailPage({
           <div className="rounded-2xl bg-slate-50 px-4 py-3 xl:col-span-2">
             <p className="text-xs text-slate-500">參考連結</p>
             {task.referenceUrl ? (
-              <a href={task.referenceUrl} className="mt-2 block break-all text-sm font-medium text-blue-600 underline-offset-4 hover:underline">
+              <a href={task.referenceUrl} className="mt-2 block break-all text-sm font-medium text-slate-700 underline-offset-4 hover:underline">
                 {task.referenceUrl}
               </a>
             ) : (

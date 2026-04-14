@@ -87,7 +87,7 @@ export function CloseoutListClient({ initialProjects }: { initialProjects: Close
         <div className="space-y-4">
           {pagedProjects.map((project) => (
             <article key={project.id} className="rounded-3xl border border-slate-200 p-5">
-              <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
+              <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
                 <div>
                   <h4 className="text-xl font-semibold text-slate-900">{project.projectName}</h4>
                   <p className="mt-2 text-sm text-slate-600">{project.clientName} ・ 活動日期 {project.eventDate}</p>

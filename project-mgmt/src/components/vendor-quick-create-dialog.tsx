@@ -57,7 +57,7 @@ export function VendorQuickCreateDialog({
       <div className="w-full max-w-2xl rounded-3xl bg-white p-6 shadow-2xl ring-1 ring-slate-200">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <p className="text-xs font-semibold tracking-wide text-blue-700">QUICK CREATE</p>
+            <p className="text-xs font-semibold tracking-wide text-slate-500">QUICK CREATE</p>
             <h3 className="mt-1 text-2xl font-semibold text-slate-900">{title}</h3>
             <p className="mt-2 text-sm leading-6 text-slate-600">{description}</p>
           </div>
@@ -76,7 +76,7 @@ export function VendorQuickCreateDialog({
                 if (error) setError("");
               }}
               placeholder="例如：晨光輸出"
-              className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none focus:border-blue-400"
+              className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none focus:border-slate-400"
             />
           </label>
 
@@ -85,7 +85,7 @@ export function VendorQuickCreateDialog({
             <select
               value={tradeLabel}
               onChange={(event) => setTradeLabel(event.target.value)}
-              className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none focus:border-blue-400"
+              className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none focus:border-slate-400"
             >
               <option value="">暫不指定</option>
               {sortedTrades.map((trade) => (

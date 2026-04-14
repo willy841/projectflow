@@ -33,7 +33,7 @@ export default async function ProcurementTaskDetailPage({ params }: { params: Pr
           <div className="rounded-2xl bg-slate-50 px-4 py-3"><p className="text-xs text-slate-500">數量</p><p className="mt-2 text-sm font-medium text-slate-900">{task.quantity}</p></div>
           <div className="rounded-2xl bg-slate-50 px-4 py-3"><p className="text-xs text-slate-500">預算</p><p className="mt-2 text-sm font-medium text-slate-900">{task.costLabel}</p></div>
           <div className="rounded-2xl bg-slate-50 px-4 py-3 xl:col-span-3"><p className="text-xs text-slate-500">需求說明</p><p className="mt-2 text-sm font-medium text-slate-900">{task.note}</p></div>
-          <div className="rounded-2xl bg-slate-50 px-4 py-3 xl:col-span-2"><p className="text-xs text-slate-500">參考連結</p>{task.referenceUrl ? <a href={task.referenceUrl} className="mt-2 block break-all text-sm font-medium text-blue-600 underline-offset-4 hover:underline">{task.referenceUrl}</a> : <p className="mt-2 text-sm font-medium text-slate-400">未填寫</p>}</div>
+          <div className="rounded-2xl bg-slate-50 px-4 py-3 xl:col-span-2"><p className="text-xs text-slate-500">參考連結</p>{task.referenceUrl ? <a href={task.referenceUrl} className="mt-2 block break-all text-sm font-medium text-slate-700 underline-offset-4 hover:underline">{task.referenceUrl}</a> : <p className="mt-2 text-sm font-medium text-slate-400">未填寫</p>}</div>
         </div>
       </section>
 
