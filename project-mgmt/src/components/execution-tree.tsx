@@ -1592,7 +1592,7 @@ export function ExecutionTree({
 
           for (const child of mainItem.children ?? []) {
             const createdChild = await serverHandlers.createExecutionItem({ title: child.title, parentId: persistedMain.id });
-            persistedMain.children = [...(persistedMain.children ?? []), createdChild.item as ImportedItem["children"][number]];
+            persistedMain.children = [...(persistedMain.children ?? []), createdChild.item as ProjectExecutionSubItem];
           }
 
           persistedItems.push(persistedMain);
