@@ -911,18 +911,7 @@ function AssignmentDrawer({
         aria-hidden="true"
       />
       <aside className="fixed inset-y-0 right-0 z-50 flex w-full max-w-[720px] flex-col border-l border-slate-200 bg-white shadow-2xl">
-        <div className="flex items-start justify-between gap-4 border-b border-slate-200 px-6 py-5">
-          <div className="min-w-0">
-            <div className="flex flex-wrap items-center gap-2">
-              <span className={`inline-flex items-center justify-center rounded-full px-3 py-1 text-xs font-semibold ring-1 ${flowMeta.badge}`}>
-                {flowMeta.label}
-              </span>
-              <span className="inline-flex items-center justify-center rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600 ring-1 ring-slate-200">
-                {activeDrawer.level === "main" ? "主項目" : "子項目"}
-              </span>
-            </div>
-            <h3 className="mt-3 text-xl font-semibold text-slate-900">{activeDrawer.title}</h3>
-          </div>
+        <div className="flex justify-end px-6 py-5">
           <button
             type="button"
             onClick={onClose}
@@ -933,7 +922,7 @@ function AssignmentDrawer({
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto px-6 py-6">
+        <div className="flex-1 overflow-y-auto px-6 pb-6">
           {errorMessage ? (
             <div className="mb-4 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
               {errorMessage}
