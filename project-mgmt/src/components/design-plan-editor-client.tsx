@@ -134,7 +134,7 @@ export function DesignPlanEditorClient({
         throw new Error("confirm failed");
       }
 
-      setMessage("已完成全部確認，正在前往最終文件頁。\n文件頁將承接這次正式確認結果。");
+      setMessage("已完成全部確認，正在前往文件。\n文件將承接這次正式確認結果。");
       router.push(`/design-tasks/${taskId}/document`);
       router.refresh();
     } catch (error) {

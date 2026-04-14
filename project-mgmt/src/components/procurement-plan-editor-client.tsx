@@ -94,7 +94,7 @@ export function ProcurementPlanEditorClient({
         const payload = (await response.json().catch(() => null)) as { error?: string } | null;
         throw new Error(payload?.error || "confirm procurement failed");
       }
-      setMessage("已完成全部確認，正在前往最終文件頁。\n文件頁將承接這次正式確認結果。");
+      setMessage("已完成全部確認，正在前往文件。\n文件將承接這次正式確認結果。");
       router.push(`/procurement-tasks/${taskId}/document`);
       router.refresh();
     } catch (error) {

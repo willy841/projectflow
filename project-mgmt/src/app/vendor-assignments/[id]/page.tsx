@@ -65,7 +65,7 @@ export default async function VendorAssignmentTaskPage({ params }: { params: Pro
                 <p className="text-sm text-slate-500">群組任務 {index + 1}</p>
                 <h3 className="mt-1 text-xl font-semibold text-slate-900">{task.title}</h3>
               </div>
-              <span className="inline-flex items-center justify-center rounded-2xl border border-slate-200 bg-slate-50 px-4 py-2 text-sm font-medium text-slate-500">此層可先儲存編輯，正式成立點為上方「全部確認」。</span>
+              <span className="inline-flex items-center justify-center rounded-2xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-500">此層可先儲存編輯，正式成立點為上方「全部確認」。</span>
             </div>
 
             <div className="grid gap-3 md:grid-cols-2">
