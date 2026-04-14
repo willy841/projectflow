@@ -10,7 +10,6 @@ export function VendorAssignmentDetail({ assignment }: { assignment: VendorAssig
         <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
           <div>
             <div className="flex flex-wrap items-center gap-3">
-              <span className="inline-flex rounded-full bg-slate-900 px-2.5 py-1 text-[11px] font-semibold text-white">廠商需求卡</span>
               <span className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ring-1 ${assignment.status === "done" ? "bg-emerald-50 text-emerald-700 ring-emerald-200" : "bg-slate-100 text-slate-700 ring-slate-200"}`}>
                 {assignment.status === "done" ? "已送出" : "未送出"}
               </span>

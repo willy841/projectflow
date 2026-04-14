@@ -503,9 +503,6 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
                     <div className="flex flex-col items-center justify-center gap-2">
                       <p className={`text-lg font-semibold ${meta.accent}`}>{meta.title}</p>
                       {isActive ? (
-                        <span className="inline-flex w-fit items-center justify-center rounded-full bg-slate-900 px-2.5 py-1 text-[11px] font-semibold text-white">
-                          目前檢視
-                        </span>
                       ) : null}
                     </div>
                   </div>

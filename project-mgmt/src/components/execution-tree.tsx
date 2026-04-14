@@ -1882,7 +1882,6 @@ export function ExecutionTree({
               {excelPreview.mainItems.map((mainItem) => (
                 <div key={mainItem.id} className="rounded-2xl border border-slate-200 bg-white p-4">
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="inline-flex rounded-full bg-slate-900 px-2.5 py-1 text-[11px] font-semibold text-white">主項目</span>
                     <p className="text-sm font-semibold text-slate-900">{mainItem.title}</p>
                   </div>
                   <div className="mt-3 space-y-2">

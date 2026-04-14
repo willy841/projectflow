@@ -70,7 +70,6 @@ export default async function ProcurementTasksPage({
       <header className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
         <div className="flex items-center gap-3">
           <h2 className="text-3xl font-semibold tracking-tight text-slate-900">採購備品板</h2>
-          <span className="rounded-2xl bg-slate-50 px-4 py-2 text-sm text-slate-600 ring-1 ring-slate-200">共 {projects.length} 個專案</span>
         </div>
       </header>
 

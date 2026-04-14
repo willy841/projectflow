@@ -97,7 +97,6 @@ export function ProjectsPageClient({ initialProjects }: { initialProjects: Proje
         <div className="flex flex-col gap-5 2xl:flex-row 2xl:items-center 2xl:justify-between">
           <div className="flex items-center gap-3">
             <h2 className="text-3xl font-semibold tracking-tight">專案列表</h2>
-            <span className="rounded-2xl bg-slate-50 px-4 py-2 text-sm text-slate-600 ring-1 ring-slate-200">共 {projects.length} 筆專案</span>
           </div>
 
           <div className="flex flex-wrap gap-3">

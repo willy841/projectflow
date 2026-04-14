@@ -66,9 +66,6 @@ export function QuoteCostListClient({ mode = "active", initialProjects }: { mode
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
           <div className="flex items-center gap-3">
             <h2 className="text-3xl font-semibold tracking-tight text-slate-900">報價成本</h2>
-            <div className="rounded-2xl bg-slate-50 px-4 py-2 text-sm text-slate-600 ring-1 ring-slate-200">
-              共 {activeProjects.length} 筆專案
-            </div>
           </div>
 
           <input

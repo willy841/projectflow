@@ -43,9 +43,6 @@ export function CloseoutListClient({ initialProjects }: { initialProjects: Close
       <header className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200 xl:p-7">
         <div className="flex items-center justify-between gap-3">
           <h2 className="text-3xl font-semibold tracking-tight text-slate-900">結案紀錄</h2>
-          <div className="rounded-2xl bg-slate-50 px-4 py-2 text-sm text-slate-600 ring-1 ring-slate-200">
-            共 {filteredProjects.length} 筆專案
-          </div>
         </div>
       </header>
 

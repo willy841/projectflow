@@ -165,7 +165,6 @@ export function AccountingPersonnelEditor({ month, employees, records }: Props) 
                 <div className="rounded-3xl border border-slate-200 bg-slate-50/70 p-5">
                   <div className="flex flex-wrap items-center gap-3">
                     <h5 className="text-lg font-semibold text-slate-900">{mode === 'edit' ? '兼職薪資設定' : '兼職薪資明細'}</h5>
-                    <span className="inline-flex rounded-full bg-white px-3 py-1 text-xs font-semibold text-slate-700 ring-1 ring-slate-200">{mode === 'edit' ? '編輯中' : '預覽'}</span>
                   </div>
                   <div className="mt-5 space-y-5">
                     <div className="grid gap-4 xl:grid-cols-2">
