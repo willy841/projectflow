@@ -770,28 +770,30 @@ function AssignmentMenu({
         交辦
       </button>
       {isActive ? (
-        <div className="absolute right-0 z-10 mt-2 w-44 rounded-2xl border border-slate-200 bg-white p-2 shadow-lg">
-          <button
-            type="button"
-            onClick={onDesign}
-            className="block w-full rounded-xl px-3 py-2 text-left text-sm font-medium text-slate-700 transition hover:bg-slate-50 hover:text-blue-600"
-          >
-            {hasDesign ? "編輯設計" : "設計"}
-          </button>
-          <button
-            type="button"
-            onClick={onProcurement}
-            className="block w-full rounded-xl px-3 py-2 text-left text-sm font-medium text-slate-700 transition hover:bg-slate-50 hover:text-amber-700"
-          >
-            {hasProcurement ? "編輯備品" : "備品"}
-          </button>
-          <button
-            type="button"
-            onClick={onVendor}
-            className="block w-full rounded-xl px-3 py-2 text-left text-sm font-medium text-slate-700 transition hover:bg-slate-50 hover:text-violet-700"
-          >
-            {hasVendor ? "編輯廠商" : "廠商"}
-          </button>
+        <div className="absolute right-0 z-10 mt-2 w-32 rounded-3xl border border-slate-200 bg-white p-2 shadow-xl ring-1 ring-slate-100">
+          <div className="flex flex-col gap-1">
+            <button
+              type="button"
+              onClick={onDesign}
+              className="inline-flex w-full items-center justify-center rounded-2xl px-3 py-2.5 text-center text-sm font-semibold text-slate-700 transition hover:bg-blue-50 hover:text-blue-700"
+            >
+              {hasDesign ? "編輯設計" : "設計"}
+            </button>
+            <button
+              type="button"
+              onClick={onProcurement}
+              className="inline-flex w-full items-center justify-center rounded-2xl px-3 py-2.5 text-center text-sm font-semibold text-slate-700 transition hover:bg-amber-50 hover:text-amber-700"
+            >
+              {hasProcurement ? "編輯備品" : "備品"}
+            </button>
+            <button
+              type="button"
+              onClick={onVendor}
+              className="inline-flex w-full items-center justify-center rounded-2xl px-3 py-2.5 text-center text-sm font-semibold text-slate-700 transition hover:bg-violet-50 hover:text-violet-700"
+            >
+              {hasVendor ? "編輯廠商" : "廠商"}
+            </button>
+          </div>
         </div>
       ) : null}
     </div>
