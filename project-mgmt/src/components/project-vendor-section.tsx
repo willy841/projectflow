@@ -198,7 +198,6 @@ export function ProjectVendorSection({
             return (
               <div key={assignment.id} className="rounded-3xl border border-slate-200 bg-slate-50 p-5">
                 <div className="flex flex-wrap items-center gap-3">
-                  <span className="inline-flex rounded-full bg-slate-900 px-2.5 py-1 text-[11px] font-semibold text-white">#{index + 1}</span>
                   <p className="font-semibold text-slate-900">{assignment.title || "未命名任務"}</p>
                   <span className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ring-1 ${isSubmitted ? "bg-emerald-50 text-emerald-700 ring-emerald-200" : "bg-slate-100 text-slate-700 ring-slate-200"}`}>
                     {statusLabel}
