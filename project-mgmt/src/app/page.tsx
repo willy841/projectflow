@@ -18,12 +18,11 @@ export default async function Home() {
       <header className="relative overflow-hidden rounded-[32px] bg-slate-950 p-7 text-white shadow-lg ring-1 ring-slate-900/80 lg:p-8">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(59,130,246,0.28),transparent_30%),radial-gradient(circle_at_bottom_left,rgba(14,165,233,0.18),transparent_35%)]" />
         <div className="relative flex flex-col gap-8 2xl:flex-row 2xl:items-center 2xl:justify-between">
-          <div className="max-w-3xl">
-            <h2 className="text-3xl font-semibold tracking-tight text-white lg:text-4xl">酷亞專案系統</h2>
-
-            <div className="mt-6 flex flex-wrap items-center gap-3 text-sm text-slate-300">
+          <div className="max-w-4xl">
+            <div className="flex flex-wrap items-center gap-3">
+              <h2 className="text-3xl font-semibold tracking-tight text-white lg:text-4xl">酷亞專案系統</h2>
               {overview.headlineBadges.map((badge) => (
-                <span key={badge} className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">{badge}</span>
+                <span key={badge} className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-sm text-slate-300">{badge}</span>
               ))}
             </div>
           </div>
@@ -31,9 +30,6 @@ export default async function Home() {
           <div className="flex w-full max-w-md flex-col gap-3 xl:items-end">
             <Link href="/projects/new" className="inline-flex items-center justify-center rounded-2xl border border-white/70 bg-white px-5 py-3.5 text-sm font-semibold !text-slate-900 shadow-sm transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-white/40">
               + 新增專案
-            </Link>
-            <Link href="/projects" className="inline-flex items-center justify-center rounded-2xl border border-white/70 bg-white/95 px-5 py-3.5 text-sm font-semibold !text-slate-900 shadow-sm transition hover:bg-white focus:outline-none focus:ring-2 focus:ring-white/40">
-              查看專案列表
             </Link>
           </div>
         </div>
