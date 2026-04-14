@@ -2009,14 +2009,16 @@ export function ExecutionTree({
             className="rounded-3xl border border-slate-300 bg-white p-5 shadow-sm transition hover:border-slate-400"
           >
             <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
-              <div className="flex min-w-0 flex-1 items-start gap-4">
+              <div className="flex min-w-0 flex-1 items-center gap-4">
                 <button
                   type="button"
                   onClick={() => toggleItem(item.id)}
-                  className="mt-1 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-slate-300 bg-white text-base text-slate-700 transition hover:bg-slate-50"
+                  className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-slate-50 text-sm font-semibold text-slate-500 transition hover:border-slate-300 hover:bg-white hover:text-slate-800"
                   aria-label={isOpen ? "收合主項目" : "展開主項目"}
                 >
-                  {isOpen ? "⌄" : "›"}
+                  <span className={`inline-block transition-transform duration-200 ${isOpen ? "rotate-90" : "rotate-0"}`}>
+                    ›
+                  </span>
                 </button>
                 <div className="min-w-0 flex-1">
                   {isEditingMain ? (
