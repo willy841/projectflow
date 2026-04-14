@@ -94,7 +94,7 @@ export function CloseoutListClient({ initialProjects }: { initialProjects: Close
                   href={`/closeout/${project.id}`}
                   className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-800 transition hover:border-slate-400 hover:bg-slate-50"
                 >
-                  查看留存
+                  查看
                 </Link>
               </div>
 
