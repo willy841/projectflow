@@ -526,7 +526,7 @@ export function QuoteCostDetailClient({ project, mode = "active", presenter = ge
                   type="button"
                   onClick={handleReopenProject}
                   disabled={!canReopenProject}
-                  className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 transition hover:border-slate-400 hover:bg-slate-50 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
+                  className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 transition hover:border-slate-400 hover:bg-slate-50 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
                 >
                   {closeoutWriteState === 'submitting' ? '處理中...' : '取消結案'}
                 </button>
