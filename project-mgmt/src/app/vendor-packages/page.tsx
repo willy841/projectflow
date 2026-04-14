@@ -15,7 +15,7 @@ export default async function VendorPackagesPage() {
 
   return (
     <AppShell activePath="/vendor-packages">
-      <header className="rounded-3xl border border-blue-200 bg-blue-50/70 p-6 shadow-sm ring-1 ring-blue-100">
+      <header className="rounded-3xl border border-slate-200 bg-slate-50/80 p-6 shadow-sm ring-1 ring-slate-200">
         <p className="text-sm text-slate-500">Vendor Flow / 廠商發包清單</p>
         <h2 className="mt-1 text-3xl font-semibold tracking-tight text-slate-900">廠商發包清單</h2>
         <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-600">送出後直接進入 package 主線。這一層處理文件背景、發包項目與文件整體備註，並承接 vendor 正式確認結果。</p>
@@ -31,7 +31,7 @@ export default async function VendorPackagesPage() {
                 <p className="mt-2 text-sm text-slate-600">{vendorPackage.eventDate}｜{vendorPackage.location}｜進場時間 {vendorPackage.loadInTime}</p>
                 <p className="mt-2 text-sm font-medium text-slate-700">{getDocumentStatusMessage(vendorPackage.documentStatus)}</p>
               </div>
-              <Link href={`/vendor-packages/${vendorPackage.id}`} className="inline-flex items-center justify-center rounded-2xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700">查看 Package</Link>
+              <Link href={`/vendor-packages/${vendorPackage.id}`} className="inline-flex items-center justify-center rounded-2xl border border-slate-900 bg-slate-900 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800">查看 Package</Link>
             </div>
 
             <div className="mt-4 grid gap-3 text-sm text-slate-600 md:grid-cols-3">

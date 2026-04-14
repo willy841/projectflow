@@ -519,7 +519,7 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
         </div>
 
         <div className="mt-6 rounded-3xl border border-slate-300 bg-slate-100 p-5 shadow-inner">
-          <div className="mb-4 flex flex-col gap-3 border-b border-slate-200 pb-4 sm:flex-row sm:items-start sm:justify-between">
+          <div className="mb-4 flex flex-col gap-3 border-b border-slate-200 pb-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <div className="flex flex-wrap items-center gap-3">
                 <h4 className="text-lg font-semibold text-slate-900">{categoryMeta[openCategory].title}</h4>

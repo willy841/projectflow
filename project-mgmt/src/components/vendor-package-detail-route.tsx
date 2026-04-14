@@ -13,7 +13,7 @@ export async function VendorPackageDetailRoute({ id }: { id: string }) {
         <p className="mt-3 text-sm leading-6 text-slate-600">這筆 package 目前沒有出現在正式 vendor package source 中，請返回 vendor 任務重新確認。</p>
         <div className="mt-6 flex items-center justify-center gap-3">
           <Link href="/projects" className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-800 transition hover:bg-slate-50">返回專案列表</Link>
-          <Link href="/vendor-packages" className="inline-flex items-center justify-center rounded-2xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700">查看所有 Package</Link>
+          <Link href="/vendor-packages" className="inline-flex items-center justify-center rounded-2xl border border-slate-900 bg-slate-900 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800">查看所有 Package</Link>
         </div>
       </div>
     );

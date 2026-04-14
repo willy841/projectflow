@@ -174,7 +174,7 @@ export function RequirementsPanel({
       <div className="space-y-3">
         {items.map((item, index) => (
           <div key={`${item.title}-${index}`} className="rounded-2xl border border-slate-200 px-4 py-3.5">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div className="min-w-0 text-left">
                 <p className="text-xs font-medium text-slate-500">{item.date}</p>
                 <h4 className="mt-2 font-semibold text-slate-900">{item.title}</h4>

@@ -64,7 +64,7 @@ export default async function Home() {
                 {overview.recentProjects.map((project) => (
                   <tr key={project.id} className="align-top transition hover:bg-slate-50/70">
                     <td className="px-4 py-4 align-top">
-                      <Link href={`/projects/${getProjectRouteId({ id: project.id, name: project.name })}`} className="line-clamp-2 font-semibold leading-6 text-slate-900 underline-offset-4 hover:text-blue-600 hover:underline">
+                      <Link href={`/projects/${getProjectRouteId({ id: project.id, name: project.name })}`} className="line-clamp-2 font-semibold leading-6 text-slate-900 underline-offset-4 hover:text-slate-700 hover:underline">
                         {project.name}
                       </Link>
                     </td>
@@ -79,7 +79,7 @@ export default async function Home() {
         </article>
 
         <article className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
-          <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="min-w-0">
               <h3 className="text-xl font-semibold text-slate-900">收款概況</h3>
             </div>

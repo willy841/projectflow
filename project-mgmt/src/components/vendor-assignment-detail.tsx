@@ -19,7 +19,7 @@ export function VendorAssignmentDetail({ assignment }: { assignment: VendorAssig
             <p className="mt-3 text-sm leading-6 text-slate-600">{assignment.summary}</p>
           </div>
           {vendorPackage ? (
-            <Link href={`/vendor-packages/${vendorPackage.id}`} className="inline-flex items-center justify-center rounded-2xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700">
+            <Link href={`/vendor-packages/${vendorPackage.id}`} className="inline-flex items-center justify-center rounded-2xl border border-slate-900 bg-slate-900 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800">
               前往所屬 Package
             </Link>
           ) : null}

@@ -93,8 +93,8 @@ export function VendorPackageDetail({ vendorPackage }: { vendorPackage: VendorPa
 
   return (
     <div className="space-y-6">
-      <header className="rounded-3xl border border-blue-200 bg-blue-50/70 p-6 shadow-sm ring-1 ring-blue-100">
-        <div className="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
+      <header className="rounded-3xl border border-slate-200 bg-slate-50/80 p-6 shadow-sm ring-1 ring-slate-200">
+        <div className="flex flex-col gap-5 xl:flex-row xl:items-center xl:justify-between">
           <div>
             <h2 className="text-3xl font-semibold tracking-tight text-slate-900">{vendorPackage.vendorName}</h2>
           </div>
@@ -114,19 +114,19 @@ export function VendorPackageDetail({ vendorPackage }: { vendorPackage: VendorPa
           <div className="grid gap-4 md:grid-cols-2">
             <label className="flex flex-col gap-2">
               <span className="text-sm font-medium text-slate-700">專案名稱</span>
-              <input value={projectName} onChange={(event) => { setProjectName(event.target.value); markDirty(); }} className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-blue-400" />
+              <input value={projectName} onChange={(event) => { setProjectName(event.target.value); markDirty(); }} className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400" />
             </label>
             <label className="flex flex-col gap-2">
               <span className="text-sm font-medium text-slate-700">活動日期</span>
-              <input type="date" value={eventDate} onChange={(event) => { setEventDate(event.target.value); markDirty(); }} className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-blue-400" />
+              <input type="date" value={eventDate} onChange={(event) => { setEventDate(event.target.value); markDirty(); }} className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400" />
             </label>
             <label className="flex flex-col gap-2">
               <span className="text-sm font-medium text-slate-700">地點</span>
-              <input value={location} onChange={(event) => { setLocation(event.target.value); markDirty(); }} className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-blue-400" />
+              <input value={location} onChange={(event) => { setLocation(event.target.value); markDirty(); }} className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400" />
             </label>
             <label className="flex flex-col gap-2">
               <span className="text-sm font-medium text-slate-700">進場時間</span>
-              <input type="time" value={loadInTime} onChange={(event) => { setLoadInTime(event.target.value); markDirty(); }} className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-blue-400" />
+              <input type="time" value={loadInTime} onChange={(event) => { setLoadInTime(event.target.value); markDirty(); }} className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400" />
             </label>
           </div>
           </section>
@@ -143,11 +143,11 @@ export function VendorPackageDetail({ vendorPackage }: { vendorPackage: VendorPa
                   <div className="mt-3 grid gap-4 xl:grid-cols-[320px_minmax(0,1fr)]">
                     <label className="flex flex-col gap-2">
                       <span className="text-sm font-medium text-slate-700">項目名稱</span>
-                      <input value={item.itemName} onChange={(event) => updateItemName(item.id, event.target.value)} className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-blue-400" />
+                      <input value={item.itemName} onChange={(event) => updateItemName(item.id, event.target.value)} className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400" />
                     </label>
                     <label className="flex flex-col gap-2">
                       <span className="text-sm font-medium text-slate-700">需求內容</span>
-                      <textarea value={item.requirementText} onChange={(event) => updateRequirement(item.id, event.target.value)} rows={3} className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-blue-400" />
+                      <textarea value={item.requirementText} onChange={(event) => updateRequirement(item.id, event.target.value)} rows={3} className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-slate-400" />
                     </label>
                   </div>
                 </div>
@@ -158,7 +158,7 @@ export function VendorPackageDetail({ vendorPackage }: { vendorPackage: VendorPa
           <section>
             <label className="flex flex-col gap-2">
               <span className="text-sm font-medium text-slate-700">文件整體備註</span>
-              <textarea value={note} onChange={(event) => { setNote(event.target.value); markDirty(); }} rows={4} className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-blue-400" />
+              <textarea value={note} onChange={(event) => { setNote(event.target.value); markDirty(); }} rows={4} className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-slate-400" />
             </label>
           </section>
         </article>
@@ -174,7 +174,7 @@ export function VendorPackageDetail({ vendorPackage }: { vendorPackage: VendorPa
           </div>
 
           {primaryActionLabel ? (
-            <button type="button" onClick={handleGenerate} className="inline-flex w-full items-center justify-center rounded-2xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700">
+            <button type="button" onClick={handleGenerate} className="inline-flex w-full items-center justify-center rounded-2xl border border-slate-900 bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800">
               {primaryActionLabel}
             </button>
           ) : null}
