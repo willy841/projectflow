@@ -321,7 +321,7 @@ function DesignAssignmentForm({
     <div className="mt-4 rounded-3xl border border-slate-200 bg-slate-50 p-5 sm:p-6">
       <div className="flex flex-wrap items-center gap-2">
         <p className="text-sm font-semibold text-slate-900">設計交辦</p>
-        <span className="inline-flex items-center justify-center rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700 ring-1 ring-blue-200">
+        <span className="inline-flex items-center justify-center rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700 ring-1 ring-slate-200">
           設計
         </span>
         <span className="text-sm text-slate-600">來源項目：{title}</span>
@@ -423,7 +423,7 @@ function DesignAssignmentForm({
               type="button"
               onClick={actions.onSave}
               disabled={actions.isSaving}
-              className="inline-flex items-center justify-center rounded-2xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-blue-300"
+              className="inline-flex items-center justify-center rounded-2xl border border-slate-900 bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-300"
             >
               {actions.saveLabel ?? "儲存設計交辦"}
             </button>
@@ -800,7 +800,7 @@ function AssignmentMenu({
             <button
               type="button"
               onClick={onDesign}
-              className="inline-flex w-full items-center justify-center rounded-2xl px-3 py-2.5 text-center text-sm font-semibold text-slate-700 transition hover:bg-blue-50 hover:text-blue-700"
+              className="inline-flex w-full items-center justify-center rounded-2xl px-3 py-2.5 text-center text-sm font-semibold text-slate-700 transition hover:bg-slate-100 hover:text-slate-900"
             >
               {hasDesign ? "編輯設計" : "設計"}
             </button>
@@ -923,7 +923,7 @@ function AssignmentDrawer({
 
   const flowMeta =
     activeDrawer.flowType === "design"
-      ? { label: "設計交辦", accent: "text-blue-700", badge: "bg-blue-50 text-blue-700 ring-blue-200" }
+      ? { label: "設計交辦", accent: "text-slate-700", badge: "bg-slate-100 text-slate-700 ring-slate-200" }
       : activeDrawer.flowType === "procurement"
         ? { label: "備品交辦", accent: "text-amber-700", badge: "bg-amber-50 text-amber-700 ring-amber-200" }
         : { label: "廠商交辦", accent: "text-violet-700", badge: "bg-violet-50 text-violet-700 ring-violet-200" };
@@ -1794,7 +1794,7 @@ export function ExecutionTree({
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              className="inline-flex h-11 shrink-0 items-center justify-center rounded-2xl bg-blue-600 px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700"
+              className="inline-flex h-11 shrink-0 items-center justify-center rounded-2xl border border-slate-900 bg-slate-900 px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800"
             >
               匯入 .xlsx
             </button>
@@ -1837,10 +1837,10 @@ export function ExecutionTree({
         ) : null}
 
         {excelPreview ? (
-          <div className="mt-4 rounded-3xl border border-blue-200 bg-blue-50/60 p-4 ring-1 ring-blue-100">
+          <div className="mt-4 rounded-3xl border border-slate-200 bg-slate-50/80 p-4 ring-1 ring-slate-200">
             <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
               <div>
-                <p className="text-xs font-semibold tracking-wide text-blue-700">XLSX PREVIEW</p>
+                <p className="text-xs font-semibold tracking-wide text-slate-500">XLSX PREVIEW</p>
                 <h4 className="mt-1 text-lg font-semibold text-slate-900">匯入預覽</h4>
                 <p className="mt-2 text-sm leading-6 text-slate-600">
                   第一版只納入有編號的列。主項目：{excelPreview.mainItems.length} 筆，總子項目：{excelPreview.mainItems.reduce((sum, item) => sum + item.children.length, 0)} 筆。
@@ -1924,7 +1924,7 @@ export function ExecutionTree({
               <button
                 type="button"
                 onClick={addMainItem}
-                className="inline-flex items-center justify-center rounded-2xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700"
+                className="inline-flex items-center justify-center rounded-2xl border border-slate-900 bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800"
               >
                 建立
               </button>
@@ -2038,7 +2038,7 @@ export function ExecutionTree({
                 <button
                   type="button"
                   onClick={() => toggleItem(item.id)}
-                  className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-slate-50 text-sm font-semibold text-slate-500 transition hover:border-slate-300 hover:bg-white hover:text-slate-800"
+                  className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-slate-300 bg-white text-sm font-semibold text-slate-600 transition hover:border-slate-400 hover:bg-slate-50 hover:text-slate-900"
                   aria-label={isOpen ? "收合主項目" : "展開主項目"}
                 >
                   <span className={`inline-block transition-transform duration-200 ${isOpen ? "rotate-90" : "rotate-0"}`}>
@@ -2059,7 +2059,7 @@ export function ExecutionTree({
                         <button
                           type="button"
                           onClick={() => saveEditingMain(item.id)}
-                          className="inline-flex items-center justify-center rounded-2xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700"
+                          className="inline-flex items-center justify-center rounded-2xl border border-slate-900 bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800"
                         >
                           儲存
                         </button>
@@ -2091,7 +2091,7 @@ export function ExecutionTree({
                           <span>{item.children?.length ?? 0}</span>
                         </span>
                         {savedDesignAssignments[item.id] ? (
-                          <span className="inline-flex items-center justify-center rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700 ring-1 ring-blue-200">
+                          <span className="inline-flex items-center justify-center rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700 ring-1 ring-slate-200">
                             已建立設計交辦
                           </span>
                         ) : null}
@@ -2178,7 +2178,7 @@ export function ExecutionTree({
                                   <button
                                     type="button"
                                     onClick={() => saveEditingChild(child.id)}
-                                    className="inline-flex items-center justify-center rounded-2xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700"
+                                    className="inline-flex items-center justify-center rounded-2xl border border-slate-900 bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800"
                                   >
                                     儲存
                                   </button>
@@ -2211,7 +2211,7 @@ export function ExecutionTree({
                                     {child.title}
                                   </h5>
                                   {savedDesignAssignments[child.id] ? (
-                                    <span className="inline-flex items-center justify-center rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700 ring-1 ring-blue-200">
+                                    <span className="inline-flex items-center justify-center rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700 ring-1 ring-slate-200">
                                       已建立設計交辦
                                     </span>
                                   ) : null}
@@ -2299,7 +2299,7 @@ export function ExecutionTree({
                       <button
                         type="button"
                         onClick={() => addChild(item.id)}
-                        className="inline-flex items-center justify-center rounded-2xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700"
+                        className="inline-flex items-center justify-center rounded-2xl border border-slate-900 bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800"
                       >
                         新增
                       </button>
