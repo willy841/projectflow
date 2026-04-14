@@ -313,7 +313,7 @@ export function ProjectVendorSection({
                     </div>
                   </div>
                   <Link href={`/vendor-packages/${vendorPackage.id}`} className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 transition hover:bg-slate-50">
-                    查看 Package
+                    查看文件
                   </Link>
                 </div>
               </article>

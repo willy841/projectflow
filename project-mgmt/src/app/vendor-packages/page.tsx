@@ -28,7 +28,7 @@ export default async function VendorPackagesPage() {
                 <p className="mt-2 text-sm text-slate-600">{vendorPackage.eventDate}｜{vendorPackage.location}｜進場時間 {vendorPackage.loadInTime}</p>
                 <p className="mt-2 text-sm font-medium text-slate-700">{getDocumentStatusMessage(vendorPackage.documentStatus)}</p>
               </div>
-              <Link href={`/vendor-packages/${vendorPackage.id}`} className="inline-flex items-center justify-center rounded-2xl border border-slate-900 bg-slate-900 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800">查看 Package</Link>
+              <Link href={`/vendor-packages/${vendorPackage.id}`} className="inline-flex items-center justify-center rounded-2xl border border-slate-900 bg-slate-900 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800">查看文件</Link>
             </div>
 
             <div className="mt-4 grid gap-3 text-sm text-slate-600 md:grid-cols-3">

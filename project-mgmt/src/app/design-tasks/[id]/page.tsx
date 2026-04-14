@@ -37,7 +37,7 @@ export default async function DesignTaskDetailPage({
               href={`/design-tasks/${task.id}/document`}
               className="inline-flex items-center justify-center rounded-2xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white"
             >
-              前往最終文件頁
+              前往文件
             </Link>
           </div>
         </div>

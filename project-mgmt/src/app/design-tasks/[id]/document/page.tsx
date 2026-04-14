@@ -42,7 +42,7 @@ export default async function DesignTaskDocumentPage({
       <section className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
         <div className="mb-4 flex items-center justify-between">
           <div>
-            <h3 className="text-xl font-semibold text-slate-900">最終文件頁</h3>
+            <h3 className="text-xl font-semibold text-slate-900">文件</h3>
           </div>
         </div>
 
