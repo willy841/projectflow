@@ -62,6 +62,7 @@ export interface ProjectExecutionItemRepository {
   listByProject(projectId: UUID): Promise<ProjectExecutionItemRow[]>;
   insert(input: InsertProjectExecutionItemInput): Promise<ProjectExecutionItemRow>;
   update(id: UUID, input: UpdateProjectExecutionItemInput): Promise<ProjectExecutionItemRow>;
+  delete(id: UUID): Promise<void>;
 }
 
 export interface DesignTaskRepository {
@@ -296,6 +297,9 @@ export function createPhase1Repositories(db: Phase1DbClient): Phase1Repositories
           id,
           input,
         );
+      },
+      async delete(id) {
+        await db.query(`delete from project_execution_items where id = $1`, [id]);
       },
     },
     designTasks: {

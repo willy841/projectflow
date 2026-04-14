@@ -319,6 +319,41 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
                 },
           };
         },
+        updateExecutionItem: async ({ itemId, title }: { itemId: string; title: string }) => {
+          const response = await fetch(`/api/projects/${project.id}/execution-items/${itemId}`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ title }),
+          });
+          const result = await response.json();
+          if (!response.ok || !result.ok) {
+            throw new Error(result.error || "更新執行項目失敗");
+          }
+          return {
+            item: result.item.parent_id
+              ? buildImportedChild(result.item)
+              : {
+                  id: result.item.id,
+                  title: result.item.title,
+                  status: "待交辦",
+                  category: "專案",
+                  detail: result.item.note ?? "待補充執行說明。",
+                  quantity: result.item.quantity ?? undefined,
+                  note: result.item.note ?? undefined,
+                  children: [],
+                },
+          };
+        },
+        deleteExecutionItem: async ({ itemId }: { itemId: string }) => {
+          const response = await fetch(`/api/projects/${project.id}/execution-items/${itemId}`, {
+            method: "DELETE",
+          });
+          const result = await response.json();
+          if (!response.ok || !result.ok) {
+            throw new Error(result.error || "刪除執行項目失敗");
+          }
+          return { deletedId: result.deletedId as string, childIds: result.childIds as string[] | undefined };
+        },
         saveDesignAssignment: async ({ targetId, title, draft }: { targetId: string; title: string; draft: DesignAssignmentDraft }) => {
           const response = await fetch(`/api/projects/${project.id}/dispatch`, {
             method: "POST",

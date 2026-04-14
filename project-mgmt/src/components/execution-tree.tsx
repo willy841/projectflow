@@ -875,6 +875,8 @@ type AssignmentSaveResult = {
 
 type ExecutionTreeServerHandlers = {
   createExecutionItem?: (input: { title: string; parentId?: string | null }) => Promise<{ item: ImportedItem | ProjectExecutionSubItem; parentId?: string | null }>;
+  updateExecutionItem?: (input: { itemId: string; title: string }) => Promise<{ item: ImportedItem | ProjectExecutionSubItem }>;
+  deleteExecutionItem?: (input: { itemId: string }) => Promise<{ deletedId: string; childIds?: string[] }>;
   saveDesignAssignment?: (payload: PersistedAssignmentPayload & { draft: DesignAssignmentDraft }) => Promise<AssignmentSaveResult | void>;
   saveProcurementAssignment?: (payload: PersistedAssignmentPayload & { draft: ProcurementAssignmentDraft }) => Promise<AssignmentSaveResult | void>;
   saveVendorAssignment?: (payload: PersistedAssignmentPayload & { draft: VendorAssignmentDraft }) => Promise<AssignmentSaveResult | void>;
@@ -1665,9 +1667,19 @@ export function ExecutionTree({
     setEditingMainId(null);
     setEditingValue(currentTitle);
   }
-  function saveEditingMain(itemId: string) {
+  async function saveEditingMain(itemId: string) {
     const nextTitle = editingValue.trim();
     if (!nextTitle) return;
+
+    if (serverHandlers?.updateExecutionItem) {
+      try {
+        await serverHandlers.updateExecutionItem({ itemId, title: nextTitle });
+      } catch (error) {
+        setExcelImportError(error instanceof Error ? error.message : "更新主項目失敗");
+        return;
+      }
+    }
+
     setLocalItems((prev) =>
       prev.map((item) =>
         item.id === itemId ? { ...item, title: nextTitle } : item,
@@ -1676,9 +1688,19 @@ export function ExecutionTree({
     setEditingMainId(null);
     setEditingValue("");
   }
-  function saveEditingChild(childId: string) {
+  async function saveEditingChild(childId: string) {
     const nextTitle = editingValue.trim();
     if (!nextTitle) return;
+
+    if (serverHandlers?.updateExecutionItem) {
+      try {
+        await serverHandlers.updateExecutionItem({ itemId: childId, title: nextTitle });
+      } catch (error) {
+        setExcelImportError(error instanceof Error ? error.message : "更新次項目失敗");
+        return;
+      }
+    }
+
     setLocalItems((prev) =>
       prev.map((item) => ({
         ...item,
@@ -1701,7 +1723,7 @@ export function ExecutionTree({
     setActiveAssignMenu((prev) => (prev === targetId ? null : targetId));
   }
 
-  function removeMain(itemId: string) {
+  async function removeMain(itemId: string) {
     const target = localItems.find((item) => item.id === itemId);
     if (
       !window.confirm(
@@ -1709,6 +1731,16 @@ export function ExecutionTree({
       )
     )
       return;
+
+    if (serverHandlers?.deleteExecutionItem) {
+      try {
+        await serverHandlers.deleteExecutionItem({ itemId });
+      } catch (error) {
+        setExcelImportError(error instanceof Error ? error.message : "刪除主項目失敗");
+        return;
+      }
+    }
+
     setLocalItems((prev) => prev.filter((item) => item.id !== itemId));
     if (expandedItemId === itemId) {
       setExpandedItemId(null);
@@ -1730,7 +1762,7 @@ export function ExecutionTree({
     });
   }
 
-  function removeChild(parentId: string, childId: string) {
+  async function removeChild(parentId: string, childId: string) {
     const parent = localItems.find((item) => item.id === parentId);
     const target = parent?.children?.find((child) => child.id === childId);
     if (
@@ -1739,6 +1771,16 @@ export function ExecutionTree({
       )
     )
       return;
+
+    if (serverHandlers?.deleteExecutionItem) {
+      try {
+        await serverHandlers.deleteExecutionItem({ itemId: childId });
+      } catch (error) {
+        setExcelImportError(error instanceof Error ? error.message : "刪除次項目失敗");
+        return;
+      }
+    }
+
     setLocalItems((prev) =>
       prev.map((item) =>
         item.id !== parentId
