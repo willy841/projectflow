@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
+import { WorkspaceActionBar, WorkspaceFooterActions, WorkspaceStatusNotice } from "@/components/workspace-ui";
 
 type ProcurementPlanInput = {
   id: string;
@@ -106,7 +107,7 @@ export function ProcurementPlanEditorClient({
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-col gap-3 border-b border-slate-200 pb-4 xl:flex-row xl:items-center xl:justify-between">
+      <WorkspaceActionBar>
         <div className="flex flex-wrap items-center gap-3">
           <h3 className="text-xl font-semibold text-slate-900">執行處理</h3>
           <button type="button" onClick={addPlan} className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">新增執行處理</button>
@@ -115,7 +116,7 @@ export function ProcurementPlanEditorClient({
           <button type="button" onClick={saveAllPlans} disabled={saving} className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 disabled:opacity-60">{saving ? "儲存中..." : "儲存"}</button>
           <button type="button" onClick={confirmPlans} disabled={confirming} className="inline-flex items-center justify-center rounded-2xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-60">{confirming ? "確認中..." : "全部確認"}</button>
         </div>
-      </div>
+      </WorkspaceActionBar>
 
       {plans.map((plan) => (
         <article key={plan.id} className="rounded-2xl border border-slate-200 bg-white p-5">
@@ -126,13 +127,13 @@ export function ProcurementPlanEditorClient({
             <label className="rounded-2xl bg-slate-50 px-4 py-3 xl:col-span-2"><p className="text-xs text-slate-500">預覽連結</p><input value={plan.previewUrl} onChange={(e) => updatePlan(plan.id, "previewUrl", e.target.value)} className="mt-2 h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm font-medium text-slate-900" /></label>
             <label className="rounded-2xl bg-slate-50 px-4 py-3 xl:col-span-2"><p className="text-xs text-slate-500">執行廠商</p><input value={plan.vendor} onChange={(e) => updatePlan(plan.id, "vendor", e.target.value)} className="mt-2 h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm font-medium text-slate-900" /></label>
           </div>
-          <div className="mt-4 flex items-center justify-between gap-3 border-t border-slate-100 pt-4">
+          <WorkspaceFooterActions>
             <button type="button" onClick={() => removePlan(plan.id)} className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-rose-200 bg-rose-50 px-4 py-2.5 text-sm font-medium text-rose-700">刪除這筆處理</button>
-          </div>
+          </WorkspaceFooterActions>
         </article>
       ))}
 
-      {message ? <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800 whitespace-pre-line">{message}</div> : null}
+      {message ? <WorkspaceStatusNotice tone={message.includes("失敗") ? "error" : "success"}>{message}</WorkspaceStatusNotice> : null}
     </div>
   );
 }

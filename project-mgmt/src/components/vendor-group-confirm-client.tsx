@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { WorkspaceStatusNotice } from "@/components/workspace-ui";
 
 export function VendorGroupConfirmClient({
   projectId,
@@ -53,7 +54,7 @@ export function VendorGroupConfirmClient({
           {confirming ? "全部確認中..." : "全部確認"}
         </button>
       </div>
-      {message ? <p className="text-xs leading-5 text-slate-500 xl:max-w-sm">{message}</p> : null}
+      {message ? <WorkspaceStatusNotice tone={message.includes("失敗") ? "error" : "success"}>{message}</WorkspaceStatusNotice> : null}
     </div>
   );
 }

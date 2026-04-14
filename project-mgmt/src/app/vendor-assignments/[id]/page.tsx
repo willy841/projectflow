@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { AppShell } from "@/components/app-shell";
 import { VendorGroupConfirmClient } from "@/components/vendor-group-confirm-client";
 import { VendorPlanEditorClient } from "@/components/vendor-plan-editor-client";
+import { WorkspaceHeader, WorkspaceSection, WorkspaceStat } from "@/components/workspace-ui";
 import { buildVendorPackageId } from "@/lib/db/vendor-package-adapter";
 import { getDbVendorGroupDetail, getDbVendorTaskById } from "@/lib/db/vendor-flow-adapter";
 import { parseVendorGroupRouteId } from "@/lib/db/vendor-group-route";
@@ -31,61 +32,63 @@ export default async function VendorAssignmentTaskPage({ params }: { params: Pro
 
   return (
     <AppShell activePath="/vendor-assignments">
-      <header className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
-        <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
-          <div>
-            <h2 className="text-3xl font-semibold tracking-tight text-slate-900">{group.vendorName}</h2>
-          </div>
-          <div className="flex flex-col gap-2 xl:items-end">
-            <div className="flex flex-wrap gap-2">
-              <Link href={`/vendor-assignments?project=${encodeURIComponent(group.projectId)}`} className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-700">返回任務列表</Link>
-              <Link href={`/vendor-packages/${packageId}`} className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-700">查看文件</Link>
-            </div>
+      <WorkspaceHeader
+        title={group.vendorName}
+        meta={
+          <>
+            <span>{group.projectName}</span>
+            <span className="text-slate-300">／</span>
+            <span>廠商執行工作臺</span>
+          </>
+        }
+        actions={
+          <>
+            <Link href={`/vendor-assignments?project=${encodeURIComponent(group.projectId)}`} className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-700">返回任務列表</Link>
+            <Link href={`/vendor-packages/${packageId}`} className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-700">查看文件</Link>
             <VendorGroupConfirmClient projectId={group.projectId} vendorId={group.vendorId} packageId={packageId} />
-          </div>
-        </div>
-      </header>
+          </>
+        }
+      />
 
-      <section className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+      <WorkspaceSection title="群組總覽" meta="先完成這一組廠商需求，再由全部確認正式承接到文件。">
         <div className="grid gap-3 md:grid-cols-3">
-          <div className="rounded-2xl bg-slate-50 px-4 py-3"><p className="text-xs text-slate-500">專案</p><p className="mt-2 text-sm font-medium text-slate-900">{group.projectName}</p></div>
-          <div className="rounded-2xl bg-slate-50 px-4 py-3"><p className="text-xs text-slate-500">活動日期</p><p className="mt-2 text-sm font-medium text-slate-900">{group.eventDate}</p></div>
-          <div className="rounded-2xl bg-slate-50 px-4 py-3"><p className="text-xs text-slate-500">群組任務數</p><p className="mt-2 text-sm font-medium text-slate-900">{group.tasks.length}</p></div>
+          <WorkspaceStat label="專案" value={group.projectName} />
+          <WorkspaceStat label="活動日期" value={group.eventDate} />
+          <WorkspaceStat label="群組任務數" value={`共 ${group.tasks.length} 筆`} />
         </div>
-      </section>
+      </WorkspaceSection>
 
       <div className="space-y-6">
-        <div className="rounded-2xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm text-sky-800">
-          vendor-group-db-editor-enabled
-        </div>
         {group.tasks.map((task, index) => (
-          <section key={task.id} className="space-y-4 rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
-            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 pb-4">
-              <div>
-                <p className="text-sm text-slate-500">群組任務 {index + 1}</p>
-                <h3 className="mt-1 text-xl font-semibold text-slate-900">{task.title}</h3>
-              </div>
-              <span className="inline-flex items-center justify-center rounded-2xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-500">此層可先儲存編輯，正式成立點為上方「全部確認」。</span>
-            </div>
-
+          <WorkspaceSection
+            key={task.id}
+            title={task.title}
+            meta={`第 ${index + 1} 筆群組任務`}
+          >
             <div className="grid gap-3 md:grid-cols-2">
-              <div className="rounded-2xl bg-slate-50 px-4 py-3"><p className="text-xs text-slate-500">任務標題</p><p className="mt-2 text-sm font-medium text-slate-900">{task.title}</p></div>
-              <div className="rounded-2xl bg-slate-50 px-4 py-3"><p className="text-xs text-slate-500">需求說明</p><p className="mt-2 text-sm font-medium text-slate-900">{task.requirementText || '未填寫'}</p></div>
+              <WorkspaceStat label="任務標題" value={task.title} />
+              <WorkspaceStat label="需求說明" value={task.requirementText || "未填寫"} />
             </div>
 
-            <VendorPlanEditorClient
-              taskId={task.id}
-              showConfirmButton={false}
-              vendorName={group.vendorName}
-              initialPlans={task.plans.map((plan) => ({
-                id: plan.id,
-                title: plan.title,
-                requirement: plan.requirement,
-                amount: plan.amount,
-                vendorName: group.vendorName,
-              }))}
-            />
-          </section>
+            <div className="mt-5 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3.5 text-sm text-slate-600">
+              單筆儲存只保留目前編輯內容；由頁首「全部確認」統一承接本組發包結果。
+            </div>
+
+            <div className="mt-5">
+              <VendorPlanEditorClient
+                taskId={task.id}
+                showConfirmButton={false}
+                vendorName={group.vendorName}
+                initialPlans={task.plans.map((plan) => ({
+                  id: plan.id,
+                  title: plan.title,
+                  requirement: plan.requirement,
+                  amount: plan.amount,
+                  vendorName: group.vendorName,
+                }))}
+              />
+            </div>
+          </WorkspaceSection>
         ))}
       </div>
     </AppShell>

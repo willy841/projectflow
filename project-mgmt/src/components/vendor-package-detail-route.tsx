@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getProjectRouteId } from "@/components/project-data";
 import { VendorPackageDetail } from "@/components/vendor-package-detail";
+import { WorkspaceEmptyState } from "@/components/workspace-ui";
 import { getDbVendorPackageById } from "@/lib/db/vendor-package-adapter";
 
 export async function VendorPackageDetailRoute({ id }: { id: string }) {
@@ -8,13 +9,16 @@ export async function VendorPackageDetailRoute({ id }: { id: string }) {
 
   if (!vendorPackage) {
     return (
-      <div className="rounded-3xl border border-dashed border-slate-300 bg-white p-10 text-center shadow-sm ring-1 ring-slate-200">
-        <h2 className="text-2xl font-semibold tracking-tight text-slate-900">找不到這筆 Package</h2>
-        <div className="mt-6 flex items-center justify-center gap-3">
-          <Link href="/projects" className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-800 transition hover:bg-slate-50">返回專案列表</Link>
-          <Link href="/vendor-packages" className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-900 bg-slate-900 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800">全部文件</Link>
-        </div>
-      </div>
+      <WorkspaceEmptyState
+        title="找不到這筆文件"
+        description="這筆 package 可能尚未建立，或已不在目前可查詢範圍。"
+        actions={
+          <>
+            <Link href="/projects" className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-800 transition hover:bg-slate-50">返回專案列表</Link>
+            <Link href="/vendor-packages" className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-900 bg-slate-900 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800">返回文件列表</Link>
+          </>
+        }
+      />
     );
   }
 

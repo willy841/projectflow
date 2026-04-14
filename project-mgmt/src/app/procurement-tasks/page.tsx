@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { AppShell } from "@/components/app-shell";
 import { procurementTaskBoardRecords } from "@/components/procurement-task-board-data";
+import { WorkspaceEmptyState, WorkspaceHeader, WorkspaceSection, WorkspaceStat } from "@/components/workspace-ui";
 import {
   listDbProcurementTaskProjects,
   listDbProcurementTasksByProject,
@@ -67,56 +68,73 @@ export default async function ProcurementTasksPage({
 
   return (
     <AppShell activePath="/procurement-tasks">
-      <header className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
-        <div className="flex items-center gap-3">
-          <h2 className="text-3xl font-semibold tracking-tight text-slate-900">採購備品板</h2>
-        </div>
-      </header>
+      <WorkspaceHeader
+        title="採購備品板"
+        meta={
+          <>
+            <span>共 {activeProject ? projectTasks.length : projects.length} {activeProject ? "筆任務" : "個專案"}</span>
+            <span className="text-slate-300">／</span>
+            <span>{activeProject ? "單專案執行工作臺" : "專案分流入口"}</span>
+          </>
+        }
+      />
 
-      <section className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+      <WorkspaceSection
+        title={activeProject ? activeProject.projectName : "專案入口"}
+        meta={activeProject ? "先看備品任務，再進入單筆處理與文件。" : "先以專案分流，再進入單案任務列表。"}
+        actions={
+          activeProject ? (
+            <Link
+              href="/procurement-tasks"
+              className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-700"
+            >
+              返回專案列表
+            </Link>
+          ) : null
+        }
+      >
         {!activeProject ? (
-          <div className="space-y-3">
+          projects.length ? <div className="space-y-3">
             {projects.map((project) => (
               <article key={project.projectId} className="rounded-2xl border border-slate-200 bg-white p-5 transition hover:border-slate-300 hover:bg-slate-50/70">
                 <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
                   <div className="grid flex-1 gap-3 md:grid-cols-3">
-                    <div className="rounded-2xl bg-slate-50 px-4 py-3.5"><p className="text-xs text-slate-500">專案名稱</p><p className="mt-2 text-sm font-medium text-slate-900">{project.projectName}</p></div>
-                    <div className="rounded-2xl bg-slate-50 px-4 py-3.5"><p className="text-xs text-slate-500">任務數量</p><p className="mt-2 text-sm font-medium text-slate-900">{project.taskCount}</p></div>
-                    <div className="rounded-2xl bg-slate-50 px-4 py-3.5"><p className="text-xs text-slate-500">活動日期</p><p className="mt-2 text-sm font-medium text-slate-900">{project.eventDate}</p></div>
+                    <WorkspaceStat label="專案名稱" value={project.projectName} />
+                    <WorkspaceStat label="任務數量" value={`共 ${project.taskCount} 筆`} />
+                    <WorkspaceStat label="活動日期" value={project.eventDate} />
                   </div>
                   <div className="flex justify-end">
-                    <Link href={`/procurement-tasks?project=${encodeURIComponent(project.projectId)}`} className="inline-flex items-center justify-center rounded-2xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-700">進入專案</Link>
+                    <Link href={`/procurement-tasks?project=${encodeURIComponent(project.projectId)}`} className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800">進入工作臺</Link>
                   </div>
                 </div>
               </article>
             ))}
-          </div>
+          </div> : <WorkspaceEmptyState title="目前尚無可查看的專案" description="待這條工作臺有正式任務後，會從這裡進入單專案工作臺。" />
         ) : (
-          <div className="space-y-4">
-            <div className="flex items-center justify-between rounded-2xl bg-slate-50 px-4 py-3.5">
-              <div><p className="text-lg font-semibold text-slate-900">{activeProject.projectName}</p></div>
-              <Link href="/procurement-tasks" className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-700">返回專案列表</Link>
+          <div className="space-y-3">
+            <div className="grid gap-3 md:grid-cols-3">
+              <WorkspaceStat label="目前專案" value={activeProject.projectName} />
+              <WorkspaceStat label="任務數量" value={`共 ${projectTasks.length} 筆`} />
+              <WorkspaceStat label="活動日期" value={activeProject.eventDate} />
             </div>
 
-            <div className="space-y-3">
-              {projectTasks.map((task) => (
-                <article key={task.id} className="rounded-2xl border border-slate-200 bg-white p-5 transition hover:border-slate-300 hover:bg-slate-50/70">
-                  <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
-                    <div className="grid flex-1 gap-3 md:grid-cols-3">
-                      <div className="rounded-2xl bg-slate-50 px-4 py-3"><p className="text-xs text-slate-500">任務標題</p><p className="mt-2 text-sm font-medium text-slate-900">{task.title}</p></div>
-                      <div className="rounded-2xl bg-slate-50 px-4 py-3"><p className="text-xs text-slate-500">數量</p><p className="mt-2 text-sm font-medium text-slate-900">{task.quantity}</p></div>
-                      <div className="rounded-2xl bg-slate-50 px-4 py-3"><p className="text-xs text-slate-500">預算</p><p className="mt-2 text-sm font-medium text-slate-900">{task.costLabel}</p></div>
-                    </div>
-                    <div className="flex justify-end">
-                      <Link href={`/procurement-tasks/${task.id}`} className="inline-flex items-center justify-center rounded-2xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-700">查看</Link>
-                    </div>
+            {projectTasks.length ? projectTasks.map((task) => (
+              <article key={task.id} className="rounded-2xl border border-slate-200 bg-white p-5 transition hover:border-slate-300 hover:bg-slate-50/70">
+                <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
+                  <div className="grid flex-1 gap-3 md:grid-cols-3">
+                    <WorkspaceStat label="任務標題" value={task.title} />
+                    <WorkspaceStat label="數量" value={task.quantity} />
+                    <WorkspaceStat label="預算" value={task.costLabel} />
                   </div>
-                </article>
-              ))}
-            </div>
+                  <div className="flex justify-end">
+                    <Link href={`/procurement-tasks/${task.id}`} className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800">進入任務</Link>
+                  </div>
+                </div>
+              </article>
+            )) : <WorkspaceEmptyState title="目前尚無任務" description="這個專案目前還沒有正式資料可進入處理頁。" />}
           </div>
         )}
-      </section>
+      </WorkspaceSection>
     </AppShell>
   );
 }

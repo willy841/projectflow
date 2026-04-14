@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AppShell } from "@/components/app-shell";
-import { getDesignTaskById } from "@/components/design-task-data";
 import { DesignPlanEditorClient } from "@/components/design-plan-editor-client";
+import { getDesignTaskById } from "@/components/design-task-data";
+import { WorkspaceHeader, WorkspaceSection, WorkspaceStat } from "@/components/workspace-ui";
 import { getDbDesignTaskById } from "@/lib/db/design-flow-adapter";
 import { isUuidLike, shouldUseDbDesignFlow } from "@/lib/db/design-flow-toggle";
 
@@ -21,12 +22,17 @@ export default async function DesignTaskDetailPage({
 
   return (
     <AppShell activePath="/design-tasks">
-      <header className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
-        <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
-          <div>
-            <h2 className="text-3xl font-semibold tracking-tight text-slate-900">{task.title}</h2>
-          </div>
-          <div className="flex flex-wrap gap-2">
+      <WorkspaceHeader
+        title={task.title}
+        meta={
+          <>
+            <span>{task.projectName}</span>
+            <span className="text-slate-300">／</span>
+            <span>設計執行工作臺</span>
+          </>
+        }
+        actions={
+          <>
             <Link
               href={`/design-tasks?project=${encodeURIComponent(task.projectId)}`}
               className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-700"
@@ -35,41 +41,26 @@ export default async function DesignTaskDetailPage({
             </Link>
             <Link
               href={`/design-tasks/${task.id}/document`}
-              className="inline-flex items-center justify-center rounded-2xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white"
+              className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white"
             >
               前往文件
             </Link>
-          </div>
-        </div>
-      </header>
+          </>
+        }
+      />
 
-      <section className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
-        <div className="mb-4">
-          <h3 className="text-xl font-semibold text-slate-900">原始任務資訊</h3>
-        </div>
+      <WorkspaceSection title="原始任務資訊" meta="這裡保留上游需求，執行處理與文件在下方承接。">
         <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-          <div className="rounded-2xl bg-slate-50 px-4 py-3 xl:col-span-2">
-            <p className="text-xs text-slate-500">任務標題</p>
-            <p className="mt-2 text-sm font-medium text-slate-900">{task.title}</p>
-          </div>
-          <div className="rounded-2xl bg-slate-50 px-4 py-3">
-            <p className="text-xs text-slate-500">尺寸</p>
-            <p className="mt-2 text-sm font-medium text-slate-900">{task.size}</p>
-          </div>
-          <div className="rounded-2xl bg-slate-50 px-4 py-3 md:col-span-2">
-            <p className="text-xs text-slate-500">材質 + 結構</p>
-            <p className="mt-2 text-sm font-medium text-slate-900">{task.material}</p>
-          </div>
-          <div className="rounded-2xl bg-slate-50 px-4 py-3">
-            <p className="text-xs text-slate-500">數量</p>
-            <p className="mt-2 text-sm font-medium text-slate-900">{task.quantity}</p>
-          </div>
-          <div className="rounded-2xl bg-slate-50 px-4 py-3 xl:col-span-2">
-            <p className="text-xs text-slate-500">需求說明</p>
+          <WorkspaceStat label="任務標題" value={task.title} />
+          <WorkspaceStat label="尺寸" value={task.size} />
+          <WorkspaceStat label="材質 + 結構" value={task.material} />
+          <WorkspaceStat label="數量" value={task.quantity} />
+          <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3.5 xl:col-span-2">
+            <p className="text-xs font-medium tracking-wide text-slate-500">需求說明</p>
             <p className="mt-2 text-sm font-medium text-slate-900">{task.note}</p>
           </div>
-          <div className="rounded-2xl bg-slate-50 px-4 py-3 xl:col-span-2">
-            <p className="text-xs text-slate-500">參考連結</p>
+          <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3.5 xl:col-span-2">
+            <p className="text-xs font-medium tracking-wide text-slate-500">參考連結</p>
             {task.referenceUrl ? (
               <a href={task.referenceUrl} className="mt-2 block break-all text-sm font-medium text-slate-700 underline-offset-4 hover:underline">
                 {task.referenceUrl}
@@ -79,9 +70,9 @@ export default async function DesignTaskDetailPage({
             )}
           </div>
         </div>
-      </section>
+      </WorkspaceSection>
 
-      <section className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+      <WorkspaceSection title="執行處理" meta="儲存保留目前編輯內容；全部確認才會正式承接到文件。">
         <DesignPlanEditorClient
           taskId={task.id}
           initialPlans={task.plans.map((plan) => ({
@@ -96,7 +87,7 @@ export default async function DesignTaskDetailPage({
             vendor: plan.vendor,
           }))}
         />
-      </section>
+      </WorkspaceSection>
     </AppShell>
   );
 }

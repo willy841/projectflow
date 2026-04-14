@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { AppShell } from "@/components/app-shell";
 import { getVendorDocumentStatusClass } from "@/components/vendor-data";
+import { WorkspaceEmptyState, WorkspaceHeader } from "@/components/workspace-ui";
 import { listDbVendorPackages } from "@/lib/db/vendor-package-adapter";
 import { shouldUseDbVendorFlow } from "@/lib/db/vendor-flow-toggle";
 
@@ -15,9 +16,7 @@ export default async function VendorPackagesPage() {
 
   return (
     <AppShell activePath="/vendor-packages">
-      <header className="rounded-3xl border border-slate-200 bg-slate-50/80 p-6 shadow-sm ring-1 ring-slate-200">
-        <h2 className="text-3xl font-semibold tracking-tight text-slate-900">廠商發包清單</h2>
-      </header>
+      <WorkspaceHeader title="廠商發包清單" />
 
       <section className="space-y-4">
         {packages.length ? packages.map((vendorPackage) => (
@@ -38,7 +37,11 @@ export default async function VendorPackagesPage() {
             </div>
           </article>
         )) : (
-          <div className="rounded-3xl border border-dashed border-slate-300 bg-white p-8 text-sm text-slate-500 shadow-sm ring-1 ring-slate-200">目前尚無可承接的 package，請先回到廠商發包板完成正式確認流程。</div>
+          <WorkspaceEmptyState
+            title="目前尚無可承接的文件"
+            description="請先回到廠商發包板完成全部確認，再從這裡查看最終文件。"
+            actions={<Link href="/vendor-assignments" className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-900 bg-slate-900 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800">返回廠商發包板</Link>}
+          />
         )}
       </section>
     </AppShell>

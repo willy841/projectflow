@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
+import { WorkspaceActionBar, WorkspaceFooterActions, WorkspaceStatusNotice } from "@/components/workspace-ui";
 
 type DesignPlanInput = {
   id: string;
@@ -146,7 +147,7 @@ export function DesignPlanEditorClient({
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-col gap-3 border-b border-slate-200 pb-4 xl:flex-row xl:items-center xl:justify-between">
+      <WorkspaceActionBar>
         <div className="flex flex-wrap items-center gap-3">
           <h3 className="text-xl font-semibold text-slate-900">執行處理</h3>
           <button
@@ -175,7 +176,7 @@ export function DesignPlanEditorClient({
             {confirming ? "確認中..." : "全部確認"}
           </button>
         </div>
-      </div>
+      </WorkspaceActionBar>
 
       {plans.map((plan) => (
         <article key={plan.id} className="rounded-2xl border border-slate-200 bg-white p-5">
@@ -213,7 +214,7 @@ export function DesignPlanEditorClient({
               <input value={plan.vendor} onChange={(e) => updatePlan(plan.id, "vendor", e.target.value)} className="mt-2 h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm font-medium text-slate-900" />
             </label>
           </div>
-          <div className="mt-4 flex items-center justify-between gap-3 border-t border-slate-100 pt-4">
+          <WorkspaceFooterActions>
             <button
               type="button"
               onClick={() => removePlan(plan.id)}
@@ -221,15 +222,11 @@ export function DesignPlanEditorClient({
             >
               刪除這筆處理
             </button>
-          </div>
+          </WorkspaceFooterActions>
         </article>
       ))}
 
-      {message ? (
-        <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800 whitespace-pre-line">
-          {message}
-        </div>
-      ) : null}
+      {message ? <WorkspaceStatusNotice tone={message.includes("失敗") ? "error" : "success"}>{message}</WorkspaceStatusNotice> : null}
     </div>
   );
 }
