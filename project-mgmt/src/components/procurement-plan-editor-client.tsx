@@ -109,10 +109,10 @@ export function ProcurementPlanEditorClient({
       <div className="flex flex-col gap-3 border-b border-slate-200 pb-4 xl:flex-row xl:items-center xl:justify-between">
         <div className="flex flex-wrap items-center gap-3">
           <h3 className="text-xl font-semibold text-slate-900">執行處理</h3>
-          <button type="button" onClick={addPlan} className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">新增執行處理</button>
+          <button type="button" onClick={addPlan} className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">新增執行處理</button>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <button type="button" onClick={saveAllPlans} disabled={saving} className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 disabled:opacity-60">{saving ? "儲存中..." : "儲存"}</button>
+          <button type="button" onClick={saveAllPlans} disabled={saving} className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 disabled:opacity-60">{saving ? "儲存中..." : "儲存"}</button>
           <button type="button" onClick={confirmPlans} disabled={confirming} className="inline-flex items-center justify-center rounded-2xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-60">{confirming ? "確認中..." : "全部確認"}</button>
         </div>
       </div>

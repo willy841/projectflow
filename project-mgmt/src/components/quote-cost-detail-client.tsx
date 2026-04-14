@@ -260,6 +260,8 @@ export function QuoteCostDetailClient({ project, mode = "active", presenter = ge
   }
 
   const canCloseProject = state.quotationImported && outstandingTotal === 0 && derivedReconciliationStatus === "已完成";
+  const canReopenProject = isClosedView && closeoutWriteState !== 'submitting';
+  const canReopenProject = isClosedView && closeoutWriteState !== 'submitting';
 
   async function handleCloseProject() {
     if (!canCloseProject || closeoutWriteState === 'submitting') return;
@@ -289,6 +291,35 @@ export function QuoteCostDetailClient({ project, mode = "active", presenter = ge
     } catch (error) {
       console.error(error);
       setCloseoutError('結案失敗');
+    } finally {
+      setCloseoutWriteState('idle');
+    }
+  }
+
+  async function handleReopenProject() {
+    if (!canReopenProject) return;
+
+    setCloseoutWriteState('submitting');
+    setCloseoutError(null);
+
+    try {
+      const response = await fetch(`/api/financial-projects/${state.id}/reopen`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      });
+      const result = await response.json();
+
+      if (!response.ok || !result?.ok) {
+        setCloseoutError(result?.error ?? '取消結案失敗');
+        return;
+      }
+
+      setState((prev) => ({ ...prev, projectStatus: '執行中', closeStatus: '執行中' }));
+      router.refresh();
+      router.push(`/quote-costs/${state.id}`);
+    } catch (error) {
+      console.error(error);
+      setCloseoutError('取消結案失敗');
     } finally {
       setCloseoutWriteState('idle');
     }
@@ -488,6 +519,16 @@ export function QuoteCostDetailClient({ project, mode = "active", presenter = ge
                   className="inline-flex items-center justify-center rounded-2xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-300"
                 >
                   {closeoutWriteState === 'submitting' ? '結案中...' : '確認結案'}
+                </button>
+              ) : null}
+              {isClosedView ? (
+                <button
+                  type="button"
+                  onClick={handleReopenProject}
+                  disabled={!canReopenProject}
+                  className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 transition hover:border-slate-400 hover:bg-slate-50 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
+                >
+                  {closeoutWriteState === 'submitting' ? '處理中...' : '取消結案'}
                 </button>
               ) : null}
             </div>

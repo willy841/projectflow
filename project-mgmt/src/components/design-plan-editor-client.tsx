@@ -152,7 +152,7 @@ export function DesignPlanEditorClient({
           <button
             type="button"
             onClick={addPlan}
-            className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+            className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
           >
             新增執行處理
           </button>
@@ -162,7 +162,7 @@ export function DesignPlanEditorClient({
             type="button"
             onClick={saveAllPlans}
             disabled={saving}
-            className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 disabled:opacity-60"
+            className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 disabled:opacity-60"
           >
             {saving ? "儲存中..." : "儲存"}
           </button>
