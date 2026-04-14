@@ -257,6 +257,7 @@
 - 已新增：`MD134-projectflow-post-md133-project-detail-dispatch-and-ui-closure-2026-04-14.md`
 - 已新增：`MD135-projectflow-ui-consistency-95-percent-closure-and-guardrails-2026-04-15.md`
 - 已新增：`MD136-projectflow-product-guardrails-and-formalization-rules-2026-04-15.md`
+- 已新增：`MD137-projectflow-guardrails-round1-implementation-closure-2026-04-15.md`
 - 這份文件的重要性在於：
   - 它正式承接 `MD133` 之後的最新完成項
   - 把本輪最實際的驗收主線一次收斂成：
