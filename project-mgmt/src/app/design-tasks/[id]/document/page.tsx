@@ -31,7 +31,7 @@ export default async function DesignTaskDocumentPage({
             <DesignDocumentExportButton taskId={task.id} rows={task.documentRows} />
             <Link
               href={`/design-tasks/${task.id}`}
-              className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700"
+              className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-700"
             >
               返回任務詳情
             </Link>

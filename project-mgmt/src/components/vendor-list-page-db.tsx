@@ -57,7 +57,7 @@ export function VendorListPageDb({ vendors }: { vendors: VendorBasicProfile[] })
               <div className="mt-5 flex items-center justify-between gap-3 border-t border-slate-100 pt-4">
                 <Link
                   href={`/vendors/${vendor.id}`}
-                  className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 transition hover:border-slate-400 hover:bg-slate-50"
+                  className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 transition hover:border-slate-400 hover:bg-slate-50 min-h-11"
                 >
                   查看
                 </Link>

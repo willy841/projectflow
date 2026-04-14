@@ -104,14 +104,14 @@ function VendorProfileEditor({
           <button
             type="button"
             onClick={() => setActiveTab("basic")}
-            className={`rounded-2xl px-4 py-2 text-sm font-medium ring-1 transition ${activeTab === "basic" ? "bg-slate-900 text-white ring-slate-900" : "bg-white text-slate-700 ring-slate-200 hover:bg-slate-50"}`}
+            className={`rounded-2xl px-4 py-2.5 text-sm font-medium ring-1 transition ${activeTab === "basic" ? "bg-slate-900 text-white ring-slate-900" : "bg-white text-slate-700 ring-slate-200 hover:bg-slate-50"}`}
           >
             基本資料 / 匯款資訊
           </button>
           <button
             type="button"
             onClick={() => setActiveTab("labor")}
-            className={`rounded-2xl px-4 py-2 text-sm font-medium ring-1 transition ${activeTab === "labor" ? "bg-slate-900 text-white ring-slate-900" : "bg-white text-slate-700 ring-slate-200 hover:bg-slate-50"}`}
+            className={`rounded-2xl px-4 py-2.5 text-sm font-medium ring-1 transition ${activeTab === "labor" ? "bg-slate-900 text-white ring-slate-900" : "bg-white text-slate-700 ring-slate-200 hover:bg-slate-50"}`}
           >
             勞報資訊
           </button>
@@ -535,7 +535,7 @@ export function VendorDetailShell({ vendorId }: Props) {
                         <button
                           type="button"
                           onClick={() => toggleExpanded(record.id)}
-                          className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 transition hover:bg-slate-100"
+                          className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 transition hover:bg-slate-100"
                         >
                           {isExpanded ? "收合明細" : "查看明細"}
                         </button>

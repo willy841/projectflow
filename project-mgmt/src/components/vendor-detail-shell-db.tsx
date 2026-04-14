@@ -289,7 +289,7 @@ export function VendorDetailShellDb({ vendor, records, paymentRecords }: { vendo
                       <p className="text-sm text-slate-500">目前應付 / 未付款</p>
                       <p className="text-2xl font-semibold tracking-tight text-slate-900">{record.adjustedCostLabel} / {formatCurrency(record.unpaidAmount ?? record.adjustedCost)}</p>
                     </div>
-                    <button type="button" onClick={() => toggleExpandedRecord(record.id)} className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 transition hover:bg-slate-100">{isExpanded ? '收合明細' : '查看明細'}</button>
+                    <button type="button" onClick={() => toggleExpandedRecord(record.id)} className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 transition hover:bg-slate-100">{isExpanded ? '收合明細' : '查看明細'}</button>
                   </div>
                 </div>
                 {isExpanded ? (

@@ -80,9 +80,9 @@ export default async function ProcurementTasksPage({
               <article key={project.projectId} className="rounded-2xl border border-slate-200 p-5 transition hover:border-slate-300 hover:bg-slate-50/70">
                 <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
                   <div className="grid flex-1 gap-3 md:grid-cols-3">
-                    <div className="rounded-2xl bg-slate-50 px-4 py-3"><p className="text-xs text-slate-500">專案名稱</p><p className="mt-2 text-sm font-medium text-slate-900">{project.projectName}</p></div>
-                    <div className="rounded-2xl bg-slate-50 px-4 py-3"><p className="text-xs text-slate-500">任務數量</p><p className="mt-2 text-sm font-medium text-slate-900">{project.taskCount}</p></div>
-                    <div className="rounded-2xl bg-slate-50 px-4 py-3"><p className="text-xs text-slate-500">活動日期</p><p className="mt-2 text-sm font-medium text-slate-900">{project.eventDate}</p></div>
+                    <div className="rounded-2xl bg-slate-50 px-4 py-3.5"><p className="text-xs text-slate-500">專案名稱</p><p className="mt-2 text-sm font-medium text-slate-900">{project.projectName}</p></div>
+                    <div className="rounded-2xl bg-slate-50 px-4 py-3.5"><p className="text-xs text-slate-500">任務數量</p><p className="mt-2 text-sm font-medium text-slate-900">{project.taskCount}</p></div>
+                    <div className="rounded-2xl bg-slate-50 px-4 py-3.5"><p className="text-xs text-slate-500">活動日期</p><p className="mt-2 text-sm font-medium text-slate-900">{project.eventDate}</p></div>
                   </div>
                   <div className="flex justify-end">
                     <Link href={`/procurement-tasks?project=${encodeURIComponent(project.projectId)}`} className="inline-flex items-center justify-center rounded-2xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-700">進入專案</Link>
@@ -95,7 +95,7 @@ export default async function ProcurementTasksPage({
           <div className="space-y-4">
             <div className="flex items-center justify-between rounded-2xl bg-slate-50 px-4 py-3">
               <div><p className="text-lg font-semibold text-slate-900">{activeProject.projectName}</p></div>
-              <Link href="/procurement-tasks" className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700">返回專案列表</Link>
+              <Link href="/procurement-tasks" className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-700">返回專案列表</Link>
             </div>
 
             <div className="space-y-3">

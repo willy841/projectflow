@@ -88,7 +88,7 @@ export function VendorListPage() {
                   setShowCreateVendorModal(true);
                   setCreateVendorError(null);
                 }}
-                className="inline-flex items-center justify-center rounded-2xl border border-slate-900 bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800"
+                className="inline-flex items-center justify-center rounded-2xl border border-slate-900 bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800"
               >
                 新增廠商
               </button>
@@ -137,7 +137,7 @@ export function VendorListPage() {
           </div>
 
           <div className="mt-3 grid gap-3 xl:grid-cols-[minmax(0,0.75fr)_minmax(0,1.85fr)] xl:items-start">
-            <div className="rounded-2xl border border-slate-200 bg-white px-4 py-3">
+            <div className="rounded-2xl border border-slate-200 bg-white px-4 py-3.5">
               <div className="flex items-center justify-between gap-2">
               </div>
               <div className="mt-2 flex flex-wrap items-center gap-2">
@@ -151,7 +151,7 @@ export function VendorListPage() {
               </div>
             </div>
 
-            <div className="rounded-2xl border border-slate-200 bg-white px-4 py-3">
+            <div className="rounded-2xl border border-slate-200 bg-white px-4 py-3.5">
               <div className="flex flex-wrap items-center gap-2">
                 <span className="text-xs text-slate-400">單選</span>
               </div>
