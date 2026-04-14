@@ -32,7 +32,7 @@ function mapVendorTaskItemToAssignment(projectId: string, item: VendorAssignment
     budget: item.data.amount || "",
     tradeLabel: item.data.category || "",
     selectedVendorName: item.data.vendorName || "",
-    status: item.data.status === "已完成" ? "done" : "draft",
+    status: "draft",
     packageId: null,
     replies: (item.data.replies ?? []).map((reply) => ({
       id: reply.id,

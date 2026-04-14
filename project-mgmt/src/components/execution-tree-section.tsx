@@ -12,6 +12,7 @@ import {
   VendorAssignmentDraft,
 } from "@/components/execution-tree";
 import { Project, getStatusClass, type ProjectExecutionSubItem } from "@/components/project-data";
+import type { VendorBasicProfile } from "@/components/vendor-data";
 import { isUuidLike } from "@/lib/db/project-flow-toggle";
 
 type OpenCategory = "design" | "procurement" | "vendor";
@@ -93,6 +94,7 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
   const [vendorAssignments, setVendorAssignments] = useState<VendorAssignmentItem[]>([]);
   const [openCategory, setOpenCategory] = useState<OpenCategory>("design");
   const [saveFeedback, setSaveFeedback] = useState<{ category: OpenCategory; message: string } | null>(null);
+  const [vendorOptions, setVendorOptions] = useState<VendorBasicProfile[]>([]);
 
   const initialDesignAssignments = useMemo<Record<string, DesignAssignmentDraft>>(
     () =>
@@ -112,10 +114,8 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
                   material: "",
                   quantity: "",
                   referenceUrl: "",
-                  structureRequired: "需要",
-                  note: task.title,
-                  outsourceTarget: "",
-                  status: task.status as DesignAssignmentDraft["status"],
+                  vendorName: task.assignee === '-' ? '' : task.assignee,
+                  requirement: task.title,
                 },
               ]),
           )
@@ -142,8 +142,8 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
                   material: "",
                   quantity: "",
                   styleUrl: "",
-                  note: task.title,
-                  status: task.status as ProcurementAssignmentDraft["status"],
+                  vendorName: task.buyer === '-' ? '' : task.buyer,
+                  requirement: task.title,
                 },
               ]),
           )
@@ -171,9 +171,7 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
                   requirement: task.title,
                   specification: "",
                   referenceUrl: "",
-                  note: task.title,
                   amount: "",
-                  status: task.status as VendorAssignmentDraft["status"],
                 },
               ]),
           )
@@ -186,8 +184,8 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
       id: assignment.targetId,
       summaryKey: assignment.targetId,
       title: assignment.title,
-      status: assignment.data.status,
-      statusClass: getStatusClass(assignment.data.status),
+      status: '已建立',
+      statusClass: getStatusClass('已完成'),
       href: assignment.boardPath || `/design-tasks?project=${encodeURIComponent(project.id)}`,
       ctaLabel: assignment.boardPath ? "前往設計任務詳情" : "前往設計任務板",
     }));
@@ -210,8 +208,8 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
       id: assignment.targetId,
       summaryKey: assignment.targetId,
       title: assignment.data.item || assignment.title,
-      status: assignment.data.status,
-      statusClass: getStatusClass(assignment.data.status),
+      status: '已建立',
+      statusClass: getStatusClass('已完成'),
       href: assignment.boardPath || `/procurement-tasks?project=${encodeURIComponent(project.id)}`,
       ctaLabel: assignment.boardPath ? "前往備品任務詳情" : "前往採購備品板",
     }));
@@ -236,8 +234,8 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
           id: assignment.targetId,
           summaryKey: assignment.targetId,
           title: assignment.data.title || assignment.title,
-          status: assignment.data.status,
-          statusClass: getStatusClass(assignment.data.status),
+          status: '已建立',
+          statusClass: getStatusClass('已完成'),
           href: assignment.boardPath || `/vendor-assignments?project=${encodeURIComponent(project.id)}`,
           ctaLabel: assignment.boardPath ? "前往廠商任務詳情" : "前往廠商發包板",
         })),
@@ -290,6 +288,25 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
     const timer = window.setTimeout(() => setSaveFeedback(null), 4000);
     return () => window.clearTimeout(timer);
   }, [saveFeedback]);
+
+  useEffect(() => {
+    if (!isDbProject) return;
+    let cancelled = false;
+    fetch('/api/vendors')
+      .then((response) => response.json())
+      .then((result) => {
+        if (cancelled) return;
+        if (result?.ok && Array.isArray(result.vendors)) {
+          setVendorOptions(result.vendors as VendorBasicProfile[]);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) setVendorOptions([]);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [isDbProject]);
 
   const serverHandlers = isDbProject
     ? {
@@ -384,8 +401,8 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
               structure: draft.material,
               quantity: draft.quantity,
               referenceUrl: draft.referenceUrl,
-              note: draft.note,
-              status: draft.status,
+              note: draft.requirement,
+              vendorName: draft.vendorName,
             }),
           });
           const result = await response.json();
@@ -402,9 +419,9 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
               title: draft.item || title || findExecutionTitle(project, targetId),
               quantity: draft.quantity,
               budgetNote: "",
-              note: draft.note,
+              note: draft.requirement,
               referenceUrl: draft.styleUrl,
-              status: draft.status,
+              vendorName: draft.vendorName,
             }),
           });
           const result = await response.json();
@@ -420,10 +437,8 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
               executionItemId: targetId,
               title: draft.title || title || findExecutionTitle(project, targetId),
               vendorName: draft.vendorName,
-              requirement: draft.requirement || draft.note,
-              note: draft.note,
+              requirement: draft.requirement,
               amount: draft.amount,
-              status: draft.status,
             }),
           });
           const result = await response.json();
@@ -462,6 +477,7 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
           initialDesignAssignments={initialDesignAssignments}
           initialProcurementAssignments={initialProcurementAssignments}
           initialVendorAssignments={initialVendorAssignments}
+          vendorOptions={vendorOptions}
           serverHandlers={serverHandlers}
         />
       </section>

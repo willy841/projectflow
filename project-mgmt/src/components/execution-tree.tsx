@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import * as XLSX from "xlsx";
 import {
   getExecutionTreeStorageKey,
@@ -15,8 +15,7 @@ import {
   ProjectExecutionSubItem,
   getStatusClass,
 } from "@/components/project-data";
-
-export type AssignmentStatus = "待處理" | "進行中" | "已完成";
+import type { VendorBasicProfile } from "@/components/vendor-data";
 
 export type AssignmentReply = {
   id: string;
@@ -39,10 +38,8 @@ export type DesignAssignmentDraft = {
   material: string;
   quantity: string;
   referenceUrl: string;
-  structureRequired: string;
-  note: string;
-  outsourceTarget: string;
-  status: AssignmentStatus;
+  vendorName: string;
+  requirement: string;
   replies?: AssignmentReply[];
 };
 
@@ -53,8 +50,8 @@ export type ProcurementAssignmentDraft = {
   material: string;
   quantity: string;
   styleUrl: string;
-  note: string;
-  status: AssignmentStatus;
+  vendorName: string;
+  requirement: string;
   replies?: AssignmentReply[];
 };
 
@@ -66,9 +63,7 @@ export type VendorAssignmentDraft = {
   requirement: string;
   specification: string;
   referenceUrl: string;
-  note: string;
   amount: string;
-  status: AssignmentStatus;
   replies?: AssignmentReply[];
 };
 
@@ -97,10 +92,8 @@ const defaultDesignAssignmentDraft: DesignAssignmentDraft = {
   material: "",
   quantity: "",
   referenceUrl: "",
-  structureRequired: "需要",
-  note: "",
-  outsourceTarget: "",
-  status: "待處理",
+  vendorName: "",
+  requirement: "",
 };
 
 const defaultProcurementAssignmentDraft: ProcurementAssignmentDraft = {
@@ -110,8 +103,8 @@ const defaultProcurementAssignmentDraft: ProcurementAssignmentDraft = {
   material: "",
   quantity: "",
   styleUrl: "",
-  note: "",
-  status: "待處理",
+  vendorName: "",
+  requirement: "",
 };
 
 const defaultVendorAssignmentDraft: VendorAssignmentDraft = {
@@ -122,30 +115,59 @@ const defaultVendorAssignmentDraft: VendorAssignmentDraft = {
   requirement: "",
   specification: "",
   referenceUrl: "",
-  note: "",
   amount: "",
-  status: "待處理",
 };
 
-function AssignmentStatusField({
+function normalizeVendorKeyword(value: string) {
+  return value.trim().toLowerCase().replace(/\s+/g, " ");
+}
+
+function VendorMatchField({
+  label = "執行廠商",
   value,
   onChange,
+  vendors,
 }: {
-  value: AssignmentStatus;
-  onChange: (value: AssignmentStatus) => void;
+  label?: string;
+  value: string;
+  onChange: (value: string) => void;
+  vendors: VendorBasicProfile[];
 }) {
+  const keyword = normalizeVendorKeyword(value);
+  const matchedVendors = useMemo(() => {
+    if (!keyword) return [] as VendorBasicProfile[];
+    return vendors.filter((vendor) => normalizeVendorKeyword(vendor.name).includes(keyword)).slice(0, 6);
+  }, [keyword, vendors]);
+  const isExactMatch = vendors.some((vendor) => normalizeVendorKeyword(vendor.name) === keyword);
+
   return (
-    <label className="flex flex-col gap-2">
-      <span className="text-sm font-medium text-slate-700">狀態</span>
-      <select
+    <label className="flex flex-col gap-2 md:col-span-2 xl:col-span-1">
+      <span className="text-sm font-medium text-slate-700">{label}</span>
+      <input
         value={value}
-        onChange={(event) => onChange(event.target.value as AssignmentStatus)}
+        onChange={(event) => onChange(event.target.value)}
+        placeholder="輸入廠商名稱，自動匹配既有廠商資料"
         className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400"
-      >
-        <option value="待處理">待處理</option>
-        <option value="進行中">進行中</option>
-        <option value="已完成">已完成</option>
-      </select>
+      />
+      {value.trim() ? (
+        <div className={`rounded-2xl border px-3 py-2 text-xs ${isExactMatch ? "border-emerald-200 bg-emerald-50 text-emerald-700" : "border-amber-200 bg-amber-50 text-amber-700"}`}>
+          {isExactMatch ? "已匹配既有廠商資料" : "尚未精準匹配既有廠商資料，需從下列建議帶入或輸入完整名稱"}
+        </div>
+      ) : null}
+      {matchedVendors.length ? (
+        <div className="flex flex-wrap gap-2">
+          {matchedVendors.map((vendor) => (
+            <button
+              key={vendor.id}
+              type="button"
+              onClick={() => onChange(vendor.name)}
+              className="inline-flex items-center rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-700 transition hover:bg-slate-50"
+            >
+              {vendor.name}
+            </button>
+          ))}
+        </div>
+      ) : null}
     </label>
   );
 }
@@ -260,6 +282,7 @@ function DesignAssignmentForm({
   isEditing,
   onChange,
   actions,
+  vendors,
 }: {
   title: string;
   draft: DesignAssignmentDraft;
@@ -267,6 +290,7 @@ function DesignAssignmentForm({
   isEditing: boolean;
   onChange: (key: keyof DesignAssignmentDraft, value: string) => void;
   actions: FormActions;
+  vendors: VendorBasicProfile[];
 }) {
   return (
     <div className="mt-4 rounded-3xl border border-slate-200 bg-slate-50 p-5 sm:p-6">
@@ -293,7 +317,7 @@ function DesignAssignmentForm({
             saved.size ? `尺寸：${saved.size}` : null,
             saved.material ? `材質 + 結構：${saved.material}` : null,
             saved.quantity ? `數量：${saved.quantity}` : null,
-            saved.assignee ? `負責人：${saved.assignee}` : null,
+            saved.vendorName ? `執行廠商：${saved.vendorName}` : null,
           ].filter((item): item is string => Boolean(item))}
           fields={[
             { label: "來源項目 / 次項目", value: title },
@@ -301,16 +325,10 @@ function DesignAssignmentForm({
             { label: "尺寸", value: saved.size || "未填寫" },
             { label: "材質 + 結構", value: saved.material || "未填寫" },
             { label: "數量", value: saved.quantity || "未填寫" },
-            { label: "需求說明", value: saved.note || "未填寫" },
+            { label: "執行廠商", value: saved.vendorName || "未填寫" },
+            { label: "需求說明", value: saved.requirement || "未填寫" },
             { label: "參考連結", value: saved.referenceUrl || "未填寫" },
-            { label: "負責人", value: saved.assignee || "未指定" },
-            { label: "狀態", value: saved.status || "未填寫" },
           ]}
-          collapsedFields={
-            saved.outsourceTarget
-              ? [{ label: "執行廠商（預設）", value: saved.outsourceTarget }]
-              : []
-          }
           actions={{ onEdit: actions.onEdit, onDelete: actions.onDelete }}
         />
       ) : (
@@ -354,20 +372,10 @@ function DesignAssignmentForm({
                 className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400"
               />
             </label>
-            <label className="flex flex-col gap-2">
-              <span className="text-sm font-medium text-slate-700">
-                執行廠商（預設，可留空）
-              </span>
-              <input
-                value={draft.outsourceTarget}
-                onChange={(e) => onChange("outsourceTarget", e.target.value)}
-                placeholder="例如：星澄輸出"
-                className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400"
-              />
-            </label>
-            <AssignmentStatusField
-              value={draft.status}
-              onChange={(value) => onChange("status", value)}
+            <VendorMatchField
+              value={draft.vendorName}
+              onChange={(value) => onChange("vendorName", value)}
+              vendors={vendors}
             />
             <label className="flex flex-col gap-2 md:col-span-2 xl:col-span-3">
               <span className="text-sm font-medium text-slate-700">
@@ -385,21 +393,10 @@ function DesignAssignmentForm({
                 設計內容 / 需求說明
               </span>
               <textarea
-                value={draft.note}
-                onChange={(e) => onChange("note", e.target.value)}
+                value={draft.requirement}
+                onChange={(e) => onChange("requirement", e.target.value)}
                 placeholder="補充設計需求、排版重點與執行說明"
                 className="min-h-28 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-slate-400"
-              />
-            </label>
-            <label className="flex flex-col gap-2 xl:col-span-1">
-              <span className="text-sm font-medium text-slate-700">
-                補充註記
-              </span>
-              <input
-                value={draft.structureRequired}
-                onChange={(e) => onChange("structureRequired", e.target.value)}
-                placeholder="例如：需注意現場結構限制"
-                className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400"
               />
             </label>
           </div>
@@ -434,6 +431,7 @@ function ProcurementAssignmentForm({
   isEditing,
   onChange,
   actions,
+  vendors,
 }: {
   title: string;
   draft: ProcurementAssignmentDraft;
@@ -441,6 +439,7 @@ function ProcurementAssignmentForm({
   isEditing: boolean;
   onChange: (key: keyof ProcurementAssignmentDraft, value: string) => void;
   actions: FormActions;
+  vendors: VendorBasicProfile[];
 }) {
   return (
     <div className="mt-4 rounded-3xl border border-slate-200 bg-slate-50 p-5 sm:p-6">
@@ -467,7 +466,7 @@ function ProcurementAssignmentForm({
             saved.size ? `尺寸：${saved.size}` : null,
             saved.material ? `材質：${saved.material}` : null,
             saved.quantity ? `數量：${saved.quantity}` : null,
-            saved.assignee ? `負責人：${saved.assignee}` : null,
+            saved.vendorName ? `執行廠商：${saved.vendorName}` : null,
           ].filter((item): item is string => Boolean(item))}
           fields={[
             { label: "來源項目 / 次項目", value: title },
@@ -475,10 +474,10 @@ function ProcurementAssignmentForm({
             { label: "尺寸", value: saved.size || "未填寫" },
             { label: "材質", value: saved.material || "未填寫" },
             { label: "數量", value: saved.quantity || "未填寫" },
-            { label: "需求說明", value: saved.note || "未填寫" },
+            { label: "執行廠商", value: saved.vendorName || "未填寫" },
+            { label: "需求說明", value: saved.requirement || "未填寫" },
             { label: "參考連結", value: saved.styleUrl || "未填寫" },
             { label: "負責人", value: saved.assignee || "未指定" },
-            { label: "狀態", value: saved.status || "未填寫" },
           ]}
           actions={{ onEdit: actions.onEdit, onDelete: actions.onDelete }}
         />
@@ -503,9 +502,10 @@ function ProcurementAssignmentForm({
                 className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400"
               />
             </label>
-            <AssignmentStatusField
-              value={draft.status}
-              onChange={(value) => onChange("status", value)}
+            <VendorMatchField
+              value={draft.vendorName}
+              onChange={(value) => onChange("vendorName", value)}
+              vendors={vendors}
             />
             <label className="flex flex-col gap-2">
               <span className="text-sm font-medium text-slate-700">數量</span>
@@ -550,8 +550,8 @@ function ProcurementAssignmentForm({
                 需求說明
               </span>
               <textarea
-                value={draft.note}
-                onChange={(e) => onChange("note", e.target.value)}
+                value={draft.requirement}
+                onChange={(e) => onChange("requirement", e.target.value)}
                 placeholder="補充備品需求、採購條件與使用情境"
                 className="min-h-28 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-slate-400"
               />
@@ -588,6 +588,7 @@ function VendorAssignmentForm({
   isEditing,
   onChange,
   actions,
+  vendors,
 }: {
   title: string;
   draft: VendorAssignmentDraft;
@@ -595,6 +596,7 @@ function VendorAssignmentForm({
   isEditing: boolean;
   onChange: (key: keyof VendorAssignmentDraft, value: string) => void;
   actions: FormActions;
+  vendors: VendorBasicProfile[];
 }) {
   return (
     <div className="mt-4 rounded-3xl border border-slate-200 bg-slate-50 p-5 sm:p-6">
@@ -621,7 +623,7 @@ function VendorAssignmentForm({
           fields={[
             { label: "來源項目 / 次項目", value: title },
             { label: "負責人", value: saved.assignee || "未指定" },
-            { label: "廠商名稱", value: saved.vendorName || "未填寫" },
+            { label: "執行廠商", value: saved.vendorName || "未填寫" },
             { label: "類別 / 工種", value: saved.category || "未填寫" },
             { label: "需求說明", value: saved.requirement || "未填寫" },
             { label: "規格 / 尺寸", value: saved.specification || "未填寫" },
@@ -629,7 +631,6 @@ function VendorAssignmentForm({
               label: "參考連結 / 參考資料",
               value: saved.referenceUrl || "未填寫",
             },
-            { label: "備註", value: saved.note || "未填寫" },
             { label: "廠商報價", value: saved.amount || "未填寫" },
           ]}
           actions={{ onEdit: actions.onEdit, onDelete: actions.onDelete }}
@@ -664,10 +665,6 @@ function VendorAssignmentForm({
                 <option value="其他">其他</option>
               </select>
             </label>
-            <AssignmentStatusField
-              value={draft.status}
-              onChange={(value) => onChange("status", value)}
-            />
             <label className="flex flex-col gap-2">
               <span className="text-sm font-medium text-slate-700">項目</span>
               <input
@@ -677,17 +674,12 @@ function VendorAssignmentForm({
                 className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400"
               />
             </label>
-            <label className="flex flex-col gap-2">
-              <span className="text-sm font-medium text-slate-700">
-                廠商名稱
-              </span>
-              <input
-                value={draft.vendorName}
-                onChange={(e) => onChange("vendorName", e.target.value)}
-                placeholder="例如：木與光工坊"
-                className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400"
-              />
-            </label>
+            <VendorMatchField
+              label="執行廠商"
+              value={draft.vendorName}
+              onChange={(value) => onChange("vendorName", value)}
+              vendors={vendors}
+            />
             <label className="flex flex-col gap-2">
               <span className="text-sm font-medium text-slate-700">
                 廠商報價
@@ -729,15 +721,6 @@ function VendorAssignmentForm({
                 value={draft.requirement}
                 onChange={(e) => onChange("requirement", e.target.value)}
                 placeholder="例如：需確認尺寸、結構與施工方式，回覆可執行作法"
-                className="min-h-28 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-slate-400"
-              />
-            </label>
-            <label className="flex flex-col gap-2 xl:col-span-1">
-              <span className="text-sm font-medium text-slate-700">備註</span>
-              <textarea
-                value={draft.note}
-                onChange={(e) => onChange("note", e.target.value)}
-                placeholder="補充施作提醒、現場限制或溝通註記"
                 className="min-h-28 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-slate-400"
               />
             </label>
@@ -901,6 +884,7 @@ function AssignmentDrawer({
   onDeleteDesign,
   onDeleteProcurement,
   onDeleteVendor,
+  vendorOptions,
   isSaving = false,
   errorMessage,
 }: {
@@ -921,6 +905,7 @@ function AssignmentDrawer({
   onDeleteDesign: () => void;
   onDeleteProcurement: () => void;
   onDeleteVendor: () => void;
+  vendorOptions: VendorBasicProfile[];
   isSaving?: boolean;
   errorMessage?: string | null;
 }) {
@@ -978,6 +963,7 @@ function AssignmentDrawer({
               saved={savedDesign}
               isEditing
               onChange={onDesignChange}
+              vendors={vendorOptions}
               actions={{
                 onSave: onSaveDesign,
                 onCancel: onClose,
@@ -995,6 +981,7 @@ function AssignmentDrawer({
               saved={savedProcurement}
               isEditing
               onChange={onProcurementChange}
+              vendors={vendorOptions}
               actions={{
                 onSave: onSaveProcurement,
                 onCancel: onClose,
@@ -1012,6 +999,7 @@ function AssignmentDrawer({
               saved={savedVendor}
               isEditing
               onChange={onVendorChange}
+              vendors={vendorOptions}
               actions={{
                 onSave: onSaveVendor,
                 onCancel: onClose,
@@ -1038,6 +1026,7 @@ export function ExecutionTree({
   initialDesignAssignments = {},
   initialProcurementAssignments = {},
   initialVendorAssignments = {},
+  vendorOptions = [],
   serverHandlers,
 }: {
   items: ProjectExecutionItem[];
@@ -1067,6 +1056,7 @@ export function ExecutionTree({
   initialDesignAssignments?: Record<string, DesignAssignmentDraft>;
   initialProcurementAssignments?: Record<string, ProcurementAssignmentDraft>;
   initialVendorAssignments?: Record<string, VendorAssignmentDraft>;
+  vendorOptions?: VendorBasicProfile[];
   onAssignmentSaved?: (payload: { flowType: "design" | "procurement" | "vendor"; targetId: string; boardPath?: string }) => void;
   serverHandlers?: ExecutionTreeServerHandlers;
 }) {
@@ -2034,6 +2024,7 @@ export function ExecutionTree({
           if (!activeAssignmentDrawer) return;
           removeVendorAssignment(activeAssignmentDrawer.targetId);
         }}
+        vendorOptions={vendorOptions}
         isSaving={isSubmittingAssignment}
         errorMessage={assignmentSaveError}
       />

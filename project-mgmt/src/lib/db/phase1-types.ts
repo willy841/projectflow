@@ -63,6 +63,7 @@ export interface ProjectExecutionItemRow extends BaseMutableRow {
 export interface DesignTaskRow extends BaseMutableRow {
   project_id: UUID;
   source_execution_item_id: UUID;
+  vendor_id: UUID | null;
   title: string;
   size: string | null;
   material: string | null;
@@ -76,6 +77,7 @@ export interface DesignTaskRow extends BaseMutableRow {
 export interface ProcurementTaskRow extends BaseMutableRow {
   project_id: UUID;
   source_execution_item_id: UUID;
+  vendor_id: UUID | null;
   title: string;
   quantity: string | null;
   budget_note: string | null;

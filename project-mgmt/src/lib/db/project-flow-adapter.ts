@@ -110,8 +110,13 @@ export async function getDbProjectById(id: string): Promise<DbBackedProject | nu
       childrenByParent.set(item.parent_id as string, list);
     });
 
-  const vendors = vendorTasks.length
-    ? await Promise.all(vendorTasks.map((task) => repositories.vendors.findById(task.vendor_id)))
+  const vendorIds = Array.from(new Set([
+    ...designTasks.map((task) => task.vendor_id).filter((value): value is string => Boolean(value)),
+    ...procurementTasks.map((task) => task.vendor_id).filter((value): value is string => Boolean(value)),
+    ...vendorTasks.map((task) => task.vendor_id).filter((value): value is string => Boolean(value)),
+  ]));
+  const vendors = vendorIds.length
+    ? await Promise.all(vendorIds.map((vendorId) => repositories.vendors.findById(vendorId)))
     : [];
   const vendorNameById = new Map(vendors.filter((vendor): vendor is NonNullable<typeof vendor> => Boolean(vendor)).map((vendor) => [vendor.id, vendor.name]));
 
@@ -139,7 +144,7 @@ export async function getDbProjectById(id: string): Promise<DbBackedProject | nu
     designTasks: designTasks.map((task) => ({
       id: task.id,
       title: task.title,
-      assignee: '-',
+      assignee: vendorNameById.get(task.vendor_id ?? '') ?? '-',
       due: formatDateLike(project.event_date),
       status: task.status,
       sourceExecutionItemId: task.source_execution_item_id,
@@ -147,7 +152,7 @@ export async function getDbProjectById(id: string): Promise<DbBackedProject | nu
     procurementTasks: procurementTasks.map((task) => ({
       id: task.id,
       title: task.title,
-      buyer: '-',
+      buyer: vendorNameById.get(task.vendor_id ?? '') ?? '-',
       budget: task.budget_note ?? '未填寫',
       status: task.status,
       sourceExecutionItemId: task.source_execution_item_id,

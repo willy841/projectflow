@@ -139,7 +139,7 @@ export function getDesignBoardRecords(projects: Project[]): DesignTaskBoardRecor
       const latestConfirmed = confirmed[confirmed.length - 1];
       const latestParsed = latestConfirmed ? parseReplyMessage(latestConfirmed) : null;
       const confirmStatus: DesignConfirmStatus = replies.length === 0 ? "尚無回覆" : confirmed.length > 0 ? "已確認" : "待確認";
-      const vendorName = latestParsed?.vendor || assignment.outsourceTarget || "未指定";
+      const vendorName = latestParsed?.vendor || assignment.vendorName || "未指定";
       const generatedCount = section.generatedDesignDocuments[vendorName] ?? 0;
       const totalConfirmedForVendor = confirmedReplies.get(vendorName) ?? 0;
       const documentStatus: DesignDocumentStatus =
@@ -156,7 +156,7 @@ export function getDesignBoardRecords(projects: Project[]): DesignTaskBoardRecor
         id: `${project.id}-${targetId}`,
         projectId: project.id,
         projectName: project.name,
-        title: assignment.note || assignment.assignee ? project.executionItems.find((item) => item.id === targetId)?.title ?? targetId : targetId,
+        title: assignment.requirement || assignment.assignee ? project.executionItems.find((item) => item.id === targetId)?.title ?? targetId : targetId,
         size: assignment.size || "未填寫",
         material: assignment.material || "未填寫",
         replyCount: replies.length,
