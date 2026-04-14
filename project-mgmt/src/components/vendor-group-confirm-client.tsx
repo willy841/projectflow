@@ -2,7 +2,6 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { WorkspaceStatusNotice } from "@/components/workspace-ui";
 
 export function VendorGroupConfirmClient({
   projectId,
@@ -32,7 +31,7 @@ export function VendorGroupConfirmClient({
         throw new Error(payload?.error || "group confirm failed");
       }
 
-      setMessage(`已完成全部確認，共承接 ${payload.taskCount ?? 0} 筆任務。正在前往文件。`);
+      setMessage(`已完成全部確認，共承接 ${payload.taskCount ?? 0} 筆任務，正在前往文件。`);
       router.push(`/vendor-packages/${packageId}`);
       router.refresh();
     } catch (error) {
@@ -44,17 +43,15 @@ export function VendorGroupConfirmClient({
 
   return (
     <div className="flex flex-col items-stretch gap-2 xl:items-end">
-      <div className="flex flex-wrap gap-2">
-        <button
-          type="button"
-          onClick={handleConfirmGroup}
-          disabled={confirming}
-          className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-60"
-        >
-          {confirming ? "全部確認中..." : "全部確認"}
-        </button>
-      </div>
-      {message ? <WorkspaceStatusNotice tone={message.includes("失敗") ? "error" : "success"}>{message}</WorkspaceStatusNotice> : null}
+      <button
+        type="button"
+        onClick={handleConfirmGroup}
+        disabled={confirming}
+        className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-60"
+      >
+        {confirming ? "確認中..." : "全部確認"}
+      </button>
+      {message ? <p className="text-xs leading-5 text-slate-500 xl:max-w-sm">{message}</p> : null}
     </div>
   );
 }

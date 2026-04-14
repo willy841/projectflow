@@ -1,10 +1,10 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AppShell } from "@/components/app-shell";
+import { DesignDocumentExportButton } from "@/components/document-export-button";
 import { getDesignTaskById } from "@/components/design-task-data";
 import { MockDesignDocumentView } from "@/components/mock-design-document-view";
 import { WorkspaceHeader, WorkspaceSection } from "@/components/workspace-ui";
-import { DesignDocumentExportButton } from "@/components/document-export-button";
 import { getDbDesignTaskById } from "@/lib/db/design-flow-adapter";
 import { isUuidLike, shouldUseDbDesignFlow } from "@/lib/db/design-flow-toggle";
 
@@ -25,18 +25,27 @@ export default async function DesignTaskDocumentPage({
     <AppShell activePath="/design-tasks">
       <WorkspaceHeader
         title={task.title}
-        backHref={`/design-tasks/${task.id}`}
-        backLabel="返回任務詳情"
-        actions={<DesignDocumentExportButton taskId={task.id} rows={task.documentRows} />}
+        meta={
+          <>
+            <span>{task.projectName}</span>
+            <span className="text-slate-300">／</span>
+            <span>設計文件</span>
+          </>
+        }
+        actions={
+          <>
+            <DesignDocumentExportButton taskId={task.id} rows={task.documentRows} />
+            <Link
+              href={`/design-tasks/${task.id}`}
+              className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-700"
+            >
+              返回任務詳情
+            </Link>
+          </>
+        }
       />
 
-      <WorkspaceSection>
-        <div className="mb-4 flex items-center justify-between">
-          <div>
-            <h3 className="text-xl font-semibold text-slate-900">文件</h3>
-          </div>
-        </div>
-
+      <WorkspaceSection title="文件" meta="這裡承接本次正式確認後的文件內容。">
         <MockDesignDocumentView taskId={task.id} fallbackRows={task.documentRows} />
       </WorkspaceSection>
     </AppShell>

@@ -1,10 +1,10 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AppShell } from "@/components/app-shell";
-import { procurementTaskBoardRecords } from "@/components/procurement-task-board-data";
-import { MockProcurementDocumentView } from "@/components/mock-procurement-document-view";
-import { WorkspaceHeader, WorkspaceSection } from "@/components/workspace-ui";
 import { ProcurementDocumentExportButton } from "@/components/document-export-button";
+import { MockProcurementDocumentView } from "@/components/mock-procurement-document-view";
+import { procurementTaskBoardRecords } from "@/components/procurement-task-board-data";
+import { WorkspaceHeader, WorkspaceSection } from "@/components/workspace-ui";
 import { getDbProcurementTaskById } from "@/lib/db/procurement-flow-adapter";
 import { shouldUseDbProcurementFlow } from "@/lib/db/procurement-flow-toggle";
 import { isUuidLike } from "@/lib/db/design-flow-toggle";
@@ -20,13 +20,22 @@ export default async function ProcurementTaskDocumentPage({ params }: { params: 
     <AppShell activePath="/procurement-tasks">
       <WorkspaceHeader
         title={task.title}
-        backHref={`/procurement-tasks/${task.id}`}
-        backLabel="返回任務詳情"
-        actions={<ProcurementDocumentExportButton taskId={task.id} rows={task.documentRows} />}
+        meta={
+          <>
+            <span>{task.projectName}</span>
+            <span className="text-slate-300">／</span>
+            <span>備品文件</span>
+          </>
+        }
+        actions={
+          <>
+            <ProcurementDocumentExportButton taskId={task.id} rows={task.documentRows} />
+            <Link href={`/procurement-tasks/${task.id}`} className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-700">返回任務詳情</Link>
+          </>
+        }
       />
 
-      <WorkspaceSection>
-        <div className="mb-4"><h3 className="text-xl font-semibold text-slate-900">文件</h3></div>
+      <WorkspaceSection title="文件" meta="這裡承接本次正式確認後的文件內容。">
         <MockProcurementDocumentView taskId={task.id} fallbackRows={task.documentRows} />
       </WorkspaceSection>
     </AppShell>
