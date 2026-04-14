@@ -253,6 +253,27 @@
 ### O. 2026-04-13 使用情境逐區對齊回合（最新版）
 2026-04-13 新增了一組以「使用情境 → 功能責任 → 資料承接 → 與現有架構是否吻合」為主的對齊文件鏈，用來把目前 `projectflow` 的主要模組重新逐區盤點、收斂與固定語意。
 
+### P. 2026-04-14 最新補充：Project Detail / Dispatch / UI cleanup closure（必讀）
+- 已新增：`MD134-projectflow-post-md133-project-detail-dispatch-and-ui-closure-2026-04-14.md`
+- 這份文件的重要性在於：
+  - 它正式承接 `MD133` 之後的最新完成項
+  - 把本輪最實際的驗收主線一次收斂成：
+    1. project creation upstream existence
+    2. project requirements CRUD
+    3. execution items manual CRUD + DB truth
+    4. execution items Excel import persistence + bulk import first-round hardening
+    5. design / procurement / vendor dispatch closure
+    6. vendor matching 完整結構版
+    7. project detail / dispatch UI cleanup
+    8. `/projects` active-only list cleanup
+    9. homepage overview cleanup
+    10. new project page cleanup
+  - 並且明確標示：
+    - 哪些已完成
+    - 哪些衝突已修正
+    - 哪些仍待處理（例如測試資料治理、closeout/已結案主線正式收斂）
+- 若之後續接 `project detail / dispatch / overview / projects list / new project` 相關主線，`MD134` 應視為 `MD133` 之後的最新 closure / handoff 主入口。
+
 本輪新增文件包括：
 1. `MD100-projectflow-upstream-usage-scenario-alignment-summary-2026-04-12.md`
 2. `MD101-projectflow-design-line-usage-scenario-alignment-summary-2026-04-13.md`

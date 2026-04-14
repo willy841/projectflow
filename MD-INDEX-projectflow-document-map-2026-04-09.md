@@ -36,9 +36,18 @@
 6. `MD52-projectflow-accounting-center-closeout-vendor-data-alignment-v1-2026-04-08.md`
 7. `MD53-projectflow-accounting-center-active-projects-module-v1-spec-2026-04-08.md`
 
-### 2.1 2026-04-11 新增驗收校正 / live runtime 檔
+### 2.1 2026-04-11 新增驗收校正 / live runtime / 本輪總整理檔
 - `MD57-projectflow-dispatch-drawer-completion-state-and-db-closure-alignment-2026-04-11.md`
 - `MD59-projectflow-live-db-runtime-validation-and-field-alignment-handoff-2026-04-11.md`
+- `MD60-projectflow-midstream-plan-confirm-live-db-validation-handoff-2026-04-11.md`
+- `MD61-projectflow-downstream-db-first-vendor-runtime-status-handoff-2026-04-11.md`
+- `MD62-projectflow-current-round-completion-rules-and-open-items-alignment-2026-04-11.md`
+- `MD63-projectflow-downstream-financial-progress-refresh-2026-04-11.md`
+- `MD64-projectflow-vendor-data-unpaid-zone-partial-reconciliation-rule-2026-04-11.md`
+- `MD65-projectflow-vendor-data-detail-action-vs-archive-semantics-2026-04-12.md`
+- `MD66-projectflow-vendor-data-detail-validation-refresh-2026-04-12.md`
+- `MD67-projectflow-latest-global-progress-refresh-2026-04-12.md`
+- `MD134-projectflow-post-md133-project-detail-dispatch-and-ui-closure-2026-04-14.md`
 
 用途：
 - `MD57`
@@ -47,14 +56,61 @@
     - 不再以單一欄位局部互動當主要驗收單位
     - 改以整張 dispatch 表單的完整提交與完成態為判斷基準
 - `MD59`
-  - 補記在 **live Supabase DB runtime** 下的實際驗收結果
+  - 補記在 **live Supabase DB runtime** 下的 upstream 驗收結果
   - 已正式確認：
     - design `dispatch -> reload -> detail -> document` PASS
     - procurement `dispatch -> reload -> detail -> document` PASS
     - `boardPath` 單一資料源修正完成
     - procurement mapping 修正完成
     - design merged field（A 方案）已定案並開始對齊
-- 若要續接 `dispatch -> design/procurement` 主線，應和 `MD21`～`MD26` 一起看，且 `MD59` 應視為比 `MD58` 更新的 handoff。
+- `MD60`
+  - 補記 midstream `detail -> plan -> confirm -> snapshot(DB)` 的 live runtime 驗收結果
+- `MD61`
+  - 補記 downstream vendor runtime / vendor DB-first 主線的排查與驗收過程
+- `MD62`
+  - 補記本輪截至目前為止的**總整理**：
+    - 哪些已 PASS
+    - 哪些規則已拍板
+    - 哪些 downstream 項目仍未完成
+    - 特別校正「vendor 發包主線 PASS ≠ Vendor Data 全模組 PASS」
+- `MD63`
+  - 補記 downstream financial 最新進度刷新：
+    - `/quote-costs` list source = all projects 已完成
+    - `quote-cost detail` control state 已 group-first
+    - archive panel 已改成動態 financial items
+    - `Vendor Data monetary layer` 已開始與 quote-cost detail 正式對上
+- `MD64`
+  - 補記 `Vendor Data / 未付款專區` 的新正式規則：
+    - 採方案二
+    - 已對帳即累加顯示金額
+    - 但若尚未全部對帳，必須顯示 warning
+- `MD65`
+  - 補記 `Vendor Data detail` 的語意定稿：
+    - 未付款列表 = action-oriented
+    - 往來記錄 / 查看明細 = archive-oriented
+    - Financial 是主語意，Task / Package 是輔助語意
+- `MD66`
+  - 補記 `Vendor Data detail` 的最新驗收刷新：
+    - partial / full reconciliation warning 前端驗證已完成
+    - 未付款專區規則已落地
+    - 發包內容明細維持現狀已拍板
+- `MD67`
+  - 補記目前整個 `projectflow` 的最新全局盤點：
+    - 哪些已 DB 化且穩定
+    - 哪些已部分完成但尚未完全收尾
+    - 哪些主線仍未完成
+    - 哪些 spec 仍可能需要後續討論
+- `MD134`
+  - 承接 `MD133` 之後的最新 closure / handoff
+  - 正式收斂：
+    - project detail upstream existence
+    - requirements closure
+    - execution items CRUD / DB truth / Excel import
+    - design / procurement / vendor dispatch closure
+    - vendor matching 完整結構版
+    - project detail / projects list / homepage / new project page UI cleanup
+  - 並明確標示：完成 / 衝突已修正 / 仍待處理
+- 若要續接 2026-04-11 / 2026-04-14 這輪主線，`MD57`～`MD67` 與 `MD134` 應和 `MD20`～`MD26` 一起看，其中 `MD134` 是目前 project detail / dispatch / overview / list / new project cleanup 的最新 closure 主入口。
 
 ### 目前主判斷
 - `Closeout list / detail`：已驗收、已 lock
