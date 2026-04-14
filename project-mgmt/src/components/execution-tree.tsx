@@ -2239,7 +2239,7 @@ export function ExecutionTree({
                               </>
                             )}
                           </div>
-                          <div className="flex flex-wrap gap-2">
+                          <div className="flex flex-wrap items-center gap-2 self-center">
                             <AssignmentMenu
                               targetId={child.id}
                               isActive={activeAssignMenu === child.id}
