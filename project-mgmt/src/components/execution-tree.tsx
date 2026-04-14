@@ -294,19 +294,12 @@ function DesignAssignmentForm({
 }) {
   return (
     <div className="mt-4 rounded-3xl border border-slate-200 bg-slate-50 p-5 sm:p-6">
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-        <div>
-          <div className="flex flex-wrap items-center gap-2">
-            <p className="text-sm font-semibold text-slate-900">設計交辦</p>
-            <span className="inline-flex items-center justify-center rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700 ring-1 ring-blue-200">
-              設計
-            </span>
-          </div>
-          <p className="mt-1 text-sm text-slate-600">來源項目：{title}</p>
-        </div>
-        <div className="text-xs text-slate-500">
-          母卡主欄位：項目、尺寸、材質 + 結構、數量；補充欄位放在展開層
-        </div>
+      <div className="flex flex-wrap items-center gap-2">
+        <p className="text-sm font-semibold text-slate-900">設計交辦</p>
+        <span className="inline-flex items-center justify-center rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700 ring-1 ring-blue-200">
+          設計
+        </span>
+        <span className="text-sm text-slate-600">來源項目：{title}</span>
       </div>
 
       {saved && !isEditing ? (
@@ -443,19 +436,12 @@ function ProcurementAssignmentForm({
 }) {
   return (
     <div className="mt-4 rounded-3xl border border-slate-200 bg-slate-50 p-5 sm:p-6">
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-        <div>
-          <div className="flex flex-wrap items-center gap-2">
-            <p className="text-sm font-semibold text-slate-900">備品交辦</p>
-            <span className="inline-flex items-center justify-center rounded-full bg-amber-50 px-3 py-1 text-xs font-medium text-amber-700 ring-1 ring-amber-200">
-              備品
-            </span>
-          </div>
-          <p className="mt-1 text-sm text-slate-600">來源項目：{title}</p>
-        </div>
-        <div className="text-xs text-slate-500">
-          母卡主欄位：項目、尺寸、材質、數量；補充欄位放在展開層
-        </div>
+      <div className="flex flex-wrap items-center gap-2">
+        <p className="text-sm font-semibold text-slate-900">備品交辦</p>
+        <span className="inline-flex items-center justify-center rounded-full bg-amber-50 px-3 py-1 text-xs font-medium text-amber-700 ring-1 ring-amber-200">
+          備品
+        </span>
+        <span className="text-sm text-slate-600">來源項目：{title}</span>
       </div>
 
       {saved && !isEditing ? (
@@ -600,15 +586,12 @@ function VendorAssignmentForm({
 }) {
   return (
     <div className="mt-4 rounded-3xl border border-slate-200 bg-slate-50 p-5 sm:p-6">
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-        <div>
-          <div className="flex flex-wrap items-center gap-2">
-            <p className="text-sm font-semibold text-slate-900">廠商交辦</p>
-            <span className="inline-flex items-center justify-center rounded-full bg-violet-50 px-3 py-1 text-xs font-medium text-violet-700 ring-1 ring-violet-200">
-              廠商
-            </span>
-          </div>
-        </div>
+      <div className="flex flex-wrap items-center gap-2">
+        <p className="text-sm font-semibold text-slate-900">廠商交辦</p>
+        <span className="inline-flex items-center justify-center rounded-full bg-violet-50 px-3 py-1 text-xs font-medium text-violet-700 ring-1 ring-violet-200">
+          廠商
+        </span>
+        <span className="text-sm text-slate-600">來源項目：{title}</span>
       </div>
 
       {saved && !isEditing ? (
@@ -937,7 +920,6 @@ function AssignmentDrawer({
               </span>
             </div>
             <h3 className="mt-3 text-xl font-semibold text-slate-900">{activeDrawer.title}</h3>
-            <p className="mt-1 text-sm text-slate-500">在不改變任務發布 workflow 的前提下，改由右側抽屜完成交辦編輯。</p>
           </div>
           <button
             type="button"
