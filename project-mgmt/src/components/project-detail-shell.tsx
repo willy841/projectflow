@@ -226,7 +226,6 @@ export function ProjectDetailShell({ project, entryContext }: { project: Project
           <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <h3 className="text-xl font-semibold text-slate-900">編輯專案</h3>
-              <p className="mt-1 text-sm text-slate-500">這一版會正式儲存客戶資料與活動資訊到 DB。</p>
             </div>
             <span className="inline-flex items-center justify-center rounded-full bg-white px-3 py-1 text-xs font-medium text-slate-700 ring-1 ring-slate-200">
               正式版

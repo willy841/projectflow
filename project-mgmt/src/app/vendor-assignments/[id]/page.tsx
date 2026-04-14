@@ -34,9 +34,7 @@ export default async function VendorAssignmentTaskPage({ params }: { params: Pro
       <header className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
         <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
           <div>
-            <p className="text-sm text-slate-500">單 vendor 群組執行處理層</p>
-            <h2 className="mt-1 text-3xl font-semibold tracking-tight text-slate-900">{group.vendorName}</h2>
-            <p className="mt-2 text-sm text-slate-500">{group.projectName} ・ 共 {group.tasks.length} 筆任務</p>
+            <h2 className="text-3xl font-semibold tracking-tight text-slate-900">{group.vendorName}</h2>
           </div>
           <div className="flex flex-col gap-2 xl:items-end">
             <div className="flex flex-wrap gap-2">

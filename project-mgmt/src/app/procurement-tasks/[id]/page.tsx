@@ -18,7 +18,7 @@ export default async function ProcurementTaskDetailPage({ params }: { params: Pr
     <AppShell activePath="/procurement-tasks">
       <header className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
         <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
-          <div><p className="text-sm text-slate-500">採購備品任務詳情頁</p><h2 className="mt-1 text-3xl font-semibold tracking-tight text-slate-900">{task.title}</h2></div>
+          <div><h2 className="text-3xl font-semibold tracking-tight text-slate-900">{task.title}</h2></div>
           <div className="flex flex-wrap gap-2">
             <Link href={`/procurement-tasks?project=${encodeURIComponent(task.projectId)}`} className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700">返回任務列表</Link>
             <Link href={`/procurement-tasks/${task.id}/document`} className="inline-flex items-center justify-center rounded-2xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white">前往最終文件頁</Link>

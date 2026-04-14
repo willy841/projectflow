@@ -16,9 +16,7 @@ export default async function VendorPackagesPage() {
   return (
     <AppShell activePath="/vendor-packages">
       <header className="rounded-3xl border border-slate-200 bg-slate-50/80 p-6 shadow-sm ring-1 ring-slate-200">
-        <p className="text-sm text-slate-500">Vendor Flow / 廠商發包清單</p>
-        <h2 className="mt-1 text-3xl font-semibold tracking-tight text-slate-900">廠商發包清單</h2>
-        <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-600">送出後直接進入 package 主線。這一層處理文件背景、發包項目與文件整體備註，並承接 vendor 正式確認結果。</p>
+        <h2 className="text-3xl font-semibold tracking-tight text-slate-900">廠商發包清單</h2>
       </header>
 
       <section className="space-y-4">

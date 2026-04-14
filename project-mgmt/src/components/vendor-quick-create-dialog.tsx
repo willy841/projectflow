@@ -57,9 +57,7 @@ export function VendorQuickCreateDialog({
       <div className="w-full max-w-2xl rounded-3xl bg-white p-6 shadow-2xl ring-1 ring-slate-200">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <p className="text-xs font-semibold tracking-wide text-slate-500">QUICK CREATE</p>
-            <h3 className="mt-1 text-2xl font-semibold text-slate-900">{title}</h3>
-            <p className="mt-2 text-sm leading-6 text-slate-600">{description}</p>
+            <h3 className="text-2xl font-semibold text-slate-900">{title}</h3>
           </div>
           <button type="button" onClick={onClose} className="rounded-2xl border border-slate-200 px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50">
             關閉

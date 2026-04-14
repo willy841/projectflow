@@ -25,8 +25,7 @@ export default async function DesignTaskDocumentPage({
       <header className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
         <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
           <div>
-            <p className="text-sm text-slate-500">設計文件整理頁</p>
-            <h2 className="mt-1 text-3xl font-semibold tracking-tight text-slate-900">{task.title}</h2>
+            <h2 className="text-3xl font-semibold tracking-tight text-slate-900">{task.title}</h2>
           </div>
           <div className="flex flex-wrap gap-2">
             <DesignDocumentExportButton taskId={task.id} rows={task.documentRows} />
@@ -44,7 +43,6 @@ export default async function DesignTaskDocumentPage({
         <div className="mb-4 flex items-center justify-between">
           <div>
             <h3 className="text-xl font-semibold text-slate-900">最終文件頁</h3>
-            <p className="mt-2 text-sm text-slate-500">此頁承接最新一次「全部確認」的正式結果；若尚未確認，才回退顯示目前執行處理內容。</p>
           </div>
         </div>
 

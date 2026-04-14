@@ -16,7 +16,6 @@ export function VendorAssignmentDetail({ assignment }: { assignment: VendorAssig
               </span>
             </div>
             <h2 className="mt-3 text-3xl font-semibold tracking-tight text-slate-900">{assignment.title}</h2>
-            <p className="mt-3 text-sm leading-6 text-slate-600">{assignment.summary}</p>
           </div>
           {vendorPackage ? (
             <Link href={`/vendor-packages/${vendorPackage.id}`} className="inline-flex items-center justify-center rounded-2xl border border-slate-900 bg-slate-900 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800">
@@ -43,10 +42,6 @@ export function VendorAssignmentDetail({ assignment }: { assignment: VendorAssig
       <article className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
         <h3 className="text-xl font-semibold text-slate-900">需求說明</h3>
         <p className="mt-3 text-sm leading-7 text-slate-700">{assignment.summary}</p>
-        <div className="mt-5 rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-4">
-          <p className="text-sm text-slate-500">流程說明</p>
-          <p className="mt-2 text-sm leading-6 text-slate-700">這一層是輕量直接處理卡；選擇廠商並送出後，需求會直接進入同專案 + 同廠商的 Package 主線。</p>
-        </div>
       </article>
     </div>
   );
