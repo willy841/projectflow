@@ -178,7 +178,7 @@ export function DesignPlanEditorClient({
       </div>
 
       {plans.map((plan) => (
-        <article key={plan.id} className="rounded-2xl border border-slate-200 p-5">
+        <article key={plan.id} className="rounded-2xl border border-slate-200 bg-white p-5">
           <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
             <label className="rounded-2xl bg-slate-50 px-4 py-3 xl:col-span-2">
               <p className="text-xs text-slate-500">標題</p>
@@ -213,11 +213,11 @@ export function DesignPlanEditorClient({
               <input value={plan.vendor} onChange={(e) => updatePlan(plan.id, "vendor", e.target.value)} className="mt-2 h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm font-medium text-slate-900" />
             </label>
           </div>
-          <div className="mt-4 flex justify-between gap-3">
+          <div className="mt-4 flex items-center justify-between gap-3 border-t border-slate-100 pt-4">
             <button
               type="button"
               onClick={() => removePlan(plan.id)}
-              className="inline-flex items-center justify-center rounded-2xl border border-rose-200 bg-rose-50 px-4 py-2 text-sm font-medium text-rose-700"
+              className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-rose-200 bg-rose-50 px-4 py-2.5 text-sm font-medium text-rose-700"
             >
               刪除這筆處理
             </button>
