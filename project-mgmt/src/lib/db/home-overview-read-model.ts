@@ -48,6 +48,7 @@ export async function getHomeOverviewReadModel(): Promise<HomeOverviewReadModel>
         p.id,
         case when coalesce(p.status, '') in ('已結案', '結案') then '已結案' else '執行中' end as normalized_status
       from projects p
+      where coalesce(p.status, '') not in ('已結案', '結案')
     ),
     design_pending as (
       select count(*)::int as count
@@ -120,9 +121,10 @@ export async function getHomeOverviewReadModel(): Promise<HomeOverviewReadModel>
       p.name,
       coalesce(p.client_name, '未填寫') as client,
       coalesce(to_char(p.event_date, 'YYYY-MM-DD'), '-') as "eventDate",
-      case when coalesce(p.status, '') in ('已結案', '結案') then '已結案' else '執行中' end as status,
+      '執行中' as status,
       '-' as owner
     from projects p
+    where coalesce(p.status, '') not in ('已結案', '結案')
     order by p.event_date desc nulls last, p.created_at desc
     limit 8
   `);
