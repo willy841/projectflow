@@ -507,7 +507,7 @@ export function VendorDetailShell({ vendorId }: Props) {
                   className="h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400"
                 >
                   <option value="all">全部</option>
-                  <option value="執行中">執行中</option>
+                  <option value="執行中">進行中案件</option>
                   <option value="已結案">已結案</option>
                 </select>
               </label>
