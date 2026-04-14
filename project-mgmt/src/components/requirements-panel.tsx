@@ -123,8 +123,8 @@ export function RequirementsPanel({
 
   return (
     <article className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
-      <div className="mb-4 flex min-h-11 flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-        <div className="min-w-0 pt-2 sm:pt-1.5">
+      <div className="mb-4 flex min-h-11 flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="min-w-0">
           <h3 className="text-xl font-semibold leading-none">需求溝通</h3>
         </div>
         <button
@@ -156,7 +156,7 @@ export function RequirementsPanel({
             <button
               type="button"
               onClick={isEditing ? handleSaveEdit : handleCreate}
-              className="inline-flex items-center justify-center rounded-2xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700"
+              className="inline-flex items-center justify-center rounded-2xl border border-slate-900 bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800"
             >
               {isEditing ? "儲存修改" : "建立紀錄"}
             </button>

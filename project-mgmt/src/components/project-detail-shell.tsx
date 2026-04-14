@@ -183,9 +183,9 @@ export function ProjectDetailShell({ project, entryContext }: { project: Project
       const target = document.querySelector(`[data-execution-item-id="${focusedExecutionTargetId}"]`) as HTMLElement | null;
       if (!target) return;
       target.scrollIntoView({ behavior: "smooth", block: "center" });
-      target.classList.add("ring-2", "ring-blue-300", "border-blue-300", "bg-blue-50/40");
+      target.classList.add("ring-2", "ring-slate-300", "border-slate-300", "bg-slate-100/70");
       window.setTimeout(() => {
-        target.classList.remove("ring-2", "ring-blue-300", "border-blue-300", "bg-blue-50/40");
+        target.classList.remove("ring-2", "ring-slate-300", "border-slate-300", "bg-slate-100/70");
       }, 2200);
     });
 
@@ -213,7 +213,7 @@ export function ProjectDetailShell({ project, entryContext }: { project: Project
             <button
               type="button"
               onClick={() => setIsEditingProject((prev) => !prev)}
-              className="inline-flex h-11 items-center justify-center rounded-2xl bg-blue-600 px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700"
+              className="inline-flex h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-800 shadow-sm transition hover:border-slate-400 hover:bg-slate-50"
             >
               {isEditingProject ? "收合編輯專案" : "編輯專案"}
             </button>
@@ -222,13 +222,13 @@ export function ProjectDetailShell({ project, entryContext }: { project: Project
       </header>
 
       {isEditingProject ? (
-        <section className="rounded-3xl border border-blue-200 bg-blue-50/50 p-6 shadow-sm ring-1 ring-blue-100">
-          <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+        <section className="rounded-3xl border border-slate-200 bg-slate-50/80 p-6 shadow-sm ring-1 ring-slate-200">
+          <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <h3 className="text-xl font-semibold text-slate-900">編輯專案</h3>
               <p className="mt-1 text-sm text-slate-500">這一版會正式儲存客戶資料與活動資訊到 DB。</p>
             </div>
-            <span className="inline-flex items-center justify-center rounded-full bg-white px-3 py-1 text-xs font-medium text-blue-700 ring-1 ring-blue-200">
+            <span className="inline-flex items-center justify-center rounded-full bg-white px-3 py-1 text-xs font-medium text-slate-700 ring-1 ring-slate-200">
               正式版
             </span>
           </div>
@@ -262,7 +262,7 @@ export function ProjectDetailShell({ project, entryContext }: { project: Project
                     className={`h-11 rounded-2xl border px-4 text-sm outline-none transition ${
                       isReadonly
                         ? "border-slate-100 bg-slate-100 text-slate-500"
-                        : "border-slate-200 bg-white focus:border-blue-400"
+                        : "border-slate-200 bg-white focus:border-slate-400"
                     }`}
                   />
                 </label>
@@ -282,12 +282,12 @@ export function ProjectDetailShell({ project, entryContext }: { project: Project
           </div>
 
           <div className="mt-5 flex flex-wrap gap-2">
-            {saveMessage ? <p className="w-full text-sm text-blue-700">{saveMessage}</p> : null}
+            {saveMessage ? <p className="w-full text-sm text-slate-700">{saveMessage}</p> : null}
             <button
               type="button"
               onClick={saveProject}
               disabled={isSavingProject}
-              className="inline-flex items-center justify-center rounded-2xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 disabled:opacity-50"
+              className="inline-flex items-center justify-center rounded-2xl border border-slate-900 bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800 disabled:opacity-50"
             >
               {isSavingProject ? "儲存中..." : "儲存客戶資料與活動資訊"}
             </button>
