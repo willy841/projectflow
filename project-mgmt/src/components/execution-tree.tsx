@@ -1871,7 +1871,7 @@ export function ExecutionTree({
               <div className="mt-3 space-y-2">
                 {excelPreview.rows.slice(0, 20).map((row) => (
                   <div key={`parsed-${row.rowNumber}`} className="rounded-xl bg-slate-50 px-3 py-2">
-                    Row {row.rowNumber} ｜ type={row.type} ｜ code={row.code || ""} ｜ name={row.name || ""}
+                    Row {row.rowNumber} ｜ type={row.type} ｜ name={row.name || ""}
                     {row.reason ? <span> ｜ reason={row.reason}</span> : null}
                   </div>
                 ))}
@@ -1888,7 +1888,6 @@ export function ExecutionTree({
                     {mainItem.children.map((child) => (
                       <div key={child.id} className="rounded-2xl bg-slate-50 px-4 py-3 text-sm text-slate-700">
                         <div className="flex flex-wrap items-center gap-2">
-                          <span className="inline-flex rounded-full bg-white px-2.5 py-1 text-[11px] font-medium text-slate-600 ring-1 ring-slate-200">{child.code}</span>
                           <span className="font-medium text-slate-900">{child.title}</span>
                         </div>
                         <div className="mt-2 flex flex-wrap gap-3 text-xs text-slate-500">
