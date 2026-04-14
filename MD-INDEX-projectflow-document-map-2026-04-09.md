@@ -48,6 +48,8 @@
 - `MD66-projectflow-vendor-data-detail-validation-refresh-2026-04-12.md`
 - `MD67-projectflow-latest-global-progress-refresh-2026-04-12.md`
 - `MD134-projectflow-post-md133-project-detail-dispatch-and-ui-closure-2026-04-14.md`
+- `MD135-projectflow-ui-consistency-95-percent-closure-and-guardrails-2026-04-15.md`
+- `MD136-projectflow-product-guardrails-and-formalization-rules-2026-04-15.md`
 
 用途：
 - `MD57`
