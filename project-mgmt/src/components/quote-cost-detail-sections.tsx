@@ -255,9 +255,9 @@ export function getCostSourceSummary(costItems: CostLineItem[], projectId: strin
     廠商: `/vendor-assignments?project=${encodeURIComponent(projectId)}`,
   };
   const sourceDescription: Record<Exclude<CostSourceType, '人工'>, string> = {
-    設計: '承接設計線全部確認後的正式成本,需回設計任務列表層更新。',
-    備品: '承接備品線全部確認後的正式成本,需回備品任務列表層更新。',
-    廠商: '承接廠商線全部確認後的正式成本,需回廠商發包列表層更新。',
+    設計: '承接設計線全部確認後的正式成本。',
+    備品: '承接備品線全部確認後的正式成本。',
+    廠商: '承接廠商線全部確認後的正式成本。',
   };
 
   return sourceOrder.map((sourceType) => {
