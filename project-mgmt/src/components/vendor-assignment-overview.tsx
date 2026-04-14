@@ -37,13 +37,13 @@ export function VendorAssignmentOverview({ assignments, packages }: Props) {
               <div className="mt-4 rounded-2xl border border-dashed border-slate-300 bg-white px-4 py-3 text-sm text-slate-600">
                 {vendorPackage ? (
                   <>
-                    已建立文件
+                    已建立
                     <Link href={`/vendor-packages/${vendorPackage.id}`} className="ml-1 font-medium text-slate-900 underline-offset-4 hover:underline">
                       查看
                     </Link>
                   </>
                 ) : (
-                  <>尚未建立文件</>
+                  <>未建立</>
                 )}
               </div>
             </div>
