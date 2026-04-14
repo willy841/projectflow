@@ -133,15 +133,15 @@ export async function getHomeOverviewReadModel(): Promise<HomeOverviewReadModel>
     headlineBadges: [
       `${metrics.inProgressProjects} 個進行中專案`,
       `${metrics.pendingDesignCount} 個待處理設計交辦`,
-      `active 未收款 ${formatCurrency(metrics.activeOutstandingTotal)}`,
+      `未收款 ${formatCurrency(metrics.activeOutstandingTotal)}`,
     ],
     metrics: [
       { label: '專案總數', value: String(metrics.totalProjects), change: `執行中 ${metrics.inProgressProjects}` },
       { label: '待處理設計交辦', value: String(metrics.pendingDesignCount), change: 'overview active aggregation' },
       { label: '待採購備品', value: String(metrics.pendingProcurementCount), change: 'overview active aggregation' },
       { label: '待廠商處理', value: String(metrics.pendingVendorCount), change: 'overview active aggregation' },
-      { label: 'active 已收款', value: formatCurrency(metrics.activeCollectedTotal), change: 'active aggregation only' },
-      { label: 'active 未收款', value: formatCurrency(metrics.activeOutstandingTotal), change: 'active aggregation only' },
+      { label: '已收款', value: formatCurrency(metrics.activeCollectedTotal), change: '' },
+      { label: '未收款', value: formatCurrency(metrics.activeOutstandingTotal), change: '' },
     ],
     recentProjects: recentRows.rows,
   };
