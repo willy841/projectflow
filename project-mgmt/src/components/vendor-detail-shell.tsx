@@ -483,7 +483,6 @@ export function VendorDetailShell({ vendorId }: Props) {
 
             <div className="grid gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
               <label className="block">
-                <span className="mb-1.5 block text-[11px] font-semibold tracking-wide text-slate-500">搜尋歷史紀錄</span>
                 <input
                   type="search"
                   value={historyKeyword}

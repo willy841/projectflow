@@ -106,7 +106,6 @@ export function VendorListPage() {
         <div className="mt-5 rounded-3xl border border-slate-200 bg-slate-50/80 p-3.5">
           <div className="flex flex-col gap-3 xl:flex-row xl:flex-wrap xl:items-center xl:justify-between">
             <label className="block min-w-0 flex-1 xl:min-w-[280px]">
-              <span className="mb-1.5 block text-[11px] font-semibold tracking-wide text-slate-500">搜尋廠商</span>
               <div className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-2.5 shadow-sm transition focus-within:border-slate-400">
                 <span className="text-sm text-slate-400">⌕</span>
                 <input
@@ -140,7 +139,6 @@ export function VendorListPage() {
           <div className="mt-3 grid gap-3 xl:grid-cols-[minmax(0,0.75fr)_minmax(0,1.85fr)] xl:items-start">
             <div className="rounded-2xl border border-slate-200 bg-white px-4 py-3">
               <div className="flex items-center justify-between gap-2">
-                <span className="text-[11px] font-semibold tracking-wide text-slate-500">狀態篩選</span>
               </div>
               <div className="mt-2 flex flex-wrap items-center gap-2">
                 <button
@@ -155,7 +153,6 @@ export function VendorListPage() {
 
             <div className="rounded-2xl border border-slate-200 bg-white px-4 py-3">
               <div className="flex flex-wrap items-center gap-2">
-                <span className="text-[11px] font-semibold tracking-wide text-slate-500">工種篩選</span>
                 <span className="text-xs text-slate-400">單選</span>
               </div>
               <div className="mt-2 flex min-w-0 flex-wrap items-center gap-2">
