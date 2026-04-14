@@ -502,8 +502,6 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
                   <div className="flex min-h-full flex-1 items-center justify-center text-center">
                     <div className="flex flex-col items-center justify-center gap-2">
                       <p className={`text-lg font-semibold ${meta.accent}`}>{meta.title}</p>
-                      {isActive ? (
-                      ) : null}
                     </div>
                   </div>
                   <span className={`inline-flex min-w-[36px] items-center justify-center rounded-full px-3 py-1 text-xs font-semibold ${isActive ? "bg-slate-900 text-white" : "bg-slate-100 text-slate-700"}`}>

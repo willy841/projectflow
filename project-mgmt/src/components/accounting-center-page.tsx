@@ -1366,7 +1366,7 @@ export function AccountingCenterPage({
   );
 }
 
-function Panel({ eyebrow, title, description, actions, children }: { eyebrow?: string; title: string; description?: string; actions?: ReactNode; children: ReactNode }) {
+function Panel({ eyebrow, title, description, actions, children }: { eyebrow?: string; title: string; description?: string; actions?: ReactNode; children?: ReactNode }) {
   return (
     <article className="rounded-3xl border border-slate-200 p-5">
       <div className="flex flex-wrap items-center justify-between gap-3">

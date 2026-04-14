@@ -261,7 +261,6 @@ export function QuoteCostDetailClient({ project, mode = "active", presenter = ge
 
   const canCloseProject = state.quotationImported && outstandingTotal === 0 && derivedReconciliationStatus === "已完成";
   const canReopenProject = isClosedView && closeoutWriteState !== 'submitting';
-  const canReopenProject = isClosedView && closeoutWriteState !== 'submitting';
 
   async function handleCloseProject() {
     if (!canCloseProject || closeoutWriteState === 'submitting') return;
@@ -314,7 +313,7 @@ export function QuoteCostDetailClient({ project, mode = "active", presenter = ge
         return;
       }
 
-      setState((prev) => ({ ...prev, projectStatus: '執行中', closeStatus: '執行中' }));
+      setState((prev) => ({ ...prev, projectStatus: '執行中', closeStatus: '未結案' }));
       router.refresh();
       router.push(`/quote-costs/${state.id}`);
     } catch (error) {
