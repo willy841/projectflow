@@ -7,7 +7,9 @@ export const dynamic = "force-dynamic";
 
 export default async function ProjectsPage() {
   const useDbProjectFlow = shouldUseDbProjectFlow();
-  const initialProjects = useDbProjectFlow ? await listDbProjects() : projects;
+  const initialProjects = (useDbProjectFlow ? await listDbProjects() : projects).filter(
+    (project) => project.status !== '已結案',
+  );
 
   return <ProjectsPageClient initialProjects={initialProjects} />;
 }

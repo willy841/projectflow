@@ -103,7 +103,7 @@ export function ProjectsPageClient({ initialProjects }: { initialProjects: Proje
           <div className="flex flex-wrap gap-3">
             <Link
               href="/projects/new"
-              className="inline-flex items-center justify-center rounded-2xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700"
+              className="inline-flex items-center justify-center rounded-2xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800"
             >
               + 新增專案
             </Link>
