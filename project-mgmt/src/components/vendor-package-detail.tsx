@@ -182,8 +182,8 @@ export function VendorPackageDetail({ vendorPackage }: { vendorPackage: VendorPa
           <pre className="min-h-[360px] whitespace-pre-wrap rounded-2xl bg-slate-900 p-5 text-sm leading-7 text-slate-100">{documentText}</pre>
 
           <div className="flex flex-wrap gap-3">
-            <button type="button" onClick={handleCopy} className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 transition hover:bg-slate-50">複製內容</button>
-            <button type="button" onClick={handleExport} className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 transition hover:bg-slate-50">匯出 TXT</button>
+            <button type="button" onClick={handleCopy} className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 transition hover:bg-slate-50">複製內容</button>
+            <button type="button" onClick={handleExport} className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 transition hover:bg-slate-50">匯出 TXT</button>
           </div>
         </aside>
       </section>

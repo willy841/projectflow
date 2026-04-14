@@ -1880,13 +1880,13 @@ export function ExecutionTree({
 
             <div className="mt-4 space-y-3">
               {excelPreview.mainItems.map((mainItem) => (
-                <div key={mainItem.id} className="rounded-2xl border border-slate-200 bg-white p-4">
+                <div key={mainItem.id} className="rounded-2xl border border-slate-200 bg-white p-5">
                   <div className="flex flex-wrap items-center gap-2">
                     <p className="text-sm font-semibold text-slate-900">{mainItem.title}</p>
                   </div>
                   <div className="mt-3 space-y-2">
                     {mainItem.children.map((child) => (
-                      <div key={child.id} className="rounded-2xl bg-slate-50 px-4 py-3 text-sm text-slate-700">
+                      <div key={child.id} className="rounded-2xl bg-slate-50 px-4 py-3.5 text-sm text-slate-700">
                         <div className="flex flex-wrap items-center gap-2">
                           <span className="font-medium text-slate-900">{child.title}</span>
                         </div>

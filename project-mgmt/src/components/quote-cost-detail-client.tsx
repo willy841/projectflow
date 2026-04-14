@@ -402,7 +402,7 @@ export function QuoteCostDetailClient({ project, mode = "active", presenter = ge
             </div>
             <div className="mt-4 space-y-3">
               {reconciliationGroups.map((group) => (
-                <div key={group.key} className="rounded-2xl border border-slate-200 bg-white p-4">
+                <div key={group.key} className="rounded-2xl border border-slate-200 bg-white p-5">
                   <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
                     <div className="min-w-0 flex-1">
                       <div className="flex flex-wrap items-center gap-2">
