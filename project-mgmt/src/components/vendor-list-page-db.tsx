@@ -40,7 +40,7 @@ export function VendorListPageDb({ vendors }: { vendors: VendorBasicProfile[] })
                   <h3 className="text-2xl font-semibold tracking-tight text-slate-900">{vendor.name}</h3>
                   <div className="mt-3 flex flex-wrap gap-2">
                     <span className="inline-flex rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700 ring-1 ring-slate-200">
-                      {vendor.tradeLabel || vendor.category || '待補充'}
+                      {vendor.tradeLabel || vendor.category || '—'}
                     </span>
                   </div>
                 </div>

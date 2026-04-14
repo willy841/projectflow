@@ -158,7 +158,7 @@ export function VendorDetailShellDb({ vendor, records, paymentRecords }: { vendo
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-3">
               <h2 className="text-3xl font-semibold tracking-tight text-slate-900">{vendor.name}</h2>
-              <span className="inline-flex rounded-full bg-sky-50 px-3 py-1 text-xs font-medium text-sky-700 ring-1 ring-sky-200">{vendor.tradeLabel || vendor.category || '待補充'}</span>
+              <span className="inline-flex rounded-full bg-sky-50 px-3 py-1 text-xs font-medium text-sky-700 ring-1 ring-sky-200">{vendor.tradeLabel || vendor.category || '—'}</span>
             </div>
           </div>
           <div className="flex flex-wrap gap-3">

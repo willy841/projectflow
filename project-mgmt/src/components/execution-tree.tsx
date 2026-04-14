@@ -1839,7 +1839,7 @@ export function ExecutionTree({
         {excelPreview ? (
           <div className="mt-4 rounded-3xl border border-slate-200 bg-slate-50/80 p-4 ring-1 ring-slate-200">
             <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
-              <h4 className="text-lg font-semibold text-slate-900">匯入預覽</h4>
+              <h4 className="text-lg font-semibold text-slate-900">預覽</h4>
               <div className="flex flex-wrap gap-2">
                 <button
                   type="button"

@@ -305,7 +305,7 @@ export function VendorDetailShell({ vendorId }: Props) {
               <div className="flex flex-wrap items-center gap-3">
                 <h2 className="text-3xl font-semibold tracking-tight text-slate-900">{vendor.name}</h2>
                 <span className="inline-flex rounded-full bg-sky-50 px-3 py-1 text-xs font-medium text-sky-700 ring-1 ring-sky-200">
-                  {vendor.tradeLabel || vendor.category || "待補充"}
+                  {vendor.tradeLabel || vendor.category || "—"}
                 </span>
               </div>
             </div>
@@ -336,7 +336,7 @@ export function VendorDetailShell({ vendorId }: Props) {
                 <div>
                   </div>
                 <div className="rounded-2xl bg-white px-4 py-3 text-sm text-slate-700 ring-1 ring-sky-200">
-                  <span className="font-semibold text-slate-900">{vendor.tradeLabel || vendor.category || "待補充"}</span>
+                  <span className="font-semibold text-slate-900">{vendor.tradeLabel || vendor.category || "—"}</span>
                 </div>
               </div>
 
