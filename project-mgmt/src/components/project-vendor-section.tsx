@@ -181,8 +181,7 @@ export function ProjectVendorSection({
       <article className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
         <div className="mb-5 flex items-center justify-between gap-3">
           <div>
-            <p className="text-xs font-semibold tracking-wide text-slate-500">PRE-ISSUE</p>
-            <h3 className="mt-1 text-xl font-semibold text-slate-900">廠商需求</h3>
+            <h3 className="text-xl font-semibold text-slate-900">廠商需求</h3>
           </div>
         </div>
 
@@ -293,8 +292,7 @@ export function ProjectVendorSection({
       <article className="rounded-3xl border border-slate-200 bg-slate-50/80 p-6 shadow-sm ring-1 ring-slate-200">
         <div className="mb-5 flex items-center justify-between gap-3">
           <div>
-            <p className="text-xs font-semibold tracking-wide text-slate-500">POST-ISSUE</p>
-            <h3 className="mt-1 text-xl font-semibold text-slate-900">廠商發包清單</h3>
+            <h3 className="text-xl font-semibold text-slate-900">廠商發包清單</h3>
           </div>
         </div>
 

@@ -227,9 +227,6 @@ export function ProjectDetailShell({ project, entryContext }: { project: Project
             <div>
               <h3 className="text-xl font-semibold text-slate-900">編輯專案</h3>
             </div>
-            <span className="inline-flex items-center justify-center rounded-full bg-white px-3 py-1 text-xs font-medium text-slate-700 ring-1 ring-slate-200">
-              正式版
-            </span>
           </div>
 
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
