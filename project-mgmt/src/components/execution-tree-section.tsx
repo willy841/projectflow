@@ -265,21 +265,21 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
       count: designSummaryList.length,
       accent: "text-blue-700",
       ring: "ring-blue-200",
-      sectionHint: "已發布任務清單 + 導流，不承擔編輯。",
+      sectionHint: "",
     },
     procurement: {
       title: "專案備品",
       count: procurementSummaryList.length,
       accent: "text-amber-700",
       ring: "ring-amber-200",
-      sectionHint: "已發布任務清單 + 導流，不承擔編輯。",
+      sectionHint: "",
     },
     vendor: {
       title: "專案廠商",
       count: vendorSummaryList.length,
       accent: "text-violet-700",
       ring: "ring-violet-200",
-      sectionHint: "已發布任務清單 + 導流，不承擔編輯。",
+      sectionHint: "",
     },
   };
 
@@ -525,7 +525,6 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
                 <h4 className="text-lg font-semibold text-slate-900">{categoryMeta[openCategory].title}</h4>
                 <span className="text-sm font-medium text-slate-500">共 {currentList.length} 筆</span>
               </div>
-              <p className="mt-1 text-sm text-slate-500">{categoryMeta[openCategory].sectionHint}</p>
             </div>
           </div>
 
