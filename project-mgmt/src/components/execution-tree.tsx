@@ -133,39 +133,64 @@ function VendorMatchField({
   onChange: (value: string) => void;
   vendors: VendorBasicProfile[];
 }) {
+  const [isOpen, setIsOpen] = useState(false);
   const keyword = normalizeVendorKeyword(value);
   const matchedVendors = useMemo(() => {
-    if (!keyword) return [] as VendorBasicProfile[];
-    return vendors.filter((vendor) => normalizeVendorKeyword(vendor.name).includes(keyword)).slice(0, 6);
+    if (!keyword) return vendors.slice(0, 8);
+    return vendors.filter((vendor) => normalizeVendorKeyword(vendor.name).includes(keyword)).slice(0, 8);
   }, [keyword, vendors]);
   const isExactMatch = vendors.some((vendor) => normalizeVendorKeyword(vendor.name) === keyword);
 
   return (
-    <label className="flex flex-col gap-2 md:col-span-2 xl:col-span-1">
+    <label className="relative flex flex-col gap-2 md:col-span-2 xl:col-span-1">
       <span className="text-sm font-medium text-slate-700">{label}</span>
-      <input
-        value={value}
-        onChange={(event) => onChange(event.target.value)}
-        placeholder="輸入廠商名稱，自動匹配既有廠商資料"
-        className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400"
-      />
+      <div className="relative">
+        <input
+          value={value}
+          onChange={(event) => {
+            onChange(event.target.value);
+            setIsOpen(true);
+          }}
+          onFocus={() => setIsOpen(true)}
+          placeholder="搜尋並選取既有廠商資料"
+          className="h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 pr-10 text-sm outline-none transition focus:border-slate-400"
+        />
+        <button
+          type="button"
+          onClick={() => setIsOpen((prev) => !prev)}
+          className="absolute inset-y-0 right-3 inline-flex items-center text-slate-400 transition hover:text-slate-700"
+          aria-label="切換廠商搜尋清單"
+        >
+          <span className={`inline-block transition-transform ${isOpen ? 'rotate-180' : ''}`}>⌄</span>
+        </button>
+      </div>
       {value.trim() ? (
         <div className={`rounded-2xl border px-3 py-2 text-xs ${isExactMatch ? "border-emerald-200 bg-emerald-50 text-emerald-700" : "border-amber-200 bg-amber-50 text-amber-700"}`}>
-          {isExactMatch ? "已匹配既有廠商資料" : "尚未精準匹配既有廠商資料，需從下列建議帶入或輸入完整名稱"}
+          {isExactMatch ? "已匹配既有廠商資料" : "請從搜尋結果選取正確廠商"}
         </div>
       ) : null}
-      {matchedVendors.length ? (
-        <div className="flex flex-wrap gap-2">
-          {matchedVendors.map((vendor) => (
-            <button
-              key={vendor.id}
-              type="button"
-              onClick={() => onChange(vendor.name)}
-              className="inline-flex items-center rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-700 transition hover:bg-slate-50"
-            >
-              {vendor.name}
-            </button>
-          ))}
+      {isOpen ? (
+        <div className="absolute left-0 right-0 top-full z-20 mt-2 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl">
+          <div className="max-h-64 overflow-y-auto p-2">
+            {matchedVendors.length ? (
+              matchedVendors.map((vendor) => (
+                <button
+                  key={vendor.id}
+                  type="button"
+                  onClick={() => {
+                    onChange(vendor.name);
+                    setIsOpen(false);
+                  }}
+                  className="flex w-full items-center justify-between rounded-xl px-3 py-2.5 text-left text-sm text-slate-700 transition hover:bg-slate-50"
+                >
+                  <span className="font-medium text-slate-900">{vendor.name}</span>
+                  <span className="text-xs text-slate-400">選取</span>
+                </button>
+              ))
+            ) : (
+              <div className="px-3 py-3 text-sm text-slate-500">查無相符廠商</div>
+            )}
+          </div>
         </div>
       ) : null}
     </label>
