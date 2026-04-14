@@ -1576,8 +1576,39 @@ export function ExecutionTree({
     }
   }
 
-  function confirmExcelImport() {
+  async function confirmExcelImport() {
     if (!excelPreview?.items.length) return;
+
+    if (serverHandlers?.createExecutionItem) {
+      try {
+        const persistedItems: ImportedItem[] = [];
+
+        for (const mainItem of excelPreview.items as ImportedItem[]) {
+          const createdMain = await serverHandlers.createExecutionItem({ title: mainItem.title, parentId: null });
+          const persistedMain: ImportedItem = {
+            ...(createdMain.item as ImportedItem),
+            children: [],
+          };
+
+          for (const child of mainItem.children ?? []) {
+            const createdChild = await serverHandlers.createExecutionItem({ title: child.title, parentId: persistedMain.id });
+            persistedMain.children = [...(persistedMain.children ?? []), createdChild.item as ImportedItem["children"][number]];
+          }
+
+          persistedItems.push(persistedMain);
+        }
+
+        setLocalItems((prev) => [...prev, ...persistedItems]);
+        setExpandedItemId(persistedItems[0]?.id ?? null);
+        setExcelPreview(null);
+        setExcelImportError("");
+        return;
+      } catch (error) {
+        setExcelImportError(error instanceof Error ? error.message : "Excel 匯入寫入 DB 失敗");
+        return;
+      }
+    }
+
     setLocalItems(excelPreview.items);
     setExpandedItemId(excelPreview.items[0]?.id ?? null);
     setExcelPreview(null);
