@@ -2105,12 +2105,12 @@ export function ExecutionTree({
                             已建立廠商交辦
                           </span>
                         ) : null}
+                        {!hasMainAssignment ? (
+                          <span className="inline-flex items-center justify-center rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-500 ring-1 ring-slate-200">
+                            尚未建立交辦
+                          </span>
+                        ) : null}
                       </div>
-                      {!hasMainAssignment ? (
-                        <span className="inline-flex items-center justify-center rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-500 ring-1 ring-slate-200">
-                          尚未建立交辦
-                        </span>
-                      ) : null}
                     </>
                   )}
                 </div>
@@ -2225,10 +2225,12 @@ export function ExecutionTree({
                                       已建立廠商交辦
                                     </span>
                                   ) : null}
+                                  {!hasChildAssignment ? (
+                                    <span className="inline-flex items-center justify-center rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-500 ring-1 ring-slate-200">
+                                      尚未建立交辦
+                                    </span>
+                                  ) : null}
                                 </div>
-                                {!hasChildAssignment ? (
-                                  <div className="mt-3 text-xs text-slate-500">尚未建立交辦</div>
-                                ) : null}
                                 {child.note ? (
                                   <p className="mt-2 text-sm text-slate-500">
                                     備註：{child.note}
