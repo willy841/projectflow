@@ -29,10 +29,10 @@ export default async function Home() {
           </div>
 
           <div className="flex w-full max-w-md flex-col gap-3 xl:items-end">
-            <Link href="/projects/new" className="inline-flex items-center justify-center rounded-2xl border border-white/70 bg-white px-5 py-3.5 text-sm font-semibold text-slate-900 shadow-sm transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-white/40">
+            <Link href="/projects/new" className="inline-flex items-center justify-center rounded-2xl border border-white/70 bg-white px-5 py-3.5 text-sm font-semibold !text-slate-900 shadow-sm transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-white/40">
               + 新增專案
             </Link>
-            <Link href="/projects" className="inline-flex items-center justify-center rounded-2xl border border-white/70 bg-white/95 px-5 py-3.5 text-sm font-semibold text-slate-900 shadow-sm transition hover:bg-white focus:outline-none focus:ring-2 focus:ring-white/40">
+            <Link href="/projects" className="inline-flex items-center justify-center rounded-2xl border border-white/70 bg-white/95 px-5 py-3.5 text-sm font-semibold !text-slate-900 shadow-sm transition hover:bg-white focus:outline-none focus:ring-2 focus:ring-white/40">
               查看專案列表
             </Link>
           </div>
@@ -54,7 +54,7 @@ export default async function Home() {
             <div>
               <h3 className="text-xl font-semibold text-slate-900">近期專案</h3>
             </div>
-            <Link href="/projects" className="inline-flex items-center justify-center rounded-xl px-3 py-2 text-sm font-semibold text-slate-800 transition hover:bg-slate-100">
+            <Link href="/projects" className="inline-flex items-center justify-center rounded-xl px-3 py-2 text-sm font-semibold !text-slate-800 transition hover:bg-slate-100">
               查看全部
             </Link>
           </div>
