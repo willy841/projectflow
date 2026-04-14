@@ -255,7 +255,6 @@ export function VendorDetailShellDb({ vendor, records, paymentRecords }: { vendo
       <article className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
         <div className="mb-5">
           <h3 className="text-xl font-semibold text-slate-900">付款紀錄</h3>
-          <p className="mt-2 text-sm text-slate-600">這裡是這個廠商在各專案底下的付款紀錄真值。付款狀態由這些紀錄聚合而成；下方查看明細則作為 archive-oriented 的歷史 readback。</p>
         </div>
         <div className="mb-4 grid gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4 lg:grid-cols-[minmax(0,1fr)_220px] lg:items-end">
           <label className="block">

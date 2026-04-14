@@ -232,7 +232,6 @@ export function VendorListPage() {
       ) : (
         <section className="rounded-3xl border border-dashed border-slate-300 bg-white px-6 py-10 text-center shadow-sm">
           <p className="text-sm font-semibold text-slate-700">目前沒有符合條件的廠商</p>
-          <p className="mt-2 text-sm leading-6 text-slate-500">可調整搜尋關鍵字或清除工種篩選後再查看。</p>
         </section>
       )}
 

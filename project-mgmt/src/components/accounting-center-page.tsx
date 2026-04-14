@@ -1594,7 +1594,6 @@ function DrawerShell({ title, children, onClose }: { title: string; children: Re
       <div data-testid="record-drawer" className="h-full w-full max-w-2xl overflow-y-auto bg-white p-6 shadow-2xl ring-1 ring-slate-200">
         <div className="flex items-center justify-between gap-3">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">查看詳情 / drawer</p>
             <h3 className="mt-2 text-xl font-semibold text-slate-900">{title}</h3>
           </div>
           <button type="button" onClick={onClose} className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">

@@ -108,7 +108,6 @@ export function VendorPlanEditorClient({ taskId, initialPlans, showConfirmButton
         </article>
       ))}
 
-      {!showConfirmButton ? <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600">此頁改為先逐筆儲存各任務內容；正式進 package 請使用頁首的「全部確認並前往最終文件頁」。</div> : null}
       {message ? <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800 whitespace-pre-line">{message}</div> : null}
     </div>
   );
