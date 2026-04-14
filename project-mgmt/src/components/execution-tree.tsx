@@ -1840,11 +1840,7 @@ export function ExecutionTree({
           <div className="mt-4 rounded-3xl border border-slate-200 bg-slate-50/80 p-4 ring-1 ring-slate-200">
             <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
               <div>
-                <p className="text-xs font-semibold tracking-wide text-slate-500">XLSX PREVIEW</p>
-                <h4 className="mt-1 text-lg font-semibold text-slate-900">匯入預覽</h4>
-                <p className="mt-2 text-sm leading-6 text-slate-600">
-                  第一版只納入有編號的列。主項目：{excelPreview.mainItems.length} 筆，總子項目：{excelPreview.mainItems.reduce((sum, item) => sum + item.children.length, 0)} 筆。
-                </p>
+                <h4 className="text-lg font-semibold text-slate-900">匯入預覽</h4>
               </div>
               <div className="flex flex-wrap gap-2">
                 <button

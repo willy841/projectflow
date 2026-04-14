@@ -395,7 +395,6 @@ export function QuoteCostDetailClient({ project, mode = "active", presenter = ge
             <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
               <div>
                 <h4 className="text-lg font-semibold text-slate-900">對帳群組</h4>
-                <p className="mt-1 text-sm text-slate-500">正式對帳單位採 `project × sourceType × vendor`。這裡先呈現群組,不先改 list UI。</p>
               </div>
               <div className="rounded-2xl bg-white px-4 py-3 text-sm text-slate-600 ring-1 ring-slate-200">
                 共 {reconciliationGroups.length} 組
@@ -404,7 +403,7 @@ export function QuoteCostDetailClient({ project, mode = "active", presenter = ge
             <div className="mt-4 space-y-3">
               {reconciliationGroups.map((group) => (
                 <div key={group.key} className="rounded-2xl border border-slate-200 bg-white p-4">
-                  <div className="flex flex-col gap-3 xl:flex-row xl:items-start xl:justify-between">
+                  <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
                     <div className="min-w-0 flex-1">
                       <div className="flex flex-wrap items-center gap-2">
                         <span className="inline-flex rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700 ring-1 ring-slate-200">{group.sourceType}</span>

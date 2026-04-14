@@ -607,7 +607,6 @@ export function VendorDetailShell({ vendorId }: Props) {
               刪除確認
             </div>
             <h3 className="mt-4 text-xl font-semibold text-slate-900">{DELETE_CONFIRM_TITLE}</h3>
-            <p className="mt-3 text-sm leading-6 text-slate-600">{DELETE_CONFIRM_DESCRIPTION}</p>
             <div className="mt-4 rounded-2xl border border-rose-100 bg-rose-50/70 px-4 py-3 text-sm text-slate-700">
               目前準備刪除：<span className="font-semibold text-slate-900">{currentVendor.name}</span>
             </div>
