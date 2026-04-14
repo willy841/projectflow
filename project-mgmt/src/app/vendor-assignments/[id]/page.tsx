@@ -39,7 +39,7 @@ export default async function VendorAssignmentTaskPage({ params }: { params: Pro
           <div className="flex flex-col gap-2 xl:items-end">
             <div className="flex flex-wrap gap-2">
               <Link href={`/vendor-assignments?project=${encodeURIComponent(group.projectId)}`} className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700">返回任務列表</Link>
-              <Link href={`/vendor-packages/${packageId}`} className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700">查看目前文件頁</Link>
+              <Link href={`/vendor-packages/${packageId}`} className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700">查看文件</Link>
             </div>
             <VendorGroupConfirmClient projectId={group.projectId} vendorId={group.vendorId} packageId={packageId} />
           </div>

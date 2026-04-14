@@ -336,7 +336,7 @@ export function VendorDetailShell({ vendorId }: Props) {
                 <div>
                   </div>
                 <div className="rounded-2xl bg-white px-4 py-3 text-sm text-slate-700 ring-1 ring-sky-200">
-                  目前工種：<span className="font-semibold text-slate-900">{vendor.tradeLabel || vendor.category || "待補充"}</span>
+                  <span className="font-semibold text-slate-900">{vendor.tradeLabel || vendor.category || "待補充"}</span>
                 </div>
               </div>
 

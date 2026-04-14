@@ -166,7 +166,7 @@ export function VendorPackageDetail({ vendorPackage }: { vendorPackage: VendorPa
         <aside className="space-y-4 rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
           <div>
             <div className="flex flex-wrap items-center gap-3">
-              <h3 className="text-xl font-semibold text-slate-900">最終對外文件預覽</h3>
+              <h3 className="text-xl font-semibold text-slate-900">文件預覽</h3>
               <span className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ring-1 ${getVendorDocumentStatusClass(documentStatus)}`}>
                 {documentStatus}
               </span>
