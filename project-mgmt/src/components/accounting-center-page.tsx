@@ -1167,9 +1167,6 @@ export function AccountingCenterPage({
                   {expenseEditorTab === "personnel" ? (
                     initialDbMode ? (
                       <Panel title="人事費用管理" description="DB mode 已改由獨立 personnel editor 元件承接；此處不再渲染舊版 editor。">
-                        <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-4 py-6 text-sm text-slate-600">
-                          這個舊版 editor 已停用，請使用新的獨立人事 editor 工作流。
-                        </div>
                       </Panel>
                     ) : (
                     <Panel title="人事費用管理" actions={<button type="button" onClick={() => setShowAddEmployeeModal(true)} className="inline-flex items-center justify-center rounded-2xl border border-slate-900 bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800">新增員工</button>}>

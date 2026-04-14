@@ -243,9 +243,6 @@ export function VendorListPage() {
               新增廠商
             </div>
             <h3 className="mt-4 text-xl font-semibold text-slate-900">建立新廠商</h3>
-            <p className="mt-3 text-sm leading-6 text-slate-600">
-              這個入口屬於正式 `vendors` 主線。先建立廠商名稱，工種可先選填，建立後會立即出現在列表中。
-            </p>
 
             <div className="mt-5 space-y-4">
               <label className="block">

@@ -129,7 +129,6 @@ export function AccountingPersonnelEditor({ month, employees, records }: Props) 
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h4 className="text-xl font-semibold text-slate-900">人事費用管理</h4>
-          <p className="mt-2 text-sm text-slate-500">重做人事 editor 工作流：選員工、編輯、送出，全部只走 DB employee uuid。</p>
         </div>
         <button type="button" onClick={() => setShowAddEmployeeModal(true)} className="inline-flex items-center justify-center rounded-2xl border border-slate-900 bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800">新增員工</button>
       </div>

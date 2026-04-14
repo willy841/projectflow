@@ -61,7 +61,6 @@ export function ProjectForm() {
     <div>
       <form onSubmit={handleSubmit} className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
         <div className="mb-6">
-          <p className="text-sm text-slate-500">建立專案</p>
           <h2 className="mt-1 text-2xl font-semibold tracking-tight">新增專案表單</h2>
         </div>
 
