@@ -520,7 +520,6 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
             <div>
               <div className="flex flex-wrap items-center gap-3">
                 <h4 className="text-lg font-semibold text-slate-900">{categoryMeta[openCategory].title}</h4>
-                <span className="text-sm font-medium text-slate-500">共 {currentList.length} 筆</span>
               </div>
             </div>
           </div>

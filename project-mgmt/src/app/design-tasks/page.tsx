@@ -120,8 +120,7 @@ export default async function DesignTasksPage({
           <div className="space-y-4">
             <div className="flex items-center justify-between rounded-2xl bg-slate-50 px-4 py-3">
               <div>
-                <p className="text-sm text-slate-500">目前專案</p>
-                <p className="mt-1 text-lg font-semibold text-slate-900">{activeProject.projectName}</p>
+                <p className="text-lg font-semibold text-slate-900">{activeProject.projectName}</p>
               </div>
               <Link
                 href="/design-tasks"

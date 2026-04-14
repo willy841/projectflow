@@ -120,7 +120,6 @@ export function VendorListPage() {
             </label>
 
             <div className="flex flex-wrap items-center gap-2 text-xs text-slate-500 xl:justify-end">
-              <span>共 {filteredVendorCards.length} 間</span>
               {(searchKeyword || activeTrade || showUnpaidOnly) ? (
                 <button
                   type="button"
