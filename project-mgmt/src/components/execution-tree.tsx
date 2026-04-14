@@ -1067,7 +1067,6 @@ export function ExecutionTree({
   );
   const [editingChildId, setEditingChildId] = useState<string | null>(null);
   const [editingMainId, setEditingMainId] = useState<string | null>(null);
-  const [collapsedAssignmentIds, setCollapsedAssignmentIds] = useState<Record<string, boolean>>({});
   const [editingValue, setEditingValue] = useState("");
   const [activeAssignMenu, setActiveAssignMenu] = useState<string | null>(null);
   const [showMainItemCreator, setShowMainItemCreator] = useState(false);
@@ -1238,12 +1237,6 @@ export function ExecutionTree({
     setDrafts((prev) => ({ ...prev, [itemId]: value }));
   }
 
-  function toggleAssignmentCollapse(targetId: string) {
-    setCollapsedAssignmentIds((prev) => ({
-      ...prev,
-      [targetId]: !prev[targetId],
-    }));
-  }
   function getParentItemId(targetId: string) {
     const matchedParent = localItems.find(
       (item) =>
@@ -2036,7 +2029,6 @@ export function ExecutionTree({
           Boolean(savedDesignAssignments[item.id]) ||
           Boolean(savedProcurementAssignments[item.id]) ||
           Boolean(savedVendorAssignments[item.id]);
-        const isMainAssignmentCollapsed = collapsedAssignmentIds[item.id] ?? false;
         return (
           <div
             key={item.id}
@@ -2098,46 +2090,25 @@ export function ExecutionTree({
                           <span aria-hidden="true">≡</span>
                           <span>{item.children?.length ?? 0}</span>
                         </span>
-                      </div>
-                      <div className="mt-3.5 rounded-2xl border border-slate-100 bg-slate-50/60 px-4 py-2">
-                        <div className="flex flex-wrap items-center justify-between gap-3 text-sm text-slate-400">
-                          <div className="flex flex-wrap items-center gap-2">
-                            {savedDesignAssignments[item.id] ? (
-                              <span className="inline-flex items-center justify-center rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700 ring-1 ring-blue-200">
-                                已建立設計交辦
-                              </span>
-                            ) : null}
-                            {savedProcurementAssignments[item.id] ? (
-                              <span className="inline-flex items-center justify-center rounded-full bg-amber-50 px-3 py-1 text-xs font-medium text-amber-700 ring-1 ring-amber-200">
-                                已建立備品交辦
-                              </span>
-                            ) : null}
-                            {savedVendorAssignments[item.id] ? (
-                              <span className="inline-flex items-center justify-center rounded-full bg-violet-50 px-3 py-1 text-xs font-medium text-violet-700 ring-1 ring-violet-200">
-                                已建立廠商交辦
-                              </span>
-                            ) : null}
-                            {!hasMainAssignment ? (
-                              <span className="text-xs text-slate-500">
-                                尚未建立交辦
-                              </span>
-                            ) : null}
-                            {hasMainAssignment ? (
-                              <button
-                                type="button"
-                                onClick={() => toggleAssignmentCollapse(item.id)}
-                                className="inline-flex h-7 w-7 items-center justify-center rounded-full border border-slate-200 bg-white text-sm text-slate-600 transition hover:border-slate-300 hover:bg-slate-100 hover:text-slate-900"
-                                aria-label={isMainAssignmentCollapsed ? "展開交辦內容" : "收合交辦內容"}
-                              >
-                                {isMainAssignmentCollapsed ? "›" : "⌄"}
-                              </button>
-                            ) : null}
-                          </div>
-                          <span className="text-[11px] text-slate-300">
-                            主卡摘要
+                        {savedDesignAssignments[item.id] ? (
+                          <span className="inline-flex items-center justify-center rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700 ring-1 ring-blue-200">
+                            已建立設計交辦
                           </span>
-                        </div>
+                        ) : null}
+                        {savedProcurementAssignments[item.id] ? (
+                          <span className="inline-flex items-center justify-center rounded-full bg-amber-50 px-3 py-1 text-xs font-medium text-amber-700 ring-1 ring-amber-200">
+                            已建立備品交辦
+                          </span>
+                        ) : null}
+                        {savedVendorAssignments[item.id] ? (
+                          <span className="inline-flex items-center justify-center rounded-full bg-violet-50 px-3 py-1 text-xs font-medium text-violet-700 ring-1 ring-violet-200">
+                            已建立廠商交辦
+                          </span>
+                        ) : null}
                       </div>
+                      {!hasMainAssignment ? (
+                        <div className="mt-3 text-xs text-slate-500">尚未建立交辦</div>
+                      ) : null}
                     </>
                   )}
                 </div>
@@ -2185,7 +2156,6 @@ export function ExecutionTree({
                       Boolean(savedDesignAssignments[child.id]) ||
                       Boolean(savedProcurementAssignments[child.id]) ||
                       Boolean(savedVendorAssignments[child.id]);
-                    const isChildAssignmentCollapsed = collapsedAssignmentIds[child.id] ?? false;
                     return (
                       <div
                         key={child.id}
@@ -2234,48 +2204,29 @@ export function ExecutionTree({
                                     {child.status}
                                   </span>
                                 </div>
-                                <h5 className="mt-2.5 font-medium text-slate-900">
-                                  {child.title}
-                                </h5>
-                                <div className="mt-3.5 rounded-2xl border border-slate-100 bg-slate-50/60 px-4 py-2">
-                                  <div className="flex flex-wrap items-center justify-between gap-3 text-sm text-slate-400">
-                                    <div className="flex flex-wrap items-center gap-2">
-                                      {savedDesignAssignments[child.id] ? (
-                                        <span className="inline-flex items-center justify-center rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700 ring-1 ring-blue-200">
-                                          已建立設計交辦
-                                        </span>
-                                      ) : null}
-                                      {savedProcurementAssignments[child.id] ? (
-                                        <span className="inline-flex items-center justify-center rounded-full bg-amber-50 px-3 py-1 text-xs font-medium text-amber-700 ring-1 ring-amber-200">
-                                          已建立備品交辦
-                                        </span>
-                                      ) : null}
-                                      {savedVendorAssignments[child.id] ? (
-                                        <span className="inline-flex items-center justify-center rounded-full bg-violet-50 px-3 py-1 text-xs font-medium text-violet-700 ring-1 ring-violet-200">
-                                          已建立廠商交辦
-                                        </span>
-                                      ) : null}
-                                      {!hasChildAssignment ? (
-                                        <span className="text-xs text-slate-500">
-                                          尚未建立交辦
-                                        </span>
-                                      ) : null}
-                                      {hasChildAssignment ? (
-                                        <button
-                                          type="button"
-                                          onClick={() => toggleAssignmentCollapse(child.id)}
-                                          className="inline-flex h-7 w-7 items-center justify-center rounded-full border border-slate-200 bg-white text-sm text-slate-600 transition hover:border-slate-300 hover:bg-slate-100 hover:text-slate-900"
-                                          aria-label={isChildAssignmentCollapsed ? "展開交辦內容" : "收合交辦內容"}
-                                        >
-                                          {isChildAssignmentCollapsed ? "›" : "⌄"}
-                                        </button>
-                                      ) : null}
-                                    </div>
-                                    <span className="text-[11px] text-slate-300">
-                                      附屬摘要
+                                <div className="mt-2.5 flex flex-wrap items-center gap-2">
+                                  <h5 className="font-medium text-slate-900">
+                                    {child.title}
+                                  </h5>
+                                  {savedDesignAssignments[child.id] ? (
+                                    <span className="inline-flex items-center justify-center rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700 ring-1 ring-blue-200">
+                                      已建立設計交辦
                                     </span>
-                                  </div>
+                                  ) : null}
+                                  {savedProcurementAssignments[child.id] ? (
+                                    <span className="inline-flex items-center justify-center rounded-full bg-amber-50 px-3 py-1 text-xs font-medium text-amber-700 ring-1 ring-amber-200">
+                                      已建立備品交辦
+                                    </span>
+                                  ) : null}
+                                  {savedVendorAssignments[child.id] ? (
+                                    <span className="inline-flex items-center justify-center rounded-full bg-violet-50 px-3 py-1 text-xs font-medium text-violet-700 ring-1 ring-violet-200">
+                                      已建立廠商交辦
+                                    </span>
+                                  ) : null}
                                 </div>
+                                {!hasChildAssignment ? (
+                                  <div className="mt-3 text-xs text-slate-500">尚未建立交辦</div>
+                                ) : null}
                                 {child.note ? (
                                   <p className="mt-2 text-sm text-slate-500">
                                     備註：{child.note}
