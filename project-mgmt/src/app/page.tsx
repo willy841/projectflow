@@ -3,11 +3,6 @@ import { AppShell } from "@/components/app-shell";
 import { getProjectRouteId } from "@/components/project-data";
 import { getHomeOverviewReadModel } from "@/lib/db/home-overview-read-model";
 
-function getStatusClass(status: string) {
-  if (status === "已結案") return "bg-slate-100 text-slate-700 ring-slate-200";
-  return "bg-emerald-50 text-emerald-700 ring-emerald-200";
-}
-
 export default async function Home() {
   const overview = await getHomeOverviewReadModel();
   const primaryMetrics = overview.metrics.slice(0, 4);
@@ -59,11 +54,10 @@ export default async function Home() {
             <table className="min-w-full table-fixed divide-y divide-slate-200 text-left text-sm">
               <thead className="bg-slate-50/80 text-slate-500">
                 <tr>
-                  <th className="w-[32%] px-4 py-3 font-medium">專案</th>
-                  <th className="w-[12%] px-4 py-3 font-medium">客戶</th>
-                  <th className="w-[14%] px-4 py-3 font-medium">日期</th>
-                  <th className="w-[14%] px-4 py-3 font-medium">狀態</th>
-                  <th className="w-[10%] px-4 py-3 font-medium">負責人</th>
+                  <th className="w-[38%] px-4 py-3 font-medium">專案</th>
+                  <th className="w-[18%] px-4 py-3 font-medium">客戶</th>
+                  <th className="w-[18%] px-4 py-3 font-medium">日期</th>
+                  <th className="w-[16%] px-4 py-3 font-medium">負責人</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 bg-white">
@@ -76,11 +70,6 @@ export default async function Home() {
                     </td>
                     <td className="break-words px-4 py-4 align-top text-slate-600">{project.client}</td>
                     <td className="break-words px-4 py-4 align-top text-slate-600">{project.eventDate}</td>
-                    <td className="px-4 py-4 align-top">
-                      <span className={`inline-flex min-w-[72px] items-center justify-center whitespace-nowrap rounded-full px-3 py-1 text-xs font-medium ring-1 ${getStatusClass(project.status)}`}>
-                        {project.status}
-                      </span>
-                    </td>
                     <td className="px-4 py-4 text-slate-600">{project.owner}</td>
                   </tr>
                 ))}

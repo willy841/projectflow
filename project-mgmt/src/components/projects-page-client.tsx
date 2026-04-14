@@ -154,7 +154,6 @@ export function ProjectsPageClient({ initialProjects }: { initialProjects: Proje
                   </button>
                 </th>
                 <th className="px-4 py-3 font-medium">地點</th>
-                <th className="px-4 py-3 font-medium">狀態</th>
                 <th className="px-4 py-3 font-medium">預算</th>
                 <th className="px-4 py-3 font-medium">成本</th>
                 <th className="px-4 py-3 font-medium">負責人</th>
@@ -176,11 +175,6 @@ export function ProjectsPageClient({ initialProjects }: { initialProjects: Proje
                     <td className="px-4 py-4 align-middle text-slate-600">{project.client}</td>
                     <td className="px-4 py-4 align-middle text-slate-600">{project.eventDate}</td>
                     <td className="px-4 py-4 align-middle text-slate-600">{project.location}</td>
-                    <td className="px-4 py-4 align-middle">
-                      <span className={`inline-flex min-w-[72px] items-center justify-center whitespace-nowrap rounded-full px-3 py-1 text-xs font-medium ring-1 ${getStatusClass(project.status)}`}>
-                        {project.status}
-                      </span>
-                    </td>
                     <td className="px-4 py-4 align-middle text-slate-600">{project.budget}</td>
                     <td className="px-4 py-4 align-middle text-slate-600">{project.cost}</td>
                     <td className="px-4 py-4 align-middle text-slate-600">{project.owner}</td>
