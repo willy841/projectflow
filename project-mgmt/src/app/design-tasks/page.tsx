@@ -118,7 +118,7 @@ export default async function DesignTasksPage({
           </div>
         ) : (
           <div className="space-y-4">
-            <div className="flex items-center justify-between rounded-2xl bg-slate-50 px-4 py-3">
+            <div className="flex items-center justify-between rounded-2xl bg-slate-50 px-4 py-3.5">
               <div>
                 <p className="text-lg font-semibold text-slate-900">{activeProject.projectName}</p>
               </div>

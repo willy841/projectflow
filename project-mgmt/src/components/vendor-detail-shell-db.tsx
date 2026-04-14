@@ -317,7 +317,7 @@ export function VendorDetailShellDb({ vendor, records, paymentRecords }: { vendo
                 ) : null}
                 <div className="mt-5 space-y-3">
                   {projectPayments.length ? projectPayments.map((payment) => (
-                    <div key={payment.id} className="flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-white px-4 py-3 ring-1 ring-slate-200">
+                    <div key={payment.id} className="flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-white px-4 py-3.5 ring-1 ring-slate-200">
                       <div>
                         <p className="text-sm font-semibold text-slate-900">{payment.paidOn}</p>
                         <p className="mt-1 text-sm text-slate-600">{payment.note || '—'}</p>

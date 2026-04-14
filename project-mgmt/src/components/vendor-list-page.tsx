@@ -189,7 +189,7 @@ export function VendorListPage() {
               key={vendor.id}
               className="group rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200 transition hover:-translate-y-0.5 hover:shadow-md"
             >
-              <div className="flex items-start justify-between gap-4">
+              <div className="flex items-center justify-between gap-4">
                 <div className="min-w-0">
                   <h3 className="text-2xl font-semibold tracking-tight text-slate-900">{vendor.name}</h3>
                   <div className="mt-3 flex flex-wrap gap-2">

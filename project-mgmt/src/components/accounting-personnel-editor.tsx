@@ -172,7 +172,7 @@ export function AccountingPersonnelEditor({ month, employees, records }: Props) 
                       <ReadOnlyPair label="類型" value="兼職" />
                       <EditablePair label="送出年月" value={draft.salaryMonth} onChange={(value) => setDrafts((current) => ({ ...current, [employee.id]: { ...draft, salaryMonth: value } }))} />
                     </div>
-                    <div className="space-y-3 rounded-2xl border border-slate-200 bg-white p-4">
+                    <div className="space-y-3 rounded-2xl border border-slate-200 bg-white p-5">
                       <div className="flex flex-wrap items-center gap-2">
                         <span className="inline-flex rounded-full bg-violet-50 px-2.5 py-1 text-xs font-semibold text-violet-700 ring-1 ring-violet-200">1</span>
                         <h6 className="text-sm font-semibold text-slate-900">應支付項目區</h6>

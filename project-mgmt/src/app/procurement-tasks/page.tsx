@@ -93,7 +93,7 @@ export default async function ProcurementTasksPage({
           </div>
         ) : (
           <div className="space-y-4">
-            <div className="flex items-center justify-between rounded-2xl bg-slate-50 px-4 py-3">
+            <div className="flex items-center justify-between rounded-2xl bg-slate-50 px-4 py-3.5">
               <div><p className="text-lg font-semibold text-slate-900">{activeProject.projectName}</p></div>
               <Link href="/procurement-tasks" className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-700">返回專案列表</Link>
             </div>

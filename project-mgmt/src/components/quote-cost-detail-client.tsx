@@ -329,7 +329,7 @@ export function QuoteCostDetailClient({ project, mode = "active", presenter = ge
       ) : null}
 
       <CostManagementSection archived={isClosedView}>
-        <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
           <SimpleSectionTitle title="成本管理" />
           <div className="flex flex-wrap gap-2">
             {presenter.canAddManualCost && (

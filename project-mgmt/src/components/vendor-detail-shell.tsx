@@ -574,7 +574,7 @@ export function VendorDetailShell({ vendorId }: Props) {
               )}
             </div>
 
-            <div className="flex items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
+            <div className="flex items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3.5">
               <p className="text-sm text-slate-500">第 {currentHistoryPage} / {totalHistoryPages} 頁</p>
               <div className="flex gap-2">
                 <button
