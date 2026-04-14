@@ -396,6 +396,9 @@ export function QuoteCostDetailClient({ project, mode = "active", presenter = ge
               <div>
                 <h4 className="text-lg font-semibold text-slate-900">對帳群組</h4>
               </div>
+              <div className="rounded-2xl bg-white px-4 py-3 text-sm text-slate-600 ring-1 ring-slate-200">
+                共 {reconciliationGroups.length} 組
+              </div>
             </div>
             <div className="mt-4 space-y-3">
               {reconciliationGroups.map((group) => (
