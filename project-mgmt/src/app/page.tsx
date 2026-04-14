@@ -29,10 +29,10 @@ export default async function Home() {
           </div>
 
           <div className="flex w-full max-w-md flex-col gap-3 xl:items-end">
-            <Link href="/projects/new" className="inline-flex items-center justify-center rounded-2xl border border-slate-900 bg-white px-5 py-3.5 text-sm font-semibold text-slate-900 shadow-sm transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-200">
+            <Link href="/projects/new" className="inline-flex items-center justify-center rounded-2xl border border-white/70 bg-white px-5 py-3.5 text-sm font-semibold text-slate-900 shadow-sm transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-white/40">
               + 新增專案
             </Link>
-            <Link href="/projects" className="inline-flex items-center justify-center rounded-2xl border border-white/15 bg-white/8 px-5 py-3.5 text-sm font-semibold text-white backdrop-blur transition hover:bg-white/14 focus:outline-none focus:ring-2 focus:ring-white/20">
+            <Link href="/projects" className="inline-flex items-center justify-center rounded-2xl border border-white/70 bg-white/95 px-5 py-3.5 text-sm font-semibold text-slate-900 shadow-sm transition hover:bg-white focus:outline-none focus:ring-2 focus:ring-white/40">
               查看專案列表
             </Link>
           </div>
@@ -108,7 +108,6 @@ export default async function Home() {
               <div key={item.label} className="rounded-2xl border border-slate-200 bg-slate-50/80 px-4 py-4">
                 <p className="text-sm text-slate-500">{item.label}</p>
                 <p className="mt-2 text-xl font-semibold text-slate-900">{item.value}</p>
-                <p className="mt-1 text-xs text-slate-500">{item.change}</p>
               </div>
             ))}
           </div>
