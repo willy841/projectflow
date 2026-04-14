@@ -29,7 +29,7 @@ export default async function Home() {
           </div>
 
           <div className="flex w-full max-w-md flex-col gap-3 xl:items-end">
-            <Link href="/projects/new" className="inline-flex items-center justify-center rounded-2xl bg-blue-500 px-5 py-3.5 text-sm font-semibold text-white shadow-lg shadow-blue-900/30 transition hover:bg-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-300">
+            <Link href="/projects/new" className="inline-flex items-center justify-center rounded-2xl border border-slate-900 bg-white px-5 py-3.5 text-sm font-semibold text-slate-900 shadow-sm transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-200">
               + 新增專案
             </Link>
             <Link href="/projects" className="inline-flex items-center justify-center rounded-2xl border border-white/15 bg-white/8 px-5 py-3.5 text-sm font-semibold text-white backdrop-blur transition hover:bg-white/14 focus:outline-none focus:ring-2 focus:ring-white/20">
@@ -44,7 +44,6 @@ export default async function Home() {
           <article key={stat.label} className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200 transition hover:-translate-y-0.5 hover:shadow-md">
             <p className="text-sm text-slate-500">{stat.label}</p>
             <p className="mt-3 text-3xl font-semibold tracking-tight text-slate-900">{stat.value}</p>
-            <p className="mt-2 text-sm font-medium text-blue-600">{stat.change}</p>
           </article>
         ))}
       </section>
@@ -54,7 +53,6 @@ export default async function Home() {
           <div className="mb-5 flex items-center justify-between">
             <div>
               <h3 className="text-xl font-semibold text-slate-900">近期專案</h3>
-              <p className="mt-1 text-sm text-slate-500">依活動日期排序，使用正式 project source 顯示目前 overview 相關專案。</p>
             </div>
             <Link href="/projects" className="inline-flex items-center justify-center rounded-xl px-3 py-2 text-sm font-semibold text-slate-800 transition hover:bg-slate-100">
               查看全部
@@ -99,7 +97,6 @@ export default async function Home() {
           <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div className="min-w-0">
               <h3 className="text-xl font-semibold text-slate-900">Active 收款概況</h3>
-              <p className="mt-1 text-sm leading-6 text-slate-500">只呈現 active overview aggregation；不混入本月財務摘要或 Accounting Center extension。</p>
             </div>
             <Link href="/quote-costs" className="inline-flex shrink-0 self-start items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-800 transition hover:border-slate-400 hover:bg-slate-50">
               前往報價成本
