@@ -20,7 +20,7 @@ export function ProjectTaskSummaryList({
   if (!items.length) {
     return (
       <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-5 text-sm text-slate-500">
-        目前此分類尚未建立資料。
+        尚未建立資料。
       </div>
     );
   }

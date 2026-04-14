@@ -320,7 +320,7 @@ export function ProjectVendorSection({
             ))}
           </div>
         ) : (
-          <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-6 text-sm text-slate-500">目前尚未建立廠商發包清單。</div>
+          <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-6 text-sm text-slate-500">尚未建立廠商發包清單。</div>
         )}
       </article>
 

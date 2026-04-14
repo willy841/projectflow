@@ -97,7 +97,7 @@ export function VendorListPage() {
 
           <div className="sm:min-w-[260px] xl:self-stretch">
             <div className="rounded-3xl border border-amber-200 bg-amber-50 px-5 py-4 text-sm text-amber-900 xl:h-full xl:min-h-[104px] xl:flex xl:flex-col xl:justify-center">
-              <p className="font-semibold">目前篩選結果未付款總額</p>
+              <p className="font-semibold">未付款總額</p>
               <p className="mt-2 text-2xl font-semibold">{formatCurrency(totalOutstanding)}</p>
             </div>
           </div>
@@ -130,7 +130,7 @@ export function VendorListPage() {
                   }}
                   className="inline-flex items-center justify-center rounded-full border border-slate-200 bg-white px-3 py-1.5 font-medium text-slate-600 transition hover:border-slate-300 hover:text-slate-900"
                 >
-                  清除篩選
+                  清除
                 </button>
               ) : null}
             </div>

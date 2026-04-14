@@ -50,7 +50,7 @@ export function VendorAssignmentOverview({ assignments, packages }: Props) {
           );
         })
       ) : (
-        <div className="rounded-2xl border border-dashed border-slate-300 p-6 text-sm text-slate-500">目前尚未建立廠商需求。</div>
+        <div className="rounded-2xl border border-dashed border-slate-300 p-6 text-sm text-slate-500">尚未建立廠商需求。</div>
       )}
     </div>
   );
