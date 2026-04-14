@@ -319,6 +319,23 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
                 },
           };
         },
+        importExecutionItems: async ({ items }: { items: Array<{ id: string; title: string; children?: Array<{ id: string; title: string }> }> }) => {
+          const response = await fetch(`/api/projects/${project.id}/execution-items/import`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              items: items.map((item) => ({
+                title: item.title,
+                children: (item.children ?? []).map((child) => ({ title: child.title })),
+              })),
+            }),
+          });
+          const result = await response.json();
+          if (!response.ok || !result.ok) {
+            throw new Error(result.error || "批次匯入執行項目失敗");
+          }
+          return { items: result.items as Array<{ id: string; title: string; status: string; category: string; detail: string; children: Array<{ id: string; title: string; status: string; assignee: string; category: string }> }> };
+        },
         updateExecutionItem: async ({ itemId, title }: { itemId: string; title: string }) => {
           const response = await fetch(`/api/projects/${project.id}/execution-items/${itemId}`, {
             method: "PATCH",

@@ -875,6 +875,7 @@ type AssignmentSaveResult = {
 
 type ExecutionTreeServerHandlers = {
   createExecutionItem?: (input: { title: string; parentId?: string | null }) => Promise<{ item: ImportedItem | ProjectExecutionSubItem; parentId?: string | null }>;
+  importExecutionItems?: (input: { items: ImportedItem[] }) => Promise<{ items: ImportedItem[] }>;
   updateExecutionItem?: (input: { itemId: string; title: string }) => Promise<{ item: ImportedItem | ProjectExecutionSubItem }>;
   deleteExecutionItem?: (input: { itemId: string }) => Promise<{ deletedId: string; childIds?: string[] }>;
   saveDesignAssignment?: (payload: PersistedAssignmentPayload & { draft: DesignAssignmentDraft }) => Promise<AssignmentSaveResult | void>;
@@ -1581,27 +1582,11 @@ export function ExecutionTree({
   async function confirmExcelImport() {
     if (!excelPreview?.items.length) return;
 
-    if (serverHandlers?.createExecutionItem) {
+    if (serverHandlers?.importExecutionItems) {
       try {
-        const persistedItems: ImportedItem[] = [];
-
-        for (const mainItem of excelPreview.items as ImportedItem[]) {
-          const createdMain = await serverHandlers.createExecutionItem({ title: mainItem.title, parentId: null });
-          const persistedMain: ImportedItem = {
-            ...(createdMain.item as ImportedItem),
-            children: [],
-          };
-
-          for (const child of mainItem.children ?? []) {
-            const createdChild = await serverHandlers.createExecutionItem({ title: child.title, parentId: persistedMain.id });
-            persistedMain.children = [...(persistedMain.children ?? []), createdChild.item as ProjectExecutionSubItem];
-          }
-
-          persistedItems.push(persistedMain);
-        }
-
-        setLocalItems((prev) => [...prev, ...persistedItems]);
-        setExpandedItemId(persistedItems[0]?.id ?? null);
+        const result = await serverHandlers.importExecutionItems({ items: excelPreview.items as ImportedItem[] });
+        setLocalItems((prev) => [...prev, ...result.items]);
+        setExpandedItemId(result.items[0]?.id ?? null);
         setExcelPreview(null);
         setExcelImportError("");
         return;
