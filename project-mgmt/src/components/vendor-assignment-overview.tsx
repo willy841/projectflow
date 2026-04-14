@@ -37,9 +37,9 @@ export function VendorAssignmentOverview({ assignments, packages }: Props) {
               <div className="mt-4 rounded-2xl border border-dashed border-slate-300 bg-white px-4 py-3 text-sm text-slate-600">
                 {vendorPackage ? (
                   <>
-                    已送進廠商發包清單：
+                    已送進廠商發包清單
                     <Link href={`/vendor-packages/${vendorPackage.id}`} className="ml-1 font-medium text-slate-900 underline-offset-4 hover:underline">
-                      {vendorPackage.code}
+                      查看
                     </Link>
                   </>
                 ) : (

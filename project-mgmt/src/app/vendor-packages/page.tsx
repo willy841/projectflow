@@ -24,8 +24,7 @@ export default async function VendorPackagesPage() {
           <article key={vendorPackage.id} className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm ring-1 ring-slate-200">
             <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
               <div>
-                <p className="text-sm text-slate-500">{vendorPackage.code}</p>
-                <h3 className="mt-1 text-2xl font-semibold tracking-tight text-slate-900">{vendorPackage.vendorName}</h3>
+                <h3 className="text-2xl font-semibold tracking-tight text-slate-900">{vendorPackage.vendorName}</h3>
                 <p className="mt-2 text-sm text-slate-600">{vendorPackage.eventDate}｜{vendorPackage.location}｜進場時間 {vendorPackage.loadInTime}</p>
                 <p className="mt-2 text-sm font-medium text-slate-700">{getDocumentStatusMessage(vendorPackage.documentStatus)}</p>
               </div>

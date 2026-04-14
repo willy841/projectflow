@@ -310,7 +310,6 @@ export function ProjectVendorSection({
                     </div>
                     <div className="mt-3 flex flex-wrap items-center gap-4 text-sm text-slate-600">
                       <p>項目數：<span className="font-medium text-slate-800">{vendorPackage.items.length} 筆</span></p>
-                      <p className="text-slate-500">{vendorPackage.code}</p>
                     </div>
                   </div>
                   <Link href={`/vendor-packages/${vendorPackage.id}`} className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 transition hover:bg-slate-50">
