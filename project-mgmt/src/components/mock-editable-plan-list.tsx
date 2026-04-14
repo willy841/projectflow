@@ -113,11 +113,11 @@ export function MockEditablePlanList({
   return (
     <div className="space-y-4">
       {draftPlans.length ? draftPlans.map((plan) => (
-        <article key={plan.id} className="rounded-2xl border border-slate-200 p-5">
+        <article key={plan.id} className="rounded-2xl border border-slate-200 bg-white p-5">
           <div className={`grid gap-3 ${columnsClassName}`}>
             {plan.fields.map((field) => {
               const spanClass = field.span || "";
-              const baseClass = `rounded-2xl bg-slate-50 px-4 py-3 ${spanClass}`.trim();
+              const baseClass = `rounded-2xl bg-slate-50 px-4 py-3.5 ${spanClass}`.trim();
 
               return (
                 <label key={field.key} className={baseClass}>
@@ -142,11 +142,11 @@ export function MockEditablePlanList({
             })}
           </div>
 
-          <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+          <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 pt-4">
             <button
               type="button"
               onClick={() => removePlan(plan.id)}
-              className="inline-flex items-center justify-center rounded-2xl border border-rose-200 bg-rose-50 px-4 py-2 text-sm font-medium text-rose-700 transition hover:bg-rose-100"
+              className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-rose-200 bg-rose-50 px-4 py-2.5 text-sm font-medium text-rose-700 transition hover:bg-rose-100"
             >
               刪除這筆處理
             </button>
