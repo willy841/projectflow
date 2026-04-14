@@ -107,7 +107,7 @@ export default async function VendorAssignmentsPage({
         {!activeProject ? (
           <div className="space-y-3">
             {projects.map((project) => (
-              <article key={project.projectId} className="rounded-2xl border border-slate-200 p-5 transition hover:border-slate-300 hover:bg-slate-50/70">
+              <article key={project.projectId} className="rounded-2xl border border-slate-200 bg-white p-5 transition hover:border-slate-300 hover:bg-slate-50/70">
                 <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
                   <div className="grid flex-1 gap-3 md:grid-cols-3">
                     <div className="rounded-2xl bg-slate-50 px-4 py-3.5"><p className="text-xs text-slate-500">專案名稱</p><p className="mt-2 text-sm font-medium text-slate-900">{project.projectName}</p></div>
@@ -130,7 +130,7 @@ export default async function VendorAssignmentsPage({
 
             <div className="space-y-3">
               {vendorGroups.map((group) => (
-                <article key={group.vendorKey} className="rounded-2xl border border-slate-200 p-5 transition hover:border-slate-300 hover:bg-slate-50/70">
+                <article key={group.vendorKey} className="rounded-2xl border border-slate-200 bg-white p-5 transition hover:border-slate-300 hover:bg-slate-50/70">
                   <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
                     <div className="grid flex-1 gap-3 md:grid-cols-3">
                       <div className="rounded-2xl bg-slate-50 px-4 py-3.5"><p className="text-xs text-slate-500">廠商</p><p className="mt-2 text-sm font-medium text-slate-900">{group.vendorName}</p></div>

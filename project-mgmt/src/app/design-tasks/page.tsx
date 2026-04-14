@@ -86,7 +86,7 @@ export default async function DesignTasksPage({
             {projects.map((project) => (
               <article
                 key={project.projectId}
-                className="rounded-2xl border border-slate-200 p-5 transition hover:border-slate-300 hover:bg-slate-50/70"
+                className="rounded-2xl border border-slate-200 bg-white p-5 transition hover:border-slate-300 hover:bg-slate-50/70"
               >
                 <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
                   <div className="grid flex-1 gap-3 md:grid-cols-3">
@@ -134,7 +134,7 @@ export default async function DesignTasksPage({
               {projectTasks.map((task) => (
                 <article
                   key={task.id}
-                  className="rounded-2xl border border-slate-200 p-5 transition hover:border-slate-300 hover:bg-slate-50/70"
+                  className="rounded-2xl border border-slate-200 bg-white p-5 transition hover:border-slate-300 hover:bg-slate-50/70"
                 >
                   <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
                     <div className="grid flex-1 gap-3 md:grid-cols-5">
