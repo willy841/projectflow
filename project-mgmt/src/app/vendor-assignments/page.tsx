@@ -99,7 +99,8 @@ export default async function VendorAssignmentsPage({
   return (
     <AppShell activePath="/vendor-assignments">
       <WorkspaceHeader
-        title={`廠商發包板　·　共 ${activeProject ? vendorGroups.length : projects.length} ${activeProject ? "組廠商" : "個專案"}`}
+        title="廠商發包板"
+        badge={<span className="inline-flex items-center rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-600 ring-1 ring-slate-200">共 {activeProject ? vendorGroups.length : projects.length} {activeProject ? "組廠商" : "個專案"}</span>}
         meta={null}
       />
 

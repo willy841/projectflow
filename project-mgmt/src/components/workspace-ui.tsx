@@ -5,6 +5,7 @@ export const workspacePrimaryButtonClass =
 
 type WorkspaceHeaderProps = {
   title: string;
+  badge?: ReactNode;
   backHref?: string;
   backLabel?: string;
   actions?: ReactNode;
@@ -13,6 +14,7 @@ type WorkspaceHeaderProps = {
 
 export function WorkspaceHeader({
   title,
+  badge,
   backHref,
   backLabel = "返回列表",
   actions,
@@ -31,7 +33,10 @@ export function WorkspaceHeader({
             </a>
           ) : null}
           <div className="space-y-1">
-            <h2 className="text-3xl font-semibold tracking-tight text-slate-900">{title}</h2>
+            <div className="flex flex-wrap items-center gap-2">
+              <h2 className="text-3xl font-semibold tracking-tight text-slate-900">{title}</h2>
+              {badge ? <div>{badge}</div> : null}
+            </div>
             {meta ? <div className="text-sm text-slate-500">{meta}</div> : null}
           </div>
         </div>
