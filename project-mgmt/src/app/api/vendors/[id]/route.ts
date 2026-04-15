@@ -67,7 +67,39 @@ export async function DELETE(
     }
 
     const { id } = await params;
-    const repositories = createPhase1Repositories(createPhase1DbClient());
+    const db = createPhase1DbClient();
+    const repositories = createPhase1Repositories(db);
+
+    const vendorTaskRefs = await db.query<{ count: string }>(
+      `select count(*)::text as count from vendor_tasks where vendor_id = $1`,
+      [id],
+    );
+    const designTaskRefs = await db.query<{ count: string }>(
+      `select count(*)::text as count from design_tasks where vendor_id = $1`,
+      [id],
+    );
+    const procurementTaskRefs = await db.query<{ count: string }>(
+      `select count(*)::text as count from procurement_tasks where vendor_id = $1`,
+      [id],
+    );
+
+    const linkedCount =
+      Number(vendorTaskRefs.rows[0]?.count ?? '0') +
+      Number(designTaskRefs.rows[0]?.count ?? '0') +
+      Number(procurementTaskRefs.rows[0]?.count ?? '0');
+
+    if (linkedCount > 0) {
+      return NextResponse.json(
+        {
+          ok: false,
+          error: '這個廠商目前仍被任務使用中，請先解除相關交辦或改派其他廠商後再刪除。',
+          code: 'VENDOR_IN_USE',
+          linkedCount,
+        },
+        { status: 409 },
+      );
+    }
+
     await repositories.vendors.delete(id);
 
     return NextResponse.json({ ok: true, deletedId: id, storage: access.storage });
