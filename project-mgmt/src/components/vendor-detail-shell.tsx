@@ -216,7 +216,7 @@ export function VendorDetailShell({ vendorId }: Props) {
     const keyword = historyKeyword.trim().toLowerCase();
     return historySourceRecords.filter((record) => {
       const matchesKeyword =
-        !keyword || [record.projectName, record.payableSummary].join(" ").toLowerCase().includes(keyword);
+        !keyword || [record.projectName, record.reconciliationSummary].join(" ").toLowerCase().includes(keyword);
       const matchesStatus = historyProjectStatus === "all" || record.projectStatus === historyProjectStatus;
       return matchesKeyword && matchesStatus;
     });

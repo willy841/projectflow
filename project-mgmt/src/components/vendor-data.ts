@@ -75,7 +75,8 @@ export type VendorProjectRecord = {
   projectStatus: "執行中" | "已結案";
   adjustedCost: number;
   adjustedCostLabel: string;
-  payableSummary: string;
+  reconciliationSummary: string;
+  reconciliationStatus: "已全部對帳" | "尚未全部對帳";
   sourceItemDetails: string[];
   costBreakdown: Array<{
     label: string;
@@ -288,7 +289,8 @@ export const vendorProjectRecords: VendorProjectRecord[] = [
     projectStatus: "執行中",
     adjustedCost: 68000,
     adjustedCostLabel: formatCurrency(68000),
-    payableSummary: "入口主背板輸出、裱板、現場安裝與收邊。",
+    reconciliationSummary: "已對帳內容：廠商 1 筆",
+    reconciliationStatus: "尚未全部對帳",
     sourceItemDetails: ["主背板輸出 1 式", "裱板與護膜", "現場安裝與收邊"],
     costBreakdown: [
       { label: "輸出製作", amount: formatCurrency(42000) },
@@ -307,7 +309,8 @@ export const vendorProjectRecords: VendorProjectRecord[] = [
     projectStatus: "執行中",
     adjustedCost: 24000,
     adjustedCostLabel: formatCurrency(24000),
-    payableSummary: "入口指示、動線牌與收銀區桌牌輸出。",
+    reconciliationSummary: "已對帳內容：廠商 1 筆",
+    reconciliationStatus: "尚未全部對帳",
     sourceItemDetails: ["入口導視牌 3 面", "動線牌 5 面", "桌牌與收銀區標示"],
     costBreakdown: [
       { label: "導視輸出", amount: formatCurrency(15000) },
@@ -325,7 +328,8 @@ export const vendorProjectRecords: VendorProjectRecord[] = [
     projectStatus: "執行中",
     adjustedCost: 38500,
     adjustedCostLabel: formatCurrency(38500),
-    payableSummary: "POP、價卡與檔期吊牌輸出。",
+    reconciliationSummary: "已對帳內容：廠商 1 筆",
+    reconciliationStatus: "尚未全部對帳",
     sourceItemDetails: ["POP 海報輸出 12 張", "價卡與吊牌 1 式", "櫥窗貼與現場補貼"],
     costBreakdown: [
       { label: "POP 輸出", amount: formatCurrency(18000) },
@@ -343,7 +347,8 @@ export const vendorProjectRecords: VendorProjectRecord[] = [
     projectStatus: "執行中",
     adjustedCost: 146000,
     adjustedCostLabel: formatCurrency(146000),
-    payableSummary: "接待區背牆木作、結構補強與面材處理。",
+    reconciliationSummary: "已對帳內容：廠商 1 筆",
+    reconciliationStatus: "尚未全部對帳",
     sourceItemDetails: ["木作背牆製作", "結構補強", "面材包覆與現場安裝"],
     costBreakdown: [
       { label: "木作結構", amount: formatCurrency(98000) },
@@ -362,7 +367,8 @@ export const vendorProjectRecords: VendorProjectRecord[] = [
     projectStatus: "已結案",
     adjustedCost: 92000,
     adjustedCostLabel: formatCurrency(92000),
-    payableSummary: "主舞台側翼木作、收邊與現場補強。",
+    reconciliationSummary: "已對帳內容：廠商 1 筆",
+    reconciliationStatus: "已全部對帳",
     sourceItemDetails: ["舞台側翼木作", "結構補強", "現場拆裝收邊"],
     costBreakdown: [
       { label: "木作製作", amount: formatCurrency(62000) },
@@ -380,7 +386,8 @@ export const vendorProjectRecords: VendorProjectRecord[] = [
     projectStatus: "已結案",
     adjustedCost: 56000,
     adjustedCostLabel: formatCurrency(56000),
-    payableSummary: "櫥窗貼、立體字與店頭導視整包輸出。",
+    reconciliationSummary: "已對帳內容：廠商 1 筆",
+    reconciliationStatus: "已全部對帳",
     sourceItemDetails: ["櫥窗貼 1 式", "立體字輸出", "店頭導視與桌牌"],
     costBreakdown: [
       { label: "櫥窗貼", amount: formatCurrency(22000) },

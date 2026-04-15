@@ -260,7 +260,7 @@ export async function listDbVendorProjectRecordsByVendorId(vendorId: string): Pr
         projectStatus: financialRecord.projectStatus,
         adjustedCost: financialRecord.adjustedCost,
         adjustedCostLabel: financialRecord.adjustedCostLabel,
-        payableSummary:
+        reconciliationSummary:
           (() => {
             const sourceCounts = new Map<string, number>();
             for (const group of financialRecord.reconciledGroups) {
@@ -269,8 +269,9 @@ export async function listDbVendorProjectRecordsByVendorId(vendorId: string): Pr
             const summary = Array.from(sourceCounts.entries())
               .map(([sourceType, count]) => `${sourceType} ${count} 筆`)
               .join('、');
-            return summary ? `目前累積已對帳項目：${summary}` : '目前尚無已對帳項目';
+            return summary ? `已對帳內容：${summary}` : '目前尚無已對帳內容';
           })(),
+        reconciliationStatus: financialRecord.hasUnreconciledGroups ? '尚未全部對帳' : '已全部對帳',
         sourceItemDetails: sourceItemDetails.length ? sourceItemDetails : ['待補充'],
         costBreakdown: financialRecord.costItems.length
           ? financialRecord.costItems.map((item) => ({
