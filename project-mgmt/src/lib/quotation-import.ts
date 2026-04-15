@@ -17,6 +17,14 @@ export type ImportedQuotationPayload = {
 };
 
 const REQUIRED_HEADERS = ['商品名稱', '單價', '數量', '單位', '金額', '備註'] as const;
+const HEADER_ALIASES: Record<(typeof REQUIRED_HEADERS)[number], string[]> = {
+  商品名稱: ['商品名稱', '商品名'],
+  單價: ['單價'],
+  數量: ['數量'],
+  單位: ['單位'],
+  金額: ['金額'],
+  備註: ['備註'],
+};
 const HEADER_NORMALIZER = /\s+/g;
 
 function normalizeCell(value: unknown) {
@@ -39,8 +47,11 @@ function findHeaderRow(rows: unknown[][]) {
     row.forEach((cell, index) => {
       const normalized = normalizeCell(cell);
       if (!normalized) return;
-      if (REQUIRED_HEADERS.includes(normalized as (typeof REQUIRED_HEADERS)[number])) {
-        headerIndexMap.set(normalized, index);
+
+      for (const header of REQUIRED_HEADERS) {
+        if (HEADER_ALIASES[header].includes(normalized)) {
+          headerIndexMap.set(header, index);
+        }
       }
     });
 
@@ -52,11 +63,16 @@ function findHeaderRow(rows: unknown[][]) {
   return null;
 }
 
+function isTotalAmountLabel(value: unknown) {
+  const normalized = normalizeCell(value).replace(/[\[\]【】()（）:：]/g, '');
+  return normalized === '總金額';
+}
+
 function findTotalAmount(rows: unknown[][]) {
   for (let rowIndex = 0; rowIndex < rows.length; rowIndex += 1) {
     const row = rows[rowIndex] ?? [];
     for (let columnIndex = 0; columnIndex < row.length; columnIndex += 1) {
-      if (normalizeCell(row[columnIndex]) !== '總金額') continue;
+      if (!isTotalAmountLabel(row[columnIndex])) continue;
 
       for (let nextColumn = columnIndex + 1; nextColumn < row.length; nextColumn += 1) {
         const candidate = row[nextColumn];
@@ -99,15 +115,22 @@ export function parseQuotationWorkbook(buffer: ArrayBuffer, fileName: string): I
 
   for (let rowIndex = headerMatch.rowIndex + 1; rowIndex < rows.length; rowIndex += 1) {
     const row = rows[rowIndex] ?? [];
-    const itemName = String(row[headerMatch.headerIndexMap.get('商品名稱') ?? -1] ?? '').trim();
-    const unitPriceRaw = row[headerMatch.headerIndexMap.get('單價') ?? -1];
-    const quantityRaw = row[headerMatch.headerIndexMap.get('數量') ?? -1];
-    const unit = String(row[headerMatch.headerIndexMap.get('單位') ?? -1] ?? '').trim();
-    const amountRaw = row[headerMatch.headerIndexMap.get('金額') ?? -1];
-    const remark = String(row[headerMatch.headerIndexMap.get('備註') ?? -1] ?? '');
+    const itemNameIndex = (() => {
+      const headerIndex = headerMatch.headerIndexMap.get('商品名稱');
+      if (headerIndex === 0) return 1;
+      return headerIndex ?? 1;
+    })();
+    const itemName = String(row[itemNameIndex] ?? '').trim();
+    const unitPriceRaw = row[headerMatch.headerIndexMap.get('單價') ?? 2];
+    const quantityRaw = row[headerMatch.headerIndexMap.get('數量') ?? 3];
+    const unit = String(row[headerMatch.headerIndexMap.get('單位') ?? 4] ?? '').trim();
+    const amountRaw = row[headerMatch.headerIndexMap.get('金額') ?? 5];
+    const remark = String(row[headerMatch.headerIndexMap.get('備註') ?? 6] ?? '');
 
     const rowValues = [itemName, unitPriceRaw, quantityRaw, unit, amountRaw, remark].map((value) => normalizeCell(value));
     if (rowValues.every((value) => value === '')) continue;
+    if (isTotalAmountLabel(itemName)) continue;
+    if (itemName === '備註') break;
 
     items.push({
       sortOrder: items.length + 1,
