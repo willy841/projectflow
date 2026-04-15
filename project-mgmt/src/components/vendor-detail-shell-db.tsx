@@ -256,15 +256,6 @@ export function VendorDetailShellDb({ vendor, records, paymentRecords, tradeOpti
               <button type="button" onClick={handleSaveProfile} disabled={profileSaving} className="inline-flex items-center justify-center rounded-2xl border border-slate-900 bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60">{profileSaving ? '儲存中…' : '儲存'}</button>
             </div>
           </div>
-          <div className="mb-4 rounded-2xl border border-sky-200 bg-sky-50/60 px-4 py-3 text-sm text-slate-700 ring-1 ring-sky-100">
-            <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-              <div>
-                <p className="font-semibold text-slate-900">目前工種：{profileForm.tradeLabel || '—'}</p>
-                <p className="mt-1 text-slate-600">若要新增或刪除工種，請回上一頁使用「管理工種」。</p>
-              </div>
-              <Link href="/vendors" className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:border-slate-400 hover:bg-slate-50">回列表管理工種</Link>
-            </div>
-          </div>
           <div className="grid gap-4 md:grid-cols-2">
             <label className="rounded-2xl bg-slate-50 p-4">
               <p className="text-sm text-slate-500">工種</p>
