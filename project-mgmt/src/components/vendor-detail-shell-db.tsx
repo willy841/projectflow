@@ -39,7 +39,7 @@ function buildVendorEditableForm(vendor: VendorBasicProfile): VendorEditableForm
   };
 }
 
-export function VendorDetailShellDb({ vendor, records, paymentRecords }: { vendor: VendorBasicProfile; records: VendorProjectRecord[]; paymentRecords: VendorPaymentRecord[] }) {
+export function VendorDetailShellDb({ vendor, records, paymentRecords, tradeOptions = [] }: { vendor: VendorBasicProfile; records: VendorProjectRecord[]; paymentRecords: VendorPaymentRecord[]; tradeOptions?: string[] }) {
   const unpaidRecords = records.filter((record) => record.paymentStatus !== '已付款');
   const totalOutstanding = unpaidRecords.reduce((sum, record) => sum + (record.unpaidAmount ?? record.adjustedCost), 0);
   const [profileForm, setProfileForm] = useState<VendorEditableForm>(() => buildVendorEditableForm(vendor));
@@ -173,6 +173,20 @@ export function VendorDetailShellDb({ vendor, records, paymentRecords }: { vendo
             <div>
               <h3 className="text-xl font-semibold text-slate-900">廠商資訊</h3>
               <p className="mt-2 text-sm text-slate-600">這裡現在已改為 Vendor master DB 寫入入口，儲存後會重新從 DB readback。</p>
+              {tradeOptions.length ? (
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {tradeOptions.slice(0, 8).map((trade) => (
+                    <button
+                      key={trade}
+                      type="button"
+                      onClick={() => updateProfileField('tradeLabel', trade === '待補充' ? '' : trade)}
+                      className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 transition hover:border-slate-300 hover:bg-slate-50"
+                    >
+                      {trade}
+                    </button>
+                  ))}
+                </div>
+              ) : null}
             </div>
             <div className="flex items-center gap-3">
               {profileMessage ? <p className="text-xs text-emerald-700">{profileMessage}</p> : null}
