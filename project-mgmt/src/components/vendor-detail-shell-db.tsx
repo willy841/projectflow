@@ -432,8 +432,6 @@ export function VendorDetailShellDb({ vendor, records, paymentRecords, tradeOpti
             <label className="min-w-[260px] flex-1 lg:max-w-md">
               <input type="search" value={historyKeyword} onChange={(event) => setHistoryKeyword(event.target.value)} placeholder="搜尋專案名稱、摘要或發包內容" className="h-10 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400" />
             </label>
-          </div>
-          <div className="flex items-center gap-3">
             <label className="block w-[220px]">
               <select value={historySort} onChange={(event) => setHistorySort(event.target.value as typeof historySort)} className="h-10 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400">
                 <option value="project-asc">專案名稱 A → Z</option>
@@ -442,9 +440,9 @@ export function VendorDetailShellDb({ vendor, records, paymentRecords, tradeOpti
                 <option value="amount-asc">未付款金額低 → 高</option>
               </select>
             </label>
-            <div className="rounded-2xl bg-slate-50 px-4 py-3 text-sm text-slate-600 ring-1 ring-slate-200">
-              目前顯示 {filteredHistoryRecords.length} 筆往來紀錄
-            </div>
+          </div>
+          <div className="rounded-2xl bg-slate-50 px-4 py-3 text-sm text-slate-600 ring-1 ring-slate-200">
+            目前顯示 {filteredHistoryRecords.length} 筆往來紀錄
           </div>
         </div>
 
