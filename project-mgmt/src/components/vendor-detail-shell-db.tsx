@@ -249,11 +249,11 @@ export function VendorDetailShellDb({ vendor, records, paymentRecords, tradeOpti
           <div className="mb-5 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
             <div>
               <h3 className="text-xl font-semibold text-slate-900">廠商資訊</h3>
-              <p className="mt-2 text-sm text-slate-600">工種來源統一回到廠商資料列表管理；這裡只選既有工種並寫回 Vendor master DB。</p>
+
             </div>
             <div className="flex items-center gap-3">
               {profileMessage ? <p className="text-xs text-emerald-700">{profileMessage}</p> : null}
-              <button type="button" onClick={handleSaveProfile} disabled={profileSaving} className="inline-flex items-center justify-center rounded-2xl border border-slate-900 bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60">{profileSaving ? '儲存中…' : '儲存廠商資料'}</button>
+              <button type="button" onClick={handleSaveProfile} disabled={profileSaving} className="inline-flex items-center justify-center rounded-2xl border border-slate-900 bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60">{profileSaving ? '儲存中…' : '儲存'}</button>
             </div>
           </div>
           <div className="mb-4 rounded-2xl border border-sky-200 bg-sky-50/60 px-4 py-3 text-sm text-slate-700 ring-1 ring-sky-100">
@@ -310,7 +310,7 @@ export function VendorDetailShellDb({ vendor, records, paymentRecords, tradeOpti
         </article>
 
         <article className="rounded-3xl border border-amber-200 bg-amber-50/70 p-6 shadow-sm ring-1 ring-amber-100">
-          <div className="mb-5 flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+          <div className="mb-5 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
             <div>
               <h3 className="text-xl font-semibold text-slate-900">未付款專案</h3>
             </div>
@@ -349,8 +349,8 @@ export function VendorDetailShellDb({ vendor, records, paymentRecords, tradeOpti
                         </div>
                         <div className="mt-3 grid gap-2 text-sm text-slate-600 sm:grid-cols-2">
                           <div className="flex items-center justify-between gap-3 rounded-2xl bg-slate-50 px-3 py-2.5">
-                            <span>是否已全部對帳</span>
-                            <span className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ring-1 ${getVendorReconciliationStatusClass(record)}`}>{record.reconciliationStatus}</span>
+                            <span>對帳狀態</span>
+                            <span className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold leading-tight text-center ring-1 ${getVendorReconciliationStatusClass(record)}`}>{record.reconciliationStatus}</span>
                           </div>
                           <div className="flex items-center justify-between gap-3 rounded-2xl bg-slate-50 px-3 py-2.5">
                             <span>目前累積未付款金額</span>
@@ -370,7 +370,7 @@ export function VendorDetailShellDb({ vendor, records, paymentRecords, tradeOpti
                       <button
                         type="button"
                         onClick={() => toggleExpandedRecord(record.id)}
-                        className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 transition hover:bg-slate-50"
+                        className="inline-flex rounded-full bg-white px-3 py-1 text-xs font-medium text-slate-700 ring-1 ring-slate-300 transition hover:bg-slate-50"
                       >
                         {expandedRecordIds.includes(record.id) ? '收合明細' : '查看明細'}
                       </button>
@@ -408,7 +408,7 @@ export function VendorDetailShellDb({ vendor, records, paymentRecords, tradeOpti
           <div className="mt-4 flex flex-col gap-3 rounded-2xl bg-slate-900 px-4 py-4 text-white lg:flex-row lg:items-center lg:justify-between">
             <div>
               <p className="font-semibold">已勾選 {selectedPayableRecords.length} 筆，合計 {formatCurrency(selectedPayableTotal)}</p>
-              <p className="mt-1 text-sm text-slate-300">只有「已全部對帳」的專案可勾選後統一標記為已付款。</p>
+
             </div>
             <button
               type="button"
