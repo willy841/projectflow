@@ -344,7 +344,7 @@ export function VendorDetailShellDb({ vendor, records, paymentRecords, tradeOpti
                             <span className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold leading-tight text-center ring-1 ${getVendorReconciliationStatusClass(record)}`}>{record.reconciliationStatus}</span>
                           </div>
                           <div className="flex items-center justify-between gap-3 rounded-2xl bg-slate-50 px-3 py-2.5">
-                            <span>目前累積未付款金額</span>
+                            <span>累計未付金額</span>
                             <span className="font-semibold text-slate-900">{formatCurrency(record.unpaidAmount ?? record.adjustedCost)}</span>
                           </div>
                         </div>
