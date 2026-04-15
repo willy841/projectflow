@@ -181,7 +181,6 @@ export function DesignPlanEditorClient({
           <div className="mb-4 flex items-center justify-between gap-3 border-b border-slate-100 pb-4">
             <div>
               <p className="text-xs font-medium tracking-wide text-slate-500">執行處理 #{index + 1}</p>
-              <p className="mt-1 text-sm font-medium text-slate-700">可先逐筆整理內容，再由上方統一確認。</p>
             </div>
           </div>
 
