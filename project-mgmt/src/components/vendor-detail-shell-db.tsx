@@ -40,24 +40,30 @@ function buildVendorEditableForm(vendor: VendorBasicProfile): VendorEditableForm
 }
 
 export function VendorDetailShellDb({ vendor, records, paymentRecords, tradeOptions = [] }: { vendor: VendorBasicProfile; records: VendorProjectRecord[]; paymentRecords: VendorPaymentRecord[]; tradeOptions?: string[] }) {
-  const reconciliationRecords = useMemo(
+  const unpaidRecords = useMemo(
     () =>
-      [...records].sort((a, b) => {
-        if (a.reconciliationStatus !== b.reconciliationStatus) {
-          return a.reconciliationStatus === '尚未全部對帳' ? -1 : 1;
-        }
-        return b.adjustedCost - a.adjustedCost;
-      }),
+      [...records]
+        .filter((record) => record.paymentStatus !== '已付款')
+        .sort((a, b) => {
+          if (a.hasUnreconciledGroups !== b.hasUnreconciledGroups) {
+            return a.hasUnreconciledGroups ? -1 : 1;
+          }
+          return (b.unpaidAmount ?? b.adjustedCost) - (a.unpaidAmount ?? a.adjustedCost);
+        }),
     [records],
   );
-  const totalReconciliationAmount = reconciliationRecords.reduce((sum, record) => sum + record.adjustedCost, 0);
-  const incompleteReconciliationCount = reconciliationRecords.filter((record) => record.reconciliationStatus === '尚未全部對帳').length;
+  const unpaidTotalAmount = unpaidRecords.reduce((sum, record) => sum + (record.unpaidAmount ?? record.adjustedCost), 0);
+  const incompleteReconciliationCount = unpaidRecords.filter((record) => record.reconciliationStatus === '尚未全部對帳').length;
   const [profileForm, setProfileForm] = useState<VendorEditableForm>(() => buildVendorEditableForm(vendor));
   const [profileSaving, setProfileSaving] = useState(false);
   const [profileMessage, setProfileMessage] = useState('');
   const [expandedRecordIds, setExpandedRecordIds] = useState<string[]>([]);
+  const [historyTab, setHistoryTab] = useState<'open' | 'history'>('open');
   const [historyKeyword, setHistoryKeyword] = useState('');
   const [historySort, setHistorySort] = useState<'project-asc' | 'project-desc' | 'amount-desc' | 'amount-asc'>('project-asc');
+  const [selectedRecordIds, setSelectedRecordIds] = useState<string[]>([]);
+  const [batchPaymentMessage, setBatchPaymentMessage] = useState('');
+  const [batchPaying, setBatchPaying] = useState(false);
   const [paymentForm, setPaymentForm] = useState<{ projectId: string; projectName: string; paidOn: string; amount: string; note: string } | null>(null);
   const [payments, setPayments] = useState<VendorPaymentRecord[]>(paymentRecords);
 
@@ -74,6 +80,8 @@ export function VendorDetailShellDb({ vendor, records, paymentRecords, tradeOpti
   const filteredHistoryRecords = useMemo(() => {
     const keyword = historyKeyword.trim().toLowerCase();
     const next = records.filter((record) => {
+      const matchesView = historyTab === 'open' ? record.paymentStatus !== '已付款' : record.paymentStatus === '已付款';
+      if (!matchesView) return false;
       if (!keyword) return true;
       return [record.projectName, record.reconciliationSummary, ...record.sourceItemDetails].join(' ').toLowerCase().includes(keyword);
     });
@@ -93,7 +101,7 @@ export function VendorDetailShellDb({ vendor, records, paymentRecords, tradeOpti
     });
 
     return next;
-  }, [historyKeyword, historySort, records]);
+  }, [historyKeyword, historySort, historyTab, records]);
 
   function updateProfileField(field: keyof VendorEditableForm, value: string) {
     setProfileForm((current) => ({ ...current, [field]: value }));
@@ -242,49 +250,90 @@ export function VendorDetailShellDb({ vendor, records, paymentRecords, tradeOpti
           </div>
         </article>
 
-        <article className="rounded-3xl border border-sky-200 bg-sky-50/70 p-6 shadow-sm ring-1 ring-sky-100">
-          <div className="mb-5">
-            <h3 className="text-xl font-semibold text-slate-900">專案對帳狀態</h3>
-            <p className="mt-2 text-sm text-slate-600">這裡以專案為主體，顯示該專案目前對這間廠商的總額與對帳完成度，不代表付款區或帳務結算區。</p>
+        <article className="rounded-3xl border border-amber-200 bg-amber-50/70 p-6 shadow-sm ring-1 ring-amber-100">
+          <div className="mb-5 flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+            <div>
+              <h3 className="text-xl font-semibold text-slate-900">未付款專案</h3>
+              <p className="mt-2 text-sm text-slate-600">這裡只顯示目前仍需付款的專案。未全部對帳時會先提醒，避免把目前金額誤當成最終完整應付款。</p>
+            </div>
+            <div className="rounded-2xl bg-white px-4 py-3 text-sm text-slate-700 ring-1 ring-amber-200">
+              <p className="font-semibold text-slate-900">待付款 {unpaidRecords.length} 筆｜未付款總額 {formatCurrency(unpaidTotalAmount)}</p>
+              <p className="mt-1 text-slate-500">其中 {incompleteReconciliationCount} 筆尚未全部對帳。</p>
+            </div>
           </div>
-          <div className="rounded-2xl bg-white px-4 py-3 text-sm text-slate-700 ring-1 ring-sky-200">
-            <p className="font-semibold text-slate-900">目前專案總額 {formatCurrency(totalReconciliationAmount)}</p>
-            <p className="mt-1 text-slate-500">共 {reconciliationRecords.length} 個專案，其中 {incompleteReconciliationCount} 個尚未全部對帳。</p>
-          </div>
-          <div className="mt-4 space-y-3">
-            {reconciliationRecords.length ? reconciliationRecords.map((record) => {
-              const reconciliationStatus = getVendorReconciliationStatus(record);
+          <div className="space-y-3">
+            {unpaidRecords.length ? unpaidRecords.map((record) => {
+              const canRegisterPayment = !record.hasUnreconciledGroups;
               return (
-                <div key={record.id} className="rounded-2xl border border-sky-200 bg-white p-4 ring-1 ring-sky-100">
-                  <div className="flex flex-wrap items-start justify-between gap-3">
-                    <div>
+                <div key={record.id} className="rounded-2xl border border-amber-200 bg-white p-4 ring-1 ring-amber-100">
+                  <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
+                    <div className="min-w-0 flex-1">
                       <div className="flex flex-wrap items-center gap-2">
                         <p className="font-semibold text-slate-900">{record.projectName}</p>
                         <span className="inline-flex rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700 ring-1 ring-slate-200">{record.projectStatus}</span>
-                        <span className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ring-1 ${getVendorReconciliationStatusClass(record)}`}>{reconciliationStatus}</span>
+                        <span className="inline-flex rounded-full bg-amber-50 px-3 py-1 text-xs font-medium text-amber-700 ring-1 ring-amber-200">未付款</span>
+                        <span className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ring-1 ${getVendorReconciliationStatusClass(record)}`}>{record.reconciliationStatus}</span>
                       </div>
                       <p className="mt-2 text-sm text-slate-500">{record.reconciliationSummary}</p>
+                      {record.reconciliationWarning ? (
+                        <div className="mt-3 rounded-2xl border border-amber-200 bg-amber-50 px-3 py-2.5 text-sm text-amber-800">
+                          <p className="font-semibold">{record.reconciliationWarning}</p>
+                          <p className="mt-1 text-amber-700">目前顯示金額僅代表已進入對帳主線的累積總額；全部對帳前不可標記已付款。</p>
+                        </div>
+                      ) : (
+                        <div className="mt-3 rounded-2xl border border-emerald-200 bg-emerald-50 px-3 py-2.5 text-sm text-emerald-800">
+                          已全部對帳，可登記付款。
+                        </div>
+                      )}
                     </div>
-                    <div className="text-right">
-                      <p className="text-sm text-slate-500">專案對該廠商總額</p>
-                      <p className="text-xl font-semibold text-slate-900">{record.adjustedCostLabel}</p>
+                    <div className="flex flex-col items-start gap-3 xl:items-end">
+                      <div className="text-left xl:text-right">
+                        <p className="text-sm text-slate-500">目前應付 / 未付款</p>
+                        <p className="text-2xl font-semibold tracking-tight text-slate-900">{formatCurrency(record.unpaidAmount ?? record.adjustedCost)}</p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setPaymentForm({ projectId: record.projectId, projectName: record.projectName, paidOn: new Date().toISOString().slice(0, 10), amount: String(record.unpaidAmount ?? record.adjustedCost), note: '' })}
+                        disabled={!canRegisterPayment}
+                        title={canRegisterPayment ? '登記這筆專案付款' : '尚未全部對帳，暫不可標記已付款'}
+                        className={`inline-flex min-h-11 items-center justify-center rounded-2xl px-4 py-2.5 text-sm font-semibold transition ${canRegisterPayment ? 'border border-slate-900 bg-slate-900 text-white hover:bg-slate-800' : 'cursor-not-allowed border border-slate-200 bg-slate-100 text-slate-400'}`}
+                      >
+                        {canRegisterPayment ? '標記為已付款' : '尚未全部對帳'}
+                      </button>
                     </div>
                   </div>
-                  <div className="mt-3 grid gap-2 text-sm text-slate-600">
-                    <div className="flex items-center justify-between gap-3"><span>對帳內容摘要</span><span className="text-right font-medium text-slate-900">{record.reconciliationSummary}</span></div>
-                    <div className="flex items-center justify-between"><span>目前狀態</span><span className="font-medium text-slate-900">{record.reconciliationStatus}</span></div>
-                  </div>
-                  {record.reconciliationWarning ? <div className="mt-3 rounded-2xl border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800">{record.reconciliationWarning}，目前顯示金額僅代表已進入對帳主線的累積總額。</div> : null}
                 </div>
               );
-            }) : <div className="rounded-2xl border border-dashed border-sky-300 bg-white px-5 py-6 text-sm text-slate-500">目前沒有可顯示的專案對帳資料。</div>}
+            }) : <div className="rounded-2xl border border-dashed border-amber-300 bg-white px-5 py-6 text-sm text-slate-500">目前沒有未付款專案。</div>}
           </div>
         </article>
       </section>
 
       <article className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
-        <div className="mb-5">
-          <h3 className="text-xl font-semibold text-slate-900">付款紀錄</h3>
+        <div className="mb-5 flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+          <div>
+            <h3 className="text-xl font-semibold text-slate-900">往來紀錄</h3>
+            <p className="mt-2 text-sm text-slate-600">這裡保留未結帳與過往紀錄，主要用來回看當時發包了哪些內容；明細維持唯讀，不在這裡編輯。</p>
+          </div>
+          <div className="rounded-2xl bg-slate-50 px-4 py-3 text-sm text-slate-600 ring-1 ring-slate-200">
+            目前顯示 {filteredHistoryRecords.length} 筆往來紀錄
+          </div>
+        </div>
+        <div className="mb-4 flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setHistoryTab('open')}
+            className={`inline-flex h-10 items-center justify-center rounded-2xl px-4 text-sm font-medium ring-1 transition ${historyTab === 'open' ? 'bg-slate-900 text-white ring-slate-900' : 'bg-white text-slate-700 ring-slate-200 hover:bg-slate-50'}`}
+          >
+            未結帳
+          </button>
+          <button
+            type="button"
+            onClick={() => setHistoryTab('history')}
+            className={`inline-flex h-10 items-center justify-center rounded-2xl px-4 text-sm font-medium ring-1 transition ${historyTab === 'history' ? 'bg-slate-900 text-white ring-slate-900' : 'bg-white text-slate-700 ring-slate-200 hover:bg-slate-50'}`}
+          >
+            過往紀錄
+          </button>
         </div>
         <div className="mb-4 grid gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4 lg:grid-cols-[minmax(0,1fr)_220px] lg:items-end">
           <label className="block">
