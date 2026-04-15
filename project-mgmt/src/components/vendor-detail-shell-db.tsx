@@ -54,6 +54,7 @@ export function VendorDetailShellDb({ vendor, records, paymentRecords, tradeOpti
   );
   const unpaidTotalAmount = unpaidRecords.reduce((sum, record) => sum + (record.unpaidAmount ?? record.adjustedCost), 0);
   const incompleteReconciliationCount = unpaidRecords.filter((record) => record.reconciliationStatus === '尚未全部對帳').length;
+
   const [profileForm, setProfileForm] = useState<VendorEditableForm>(() => buildVendorEditableForm(vendor));
   const [profileSaving, setProfileSaving] = useState(false);
   const [profileMessage, setProfileMessage] = useState('');
@@ -77,11 +78,14 @@ export function VendorDetailShellDb({ vendor, records, paymentRecords, tradeOpti
     return map;
   }, [payments]);
 
+  const selectedPayableRecords = unpaidRecords.filter((record) => selectedRecordIds.includes(record.id));
+  const selectedPayableTotal = selectedPayableRecords.reduce((sum, record) => sum + (record.unpaidAmount ?? record.adjustedCost), 0);
+
   const filteredHistoryRecords = useMemo(() => {
     const keyword = historyKeyword.trim().toLowerCase();
     const next = records.filter((record) => {
-      const matchesView = historyTab === 'open' ? record.paymentStatus !== '已付款' : record.paymentStatus === '已付款';
-      if (!matchesView) return false;
+      const matchesTab = historyTab === 'open' ? record.paymentStatus !== '已付款' : record.paymentStatus === '已付款';
+      if (!matchesTab) return false;
       if (!keyword) return true;
       return [record.projectName, record.reconciliationSummary, ...record.sourceItemDetails].join(' ').toLowerCase().includes(keyword);
     });
@@ -108,6 +112,40 @@ export function VendorDetailShellDb({ vendor, records, paymentRecords, tradeOpti
     if (profileMessage) setProfileMessage('');
   }
 
+  function toggleExpandedRecord(id: string) {
+    setExpandedRecordIds((current) => (current.includes(id) ? current.filter((item) => item !== id) : [...current, id]));
+  }
+
+  function toggleSelectableRecord(record: VendorProjectRecord) {
+    if (record.hasUnreconciledGroups) {
+      setBatchPaymentMessage('尚未全部對帳的專案不可勾選已付款，請先完成全部對帳。');
+      return;
+    }
+    setBatchPaymentMessage('');
+    setSelectedRecordIds((current) => (current.includes(record.id) ? current.filter((item) => item !== record.id) : [...current, record.id]));
+  }
+
+  async function createPaymentRecord(input: { projectId: string; paidOn: string; amount: number; note: string }) {
+    const response = await fetch(`/api/vendors/${vendor.id}/payments`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(input),
+    });
+    const result = await response.json();
+    if (!response.ok || !result?.ok || !result?.id) {
+      throw new Error(result?.error ?? '新增付款失敗');
+    }
+    return {
+      id: result.id as string,
+      projectId: input.projectId,
+      vendorId: vendor.id,
+      vendorName: vendor.name,
+      paidOn: input.paidOn,
+      amount: input.amount,
+      note: input.note,
+    } satisfies VendorPaymentRecord;
+  }
+
   async function handleSaveProfile() {
     setProfileSaving(true);
     setProfileMessage('');
@@ -126,34 +164,55 @@ export function VendorDetailShellDb({ vendor, records, paymentRecords, tradeOpti
     window.location.reload();
   }
 
-  function toggleExpandedRecord(id: string) {
-    setExpandedRecordIds((current) => (current.includes(id) ? current.filter((item) => item !== id) : [...current, id]));
-  }
-
   async function handleCreatePayment() {
     if (!paymentForm) return;
     const amount = Number(paymentForm.amount);
     if (!paymentForm.projectId || !paymentForm.paidOn || Number.isNaN(amount) || amount <= 0) return;
-    const response = await fetch(`/api/vendors/${vendor.id}/payments`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
+
+    try {
+      const createdPayment = await createPaymentRecord({
         projectId: paymentForm.projectId,
         paidOn: paymentForm.paidOn,
         amount,
         note: paymentForm.note,
-      }),
-    });
-    const result = await response.json();
-    if (!response.ok || !result?.ok || !result?.id) {
-      window.alert(result?.error ?? '新增付款失敗');
-      return;
+      });
+      setPayments((current) => [createdPayment, ...current]);
+      window.location.reload();
+    } catch (error) {
+      window.alert(error instanceof Error ? error.message : '新增付款失敗');
     }
-    setPayments((current) => [
-      { id: result.id, projectId: paymentForm.projectId, vendorId: vendor.id, vendorName: vendor.name, paidOn: paymentForm.paidOn, amount, note: paymentForm.note },
-      ...current,
-    ]);
-    window.location.reload();
+  }
+
+  async function handleBatchMarkPaid() {
+    if (!selectedPayableRecords.length || batchPaying) return;
+    setBatchPaying(true);
+    setBatchPaymentMessage('');
+
+    try {
+      const paidOn = new Date().toISOString().slice(0, 10);
+      const createdPayments: VendorPaymentRecord[] = [];
+      for (const record of selectedPayableRecords) {
+        if (record.hasUnreconciledGroups) {
+          throw new Error(`「${record.projectName}」尚未全部對帳，不能標記為已付款。`);
+        }
+        const amount = record.unpaidAmount ?? record.adjustedCost;
+        const createdPayment = await createPaymentRecord({
+          projectId: record.projectId,
+          paidOn,
+          amount,
+          note: '批次標記為已付款',
+        });
+        createdPayments.push(createdPayment);
+      }
+      setPayments((current) => [...createdPayments, ...current]);
+      setSelectedRecordIds([]);
+      setBatchPaymentMessage(`已完成 ${createdPayments.length} 筆已付款標記。`);
+      window.location.reload();
+    } catch (error) {
+      setBatchPaymentMessage(error instanceof Error ? error.message : '批次標記已付款失敗');
+    } finally {
+      setBatchPaying(false);
+    }
   }
 
   async function handleDeletePayment(id: string) {
@@ -254,57 +313,120 @@ export function VendorDetailShellDb({ vendor, records, paymentRecords, tradeOpti
           <div className="mb-5 flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
             <div>
               <h3 className="text-xl font-semibold text-slate-900">未付款專案</h3>
-              <p className="mt-2 text-sm text-slate-600">這裡只顯示目前仍需付款的專案。未全部對帳時會先提醒，避免把目前金額誤當成最終完整應付款。</p>
+              <p className="mt-2 text-sm text-slate-600">主體是 project × vendor。金額只承接同 vendor 在該專案下設計 / 備品 / 廠商三線已對帳金額，不含人工。</p>
             </div>
             <div className="rounded-2xl bg-white px-4 py-3 text-sm text-slate-700 ring-1 ring-amber-200">
               <p className="font-semibold text-slate-900">待付款 {unpaidRecords.length} 筆｜未付款總額 {formatCurrency(unpaidTotalAmount)}</p>
               <p className="mt-1 text-slate-500">其中 {incompleteReconciliationCount} 筆尚未全部對帳。</p>
             </div>
           </div>
+
+          {batchPaymentMessage ? (
+            <div className={`mb-4 rounded-2xl border px-4 py-3 text-sm ${batchPaymentMessage.includes('已完成') ? 'border-emerald-200 bg-emerald-50 text-emerald-800' : 'border-amber-200 bg-amber-50 text-amber-800'}`}>
+              {batchPaymentMessage}
+            </div>
+          ) : null}
+
           <div className="space-y-3">
             {unpaidRecords.length ? unpaidRecords.map((record) => {
-              const canRegisterPayment = !record.hasUnreconciledGroups;
+              const isSelectable = !record.hasUnreconciledGroups;
+              const isSelected = selectedRecordIds.includes(record.id);
               return (
-                <div key={record.id} className="rounded-2xl border border-amber-200 bg-white p-4 ring-1 ring-amber-100">
+                <label key={record.id} className="block rounded-2xl border border-amber-200 bg-white p-4 ring-1 ring-amber-100">
                   <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
-                    <div className="min-w-0 flex-1">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <p className="font-semibold text-slate-900">{record.projectName}</p>
-                        <span className="inline-flex rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700 ring-1 ring-slate-200">{record.projectStatus}</span>
-                        <span className="inline-flex rounded-full bg-amber-50 px-3 py-1 text-xs font-medium text-amber-700 ring-1 ring-amber-200">未付款</span>
-                        <span className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ring-1 ${getVendorReconciliationStatusClass(record)}`}>{record.reconciliationStatus}</span>
+                    <div className="flex min-w-0 flex-1 gap-3">
+                      <input
+                        type="checkbox"
+                        checked={isSelected}
+                        disabled={!isSelectable}
+                        onChange={() => toggleSelectableRecord(record)}
+                        className="mt-1 h-4 w-4 rounded border-slate-300 text-slate-900 focus:ring-slate-400 disabled:cursor-not-allowed disabled:opacity-50"
+                      />
+                      <div className="min-w-0 flex-1">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <p className="font-semibold text-slate-900">{record.projectName}</p>
+                          <span className="inline-flex rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700 ring-1 ring-slate-200">{record.projectStatus}</span>
+                          <span className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ring-1 ${getVendorPaymentStatusClass(record.paymentStatus)}`}>{record.paymentStatus}</span>
+                        </div>
+                        <div className="mt-3 grid gap-2 text-sm text-slate-600 sm:grid-cols-2">
+                          <div className="flex items-center justify-between gap-3 rounded-2xl bg-slate-50 px-3 py-2.5">
+                            <span>是否已全部對帳</span>
+                            <span className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ring-1 ${getVendorReconciliationStatusClass(record)}`}>{record.reconciliationStatus}</span>
+                          </div>
+                          <div className="flex items-center justify-between gap-3 rounded-2xl bg-slate-50 px-3 py-2.5">
+                            <span>目前累積未付款金額</span>
+                            <span className="font-semibold text-slate-900">{formatCurrency(record.unpaidAmount ?? record.adjustedCost)}</span>
+                          </div>
+                        </div>
+                        <p className="mt-3 text-sm text-slate-500">{record.reconciliationSummary}</p>
+                        {record.reconciliationWarning ? (
+                          <div className="mt-3 rounded-2xl border border-amber-200 bg-amber-50 px-3 py-2.5 text-sm text-amber-800">
+                            <p className="font-semibold">{record.reconciliationWarning}</p>
+                            <p className="mt-1 text-amber-700">未全部對帳前，不可勾選已付款；目前金額僅代表已進入對帳主線的累積總額。</p>
+                          </div>
+                        ) : null}
                       </div>
-                      <p className="mt-2 text-sm text-slate-500">{record.reconciliationSummary}</p>
-                      {record.reconciliationWarning ? (
-                        <div className="mt-3 rounded-2xl border border-amber-200 bg-amber-50 px-3 py-2.5 text-sm text-amber-800">
-                          <p className="font-semibold">{record.reconciliationWarning}</p>
-                          <p className="mt-1 text-amber-700">目前顯示金額僅代表已進入對帳主線的累積總額；全部對帳前不可標記已付款。</p>
-                        </div>
-                      ) : (
-                        <div className="mt-3 rounded-2xl border border-emerald-200 bg-emerald-50 px-3 py-2.5 text-sm text-emerald-800">
-                          已全部對帳，可登記付款。
-                        </div>
-                      )}
                     </div>
                     <div className="flex flex-col items-start gap-3 xl:items-end">
-                      <div className="text-left xl:text-right">
-                        <p className="text-sm text-slate-500">目前應付 / 未付款</p>
-                        <p className="text-2xl font-semibold tracking-tight text-slate-900">{formatCurrency(record.unpaidAmount ?? record.adjustedCost)}</p>
-                      </div>
+                      <button
+                        type="button"
+                        onClick={() => toggleExpandedRecord(record.id)}
+                        className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 transition hover:bg-slate-50"
+                      >
+                        {expandedRecordIds.includes(record.id) ? '收合明細' : '查看明細'}
+                      </button>
                       <button
                         type="button"
                         onClick={() => setPaymentForm({ projectId: record.projectId, projectName: record.projectName, paidOn: new Date().toISOString().slice(0, 10), amount: String(record.unpaidAmount ?? record.adjustedCost), note: '' })}
-                        disabled={!canRegisterPayment}
-                        title={canRegisterPayment ? '登記這筆專案付款' : '尚未全部對帳，暫不可標記已付款'}
-                        className={`inline-flex min-h-11 items-center justify-center rounded-2xl px-4 py-2.5 text-sm font-semibold transition ${canRegisterPayment ? 'border border-slate-900 bg-slate-900 text-white hover:bg-slate-800' : 'cursor-not-allowed border border-slate-200 bg-slate-100 text-slate-400'}`}
+                        disabled={!isSelectable}
+                        className={`inline-flex min-h-11 items-center justify-center rounded-2xl px-4 py-2.5 text-sm font-semibold transition ${isSelectable ? 'border border-slate-900 bg-slate-900 text-white hover:bg-slate-800' : 'cursor-not-allowed border border-slate-200 bg-slate-100 text-slate-400'}`}
                       >
-                        {canRegisterPayment ? '標記為已付款' : '尚未全部對帳'}
+                        {isSelectable ? '單筆標記已付款' : '尚未全部對帳'}
                       </button>
                     </div>
                   </div>
-                </div>
+
+                  {expandedRecordIds.includes(record.id) ? (
+                    <div className="mt-5 grid gap-4 xl:grid-cols-2">
+                      <div className="rounded-2xl bg-slate-50 p-4 ring-1 ring-slate-200">
+                        <p className="text-sm font-semibold text-slate-900">成本明細</p>
+                        <div className="mt-3 space-y-3">
+                          {record.costBreakdown.map((item) => (
+                            <div key={`${record.id}-${item.label}`} className="flex items-center justify-between gap-3 text-sm">
+                              <span className="text-slate-600">{item.label}</span>
+                              <span className="font-medium text-slate-900">{item.amount}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                      <div className="rounded-2xl bg-slate-50 p-4 ring-1 ring-slate-200">
+                        <p className="text-sm font-semibold text-slate-900">發包內容明細</p>
+                        <ul className="mt-3 space-y-2 text-sm text-slate-600">
+                          {record.sourceItemDetails.map((item) => (
+                            <li key={`${record.id}-${item}`} className="rounded-2xl bg-white px-3 py-2 ring-1 ring-slate-200">• {item}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    </div>
+                  ) : null}
+                </label>
               );
             }) : <div className="rounded-2xl border border-dashed border-amber-300 bg-white px-5 py-6 text-sm text-slate-500">目前沒有未付款專案。</div>}
+          </div>
+
+          <div className="mt-4 flex flex-col gap-3 rounded-2xl bg-slate-900 px-4 py-4 text-white lg:flex-row lg:items-center lg:justify-between">
+            <div>
+              <p className="font-semibold">已勾選 {selectedPayableRecords.length} 筆，合計 {formatCurrency(selectedPayableTotal)}</p>
+              <p className="mt-1 text-sm text-slate-300">只有「已全部對帳」的專案可批次標記為已付款。</p>
+            </div>
+            <button
+              type="button"
+              onClick={handleBatchMarkPaid}
+              disabled={!selectedPayableRecords.length || batchPaying}
+              className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-white px-5 py-3 text-sm font-semibold text-slate-900 transition disabled:cursor-not-allowed disabled:bg-slate-300 disabled:text-slate-500"
+            >
+              {batchPaying ? '處理中…' : '標記為已付款'}
+            </button>
           </div>
         </article>
       </section>
@@ -313,12 +435,13 @@ export function VendorDetailShellDb({ vendor, records, paymentRecords, tradeOpti
         <div className="mb-5 flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
           <div>
             <h3 className="text-xl font-semibold text-slate-900">往來紀錄</h3>
-            <p className="mt-2 text-sm text-slate-600">這裡保留未結帳與過往紀錄，主要用來回看當時發包了哪些內容；明細維持唯讀，不在這裡編輯。</p>
+            <p className="mt-2 text-sm text-slate-600">這裡分成未結帳 / 過往紀錄；主用途是 read-only 回看當時合作項目與付款留痕。</p>
           </div>
           <div className="rounded-2xl bg-slate-50 px-4 py-3 text-sm text-slate-600 ring-1 ring-slate-200">
             目前顯示 {filteredHistoryRecords.length} 筆往來紀錄
           </div>
         </div>
+
         <div className="mb-4 flex flex-wrap items-center gap-2">
           <button
             type="button"
@@ -335,6 +458,7 @@ export function VendorDetailShellDb({ vendor, records, paymentRecords, tradeOpti
             過往紀錄
           </button>
         </div>
+
         <div className="mb-4 grid gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4 lg:grid-cols-[minmax(0,1fr)_220px] lg:items-end">
           <label className="block">
             <input type="search" value={historyKeyword} onChange={(event) => setHistoryKeyword(event.target.value)} placeholder="搜尋專案名稱、摘要或發包內容" className="h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400" />
@@ -348,6 +472,7 @@ export function VendorDetailShellDb({ vendor, records, paymentRecords, tradeOpti
             </select>
           </label>
         </div>
+
         <div className="space-y-4">
           {filteredHistoryRecords.length ? filteredHistoryRecords.map((record) => {
             const projectPayments = paymentMap.get(record.projectId) ?? [];
@@ -433,10 +558,6 @@ export function VendorDetailShellDb({ vendor, records, paymentRecords, tradeOpti
       ) : null}
     </div>
   );
-}
-
-function getVendorReconciliationStatus(record: VendorProjectRecord) {
-  return record.reconciliationStatus;
 }
 
 function getVendorReconciliationStatusClass(record: VendorProjectRecord) {
