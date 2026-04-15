@@ -19,13 +19,7 @@ export default async function ProcurementTaskDetailPage({ params }: { params: Pr
     <AppShell activePath="/procurement-tasks">
       <WorkspaceHeader
         title={task.title}
-        meta={
-          <>
-            <span>{task.projectName}</span>
-            <span className="text-slate-300">／</span>
-            <span>備品執行工作臺</span>
-          </>
-        }
+        meta={task.projectName}
         actions={
           <>
             <Link href={`/procurement-tasks?project=${encodeURIComponent(task.projectId)}`} className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-700">返回任務列表</Link>
@@ -34,7 +28,7 @@ export default async function ProcurementTaskDetailPage({ params }: { params: Pr
         }
       />
 
-      <WorkspaceSection title="原始任務資訊" meta="這裡保留採購需求，執行處理與文件在下方承接。">
+      <WorkspaceSection title="原始任務資訊">
         <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-5">
           <WorkspaceStat label="任務標題" value={task.title} />
           <WorkspaceStat label="數量" value={task.quantity} />
@@ -50,7 +44,7 @@ export default async function ProcurementTaskDetailPage({ params }: { params: Pr
         </div>
       </WorkspaceSection>
 
-      <WorkspaceSection title="執行處理" meta="儲存保留目前編輯內容；全部確認才會正式承接到文件。">
+      <WorkspaceSection title="執行處理">
         <ProcurementPlanEditorClient
           taskId={task.id}
           initialPlans={task.plans.map((plan) => ({

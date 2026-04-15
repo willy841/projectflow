@@ -77,18 +77,12 @@ export default async function DesignTasksPage({
     <AppShell activePath="/design-tasks">
       <WorkspaceHeader
         title="設計任務板"
-        meta={
-          <>
-            <span>共 {activeProject ? projectTasks.length : projects.length} {activeProject ? "筆任務" : "個專案"}</span>
-            <span className="text-slate-300">／</span>
-            <span>{activeProject ? "單專案執行工作臺" : "專案分流入口"}</span>
-          </>
-        }
+        meta={`共 ${activeProject ? projectTasks.length : projects.length} ${activeProject ? "筆任務" : "個專案"}`}
       />
 
       <WorkspaceSection
         title={activeProject ? activeProject.projectName : "專案入口"}
-        meta={activeProject ? "先看任務清單，再進入單筆處理與文件。" : "先以專案分流，再進入單案任務列表。"}
+        meta={null}
         actions={
           activeProject ? (
             <Link

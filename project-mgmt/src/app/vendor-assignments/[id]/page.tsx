@@ -34,13 +34,7 @@ export default async function VendorAssignmentTaskPage({ params }: { params: Pro
     <AppShell activePath="/vendor-assignments">
       <WorkspaceHeader
         title={group.vendorName}
-        meta={
-          <>
-            <span>{group.projectName}</span>
-            <span className="text-slate-300">／</span>
-            <span>廠商執行工作臺</span>
-          </>
-        }
+        meta={group.projectName}
         actions={
           <>
             <Link href={`/vendor-assignments?project=${encodeURIComponent(group.projectId)}`} className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-700">返回任務列表</Link>
@@ -50,7 +44,7 @@ export default async function VendorAssignmentTaskPage({ params }: { params: Pro
         }
       />
 
-      <WorkspaceSection title="群組總覽" meta="先完成這一組廠商需求，再由全部確認正式承接到文件。">
+      <WorkspaceSection title="群組總覽">
         <div className="grid gap-3 md:grid-cols-3">
           <WorkspaceStat label="專案" value={group.projectName} />
           <WorkspaceStat label="活動日期" value={group.eventDate} />
@@ -70,9 +64,6 @@ export default async function VendorAssignmentTaskPage({ params }: { params: Pro
               <WorkspaceStat label="需求說明" value={task.requirementText || "未填寫"} />
             </div>
 
-            <div className="mt-5 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3.5 text-sm text-slate-600">
-              單筆儲存只保留目前編輯內容；由頁首「全部確認」統一承接本組發包結果。
-            </div>
 
             <div className="mt-5">
               <VendorPlanEditorClient

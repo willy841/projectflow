@@ -100,18 +100,12 @@ export default async function VendorAssignmentsPage({
     <AppShell activePath="/vendor-assignments">
       <WorkspaceHeader
         title="廠商發包板"
-        meta={
-          <>
-            <span>共 {activeProject ? vendorGroups.length : projects.length} {activeProject ? "組廠商" : "個專案"}</span>
-            <span className="text-slate-300">／</span>
-            <span>{activeProject ? "單專案發包工作臺" : "專案分流入口"}</span>
-          </>
-        }
+        meta={`共 ${activeProject ? vendorGroups.length : projects.length} ${activeProject ? "組廠商" : "個專案"}`}
       />
 
       <WorkspaceSection
         title={activeProject ? activeProject.projectName : "專案入口"}
-        meta={activeProject ? "先看同專案下的廠商群組，再進入單廠商執行處理。" : "先以專案分流，再進入同專案的廠商群組。"}
+        meta={null}
         actions={
           activeProject ? (
             <Link href="/vendor-assignments" className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-700">返回專案列表</Link>

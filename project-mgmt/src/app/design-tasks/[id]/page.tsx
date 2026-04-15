@@ -24,13 +24,7 @@ export default async function DesignTaskDetailPage({
     <AppShell activePath="/design-tasks">
       <WorkspaceHeader
         title={task.title}
-        meta={
-          <>
-            <span>{task.projectName}</span>
-            <span className="text-slate-300">／</span>
-            <span>設計執行工作臺</span>
-          </>
-        }
+        meta={task.projectName}
         actions={
           <>
             <Link
@@ -49,7 +43,7 @@ export default async function DesignTaskDetailPage({
         }
       />
 
-      <WorkspaceSection title="原始任務資訊" meta="這裡保留上游需求，執行處理與文件在下方承接。">
+      <WorkspaceSection title="原始任務資訊">
         <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
           <WorkspaceStat label="任務標題" value={task.title} />
           <WorkspaceStat label="尺寸" value={task.size} />
@@ -72,7 +66,7 @@ export default async function DesignTaskDetailPage({
         </div>
       </WorkspaceSection>
 
-      <WorkspaceSection title="執行處理" meta="儲存保留目前編輯內容；全部確認才會正式承接到文件。">
+      <WorkspaceSection title="執行處理">
         <DesignPlanEditorClient
           taskId={task.id}
           initialPlans={task.plans.map((plan) => ({

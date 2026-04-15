@@ -45,7 +45,7 @@ export default async function DesignTaskDocumentPage({
         }
       />
 
-      <WorkspaceSection title="文件" meta="這裡承接本次正式確認後的文件內容。">
+      <WorkspaceSection title="文件">
         <MockDesignDocumentView taskId={task.id} fallbackRows={task.documentRows} />
       </WorkspaceSection>
     </AppShell>

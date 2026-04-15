@@ -35,7 +35,7 @@ export default async function ProcurementTaskDocumentPage({ params }: { params: 
         }
       />
 
-      <WorkspaceSection title="文件" meta="這裡承接本次正式確認後的文件內容。">
+      <WorkspaceSection title="文件">
         <MockProcurementDocumentView taskId={task.id} fallbackRows={task.documentRows} />
       </WorkspaceSection>
     </AppShell>
