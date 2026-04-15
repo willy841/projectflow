@@ -412,31 +412,27 @@ export function VendorDetailShellDb({ vendor, records, paymentRecords, tradeOpti
       </section>
 
       <article className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
-        <div className="mb-5 flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
-          <div>
+        <div className="mb-5 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+          <div className="flex flex-wrap items-center gap-2">
             <h3 className="text-xl font-semibold text-slate-900">往來紀錄</h3>
-
+            <button
+              type="button"
+              onClick={() => setHistoryTab('open')}
+              className={`inline-flex h-10 items-center justify-center rounded-2xl px-4 text-sm font-medium ring-1 transition ${historyTab === 'open' ? 'bg-slate-900 text-white ring-slate-900' : 'bg-white text-slate-700 ring-slate-200 hover:bg-slate-50'}`}
+            >
+              未結帳
+            </button>
+            <button
+              type="button"
+              onClick={() => setHistoryTab('history')}
+              className={`inline-flex h-10 items-center justify-center rounded-2xl px-4 text-sm font-medium ring-1 transition ${historyTab === 'history' ? 'bg-slate-900 text-white ring-slate-900' : 'bg-white text-slate-700 ring-slate-200 hover:bg-slate-50'}`}
+            >
+              過往紀錄
+            </button>
           </div>
           <div className="rounded-2xl bg-slate-50 px-4 py-3 text-sm text-slate-600 ring-1 ring-slate-200">
             目前顯示 {filteredHistoryRecords.length} 筆往來紀錄
           </div>
-        </div>
-
-        <div className="mb-4 flex flex-wrap items-center gap-2">
-          <button
-            type="button"
-            onClick={() => setHistoryTab('open')}
-            className={`inline-flex h-10 items-center justify-center rounded-2xl px-4 text-sm font-medium ring-1 transition ${historyTab === 'open' ? 'bg-slate-900 text-white ring-slate-900' : 'bg-white text-slate-700 ring-slate-200 hover:bg-slate-50'}`}
-          >
-            未結帳
-          </button>
-          <button
-            type="button"
-            onClick={() => setHistoryTab('history')}
-            className={`inline-flex h-10 items-center justify-center rounded-2xl px-4 text-sm font-medium ring-1 transition ${historyTab === 'history' ? 'bg-slate-900 text-white ring-slate-900' : 'bg-white text-slate-700 ring-slate-200 hover:bg-slate-50'}`}
-          >
-            過往紀錄
-          </button>
         </div>
 
         <div className="mb-4 grid gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4 lg:grid-cols-[minmax(0,1fr)_220px] lg:items-end">
