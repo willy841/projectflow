@@ -55,3 +55,26 @@ export async function PATCH(
     );
   }
 }
+
+export async function DELETE(
+  _request: Request,
+  { params }: { params: Promise<{ id: string }> },
+) {
+  try {
+    const access = ensureProjectDbWriteEnabled();
+    if (!access.ok) {
+      return access.response;
+    }
+
+    const { id } = await params;
+    const repositories = createPhase1Repositories(createPhase1DbClient());
+    await repositories.vendors.delete(id);
+
+    return NextResponse.json({ ok: true, deletedId: id, storage: access.storage });
+  } catch (error) {
+    return NextResponse.json(
+      { ok: false, error: error instanceof Error ? error.message : 'Unknown delete vendor error' },
+      { status: 500 },
+    );
+  }
+}

@@ -1,13 +1,53 @@
+'use client';
+
 import Link from 'next/link';
+import { useMemo, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { formatCurrency, type VendorBasicProfile } from '@/components/vendor-data';
 
 export function VendorListPageDb({ vendors }: { vendors: VendorBasicProfile[] }) {
+  const router = useRouter();
+  const [keyword, setKeyword] = useState('');
+  const [activeTrade, setActiveTrade] = useState<string | null>(null);
+  const [deletingVendorId, setDeletingVendorId] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState(false);
+
   const vendorCards = vendors.map((vendor) => ({
     ...vendor,
     outstandingTotal: (vendor as VendorBasicProfile & { outstandingTotal?: number }).outstandingTotal ?? 0,
   }));
 
-  const totalOutstanding = vendorCards.reduce((sum, vendor) => sum + vendor.outstandingTotal, 0);
+  const tradeOptions = useMemo(
+    () => Array.from(new Set(vendorCards.map((vendor) => vendor.tradeLabel || vendor.category).filter(Boolean))).sort((a, b) => a.localeCompare(b, 'zh-Hant')),
+    [vendorCards],
+  );
+
+  const filteredVendorCards = useMemo(() => {
+    const normalizedKeyword = keyword.trim().toLowerCase();
+    return vendorCards.filter((vendor) => {
+      const trade = vendor.tradeLabel || vendor.category || '';
+      const matchesKeyword = !normalizedKeyword || [vendor.name, trade].join(' ').toLowerCase().includes(normalizedKeyword);
+      const matchesTrade = !activeTrade || trade === activeTrade;
+      return matchesKeyword && matchesTrade;
+    });
+  }, [activeTrade, keyword, vendorCards]);
+
+  const totalOutstanding = filteredVendorCards.reduce((sum, vendor) => sum + vendor.outstandingTotal, 0);
+  const deletingVendor = deletingVendorId ? vendorCards.find((vendor) => vendor.id === deletingVendorId) ?? null : null;
+
+  async function handleDeleteVendor() {
+    if (!deletingVendorId || deleting) return;
+    setDeleting(true);
+    const response = await fetch(`/api/vendors/${deletingVendorId}`, { method: 'DELETE' });
+    const result = await response.json();
+    setDeleting(false);
+    if (!response.ok || !result?.ok) {
+      window.alert(result?.error ?? '刪除廠商失敗');
+      return;
+    }
+    setDeletingVendorId(null);
+    router.refresh();
+  }
 
   return (
     <>
@@ -16,28 +56,91 @@ export function VendorListPageDb({ vendors }: { vendors: VendorBasicProfile[] })
           <div className="min-w-0 xl:pt-2">
             <div className="flex flex-wrap items-center gap-3">
               <h2 className="text-3xl font-semibold tracking-tight text-slate-900">廠商資料</h2>
-              <span className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-600">
-                DB-first（唯讀）
-              </span>
+              <Link
+                href="/vendors?manage=trades"
+                className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:border-slate-400 hover:bg-slate-50"
+              >
+                管理工種
+              </Link>
             </div>
           </div>
 
           <div className="sm:min-w-[260px] xl:self-stretch">
             <div className="rounded-3xl border border-amber-200 bg-amber-50 px-5 py-4 text-sm text-amber-900 xl:h-full xl:min-h-[104px] xl:flex xl:flex-col xl:justify-center">
-              <p className="font-semibold">目前未付款總額（暫以既有摘要邏輯顯示）</p>
+              <p className="font-semibold">未付款總額</p>
               <p className="mt-2 text-2xl font-semibold">{formatCurrency(totalOutstanding)}</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-5 rounded-3xl border border-slate-200 bg-slate-50/80 p-3.5">
+          <div className="flex flex-col gap-3 xl:flex-row xl:flex-wrap xl:items-center xl:justify-between">
+            <label className="block min-w-0 flex-1 xl:min-w-[280px]">
+              <div className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-2.5 shadow-sm transition focus-within:border-slate-400">
+                <span className="text-sm text-slate-400">⌕</span>
+                <input
+                  type="search"
+                  value={keyword}
+                  onChange={(event) => setKeyword(event.target.value)}
+                  placeholder="搜尋廠商名稱或工種"
+                  className="w-full bg-transparent text-sm text-slate-900 outline-none placeholder:text-slate-400"
+                />
+              </div>
+            </label>
+
+            <div className="flex flex-wrap items-center gap-2 text-xs text-slate-500 xl:justify-end">
+              <span>共 {filteredVendorCards.length} 間</span>
+              {(keyword || activeTrade) ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setKeyword('');
+                    setActiveTrade(null);
+                  }}
+                  className="inline-flex items-center justify-center rounded-full border border-slate-200 bg-white px-3 py-1.5 font-medium text-slate-600 transition hover:border-slate-300 hover:text-slate-900"
+                >
+                  清除
+                </button>
+              ) : null}
+            </div>
+          </div>
+
+          <div className="mt-3 rounded-2xl border border-slate-200 bg-white px-4 py-3.5">
+            <div className="mt-2 flex min-w-0 flex-wrap items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setActiveTrade(null)}
+                className={`rounded-full px-3 py-1.5 text-xs font-medium ring-1 transition ${activeTrade === null ? 'bg-slate-900 text-white ring-slate-900' : 'bg-white text-slate-700 ring-slate-200 hover:bg-slate-50'}`}
+              >
+                全部工種
+              </button>
+              {tradeOptions.map((trade) => {
+                const active = activeTrade === trade;
+                return (
+                  <button
+                    key={trade}
+                    type="button"
+                    onClick={() => setActiveTrade(active ? null : trade)}
+                    className={`rounded-full px-3 py-1.5 text-xs font-medium ring-1 transition ${active ? 'bg-sky-600 text-white ring-sky-600' : 'bg-white text-slate-700 ring-slate-200 hover:bg-slate-50'}`}
+                  >
+                    {trade}
+                  </button>
+                );
+              })}
             </div>
           </div>
         </div>
       </header>
 
-      {vendorCards.length ? (
+      {filteredVendorCards.length ? (
         <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          {vendorCards.map((vendor) => (
+          {filteredVendorCards.map((vendor) => (
             <div key={vendor.id} className="group rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200 transition hover:-translate-y-0.5 hover:shadow-md">
               <div className="flex items-center justify-between gap-4">
                 <div className="min-w-0">
-                  <h3 className="text-2xl font-semibold tracking-tight text-slate-900">{vendor.name}</h3>
+                  <Link href={`/vendors/${vendor.id}`} className="text-2xl font-semibold tracking-tight text-slate-900 underline-offset-4 transition hover:text-slate-700 hover:underline">
+                    {vendor.name}
+                  </Link>
                   <div className="mt-3 flex flex-wrap gap-2">
                     <span className="inline-flex rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700 ring-1 ring-slate-200">
                       {vendor.tradeLabel || vendor.category || '—'}
@@ -54,22 +157,51 @@ export function VendorListPageDb({ vendors }: { vendors: VendorBasicProfile[] })
                 <p className="mt-2 text-3xl font-semibold tracking-tight text-slate-900">{formatCurrency(vendor.outstandingTotal)}</p>
               </div>
 
-              <div className="mt-5 flex items-center justify-between gap-3 border-t border-slate-100 pt-4">
-                <Link
-                  href={`/vendors/${vendor.id}`}
-                  className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 transition hover:border-slate-400 hover:bg-slate-50 min-h-11"
+              <div className="mt-5 flex items-center justify-end gap-3 border-t border-slate-100 pt-4">
+                <button
+                  type="button"
+                  onClick={() => setDeletingVendorId(vendor.id)}
+                  className="inline-flex items-center justify-center rounded-2xl border border-rose-200 bg-rose-50 px-4 py-2.5 text-sm font-semibold text-rose-700 transition hover:border-rose-300 hover:bg-rose-100"
                 >
-                  查看
-                </Link>
+                  刪除廠商
+                </button>
               </div>
             </div>
           ))}
         </section>
       ) : (
         <section className="rounded-3xl border border-dashed border-slate-300 bg-white px-6 py-10 text-center shadow-sm">
-          <p className="text-sm font-semibold text-slate-700">目前沒有任何 DB 廠商資料</p>
+          <p className="text-sm font-semibold text-slate-700">目前沒有符合條件的廠商</p>
         </section>
       )}
+
+      {deletingVendor ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/35 px-4">
+          <div className="w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl ring-1 ring-slate-200">
+            <h3 className="mt-4 text-xl font-semibold text-slate-900">確認刪除這個廠商？</h3>
+            <div className="mt-4 rounded-2xl border border-rose-100 bg-rose-50/70 px-4 py-3 text-sm text-slate-700">
+              目前準備刪除：<span className="font-semibold text-slate-900">{deletingVendor.name}</span>
+            </div>
+            <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+              <button
+                type="button"
+                onClick={() => setDeletingVendorId(null)}
+                className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+              >
+                取消
+              </button>
+              <button
+                type="button"
+                onClick={handleDeleteVendor}
+                disabled={deleting}
+                className="inline-flex items-center justify-center rounded-2xl border border-rose-200 bg-rose-50 px-4 py-2.5 text-sm font-semibold text-rose-700 transition hover:border-rose-300 hover:bg-rose-100 disabled:opacity-60"
+              >
+                {deleting ? '刪除中…' : '確認刪除廠商'}
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </>
   );
 }

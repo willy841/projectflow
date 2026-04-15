@@ -56,6 +56,7 @@ export interface VendorRepository {
   list(): Promise<VendorRow[]>;
   insert(input: InsertVendorInput): Promise<VendorRow>;
   update(id: UUID, input: UpdateVendorInput): Promise<VendorRow>;
+  delete(id: UUID): Promise<void>;
 }
 
 export interface ProjectExecutionItemRepository {
@@ -268,6 +269,15 @@ export function createPhase1Repositories(db: Phase1DbClient): Phase1Repositories
       },
       async update(id, input) {
         return updateRow<VendorRow, UpdateVendorInput>(db, 'vendors', id, input);
+      },
+      async delete(id) {
+        await db.query(
+          `
+            delete from vendors
+            where id = $1
+          `,
+          [id],
+        );
       },
     },
     executionItems: {
