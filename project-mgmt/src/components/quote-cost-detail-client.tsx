@@ -256,6 +256,19 @@ export function QuoteCostDetailClient({ project, mode = "active", presenter = ge
           note: 'Excel 匯入正式版本',
           totalAmount: typeof result.totalAmount === 'number' ? result.totalAmount : null,
         },
+        quotationItems: Array.isArray(result.items)
+          ? result.items.map((item: any, index: number) => ({
+              id: item.id ?? `quotation-${index + 1}`,
+              category: item.category ?? '',
+              itemName: item.itemName ?? '',
+              description: item.description ?? '',
+              quantity: typeof item.quantity === 'number' ? item.quantity : Number(item.quantity ?? 0),
+              unit: item.unit ?? '',
+              unitPrice: typeof item.unitPrice === 'number' ? item.unitPrice : Number(item.unitPrice ?? 0),
+              amount: typeof item.amount === 'number' ? item.amount : Number(item.amount ?? 0),
+              remark: item.remark ?? '',
+            }))
+          : prev.quotationItems,
       }));
       router.refresh();
       window.alert(`Excel 匯入完成，共承接 ${result.itemCount ?? 0} 筆明細。`);

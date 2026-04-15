@@ -204,7 +204,7 @@ export function ActiveOnlyFinancialSections({
               <button
                 type="button"
                 onClick={onOpenQuoteDetail}
-                disabled={!quotationItems.length}
+                disabled={!quotationItems.length && !quoteImportRecord}
                 className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-900 bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:border-slate-300 disabled:bg-slate-300"
               >
                 查看明細
