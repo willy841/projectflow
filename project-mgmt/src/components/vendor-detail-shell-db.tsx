@@ -501,20 +501,7 @@ export function VendorDetailShellDb({ vendor, records, paymentRecords, tradeOpti
                     </div>
                   </div>
                 ) : null}
-                <div className="mt-5 space-y-3">
-                  {projectPayments.length ? projectPayments.map((payment) => (
-                    <div key={payment.id} className="flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-white px-4 py-3.5 ring-1 ring-slate-200">
-                      <div>
-                        <p className="text-sm font-semibold text-slate-900">{payment.paidOn}</p>
-                        <p className="mt-1 text-sm text-slate-600">{payment.note || '—'}</p>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <p className="text-sm font-semibold text-slate-900">{formatCurrency(payment.amount)}</p>
-                        <button type="button" onClick={() => handleDeletePayment(payment.id)} className="inline-flex items-center justify-center rounded-2xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm font-semibold text-rose-700 transition hover:bg-rose-100">刪除</button>
-                      </div>
-                    </div>
-                  )) : <div className="rounded-2xl border border-dashed border-slate-300 bg-white px-5 py-6 text-sm text-slate-500">目前沒有付款紀錄。</div>}
-                </div>
+
               </div>
             );
           }) : <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-5 py-6 text-sm text-slate-500">目前沒有符合條件的 DB 往來紀錄。</div>}
