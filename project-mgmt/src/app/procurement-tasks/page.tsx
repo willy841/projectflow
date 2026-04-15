@@ -69,8 +69,8 @@ export default async function ProcurementTasksPage({
   return (
     <AppShell activePath="/procurement-tasks">
       <WorkspaceHeader
-        title="採購備品板"
-        meta={`共 ${activeProject ? projectTasks.length : projects.length} ${activeProject ? "筆任務" : "個專案"}`}
+        title={`採購備品板　·　共 ${activeProject ? projectTasks.length : projects.length} ${activeProject ? "筆任務" : "個專案"}`}
+        meta={null}
       />
 
       <WorkspaceSection

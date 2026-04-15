@@ -99,8 +99,8 @@ export default async function VendorAssignmentsPage({
   return (
     <AppShell activePath="/vendor-assignments">
       <WorkspaceHeader
-        title="廠商發包板"
-        meta={`共 ${activeProject ? vendorGroups.length : projects.length} ${activeProject ? "組廠商" : "個專案"}`}
+        title={`廠商發包板　·　共 ${activeProject ? vendorGroups.length : projects.length} ${activeProject ? "組廠商" : "個專案"}`}
+        meta={null}
       />
 
       <WorkspaceSection
