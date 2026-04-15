@@ -222,7 +222,46 @@
 
 ---
 
-## 8. 一句話總結
+## 8. Vendor Data（廠商資料）鎖版規則
+
+適用範圍：
+- vendor list
+- vendor detail
+- 未付款專案
+- 往來紀錄
+- 工種管理
+- 上述區塊的既有操作入口與現有功能配置
+
+正式規則：
+- 自本輪起，`Vendor Data / 廠商資料` 視為**已鎖版**
+- 後續若未經使用者明確重新開新產品變更，不可：
+  1. 新增功能
+  2. 新增按鈕 / 區塊 / 流程
+  3. 改動資訊架構
+  4. 改動版面主結構
+  5. 改動操作模型
+  6. 重開 vendor data spec
+
+後續唯一允許的修改範圍：
+- UI 對齊與視覺一致性收口
+- 例如：
+  - header 高度對齊
+  - 按鈕高度對齊
+  - 寬度對齊
+  - padding / gap / spacing 對齊
+  - badge / input / select / search 尺寸一致化
+  - 字級 / 行高 / 垂直置中微調
+
+禁止事項：
+- 不可藉 `UI 對齊` 名義新增功能
+- 不可藉 `UI 收口` 名義重排區塊責任
+- 不可藉 `版面整理` 名義改動既有主流程
+
+與既有 vendor data 規則的對齊提醒：
+- `Vendor Data` 既有主線、付款狀態切換、未付款 / 歷史紀錄、工種管理、刪除規則與 same-source closure，仍以母檔既有 vendor data 章節與對應 MD (`MD105` / `MD109` / `MD110` / `MD111`) 為準
+- 本段只是新增一條**鎖版 guardrail**，不是重寫 vendor data spec
+
+## 9. 一句話總結
 
 `MD136` 代表：
 - `projectflow`（排除 Accounting Center）已不再只是功能集合，而是開始有正式產品規則

@@ -166,12 +166,41 @@
 
 ---
 
-## 8. 一句話總結
+## 8. 補記：Vendor Data 鎖版狀態
+
+本輪後新增拍板：
+- `Vendor Data / 廠商資料` 進入**鎖版狀態**
+
+鎖版範圍：
+- vendor list
+- vendor detail
+- 未付款專案
+- 往來紀錄
+- 工種管理
+- 相關入口與現有功能配置
+
+鎖版後原則：
+- 不可再新增功能
+- 不可再新增按鈕 / 流程 / 區塊
+- 不可再改動資訊架構與主版面
+- 不可再重開 vendor data spec
+- 後續僅允許：
+  - UI 對齊
+  - header / 按鈕 / 寬度 / 間距 / 尺寸 / 垂直中心線一致化
+  - 不影響功能與區塊責任的純視覺 alignment
+
+管理結論：
+- 之後若再續接 `Vendor Data`，預設只准做 UI polish / alignment
+- 除非使用者明確重新開新產品變更，否則不得動功能與版型主結構
+
+## 9. 一句話總結
 
 `MD137` 代表：
 - `MD136` 不再只是制度文件，因為其中一批規則已正式做進 code
 - closeout `取消結案` 與三條線工作臺 formalization 都已完成第一批落地
+- 並且 `Vendor Data / 廠商資料` 已新增明確鎖版 guardrail
 - 因此目前正確狀態應為：
   - **guardrails fixed**
   - **round 1 implementation done**
+  - **vendor data locked except UI alignment**
   - **next round should be scoped, not open-ended**
