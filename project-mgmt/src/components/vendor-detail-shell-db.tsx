@@ -335,8 +335,6 @@ export function VendorDetailShellDb({ vendor, records, paymentRecords, tradeOpti
                       <div className="min-w-0 flex-1">
                         <div className="flex flex-wrap items-center gap-2">
                           <p className="font-semibold text-slate-900">{record.projectName}</p>
-                          <span className="inline-flex rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700 ring-1 ring-slate-200">{record.projectStatus}</span>
-                          <span className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ring-1 ${getVendorPaymentStatusClass(record.paymentStatus)}`}>{record.paymentStatus}</span>
                         </div>
                         <div className="mt-3 grid gap-2 text-sm text-slate-600 sm:grid-cols-2">
                           <div className="flex items-center justify-between gap-3 rounded-2xl bg-slate-50 px-3 py-2.5">
