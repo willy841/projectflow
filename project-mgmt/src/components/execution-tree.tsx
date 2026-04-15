@@ -2172,11 +2172,13 @@ export function ExecutionTree({
                                   <span className="inline-flex items-center justify-center rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700 ring-1 ring-slate-200">
                                     次項目
                                   </span>
-                                  <span
-                                    className={`inline-flex items-center justify-center whitespace-nowrap rounded-full px-3 py-1 text-xs font-medium ring-1 ${getStatusClass(child.status)}`}
-                                  >
-                                    {child.status}
-                                  </span>
+                                  {child.status !== "待交辦" ? (
+                                    <span
+                                      className={`inline-flex items-center justify-center whitespace-nowrap rounded-full px-3 py-1 text-xs font-medium ring-1 ${getStatusClass(child.status)}`}
+                                    >
+                                      {child.status}
+                                    </span>
+                                  ) : null}
                                 </div>
                                 <div className="mt-2.5 flex flex-wrap items-center gap-2">
                                   <h5 className="font-medium text-slate-900">
