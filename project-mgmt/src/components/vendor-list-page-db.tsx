@@ -136,28 +136,17 @@ export function VendorListPageDb({ vendors }: { vendors: VendorBasicProfile[] })
         <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {filteredVendorCards.map((vendor) => (
             <div key={vendor.id} className="group rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200 transition hover:-translate-y-0.5 hover:shadow-md">
-              <div className="flex items-center justify-between gap-4">
+              <div className="flex items-start justify-between gap-4">
                 <div className="min-w-0">
-                  <Link href={`/vendors/${vendor.id}`} className="text-2xl font-semibold tracking-tight text-slate-900 underline-offset-4 transition hover:text-slate-700 hover:underline">
-                    {vendor.name}
-                  </Link>
-                  <div className="mt-3 flex flex-wrap gap-2">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Link href={`/vendors/${vendor.id}`} className="text-2xl font-semibold tracking-tight text-slate-900 underline-offset-4 transition hover:text-slate-700 hover:underline">
+                      {vendor.name}
+                    </Link>
                     <span className="inline-flex rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700 ring-1 ring-slate-200">
                       {vendor.tradeLabel || vendor.category || '—'}
                     </span>
                   </div>
                 </div>
-                <span className="inline-flex rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700 ring-1 ring-slate-200">
-                  廠商詳情
-                </span>
-              </div>
-
-              <div className="mt-8 rounded-2xl border border-amber-200 bg-amber-50/70 px-4 py-4">
-                <p className="text-sm text-amber-800">未付款總額</p>
-                <p className="mt-2 text-3xl font-semibold tracking-tight text-slate-900">{formatCurrency(vendor.outstandingTotal)}</p>
-              </div>
-
-              <div className="mt-5 flex items-center justify-end gap-3 border-t border-slate-100 pt-4">
                 <button
                   type="button"
                   onClick={() => setDeletingVendorId(vendor.id)}
@@ -165,6 +154,11 @@ export function VendorListPageDb({ vendors }: { vendors: VendorBasicProfile[] })
                 >
                   刪除廠商
                 </button>
+              </div>
+
+              <div className="mt-8 rounded-2xl border border-amber-200 bg-amber-50/70 px-4 py-4">
+                <p className="text-sm text-amber-800">未付款總額</p>
+                <p className="mt-2 text-3xl font-semibold tracking-tight text-slate-900">{formatCurrency(vendor.outstandingTotal)}</p>
               </div>
             </div>
           ))}
