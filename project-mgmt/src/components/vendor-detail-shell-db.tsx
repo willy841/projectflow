@@ -313,11 +313,10 @@ export function VendorDetailShellDb({ vendor, records, paymentRecords, tradeOpti
           <div className="mb-5 flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
             <div>
               <h3 className="text-xl font-semibold text-slate-900">未付款專案</h3>
-              <p className="mt-2 text-sm text-slate-600">主體是 project × vendor。金額只承接同 vendor 在該專案下設計 / 備品 / 廠商三線已對帳金額，不含人工。</p>
             </div>
-            <div className="rounded-2xl bg-white px-4 py-3 text-sm text-slate-700 ring-1 ring-amber-200">
-              <p className="font-semibold text-slate-900">待付款 {unpaidRecords.length} 筆｜未付款總額 {formatCurrency(unpaidTotalAmount)}</p>
-              <p className="mt-1 text-slate-500">其中 {incompleteReconciliationCount} 筆尚未全部對帳。</p>
+            <div className="min-w-[320px] rounded-2xl bg-white px-5 py-3 text-sm text-slate-700 ring-1 ring-amber-200 lg:min-w-[380px]">
+              <p className="whitespace-nowrap font-semibold text-slate-900">待付款 {unpaidRecords.length} 筆｜未付款總額 {formatCurrency(unpaidTotalAmount)}</p>
+              <p className="mt-1 whitespace-nowrap text-slate-500">其中 {incompleteReconciliationCount} 筆尚未全部對帳。</p>
             </div>
           </div>
 
@@ -375,14 +374,6 @@ export function VendorDetailShellDb({ vendor, records, paymentRecords, tradeOpti
                       >
                         {expandedRecordIds.includes(record.id) ? '收合明細' : '查看明細'}
                       </button>
-                      <button
-                        type="button"
-                        onClick={() => setPaymentForm({ projectId: record.projectId, projectName: record.projectName, paidOn: new Date().toISOString().slice(0, 10), amount: String(record.unpaidAmount ?? record.adjustedCost), note: '' })}
-                        disabled={!isSelectable}
-                        className={`inline-flex min-h-11 items-center justify-center rounded-2xl px-4 py-2.5 text-sm font-semibold transition ${isSelectable ? 'border border-slate-900 bg-slate-900 text-white hover:bg-slate-800' : 'cursor-not-allowed border border-slate-200 bg-slate-100 text-slate-400'}`}
-                      >
-                        {isSelectable ? '單筆標記已付款' : '尚未全部對帳'}
-                      </button>
                     </div>
                   </div>
 
@@ -417,7 +408,7 @@ export function VendorDetailShellDb({ vendor, records, paymentRecords, tradeOpti
           <div className="mt-4 flex flex-col gap-3 rounded-2xl bg-slate-900 px-4 py-4 text-white lg:flex-row lg:items-center lg:justify-between">
             <div>
               <p className="font-semibold">已勾選 {selectedPayableRecords.length} 筆，合計 {formatCurrency(selectedPayableTotal)}</p>
-              <p className="mt-1 text-sm text-slate-300">只有「已全部對帳」的專案可批次標記為已付款。</p>
+              <p className="mt-1 text-sm text-slate-300">只有「已全部對帳」的專案可勾選後統一標記為已付款。</p>
             </div>
             <button
               type="button"
