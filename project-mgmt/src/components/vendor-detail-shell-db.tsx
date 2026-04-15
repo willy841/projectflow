@@ -172,30 +172,33 @@ export function VendorDetailShellDb({ vendor, records, paymentRecords, tradeOpti
           <div className="mb-5 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
             <div>
               <h3 className="text-xl font-semibold text-slate-900">廠商資訊</h3>
-              <p className="mt-2 text-sm text-slate-600">這裡現在已改為 Vendor master DB 寫入入口，儲存後會重新從 DB readback。</p>
-              {tradeOptions.length ? (
-                <div className="mt-3 flex flex-wrap gap-2">
-                  {tradeOptions.slice(0, 8).map((trade) => (
-                    <button
-                      key={trade}
-                      type="button"
-                      onClick={() => updateProfileField('tradeLabel', trade === '待補充' ? '' : trade)}
-                      className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 transition hover:border-slate-300 hover:bg-slate-50"
-                    >
-                      {trade}
-                    </button>
-                  ))}
-                </div>
-              ) : null}
+              <p className="mt-2 text-sm text-slate-600">工種來源統一回到廠商資料列表管理；這裡只選既有工種並寫回 Vendor master DB。</p>
             </div>
             <div className="flex items-center gap-3">
               {profileMessage ? <p className="text-xs text-emerald-700">{profileMessage}</p> : null}
               <button type="button" onClick={handleSaveProfile} disabled={profileSaving} className="inline-flex items-center justify-center rounded-2xl border border-slate-900 bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60">{profileSaving ? '儲存中…' : '儲存廠商資料'}</button>
             </div>
           </div>
+          <div className="mb-4 rounded-2xl border border-sky-200 bg-sky-50/60 px-4 py-3 text-sm text-slate-700 ring-1 ring-sky-100">
+            <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+              <div>
+                <p className="font-semibold text-slate-900">目前工種：{profileForm.tradeLabel || '—'}</p>
+                <p className="mt-1 text-slate-600">若要新增或刪除工種，請回上一頁使用「管理工種」。</p>
+              </div>
+              <Link href="/vendors" className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:border-slate-400 hover:bg-slate-50">回列表管理工種</Link>
+            </div>
+          </div>
           <div className="grid gap-4 md:grid-cols-2">
+            <label className="rounded-2xl bg-slate-50 p-4">
+              <p className="text-sm text-slate-500">工種</p>
+              <select value={profileForm.tradeLabel} onChange={(event) => updateProfileField('tradeLabel', event.target.value)} className="mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400">
+                <option value="">不指定</option>
+                {tradeOptions.map((trade) => (
+                  <option key={trade} value={trade}>{trade}</option>
+                ))}
+              </select>
+            </label>
             {[
-              ['工種', 'tradeLabel', '請輸入工種，例如：輸出'],
               ['聯絡人', 'contactName', '請輸入聯絡人'],
               ['電話', 'phone', '請輸入電話'],
               ['Email', 'email', '請輸入 Email'],

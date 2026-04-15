@@ -1,5 +1,6 @@
 import { createPhase1DbClient } from '@/lib/db/phase1-client';
 import { createPhase1Repositories } from '@/lib/db/phase1-repositories';
+import type { InsertVendorInput } from '@/lib/db/phase1-inputs';
 import type { VendorBasicProfile, VendorProjectRecord } from '@/components/vendor-data';
 
 export type VendorPaymentRecord = {
@@ -14,6 +15,24 @@ export type VendorPaymentRecord = {
 import { listDbVendorPackages } from '@/lib/db/vendor-package-adapter';
 import { listDbVendorTasksByProject } from '@/lib/db/vendor-flow-adapter';
 import { getVendorFinancialSummary } from '@/lib/db/vendor-financial-adapter';
+
+function normalizeVendorName(name: string) {
+  return name.trim().toLowerCase().replace(/\s+/g, ' ');
+}
+
+async function ensureVendorTradeCatalogTable() {
+  const db = createPhase1DbClient();
+  await db.query(`
+    create extension if not exists pgcrypto;
+    create table if not exists vendor_trade_catalog (
+      id uuid primary key default gen_random_uuid(),
+      name text not null unique,
+      normalized_name text not null unique,
+      created_at timestamptz not null default now()
+    )
+  `);
+  await db.query(`create index if not exists idx_vendor_trade_catalog_normalized_name on vendor_trade_catalog (normalized_name)`);
+}
 
 function mapVendorRowToProfile(vendor: Awaited<ReturnType<ReturnType<typeof createPhase1Repositories>['vendors']['findById']>> extends infer T ? NonNullable<T> : never): VendorBasicProfile {
   return {
@@ -37,6 +56,129 @@ function mapVendorRowToProfile(vendor: Awaited<ReturnType<ReturnType<typeof crea
     birthDateRoc: vendor.labor_birthday_roc ?? '',
     unionMembership: vendor.labor_union_membership ?? '',
   } as VendorBasicProfile;
+}
+
+export async function listDbVendorTrades(): Promise<string[]> {
+  const db = createPhase1DbClient();
+  const hasCatalogResult = await db.query<{ exists: string | null }>(`select to_regclass('public.vendor_trade_catalog')::text as exists`);
+  const hasCatalog = Boolean(hasCatalogResult.rows[0]?.exists);
+
+  const catalogRows = hasCatalog
+    ? await db.query<{ name: string }>(`
+        select name
+        from vendor_trade_catalog
+        order by name asc
+      `)
+    : { rows: [] as { name: string }[] };
+
+  const vendorRows = await db.query<{ trade_label: string | null }>(`
+    select distinct trade_label
+    from vendors
+    where trade_label is not null and btrim(trade_label) <> ''
+    order by trade_label asc
+  `);
+
+  return Array.from(
+    new Set(
+      [...catalogRows.rows.map((row) => row.name), ...vendorRows.rows.map((row) => row.trade_label?.trim() || '')]
+        .map((item) => item.trim())
+        .filter(Boolean),
+    ),
+  ).sort((a, b) => a.localeCompare(b, 'zh-Hant'));
+}
+
+export async function createDbVendorTrade(name: string) {
+  const trimmedName = name.trim();
+  if (!trimmedName) {
+    throw new Error('工種名稱不可空白');
+  }
+
+  await ensureVendorTradeCatalogTable();
+  const db = createPhase1DbClient();
+  const normalizedName = normalizeVendorName(trimmedName);
+  const duplicated = await db.query<{ name: string }>(`
+    select name
+    from vendor_trade_catalog
+    where normalized_name = $1
+    limit 1
+  `, [normalizedName]);
+  if (duplicated.rows[0]) {
+    throw new Error(`工種「${duplicated.rows[0].name}」已存在`);
+  }
+
+  await db.query(`
+    insert into vendor_trade_catalog (name, normalized_name)
+    values ($1, $2)
+  `, [trimmedName, normalizedName]);
+
+  return { name: trimmedName };
+}
+
+export async function deleteDbVendorTrade(name: string) {
+  const trimmedName = name.trim();
+  if (!trimmedName) {
+    throw new Error('工種名稱不可空白');
+  }
+
+  await ensureVendorTradeCatalogTable();
+  const db = createPhase1DbClient();
+  const usage = await db.query<{ count: string }>(`
+    select count(*)::text as count
+    from vendors
+    where trade_label = $1
+  `, [trimmedName]);
+  const usageCount = Number(usage.rows[0]?.count ?? '0');
+  if (usageCount > 0) {
+    throw new Error(`工種「${trimmedName}」仍有 ${usageCount} 間廠商使用中，無法刪除`);
+  }
+
+  await db.query(`delete from vendor_trade_catalog where name = $1`, [trimmedName]);
+  return { name: trimmedName };
+}
+
+export async function createDbVendor(input: { name: string; tradeLabel?: string | null }) {
+  const repositories = createPhase1Repositories(createPhase1DbClient());
+  const trimmedName = input.name.trim();
+  if (!trimmedName) {
+    throw new Error('廠商名稱不可空白');
+  }
+
+  const normalizedName = normalizeVendorName(trimmedName);
+  const duplicated = await repositories.vendors.findByNormalizedName(normalizedName);
+  if (duplicated) {
+    throw new Error(`廠商「${duplicated.name}」已存在`);
+  }
+
+  const tradeLabel = input.tradeLabel?.trim() || null;
+  if (tradeLabel) {
+    await ensureVendorTradeCatalogTable();
+    const db = createPhase1DbClient();
+    await db.query(`
+      insert into vendor_trade_catalog (name, normalized_name)
+      values ($1, $2)
+      on conflict (name) do nothing
+    `, [tradeLabel, normalizeVendorName(tradeLabel)]);
+  }
+
+  const vendor = await repositories.vendors.insert({
+    name: trimmedName,
+    normalized_name: normalizedName,
+    trade_label: tradeLabel,
+    contact_name: null,
+    phone: null,
+    email: null,
+    line_id: null,
+    address: null,
+    bank_name: null,
+    account_name: null,
+    account_number: null,
+    labor_name: null,
+    labor_id_no: null,
+    labor_birthday_roc: null,
+    labor_union_membership: null,
+  } satisfies InsertVendorInput);
+
+  return mapVendorRowToProfile(vendor);
 }
 
 export async function listDbVendors(): Promise<VendorBasicProfile[]> {
