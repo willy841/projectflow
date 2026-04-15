@@ -415,7 +415,7 @@ export function VendorDetailShellDb({ vendor, records, paymentRecords, tradeOpti
         <div className="mb-5 flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
           <div>
             <h3 className="text-xl font-semibold text-slate-900">往來紀錄</h3>
-            <p className="mt-2 text-sm text-slate-600">這裡分成未結帳 / 過往紀錄；主用途是 read-only 回看當時合作項目與付款留痕。</p>
+
           </div>
           <div className="rounded-2xl bg-slate-50 px-4 py-3 text-sm text-slate-600 ring-1 ring-slate-200">
             目前顯示 {filteredHistoryRecords.length} 筆往來紀錄
@@ -468,8 +468,8 @@ export function VendorDetailShellDb({ vendor, records, paymentRecords, tradeOpti
                   </div>
                   <div className="flex flex-wrap items-center gap-3 xl:justify-end">
                     <div className="text-left xl:text-right">
-                      <p className="text-sm text-slate-500">目前應付 / 未付款</p>
-                      <p className="text-2xl font-semibold tracking-tight text-slate-900">{record.adjustedCostLabel} / {formatCurrency(record.unpaidAmount ?? record.adjustedCost)}</p>
+                      <p className="text-sm text-slate-500">未付金額</p>
+                      <p className="text-2xl font-semibold tracking-tight text-slate-900">{formatCurrency(record.unpaidAmount ?? record.adjustedCost)}</p>
                     </div>
                     <button type="button" onClick={() => toggleExpandedRecord(record.id)} className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 transition hover:bg-slate-100">{isExpanded ? '收合明細' : '查看明細'}</button>
                   </div>
