@@ -141,10 +141,16 @@ export function ActiveOnlyFinancialSections({
   quoteImportRecord,
   quotationItems,
   vendorPaymentRecords,
+  quotationTotal,
+  onOpenQuoteDetail,
+  onImportExcel,
 }: {
   quoteImportRecord: QuoteCostProject['quotationImport'];
   quotationItems: QuoteCostProject['quotationItems'];
   vendorPaymentRecords: VendorPaymentView[];
+  quotationTotal: number;
+  onOpenQuoteDetail?: () => void;
+  onImportExcel?: () => void;
 }) {
   return (
     <>
@@ -185,42 +191,44 @@ export function ActiveOnlyFinancialSections({
 
       <section className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-sm">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-          <SimpleSectionTitle title="對外報價單" />
-          <div className="flex flex-wrap gap-2">
-            {quoteImportRecord ? (
-              <span className="inline-flex items-center rounded-2xl border border-slate-200 bg-slate-50 px-4 py-2 text-sm font-semibold text-slate-700">已承接正式報價版本</span>
-            ) : (
-              <span className="inline-flex items-center rounded-2xl border border-amber-200 bg-amber-50 px-4 py-2 text-sm font-semibold text-amber-700">尚無正式報價資料</span>
-            )}
+          <div className="flex min-w-0 flex-1 flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <SimpleSectionTitle title="對外報價單" />
+            <div className="flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={onImportExcel}
+                className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 transition hover:border-slate-400 hover:bg-slate-50"
+              >
+                匯入 Excel
+              </button>
+              <button
+                type="button"
+                onClick={onOpenQuoteDetail}
+                disabled={!quotationItems.length}
+                className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-900 bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:border-slate-300 disabled:bg-slate-300"
+              >
+                查看明細
+              </button>
+            </div>
           </div>
         </div>
-        <div className="mt-5 overflow-x-auto rounded-2xl border border-slate-200">
-          <table className="min-w-[980px] divide-y divide-slate-200 text-left text-sm xl:min-w-full">
-            <thead className="bg-slate-50 text-slate-500">
-              <tr>
-                <th className="px-4 py-3 font-medium">分類</th>
-                <th className="px-4 py-3 font-medium">項目名稱</th>
-                <th className="px-4 py-3 font-medium">說明</th>
-                <th className="px-4 py-3 font-medium">數量</th>
-                <th className="px-4 py-3 font-medium">單位</th>
-                <th className="px-4 py-3 font-medium">單價</th>
-                <th className="px-4 py-3 font-medium">小計</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100 bg-white">
-              {quotationItems.map((item) => (
-                <tr key={item.id} className="hover:bg-slate-50/80">
-                  <td className="px-4 py-4 text-slate-600">{item.category}</td>
-                  <td className="px-4 py-4 font-medium text-slate-900">{item.itemName}</td>
-                  <td className="px-4 py-4 text-slate-600">{item.description}</td>
-                  <td className="px-4 py-4 text-slate-600">{item.quantity}</td>
-                  <td className="px-4 py-4 text-slate-600">{item.unit}</td>
-                  <td className="px-4 py-4 text-slate-600">{formatCurrency(item.unitPrice)}</td>
-                  <td className="px-4 py-4 font-semibold text-slate-900">{formatCurrency(item.quantity * item.unitPrice)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+
+        <div className="mt-5 grid gap-4 xl:grid-cols-[minmax(0,1fr)_auto] xl:items-center">
+          <div className="rounded-3xl border border-slate-200 bg-slate-50 p-5">
+            <div className="flex flex-wrap items-center gap-2">
+              {quoteImportRecord ? (
+                <span className="inline-flex items-center rounded-2xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700">已承接正式報價版本</span>
+              ) : (
+                <span className="inline-flex items-center rounded-2xl border border-amber-200 bg-amber-50 px-4 py-2 text-sm font-semibold text-amber-700">尚無正式報價資料</span>
+              )}
+              <span className="inline-flex items-center rounded-2xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700">共 {quotationItems.length} 筆</span>
+            </div>
+            <p className="mt-4 text-sm text-slate-500">主頁僅顯示總金額；完整報價明細請由「查看明細」開啟。</p>
+          </div>
+          <div className="rounded-3xl border border-slate-900 bg-slate-900 px-6 py-5 text-white shadow-sm">
+            <p className="text-sm text-slate-300">報價總金額</p>
+            <p className="mt-3 text-3xl font-semibold tracking-tight">{formatCurrency(quotationTotal)}</p>
+          </div>
         </div>
       </section>
     </>
@@ -293,4 +301,69 @@ export function OverviewRow({ label, value, archived = false }: { label: string;
 
 export function SimpleSectionTitle({ title }: { title: string }) {
   return <h3 className="text-xl font-semibold text-slate-900">{title}</h3>;
+}
+
+export function QuoteDetailModal({
+  items,
+  quoteImportRecord,
+  onClose,
+}: {
+  items: QuoteCostProject['quotationItems'];
+  quoteImportRecord: QuoteCostProject['quotationImport'];
+  onClose: () => void;
+}) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/40 px-4 py-6">
+      <div className="flex max-h-[90vh] w-full max-w-6xl flex-col overflow-hidden rounded-3xl bg-white shadow-2xl ring-1 ring-slate-200">
+        <div className="flex flex-col gap-3 border-b border-slate-200 px-6 py-5 lg:flex-row lg:items-start lg:justify-between">
+          <div className="min-w-0">
+            <h3 className="text-xl font-semibold text-slate-900">對外報價單明細</h3>
+            <p className="mt-1 text-sm text-slate-500">
+              {quoteImportRecord ? `目前版本：${quoteImportRecord.fileName} · 匯入時間 ${quoteImportRecord.importedAt}` : '目前尚未承接正式報價版本。'}
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 transition hover:border-slate-400 hover:bg-slate-50"
+          >
+            關閉
+          </button>
+        </div>
+
+        <div className="flex-1 overflow-auto px-6 py-5">
+          <div className="overflow-x-auto rounded-2xl border border-slate-200">
+            <table className="min-w-[1080px] divide-y divide-slate-200 text-left text-sm xl:min-w-full">
+              <thead className="bg-slate-50 text-slate-500">
+                <tr>
+                  <th className="px-4 py-3 font-medium">分類</th>
+                  <th className="px-4 py-3 font-medium">項目名稱</th>
+                  <th className="px-4 py-3 font-medium min-w-[320px]">備註</th>
+                  <th className="px-4 py-3 font-medium">數量</th>
+                  <th className="px-4 py-3 font-medium">單位</th>
+                  <th className="px-4 py-3 font-medium">單價</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100 bg-white">
+                {items.length ? items.map((item) => (
+                  <tr key={item.id} className="align-top hover:bg-slate-50/80">
+                    <td className="px-4 py-4 text-slate-600 whitespace-nowrap">{item.category}</td>
+                    <td className="px-4 py-4 font-medium text-slate-900">{item.itemName}</td>
+                    <td className="px-4 py-4 text-sm leading-6 text-slate-600 whitespace-pre-wrap break-words">{item.description || '-'}</td>
+                    <td className="px-4 py-4 text-slate-600 whitespace-nowrap">{item.quantity}</td>
+                    <td className="px-4 py-4 text-slate-600 whitespace-nowrap">{item.unit}</td>
+                    <td className="px-4 py-4 font-semibold text-slate-900 whitespace-nowrap">{formatCurrency(item.unitPrice)}</td>
+                  </tr>
+                )) : (
+                  <tr>
+                    <td colSpan={6} className="px-4 py-6 text-center text-sm text-slate-500">目前沒有可顯示的報價明細。</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 }

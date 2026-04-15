@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AppShell } from "@/components/app-shell";
 import {
@@ -21,6 +21,7 @@ import {
   CollectionSection,
   CostManagementSection,
   getCostSourceSummary,
+  QuoteDetailModal,
   type CollectionRecordView,
   type ReconciliationGroupView,
   type VendorPaymentView,
@@ -72,10 +73,14 @@ export function QuoteCostDetailClient({ project, mode = "active", presenter = ge
   const [closeoutWriteState, setCloseoutWriteState] = useState<CloseoutWriteState>('idle');
   const [closeoutError, setCloseoutError] = useState<string | null>(null);
   const [activeArchiveSource, setActiveArchiveSource] = useState<CostSourceType>("設計");
+  const [isQuoteDetailModalOpen, setIsQuoteDetailModalOpen] = useState(false);
+  const [isImportingQuote, setIsImportingQuote] = useState(false);
+  const [isQuoteImporting, setIsQuoteImporting] = useState(false);
+  const quoteImportInputRef = useRef<HTMLInputElement | null>(null);
   const quoteImportRecord = state.quotationImport;
   const isClosedView = presenter.archived;
 
-  const quotationTotal = useMemo(() => getQuotationTotal(state.quotationItems), [state.quotationItems]);
+  const quotationTotal = useMemo(() => getQuotationTotal(state.quotationItems, state.quotationImport), [state.quotationItems, state.quotationImport]);
   const collectedTotal = useMemo(() => collectionRecords.reduce((sum, record) => sum + record.amount, 0), [collectionRecords]);
   const outstandingTotal = useMemo(() => Math.max(quotationTotal - collectedTotal, 0), [quotationTotal, collectedTotal]);
   const originalCostTotal = useMemo(() => getFormalOriginalCostTotal(state.costItems), [state.costItems]);
@@ -222,6 +227,46 @@ export function QuoteCostDetailClient({ project, mode = "active", presenter = ge
     }
   }
 
+  async function handleQuotationImport(event: React.ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    event.target.value = '';
+    if (!file || isQuoteImporting) return;
+
+    setIsQuoteImporting(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const response = await fetch(`/api/financial-projects/${state.id}/quotation-import`, {
+        method: 'POST',
+        body: formData,
+      });
+      const result = await response.json();
+
+      if (!response.ok || !result?.ok) {
+        window.alert(result?.error ?? 'Excel 匯入失敗');
+        return;
+      }
+
+      setState((prev) => ({
+        ...prev,
+        quotationImported: true,
+        quotationImport: {
+          importedAt: result.importedAt as string,
+          fileName: result.fileName as string,
+          note: 'Excel 匯入正式版本',
+          totalAmount: typeof result.totalAmount === 'number' ? result.totalAmount : null,
+        },
+      }));
+      router.refresh();
+      window.alert(`Excel 匯入完成，共承接 ${result.itemCount ?? 0} 筆明細。`);
+    } catch {
+      window.alert('Excel 匯入失敗');
+    } finally {
+      setIsQuoteImporting(false);
+    }
+  }
+
   async function handleAddCollectionRecord() {
     if (!collectionForm) return;
     const collectedOn = collectionForm.collectedOn.trim();
@@ -324,6 +369,35 @@ export function QuoteCostDetailClient({ project, mode = "active", presenter = ge
     }
   }
 
+  async function handleImportExcel(file: File) {
+    if (isImportingQuote) return;
+
+    setIsImportingQuote(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const response = await fetch(`/api/financial-projects/${state.id}/quotation-import`, {
+        method: 'POST',
+        body: formData,
+      });
+      const result = await response.json();
+
+      if (!response.ok || !result?.ok) {
+        window.alert(result?.error ?? 'Excel 匯入失敗');
+        return;
+      }
+
+      router.refresh();
+      window.location.reload();
+    } catch (error) {
+      console.error(error);
+      window.alert('Excel 匯入失敗');
+    } finally {
+      setIsImportingQuote(false);
+    }
+  }
+
   return (
     <>
       <AppShell activePath={presenter.activePath}>
@@ -355,6 +429,9 @@ export function QuoteCostDetailClient({ project, mode = "active", presenter = ge
           quoteImportRecord={quoteImportRecord}
           quotationItems={state.quotationItems}
           vendorPaymentRecords={vendorPaymentRecords}
+          quotationTotal={quotationTotal}
+          onOpenQuoteDetail={() => setIsQuoteDetailModalOpen(true)}
+          onImportExcel={() => quoteImportInputRef.current?.click()}
         />
       ) : null}
 
@@ -554,6 +631,21 @@ export function QuoteCostDetailClient({ project, mode = "active", presenter = ge
           <ArchiveContentPanel source={activeArchiveSource} costItems={state.costItems} manualItems={manualItems} isClosedView={isClosedView} onManualItemChange={handleManualItemChange} />
         </div>
       </CostManagementSection>
+      <input
+        ref={quoteImportInputRef}
+        type="file"
+        accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        className="hidden"
+        onChange={handleQuotationImport}
+        disabled={isQuoteImporting}
+      />
+      {isQuoteDetailModalOpen ? (
+        <QuoteDetailModal
+          items={state.quotationItems}
+          quoteImportRecord={quoteImportRecord}
+          onClose={() => setIsQuoteDetailModalOpen(false)}
+        />
+      ) : null}
       {collectionForm ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/35 px-4">
           <div className="w-full max-w-xl rounded-3xl bg-white p-6 shadow-2xl ring-1 ring-slate-200">

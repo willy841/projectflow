@@ -43,6 +43,7 @@ type QuotationImportRow = {
   importedAt: string;
   fileName: string;
   note: string | null;
+  totalAmount: number | null;
 };
 
 type QuotationLineItemRow = {
@@ -54,6 +55,8 @@ type QuotationLineItemRow = {
   quantity: number;
   unit: string | null;
   unitPrice: number;
+  amount: number | null;
+  remark: string | null;
   sortOrder: number;
 };
 
@@ -79,6 +82,7 @@ async function loadQuotationImports(projectIds: string[]) {
         to_char(fqi.imported_at, 'YYYY-MM-DD HH24:MI') as "importedAt",
         fqi.file_name as "fileName",
         fqi.note,
+        fqi.total_amount::float8 as "totalAmount",
         row_number() over (
           partition by fqi.project_id
           order by fqi.is_active desc, fqi.imported_at desc, fqi.created_at desc, fqi.id desc
@@ -114,6 +118,8 @@ async function loadQuotationLineItems(importIds: string[]) {
       coalesce(fqli.quantity, 0)::float8 as quantity,
       fqli.unit,
       coalesce(fqli.unit_price, 0)::float8 as "unitPrice",
+      coalesce(fqli.line_amount, (fqli.quantity * fqli.unit_price))::float8 as amount,
+      coalesce(fqli.remark, fqli.description) as remark,
       fqli.sort_order as "sortOrder"
     from financial_quotation_line_items fqli
     inner join financial_quotation_imports fqi on fqi.id = fqli.quotation_import_id
@@ -159,6 +165,8 @@ export async function loadQuotationReadModelIndex(projectIds: string[]): Promise
         quantity: row.quantity,
         unit: row.unit ?? '式',
         unitPrice: row.unitPrice,
+        amount: row.amount ?? row.quantity * row.unitPrice,
+        remark: row.remark ?? row.description ?? '',
       });
       lineItemsByProjectId.set(row.projectId, current);
     }
@@ -172,6 +180,7 @@ export async function loadQuotationReadModelIndex(projectIds: string[]): Promise
               importedAt: importRow.importedAt,
               fileName: importRow.fileName,
               note: importRow.note ?? '',
+              totalAmount: importRow.totalAmount ?? null,
             }
           : null,
         quotationItems: lineItemsByProjectId.get(projectId) ?? [],
