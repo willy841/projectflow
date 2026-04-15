@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { AppShell } from "@/components/app-shell";
 import { procurementTaskBoardRecords } from "@/components/procurement-task-board-data";
-import { WorkspaceEmptyState, WorkspaceHeader, WorkspaceSection, WorkspaceStat } from "@/components/workspace-ui";
+import { WorkspaceEmptyState, WorkspaceHeader, WorkspaceSection, WorkspaceStat, workspacePrimaryButtonClass } from "@/components/workspace-ui";
 import {
   listDbProcurementTaskProjects,
   listDbProcurementTasksByProject,
@@ -104,7 +104,7 @@ export default async function ProcurementTasksPage({
                     <WorkspaceStat label="活動日期" value={project.eventDate} />
                   </div>
                   <div className="flex justify-end">
-                    <Link href={`/procurement-tasks?project=${encodeURIComponent(project.projectId)}`} className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800">進入工作臺</Link>
+                    <Link href={`/procurement-tasks?project=${encodeURIComponent(project.projectId)}`} className={workspacePrimaryButtonClass}>進入工作臺</Link>
                   </div>
                 </div>
               </article>
@@ -127,7 +127,7 @@ export default async function ProcurementTasksPage({
                     <WorkspaceStat label="預算" value={task.costLabel} />
                   </div>
                   <div className="flex justify-end">
-                    <Link href={`/procurement-tasks/${task.id}`} className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800">進入任務</Link>
+                    <Link href={`/procurement-tasks/${task.id}`} className={workspacePrimaryButtonClass}>進入任務</Link>
                   </div>
                 </div>
               </article>

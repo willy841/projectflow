@@ -1,5 +1,8 @@
 import type { ReactNode } from "react";
 
+export const workspacePrimaryButtonClass =
+  "inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-900 bg-slate-900 px-4 py-2.5 text-sm font-semibold tracking-[0.01em] text-white shadow-sm transition hover:bg-slate-800 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2";
+
 type WorkspaceHeaderProps = {
   title: string;
   backHref?: string;

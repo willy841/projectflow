@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { AppShell } from "@/components/app-shell";
 import { vendorAssignments } from "@/components/vendor-data";
-import { WorkspaceEmptyState, WorkspaceHeader, WorkspaceSection, WorkspaceStat } from "@/components/workspace-ui";
+import { WorkspaceEmptyState, WorkspaceHeader, WorkspaceSection, WorkspaceStat, workspacePrimaryButtonClass } from "@/components/workspace-ui";
 import {
   listDbVendorGroupsByProject,
   listDbVendorProjects,
@@ -129,7 +129,7 @@ export default async function VendorAssignmentsPage({
                     <WorkspaceStat label="活動日期" value={project.eventDate} />
                   </div>
                   <div className="flex justify-end">
-                    <Link href={`/vendor-assignments?project=${encodeURIComponent(project.projectId)}`} className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800">進入工作臺</Link>
+                    <Link href={`/vendor-assignments?project=${encodeURIComponent(project.projectId)}`} className={workspacePrimaryButtonClass}>進入工作臺</Link>
                   </div>
                 </div>
               </article>
@@ -152,7 +152,7 @@ export default async function VendorAssignmentsPage({
                     <WorkspaceStat label="活動日期" value={group.eventDate} />
                   </div>
                   <div className="flex justify-end">
-                    <Link href={`/vendor-assignments/${encodeURIComponent(buildVendorGroupRouteId(activeProject.projectId, group.vendorId))}`} className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800">進入廠商</Link>
+                    <Link href={`/vendor-assignments/${encodeURIComponent(buildVendorGroupRouteId(activeProject.projectId, group.vendorId))}`} className={workspacePrimaryButtonClass}>進入廠商</Link>
                   </div>
                 </div>
                   <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3.5">

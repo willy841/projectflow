@@ -35,3 +35,10 @@ a {
   color: inherit;
   text-decoration: none;
 }
+
+a[class*="bg-slate-900"],
+a[class*="bg-slate-800"],
+button[class*="bg-slate-900"],
+button[class*="bg-slate-800"] {
+  color: #fff;
+}

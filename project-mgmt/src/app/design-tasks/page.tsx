@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { AppShell } from "@/components/app-shell";
 import { designTaskGroups } from "@/components/design-task-data";
-import { WorkspaceEmptyState, WorkspaceHeader, WorkspaceSection, WorkspaceStat } from "@/components/workspace-ui";
+import { WorkspaceEmptyState, WorkspaceHeader, WorkspaceSection, WorkspaceStat, workspacePrimaryButtonClass } from "@/components/workspace-ui";
 import {
   listDbDesignTaskProjects,
   listDbDesignTasksByProject,
@@ -117,7 +117,7 @@ export default async function DesignTasksPage({
                   <div className="flex justify-end">
                     <Link
                       href={`/design-tasks?project=${encodeURIComponent(project.projectId)}`}
-                      className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800"
+                      className={workspacePrimaryButtonClass}
                     >
                       進入工作臺
                     </Link>
@@ -151,7 +151,7 @@ export default async function DesignTasksPage({
                   <div className="flex justify-end">
                     <Link
                       href={`/design-tasks/${task.id}`}
-                      className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800"
+                      className={workspacePrimaryButtonClass}
                     >
                       進入任務
                     </Link>
