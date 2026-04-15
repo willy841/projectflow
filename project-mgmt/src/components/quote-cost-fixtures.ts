@@ -6,11 +6,13 @@ export const sampleQuoteImportsFixture: Record<string, QuoteImportRecord[]> = {
       importedAt: '2026-03-29 14:20',
       fileName: 'spring-popup-v2.xlsx',
       note: '目前有效版本。新匯入會直接覆蓋舊報價單。',
+      totalAmount: 454000,
     },
     {
       importedAt: '2026-03-27 11:05',
       fileName: 'spring-popup-v1.xlsx',
       note: '示意用：重新匯入後只保留新版本為有效報價單。',
+      totalAmount: 434000,
     },
   ],
   'obsidian-launch-2026': [
@@ -18,11 +20,13 @@ export const sampleQuoteImportsFixture: Record<string, QuoteImportRecord[]> = {
       importedAt: '2026-03-30 09:40',
       fileName: 'obsidian-launch-v2.xlsx',
       note: '第二版更新舞台與木作金額。',
+      totalAmount: 795000,
     },
     {
       importedAt: '2026-03-26 18:15',
       fileName: 'obsidian-launch-v1.xlsx',
       note: '第一版示意。',
+      totalAmount: 763000,
     },
   ],
   'qingshan-store-display-2026': [
@@ -30,6 +34,7 @@ export const sampleQuoteImportsFixture: Record<string, QuoteImportRecord[]> = {
       importedAt: '2026-03-18 16:30',
       fileName: 'qingshan-store-display-final.xlsx',
       note: '已結案專案，保留當時有效報價單。',
+      totalAmount: 296000,
     },
   ],
 };
@@ -37,28 +42,28 @@ export const sampleQuoteImportsFixture: Record<string, QuoteImportRecord[]> = {
 export const sampleQuoteLineItemsFixtureByProject: Record<string, QuoteLineItem[][]> = {
   'spring-popup-2026': [
     [
-      { id: 'q1-new', category: '場佈', itemName: '入口主背板製作', description: '主背板木作、輸出與現場安裝', quantity: 1, unit: '式', unitPrice: 176000 },
-      { id: 'q2-new', category: '視覺', itemName: '導視系統與立牌', description: '導視立牌、價卡與掛旗整合', quantity: 1, unit: '式', unitPrice: 98000 },
-      { id: 'q3-new', category: '備品', itemName: '陳列桌與展示道具', description: '三組陳列桌與展示層架', quantity: 1, unit: '式', unitPrice: 128000 },
-      { id: 'q4-new', category: '印刷', itemName: '贈品吊卡與貼紙', description: '吊卡、貼紙、包裝貼標', quantity: 1, unit: '式', unitPrice: 52000 },
+      { id: 'q1-new', category: '場佈', itemName: '入口主背板製作', description: '主背板木作、輸出與現場安裝', quantity: 1, unit: '式', unitPrice: 176000, amount: 176000, remark: '主背板木作、輸出與現場安裝' },
+      { id: 'q2-new', category: '視覺', itemName: '導視系統與立牌', description: '導視立牌、價卡與掛旗整合', quantity: 1, unit: '式', unitPrice: 98000, amount: 98000, remark: '導視立牌、價卡與掛旗整合' },
+      { id: 'q3-new', category: '備品', itemName: '陳列桌與展示道具', description: '三組陳列桌與展示層架', quantity: 1, unit: '式', unitPrice: 128000, amount: 128000, remark: '三組陳列桌與展示層架' },
+      { id: 'q4-new', category: '印刷', itemName: '贈品吊卡與貼紙', description: '吊卡、貼紙、包裝貼標', quantity: 1, unit: '式', unitPrice: 52000, amount: 52000, remark: '吊卡、貼紙、包裝貼標' },
     ],
     [
-      { id: 'q1-old', category: '場佈', itemName: '入口主背板製作', description: '主背板木作與基本輸出', quantity: 1, unit: '式', unitPrice: 168000 },
-      { id: 'q2-old', category: '視覺', itemName: '導視系統與立牌', description: '導視立牌與掛旗整合', quantity: 1, unit: '式', unitPrice: 92000 },
-      { id: 'q3-old', category: '備品', itemName: '陳列桌與展示道具', description: '陳列桌與展示道具', quantity: 1, unit: '式', unitPrice: 126000 },
-      { id: 'q4-old', category: '印刷', itemName: '贈品吊卡與貼紙', description: '吊卡與貼紙', quantity: 1, unit: '式', unitPrice: 48000 },
+      { id: 'q1-old', category: '場佈', itemName: '入口主背板製作', description: '主背板木作與基本輸出', quantity: 1, unit: '式', unitPrice: 168000, amount: 168000, remark: '主背板木作與基本輸出' },
+      { id: 'q2-old', category: '視覺', itemName: '導視系統與立牌', description: '導視立牌與掛旗整合', quantity: 1, unit: '式', unitPrice: 92000, amount: 92000, remark: '導視立牌與掛旗整合' },
+      { id: 'q3-old', category: '備品', itemName: '陳列桌與展示道具', description: '陳列桌與展示道具', quantity: 1, unit: '式', unitPrice: 126000, amount: 126000, remark: '陳列桌與展示道具' },
+      { id: 'q4-old', category: '印刷', itemName: '贈品吊卡與貼紙', description: '吊卡與貼紙', quantity: 1, unit: '式', unitPrice: 48000, amount: 48000, remark: '吊卡與貼紙' },
     ],
   ],
   'obsidian-launch-2026': [
     [
-      { id: 'o1-new', category: '舞台', itemName: '主舞台 LED 動畫', description: 'LED 動畫設計與播放素材整理', quantity: 1, unit: '式', unitPrice: 295000 },
-      { id: 'o2-new', category: '會場', itemName: '接待區背牆木作', description: '背牆木作、烤漆與施工', quantity: 1, unit: '式', unitPrice: 372000 },
-      { id: 'o3-new', category: '輸出', itemName: '現場指示與識別物', description: '名牌、指示牌與報到背板輸出', quantity: 1, unit: '式', unitPrice: 128000 },
+      { id: 'o1-new', category: '舞台', itemName: '主舞台 LED 動畫', description: 'LED 動畫設計與播放素材整理', quantity: 1, unit: '式', unitPrice: 295000, amount: 295000, remark: 'LED 動畫設計與播放素材整理' },
+      { id: 'o2-new', category: '會場', itemName: '接待區背牆木作', description: '背牆木作、烤漆與施工', quantity: 1, unit: '式', unitPrice: 372000, amount: 372000, remark: '背牆木作、烤漆與施工' },
+      { id: 'o3-new', category: '輸出', itemName: '現場指示與識別物', description: '名牌、指示牌與報到背板輸出', quantity: 1, unit: '式', unitPrice: 128000, amount: 128000, remark: '名牌、指示牌與報到背板輸出' },
     ],
     [
-      { id: 'o1-old', category: '舞台', itemName: '主舞台 LED 動畫', description: 'LED 動畫設計與素材整理', quantity: 1, unit: '式', unitPrice: 285000 },
-      { id: 'o2-old', category: '會場', itemName: '接待區背牆木作', description: '背牆木作、烤漆與施工', quantity: 1, unit: '式', unitPrice: 360000 },
-      { id: 'o3-old', category: '輸出', itemName: '現場指示與識別物', description: '指示牌與報到背板輸出', quantity: 1, unit: '式', unitPrice: 118000 },
+      { id: 'o1-old', category: '舞台', itemName: '主舞台 LED 動畫', description: 'LED 動畫設計與素材整理', quantity: 1, unit: '式', unitPrice: 285000, amount: 285000, remark: 'LED 動畫設計與素材整理' },
+      { id: 'o2-old', category: '會場', itemName: '接待區背牆木作', description: '背牆木作、烤漆與施工', quantity: 1, unit: '式', unitPrice: 360000, amount: 360000, remark: '背牆木作、烤漆與施工' },
+      { id: 'o3-old', category: '輸出', itemName: '現場指示與識別物', description: '指示牌與報到背板輸出', quantity: 1, unit: '式', unitPrice: 118000, amount: 118000, remark: '指示牌與報到背板輸出' },
     ],
   ],
 };
@@ -119,9 +124,9 @@ export const quoteCostProjectFixtures: QuoteCostProject[] = [
     closeStatus: '已結案',
     note: '已結案範例：列表仍只分執行中 / 已結案，不增加次狀態。',
     quotationItems: [
-      { id: 'q1', category: '視覺', itemName: 'POP 與價卡完稿', description: '檔期 POP、價卡與吊牌完稿', quantity: 1, unit: '式', unitPrice: 92000 },
-      { id: 'q2', category: '展示', itemName: '展示架與五金配件', description: '展示架結構、五金與現場調整', quantity: 1, unit: '式', unitPrice: 146000 },
-      { id: 'q3', category: '贈品', itemName: '贈品包材追加', description: '贈品包材與標示物追加', quantity: 1, unit: '式', unitPrice: 58000 },
+      { id: 'q1', category: '視覺', itemName: 'POP 與價卡完稿', description: '檔期 POP、價卡與吊牌完稿', quantity: 1, unit: '式', unitPrice: 92000, amount: 92000, remark: '檔期 POP、價卡與吊牌完稿' },
+      { id: 'q2', category: '展示', itemName: '展示架與五金配件', description: '展示架結構、五金與現場調整', quantity: 1, unit: '式', unitPrice: 146000, amount: 146000, remark: '展示架結構、五金與現場調整' },
+      { id: 'q3', category: '贈品', itemName: '贈品包材追加', description: '贈品包材與標示物追加', quantity: 1, unit: '式', unitPrice: 58000, amount: 58000, remark: '贈品包材與標示物追加' },
     ],
     costItems: [
       { id: 'c1', itemName: 'POP 與價卡輸出', sourceType: '設計', sourceRef: '設計文件整理 / POP 完稿', vendorId: 'vendor-print-house', vendorName: '春分印刷', originalAmount: 41800, adjustedAmount: 41800, includedInCost: true, isManual: false },

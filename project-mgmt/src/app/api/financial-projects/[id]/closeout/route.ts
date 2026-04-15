@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createPhase1DbClient } from '@/lib/db/phase1-client';
+import { hasFinancialQuotationImportTotalAmountColumn } from '@/lib/db/quotation-schema';
 
 export async function POST(request: Request, context: { params: Promise<{ id: string }> }) {
   try {
@@ -28,13 +29,21 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
       [id],
     );
 
+    const hasQuotationImportTotalAmountColumn = await hasFinancialQuotationImportTotalAmountColumn().catch(() => false);
     const quotationRows = await db.query<{ total: number | null }>(
-      `
-        select coalesce(sum(quantity * unit_price), 0)::float8 as total
-        from financial_quotation_line_items fqli
-        inner join financial_quotation_imports fqi on fqi.id = fqli.quotation_import_id
-        where fqi.project_id = $1 and fqi.is_active = true
-      `,
+      hasQuotationImportTotalAmountColumn
+        ? `
+            select coalesce(total_amount, 0)::float8 as total
+            from financial_quotation_imports
+            where project_id = $1 and is_active = true
+            limit 1
+          `
+        : `
+            select coalesce(sum(quantity * unit_price), 0)::float8 as total
+            from financial_quotation_line_items fqli
+            inner join financial_quotation_imports fqi on fqi.id = fqli.quotation_import_id
+            where fqi.project_id = $1 and fqi.is_active = true
+          `,
       [id],
     );
 

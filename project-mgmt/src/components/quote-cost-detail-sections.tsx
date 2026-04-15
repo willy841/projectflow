@@ -321,6 +321,9 @@ export function QuoteDetailModal({
             <p className="mt-1 text-sm text-slate-500">
               {quoteImportRecord ? `目前版本：${quoteImportRecord.fileName} · 匯入時間 ${quoteImportRecord.importedAt}` : '目前尚未承接正式報價版本。'}
             </p>
+            {typeof quoteImportRecord?.totalAmount === 'number' ? (
+              <p className="mt-2 text-sm font-semibold text-slate-900">總金額 {formatCurrency(quoteImportRecord.totalAmount)}</p>
+            ) : null}
           </div>
           <button
             type="button"
@@ -336,23 +339,23 @@ export function QuoteDetailModal({
             <table className="min-w-[1080px] divide-y divide-slate-200 text-left text-sm xl:min-w-full">
               <thead className="bg-slate-50 text-slate-500">
                 <tr>
-                  <th className="px-4 py-3 font-medium">分類</th>
-                  <th className="px-4 py-3 font-medium">項目名稱</th>
-                  <th className="px-4 py-3 font-medium min-w-[320px]">備註</th>
+                  <th className="px-4 py-3 font-medium">商品名稱</th>
+                  <th className="px-4 py-3 font-medium">單價</th>
                   <th className="px-4 py-3 font-medium">數量</th>
                   <th className="px-4 py-3 font-medium">單位</th>
-                  <th className="px-4 py-3 font-medium">單價</th>
+                  <th className="px-4 py-3 font-medium">金額</th>
+                  <th className="px-4 py-3 font-medium min-w-[320px]">備註</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 bg-white">
                 {items.length ? items.map((item) => (
                   <tr key={item.id} className="align-top hover:bg-slate-50/80">
-                    <td className="px-4 py-4 text-slate-600 whitespace-nowrap">{item.category}</td>
                     <td className="px-4 py-4 font-medium text-slate-900">{item.itemName}</td>
-                    <td className="px-4 py-4 text-sm leading-6 text-slate-600 whitespace-pre-wrap break-words">{item.description || '-'}</td>
+                    <td className="px-4 py-4 text-slate-600 whitespace-nowrap">{formatCurrency(item.unitPrice)}</td>
                     <td className="px-4 py-4 text-slate-600 whitespace-nowrap">{item.quantity}</td>
-                    <td className="px-4 py-4 text-slate-600 whitespace-nowrap">{item.unit}</td>
-                    <td className="px-4 py-4 font-semibold text-slate-900 whitespace-nowrap">{formatCurrency(item.unitPrice)}</td>
+                    <td className="px-4 py-4 text-slate-600 whitespace-nowrap">{item.unit || '-'}</td>
+                    <td className="px-4 py-4 font-semibold text-slate-900 whitespace-nowrap">{formatCurrency(item.amount)}</td>
+                    <td className="px-4 py-4 text-sm leading-6 text-slate-600 whitespace-pre-wrap break-words">{item.remark || '-'}</td>
                   </tr>
                 )) : (
                   <tr>

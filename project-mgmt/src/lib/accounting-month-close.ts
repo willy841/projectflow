@@ -1,4 +1,4 @@
-import type { QuoteCostProject } from '../components/quote-cost-data';
+import { getQuotationTotal, type QuoteCostProject } from '../components/quote-cost-data';
 
 export type AccountingMonthCloseRow = {
   projectId: string;
@@ -15,12 +15,7 @@ function normalizeMoney(value: number | null | undefined) {
 }
 
 function getProjectQuoteTotal(project: QuoteCostProject) {
-  return normalizeMoney(
-    project.quotationItems.reduce(
-      (sum, item) => sum + normalizeMoney(item.quantity) * normalizeMoney(item.unitPrice),
-      0,
-    ),
-  );
+  return normalizeMoney(getQuotationTotal(project.quotationItems, project.quotationImport));
 }
 
 export function buildAccountingMonthCloseRows(

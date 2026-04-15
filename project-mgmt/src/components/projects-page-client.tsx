@@ -38,7 +38,7 @@ export function ProjectsPageClient({ initialProjects }: { initialProjects: Proje
     return [...filteredProjects]
       .map((project) => {
         const financialProject = financialProjects.find((item) => item.id === project.id || item.projectName === project.name);
-        const budget = financialProject ? formatCurrency(getQuotationTotal(financialProject.quotationItems)) : project.budget;
+        const budget = financialProject ? formatCurrency(getQuotationTotal(financialProject.quotationItems, financialProject.quotationImport)) : project.budget;
         const cost = financialProject ? formatCurrency(getProjectCostTotal(financialProject.costItems)) : project.cost;
 
         return {

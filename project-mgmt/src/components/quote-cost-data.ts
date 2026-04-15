@@ -11,6 +11,8 @@ export type QuoteLineItem = {
   quantity: number;
   unit: string;
   unitPrice: number;
+  amount: number;
+  remark: string;
 };
 
 export type CostSourceType = '設計' | '備品' | '廠商' | '人工';
@@ -33,6 +35,7 @@ export type QuoteImportRecord = {
   importedAt: string;
   fileName: string;
   note: string;
+  totalAmount: number | null;
 };
 
 export type QuoteCostProject = {
@@ -77,8 +80,11 @@ export function formatCurrency(value: number) {
   }).format(value);
 }
 
-export function getQuotationTotal(items: QuoteLineItem[]) {
-  return items.reduce((sum, item) => sum + item.quantity * item.unitPrice, 0);
+export function getQuotationTotal(items: QuoteLineItem[], importRecord?: QuoteImportRecord | null) {
+  if (typeof importRecord?.totalAmount === 'number') {
+    return importRecord.totalAmount;
+  }
+  return items.reduce((sum, item) => sum + item.amount, 0);
 }
 
 export function getAdjustedCostTotal(items: CostLineItem[]) {

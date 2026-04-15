@@ -1,4 +1,5 @@
 import { createPhase1DbClient } from '@/lib/db/phase1-client';
+import { hasFinancialQuotationImportTotalAmountColumn } from '@/lib/db/quotation-schema';
 
 type OverviewMetricRow = {
   totalProjects: number;
@@ -41,6 +42,7 @@ function formatCurrency(amount: number) {
 
 export async function getHomeOverviewReadModel(): Promise<HomeOverviewReadModel> {
   const db = createPhase1DbClient();
+  const hasQuotationImportTotalAmountColumn = await hasFinancialQuotationImportTotalAmountColumn().catch(() => false);
 
   const metricRows = await db.query<OverviewMetricRow>(`
     with project_base as (
@@ -73,11 +75,11 @@ export async function getHomeOverviewReadModel(): Promise<HomeOverviewReadModel>
     quotation_totals as (
       select
         fqi.project_id,
-        coalesce(sum(fqli.quantity * fqli.unit_price), 0)::float8 as total
+        coalesce(${hasQuotationImportTotalAmountColumn ? 'fqi.total_amount' : 'sum(fqli.quantity * fqli.unit_price)'}, 0)::float8 as total
       from financial_quotation_imports fqi
-      inner join financial_quotation_line_items fqli on fqli.quotation_import_id = fqi.id
+      ${hasQuotationImportTotalAmountColumn ? '' : 'inner join financial_quotation_line_items fqli on fqli.quotation_import_id = fqi.id'}
       where fqi.is_active = true
-      group by fqi.project_id
+      ${hasQuotationImportTotalAmountColumn ? '' : 'group by fqi.project_id'}
     ),
     collection_totals as (
       select

@@ -211,7 +211,7 @@ export async function getAccountingRevenueSummaryByMonths(months: string[]): Pro
   const operatingTotals = await Promise.all(months.map((month) => getAccountingOperatingExpenseSummaryByMonth(month)));
 
   const closedProjects = projects.filter((project) => project.projectStatus === '已結案' && months.some((month) => project.eventDate.startsWith(month)));
-  const closedRevenue = closedProjects.reduce((sum, project) => sum + project.quotationItems.reduce((acc, item) => acc + item.quantity * item.unitPrice, 0), 0);
+  const closedRevenue = closedProjects.reduce((sum, project) => sum + (project.quotationImport?.totalAmount ?? project.quotationItems.reduce((acc, item) => acc + item.amount, 0)), 0);
   const closedCost = closedProjects.reduce((sum, project) => sum + project.costItems.filter((item) => item.includedInCost).reduce((acc, item) => acc + item.adjustedAmount, 0), 0);
   const operatingExpense = operatingTotals.reduce((sum, item) => sum + item.operatingExpenseTotal, 0);
 

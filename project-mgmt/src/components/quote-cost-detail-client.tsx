@@ -74,7 +74,6 @@ export function QuoteCostDetailClient({ project, mode = "active", presenter = ge
   const [closeoutError, setCloseoutError] = useState<string | null>(null);
   const [activeArchiveSource, setActiveArchiveSource] = useState<CostSourceType>("設計");
   const [isQuoteDetailModalOpen, setIsQuoteDetailModalOpen] = useState(false);
-  const [isImportingQuote, setIsImportingQuote] = useState(false);
   const [isQuoteImporting, setIsQuoteImporting] = useState(false);
   const quoteImportInputRef = useRef<HTMLInputElement | null>(null);
   const quoteImportRecord = state.quotationImport;
@@ -369,34 +368,7 @@ export function QuoteCostDetailClient({ project, mode = "active", presenter = ge
     }
   }
 
-  async function handleImportExcel(file: File) {
-    if (isImportingQuote) return;
 
-    setIsImportingQuote(true);
-    try {
-      const formData = new FormData();
-      formData.append('file', file);
-
-      const response = await fetch(`/api/financial-projects/${state.id}/quotation-import`, {
-        method: 'POST',
-        body: formData,
-      });
-      const result = await response.json();
-
-      if (!response.ok || !result?.ok) {
-        window.alert(result?.error ?? 'Excel 匯入失敗');
-        return;
-      }
-
-      router.refresh();
-      window.location.reload();
-    } catch (error) {
-      console.error(error);
-      window.alert('Excel 匯入失敗');
-    } finally {
-      setIsImportingQuote(false);
-    }
-  }
 
   return (
     <>

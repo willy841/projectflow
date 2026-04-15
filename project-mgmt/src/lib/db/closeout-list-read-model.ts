@@ -1,4 +1,5 @@
 import { createPhase1DbClient } from '@/lib/db/phase1-client';
+import { hasFinancialQuotationImportTotalAmountColumn } from '@/lib/db/quotation-schema';
 
 export type CloseoutListRow = {
   id: string;
@@ -13,6 +14,7 @@ export type CloseoutListRow = {
 
 export async function getCloseoutListReadModel(): Promise<CloseoutListRow[]> {
   const db = createPhase1DbClient();
+  const hasQuotationImportTotalAmountColumn = await hasFinancialQuotationImportTotalAmountColumn().catch(() => false);
   const result = await db.query<CloseoutListRow>(`
     with latest_confirmations as (
       select distinct on (tc.project_id, tc.flow_type, tc.task_id)
@@ -41,11 +43,11 @@ export async function getCloseoutListReadModel(): Promise<CloseoutListRow[]> {
     quotation_totals as (
       select
         fqi.project_id,
-        coalesce(sum(fqli.quantity * fqli.unit_price), 0)::float8 as total
+        coalesce(${hasQuotationImportTotalAmountColumn ? 'fqi.total_amount' : 'sum(fqli.quantity * fqli.unit_price)'}, 0)::float8 as total
       from financial_quotation_imports fqi
-      inner join financial_quotation_line_items fqli on fqli.quotation_import_id = fqi.id
+      ${hasQuotationImportTotalAmountColumn ? '' : 'inner join financial_quotation_line_items fqli on fqli.quotation_import_id = fqi.id'}
       where fqi.is_active = true
-      group by fqi.project_id
+      ${hasQuotationImportTotalAmountColumn ? '' : 'group by fqi.project_id'}
     )
     select
       p.id,
