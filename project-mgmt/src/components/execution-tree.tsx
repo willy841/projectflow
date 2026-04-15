@@ -2179,11 +2179,6 @@ export function ExecutionTree({
                                       {child.status}
                                     </span>
                                   ) : null}
-                                </div>
-                                <div className="mt-2.5 flex flex-wrap items-center gap-2">
-                                  <h5 className="font-medium text-slate-900">
-                                    {child.title}
-                                  </h5>
                                   {savedDesignAssignments[child.id] ? (
                                     <span className="inline-flex items-center justify-center rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700 ring-1 ring-slate-200">
                                       已建立設計交辦
@@ -2204,6 +2199,11 @@ export function ExecutionTree({
                                       尚未建立交辦
                                     </span>
                                   ) : null}
+                                </div>
+                                <div className="mt-2.5 flex flex-wrap items-center gap-2">
+                                  <h5 className="font-medium text-slate-900">
+                                    {child.title}
+                                  </h5>
                                 </div>
                                 {child.note ? (
                                   <p className="mt-2 text-sm text-slate-500">
