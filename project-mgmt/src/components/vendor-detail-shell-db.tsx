@@ -413,7 +413,7 @@ export function VendorDetailShellDb({ vendor, records, paymentRecords, tradeOpti
 
       <article className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
         <div className="mb-5 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
             <h3 className="text-xl font-semibold text-slate-900">往來紀錄</h3>
             <button
               type="button"
@@ -429,24 +429,23 @@ export function VendorDetailShellDb({ vendor, records, paymentRecords, tradeOpti
             >
               過往紀錄
             </button>
+            <label className="min-w-[260px] flex-1 lg:max-w-md">
+              <input type="search" value={historyKeyword} onChange={(event) => setHistoryKeyword(event.target.value)} placeholder="搜尋專案名稱、摘要或發包內容" className="h-10 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400" />
+            </label>
           </div>
-          <div className="rounded-2xl bg-slate-50 px-4 py-3 text-sm text-slate-600 ring-1 ring-slate-200">
-            目前顯示 {filteredHistoryRecords.length} 筆往來紀錄
+          <div className="flex items-center gap-3">
+            <label className="block w-[220px]">
+              <select value={historySort} onChange={(event) => setHistorySort(event.target.value as typeof historySort)} className="h-10 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400">
+                <option value="project-asc">專案名稱 A → Z</option>
+                <option value="project-desc">專案名稱 Z → A</option>
+                <option value="amount-desc">未付款金額高 → 低</option>
+                <option value="amount-asc">未付款金額低 → 高</option>
+              </select>
+            </label>
+            <div className="rounded-2xl bg-slate-50 px-4 py-3 text-sm text-slate-600 ring-1 ring-slate-200">
+              目前顯示 {filteredHistoryRecords.length} 筆往來紀錄
+            </div>
           </div>
-        </div>
-
-        <div className="mb-4 grid gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4 lg:grid-cols-[minmax(0,1fr)_220px] lg:items-end">
-          <label className="block">
-            <input type="search" value={historyKeyword} onChange={(event) => setHistoryKeyword(event.target.value)} placeholder="搜尋專案名稱、摘要或發包內容" className="h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400" />
-          </label>
-          <label className="block">
-            <select value={historySort} onChange={(event) => setHistorySort(event.target.value as typeof historySort)} className="h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400">
-              <option value="project-asc">專案名稱 A → Z</option>
-              <option value="project-desc">專案名稱 Z → A</option>
-              <option value="amount-desc">未付款金額高 → 低</option>
-              <option value="amount-asc">未付款金額低 → 高</option>
-            </select>
-          </label>
         </div>
 
         <div className="space-y-4">
