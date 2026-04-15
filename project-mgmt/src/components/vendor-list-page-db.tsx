@@ -150,7 +150,7 @@ export function VendorListPageDb({ vendors }: { vendors: VendorBasicProfile[] })
                 <button
                   type="button"
                   onClick={() => setDeletingVendorId(vendor.id)}
-                  className="inline-flex items-center justify-center rounded-2xl border border-rose-200 bg-rose-50 px-4 py-2.5 text-sm font-semibold text-rose-700 transition hover:border-rose-300 hover:bg-rose-100"
+                  className="inline-flex rounded-full bg-rose-50 px-3 py-1 text-xs font-medium text-rose-700 ring-1 ring-rose-200 transition hover:bg-rose-100"
                 >
                   刪除廠商
                 </button>
