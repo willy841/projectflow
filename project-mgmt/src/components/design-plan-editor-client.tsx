@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useEffect, useId, useMemo, useState } from "react";
 
 type DesignPlanInput = {
   id: string;
@@ -15,6 +15,11 @@ type DesignPlanInput = {
   vendor: string;
 };
 
+type VendorOption = {
+  id: string;
+  name: string;
+};
+
 export function DesignPlanEditorClient({
   taskId,
   initialPlans,
@@ -23,6 +28,7 @@ export function DesignPlanEditorClient({
   initialPlans: DesignPlanInput[];
 }) {
   const router = useRouter();
+  const vendorListId = useId();
   const useDbActions = useMemo(
     () => /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(taskId),
     [taskId],
@@ -47,6 +53,28 @@ export function DesignPlanEditorClient({
   const [message, setMessage] = useState("");
   const [saving, setSaving] = useState(false);
   const [confirming, setConfirming] = useState(false);
+  const [vendorOptions, setVendorOptions] = useState<VendorOption[]>([]);
+
+  useEffect(() => {
+    if (!useDbActions) return;
+
+    let active = true;
+
+    fetch("/api/vendors")
+      .then((response) => response.ok ? response.json() : null)
+      .then((payload: { vendors?: VendorOption[] } | null) => {
+        if (!active) return;
+        setVendorOptions(payload?.vendors ?? []);
+      })
+      .catch(() => {
+        if (!active) return;
+        setVendorOptions([]);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [useDbActions]);
 
   function updatePlan(id: string, key: keyof DesignPlanInput, value: string) {
     setPlans((current) =>
@@ -215,7 +243,13 @@ export function DesignPlanEditorClient({
             </label>
             <label className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3.5 xl:col-span-2">
               <p className="text-xs font-medium tracking-wide text-slate-500">執行廠商</p>
-              <input value={plan.vendor} onChange={(e) => updatePlan(plan.id, "vendor", e.target.value)} className="mt-2 h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm font-medium text-slate-900" />
+              <input
+                list={vendorListId}
+                value={plan.vendor}
+                onChange={(e) => updatePlan(plan.id, "vendor", e.target.value)}
+                placeholder={vendorOptions.length ? "可直接輸入或選擇既有廠商" : "可直接輸入廠商名稱"}
+                className="mt-2 h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm font-medium text-slate-900"
+              />
             </label>
           </div>
           <div className="mt-4 flex items-center justify-between gap-3 border-t border-slate-100 pt-4">
@@ -229,6 +263,14 @@ export function DesignPlanEditorClient({
           </div>
         </article>
       ))}
+
+      {vendorOptions.length ? (
+        <datalist id={vendorListId}>
+          {vendorOptions.map((vendor) => (
+            <option key={vendor.id} value={vendor.name} />
+          ))}
+        </datalist>
+      ) : null}
 
       {message ? (
         <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm whitespace-pre-line text-emerald-800">

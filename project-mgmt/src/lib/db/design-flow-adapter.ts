@@ -1,4 +1,4 @@
-import type { DesignDocumentRow, DesignTaskRecord } from '@/components/design-task-data';
+import type { DesignTaskRecord } from '@/components/design-task-data';
 import { createPhase1DbClient } from '@/lib/db/phase1-client';
 import { createPhase1Repositories } from '@/lib/db/phase1-repositories';
 
@@ -32,24 +32,6 @@ function formatDateLike(value: string | Date | null | undefined): string {
   return value;
 }
 
-function buildDocumentRowsFromPlans(
-  plans: Array<{
-    id: string;
-    title: string;
-    size: string | null;
-    material: string | null;
-    structure: string | null;
-    quantity: string | null;
-  }>,
-): DesignDocumentRow[] {
-  return plans.map((plan, index) => ({
-    id: index + 1,
-    item: plan.title || `處理方案 ${index + 1}`,
-    size: plan.size ?? '未填寫',
-    materialStructure: plan.material ?? '未填寫',
-    quantity: plan.quantity ?? '未填寫',
-  }));
-}
 
 export async function listDbDesignTaskProjects(): Promise<DbDesignProjectSummary[]> {
   const db = createPhase1DbClient();
@@ -112,25 +94,23 @@ export async function getDbDesignTaskById(id: string): Promise<DbBackedDesignTas
     ? await repositories.taskConfirmations.listSnapshots(latestConfirmation.id)
     : [];
 
-  const documentRows = snapshots.length
-    ? snapshots.map((snapshot, index) => {
-        const payload = snapshot.payload_json as {
-          title?: string;
-          size?: string | null;
-          material?: string | null;
-          structure?: string | null;
-          quantity?: string | null;
-        };
+  const documentRows = snapshots.map((snapshot, index) => {
+    const payload = snapshot.payload_json as {
+      title?: string;
+      size?: string | null;
+      material?: string | null;
+      structure?: string | null;
+      quantity?: string | null;
+    };
 
-        return {
-          id: index + 1,
-          item: payload.title || `處理方案 ${index + 1}`,
-          size: payload.size ?? '未填寫',
-          materialStructure: payload.material ?? '未填寫',
-          quantity: payload.quantity ?? '未填寫',
-        };
-      })
-    : buildDocumentRowsFromPlans(plans);
+    return {
+      id: index + 1,
+      item: payload.title || `處理方案 ${index + 1}`,
+      size: payload.size ?? '未填寫',
+      materialStructure: payload.material ?? '未填寫',
+      quantity: payload.quantity ?? '未填寫',
+    };
+  });
 
   return {
     id: task.id,

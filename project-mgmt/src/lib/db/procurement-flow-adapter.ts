@@ -1,4 +1,4 @@
-import type { ProcurementBoardRecord, ProcurementDocumentRow } from '@/components/procurement-task-board-data';
+import type { ProcurementBoardRecord } from '@/components/procurement-task-board-data';
 import { createPhase1DbClient } from '@/lib/db/phase1-client';
 import { createPhase1Repositories } from '@/lib/db/phase1-repositories';
 
@@ -22,18 +22,6 @@ type DbProcurementTaskSummary = {
   costLabel: string;
 };
 
-function buildDocumentRowsFromPlans(
-  plans: Array<{
-    title: string;
-    quantity: string | null;
-  }>,
-): ProcurementDocumentRow[] {
-  return plans.map((plan, index) => ({
-    id: index + 1,
-    item: plan.title || `處理方案 ${index + 1}`,
-    quantity: plan.quantity ?? '未填寫',
-  }));
-}
 
 export async function listDbProcurementTaskProjects(): Promise<DbProcurementProjectSummary[]> {
   const db = createPhase1DbClient();
@@ -92,20 +80,18 @@ export async function getDbProcurementTaskById(id: string): Promise<DbBackedProc
     ? await repositories.taskConfirmations.listSnapshots(latestConfirmation.id)
     : [];
 
-  const documentRows = snapshots.length
-    ? snapshots.map((snapshot, index) => {
-        const payload = snapshot.payload_json as {
-          title?: string;
-          quantity?: string | null;
-        };
+  const documentRows = snapshots.map((snapshot, index) => {
+    const payload = snapshot.payload_json as {
+      title?: string;
+      quantity?: string | null;
+    };
 
-        return {
-          id: index + 1,
-          item: payload.title || `處理方案 ${index + 1}`,
-          quantity: payload.quantity ?? '未填寫',
-        };
-      })
-    : buildDocumentRowsFromPlans(plans);
+    return {
+      id: index + 1,
+      item: payload.title || `處理方案 ${index + 1}`,
+      quantity: payload.quantity ?? '未填寫',
+    };
+  });
 
   return {
     id: task.id,
