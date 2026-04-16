@@ -39,8 +39,8 @@ export default async function VendorPackagesPage() {
         )) : (
           <WorkspaceEmptyState
             title="目前尚無可承接的文件"
-            description="請先回到廠商發包板完成全部確認，再從這裡查看最終文件。"
-            actions={<Link href="/vendor-assignments" className={workspacePrimaryButtonClass}>返回廠商發包板</Link>}
+            description="請先回到廠商發包板完成全部確認；確認後，這裡會承接可整理與查看的發包內容。"
+            actions={<Link href="/vendor-assignments" className={workspacePrimaryButtonClass}>前往廠商發包板</Link>}
           />
         )}
       </section>
