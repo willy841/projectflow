@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { AppShell } from "@/components/app-shell";
+import { AppShellAuth } from "@/components/app-shell-auth";
 import { vendorAssignments } from "@/components/vendor-data";
 import { WorkspaceEmptyState, WorkspaceHeader, WorkspaceSection, WorkspaceStat, workspacePrimaryButtonClass } from "@/components/workspace-ui";
 import {
@@ -97,7 +97,7 @@ export default async function VendorAssignmentsPage({
   const activeProject = projects.find((project) => project.projectId === activeProjectId);
 
   return (
-    <AppShell activePath="/vendor-assignments">
+    <AppShellAuth activePath="/vendor-assignments">
       <WorkspaceHeader
         title="廠商發包板"
         badge={<span className="inline-flex items-center rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-600 ring-1 ring-slate-200">共 {activeProject ? vendorGroups.length : projects.length} {activeProject ? "組廠商" : "個專案"}</span>}
@@ -165,6 +165,6 @@ export default async function VendorAssignmentsPage({
           </div>
         )}
       </WorkspaceSection>
-    </AppShell>
+    </AppShellAuth>
   );
 }

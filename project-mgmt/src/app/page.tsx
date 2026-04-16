@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { AppShell } from "@/components/app-shell";
+import { AppShellAuth } from "@/components/app-shell-auth";
 import { getProjectRouteId } from "@/components/project-data";
 import { WorkspaceEmptyState } from "@/components/workspace-ui";
 import { getHomeOverviewReadModel } from "@/lib/db/home-overview-read-model";
@@ -10,7 +10,7 @@ export default async function Home() {
   const financeMetrics = overview.metrics.slice(4);
 
   return (
-    <AppShell activePath="/">
+    <AppShellAuth activePath="/">
       <header className="relative overflow-hidden rounded-[32px] bg-slate-950 p-7 text-white shadow-lg ring-1 ring-slate-900/80 lg:p-8">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(59,130,246,0.28),transparent_30%),radial-gradient(circle_at_bottom_left,rgba(14,165,233,0.18),transparent_35%)]" />
         <div className="relative flex flex-col gap-8 2xl:flex-row 2xl:items-center 2xl:justify-between">
@@ -113,6 +113,6 @@ export default async function Home() {
           )}
         </article>
       </section>
-    </AppShell>
+    </AppShellAuth>
   );
 }

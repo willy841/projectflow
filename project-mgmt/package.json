@@ -13,7 +13,8 @@
     "db:phase1:check": "bash db/scripts/check-phase1-sql.sh",
     "db:phase1:smoke": "bash db/scripts/smoke-check-phase1.sh",
     "db:seed:formal-acceptance": "node scripts/seed-projectflow-formal-acceptance-sample.js",
-    "auth:init-owner": "node scripts/init-system-owner.js"
+    "auth:init-owner": "node scripts/init-system-owner.js",
+    "db:apply-sql": "node scripts/run-sql-file.js"
   },
   "dependencies": {
     "next": "16.2.1",

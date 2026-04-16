@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { AppShell } from "@/components/app-shell";
+import { AppShellAuth } from "@/components/app-shell-auth";
 import { getVendorDocumentStatusClass } from "@/components/vendor-data";
 import { WorkspaceEmptyState, WorkspaceHeader, workspacePrimaryButtonClass } from "@/components/workspace-ui";
 import { listDbVendorPackages } from "@/lib/db/vendor-package-adapter";
@@ -15,7 +15,7 @@ export default async function VendorPackagesPage() {
   const packages = shouldUseDbVendorFlow() ? await listDbVendorPackages() : [];
 
   return (
-    <AppShell activePath="/vendor-packages">
+    <AppShellAuth activePath="/vendor-packages">
       <WorkspaceHeader title="廠商發包清單" />
 
       <section className="space-y-4">
@@ -44,6 +44,6 @@ export default async function VendorPackagesPage() {
           />
         )}
       </section>
-    </AppShell>
+    </AppShellAuth>
   );
 }

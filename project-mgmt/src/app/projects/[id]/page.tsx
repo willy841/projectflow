@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { AppShell } from "@/components/app-shell";
+import { AppShellAuth } from "@/components/app-shell-auth";
 import { ProjectDetailShell } from "@/components/project-detail-shell";
 import { getProjectById, getProjectRouteId } from "@/components/project-data";
 import { projects } from "@/components/project-data";
@@ -34,7 +34,7 @@ export default async function ProjectDetailPage({
   }
 
   return (
-    <AppShell activePath="/projects">
+    <AppShellAuth activePath="/projects">
       <ProjectDetailShell
         project={project}
         entryContext={{
@@ -42,6 +42,6 @@ export default async function ProjectDetailPage({
           source: resolvedSearchParams.source,
         }}
       />
-    </AppShell>
+    </AppShellAuth>
   );
 }
