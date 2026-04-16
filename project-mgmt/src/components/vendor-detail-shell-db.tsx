@@ -160,7 +160,7 @@ export function VendorDetailShellDb({ vendor, records, paymentRecords, tradeOpti
       window.alert(result?.error ?? '儲存廠商資料失敗');
       return;
     }
-    setProfileMessage('已儲存，重新整理後已從 DB readback。');
+    setProfileMessage('已儲存，頁面即將重新整理以顯示最新資料。');
     window.location.reload();
   }
 
@@ -391,7 +391,7 @@ export function VendorDetailShellDb({ vendor, records, paymentRecords, tradeOpti
                   ) : null}
                 </label>
               );
-            }) : <div className="rounded-2xl border border-dashed border-amber-300 bg-white px-5 py-6 text-sm text-slate-500">目前沒有未付款專案。</div>}
+            }) : <div className="rounded-2xl border border-dashed border-amber-300 bg-white px-5 py-6 text-sm text-slate-500">目前沒有待付款專案。</div>}
           </div>
 
           <div className="mt-4 flex flex-col gap-3 rounded-2xl bg-slate-900 px-4 py-4 text-white lg:flex-row lg:items-center lg:justify-between">
@@ -493,7 +493,7 @@ export function VendorDetailShellDb({ vendor, records, paymentRecords, tradeOpti
 
               </div>
             );
-          }) : <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-5 py-6 text-sm text-slate-500">目前沒有符合條件的 DB 往來紀錄。</div>}
+          }) : <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-5 py-6 text-sm text-slate-500">目前沒有符合條件的往來紀錄。</div>}
         </div>
       </article>
 

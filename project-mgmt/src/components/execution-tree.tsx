@@ -16,6 +16,7 @@ import {
   getStatusClass,
 } from "@/components/project-data";
 import type { VendorBasicProfile } from "@/components/vendor-data";
+import { WorkspaceStatusNotice } from "@/components/workspace-ui";
 
 export type AssignmentReply = {
   id: string;
@@ -1823,8 +1824,8 @@ export function ExecutionTree({
           </div>
         </div>
         {excelImportError ? (
-          <div className="mt-4 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
-            {excelImportError}
+          <div className="mt-4" data-testid="execution-item-import-inline-error">
+            <WorkspaceStatusNotice tone="error">{excelImportError}</WorkspaceStatusNotice>
           </div>
         ) : null}
 

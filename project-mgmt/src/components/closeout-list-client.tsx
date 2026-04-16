@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import { AppShell } from "@/components/app-shell";
 import { formatCurrency } from "@/components/quote-cost-data";
+import { WorkspaceEmptyState, workspacePrimaryButtonClass } from "@/components/workspace-ui";
 import type { CloseoutListRow } from "@/lib/db/closeout-list-read-model";
 
 const ITEMS_PER_PAGE = 10;
@@ -81,31 +82,57 @@ export function CloseoutListClient({ initialProjects }: { initialProjects: Close
           </div>
         </div>
 
-        <div className="space-y-4">
-          {pagedProjects.map((project) => (
-            <article key={project.id} className="rounded-3xl border border-slate-200 p-5">
-              <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
-                <div>
-                  <h4 className="text-xl font-semibold text-slate-900">{project.projectName}</h4>
-                  <p className="mt-2 text-sm text-slate-600">{project.clientName} ・ 活動日期 {project.eventDate}</p>
+        {pagedProjects.length ? (
+          <div className="space-y-4">
+            {pagedProjects.map((project) => (
+              <article key={project.id} className="rounded-3xl border border-slate-200 p-5">
+                <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
+                  <div>
+                    <h4 className="text-xl font-semibold text-slate-900">{project.projectName}</h4>
+                    <p className="mt-2 text-sm text-slate-600">{project.clientName} ・ 活動日期 {project.eventDate}</p>
+                  </div>
+
+                  <Link
+                    href={`/closeouts/${project.id}`}
+                    className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 transition hover:border-slate-400 hover:bg-slate-50"
+                  >
+                    查看
+                  </Link>
                 </div>
 
-                <Link
-                  href={`/closeout/${project.id}`}
-                  className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 transition hover:border-slate-400 hover:bg-slate-50"
+                <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+                  <ArchiveValueCard label="對外報價總額" value={formatCurrency(project.quotationTotal)} />
+                  <ArchiveValueCard label="專案成本" value={formatCurrency(project.projectCostTotal)} />
+                  <ArchiveValueCard label="毛利" value={formatCurrency(project.grossProfit)} />
+                </div>
+              </article>
+            ))}
+          </div>
+        ) : (
+          <WorkspaceEmptyState
+            title={searchKeyword.trim() || selectedYear !== 'all' ? '找不到符合條件的結案紀錄' : '目前尚無結案紀錄'}
+            description={searchKeyword.trim() || selectedYear !== 'all' ? '請調整搜尋、年份或排序條件後再查看。' : '待專案完成結案後，這裡會顯示可留存的結案紀錄。'}
+            actions={
+              searchKeyword.trim() || selectedYear !== 'all' ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSearchKeyword('');
+                    setSelectedYear('all');
+                    setPage(1);
+                  }}
+                  className={workspacePrimaryButtonClass}
                 >
-                  查看
+                  清除篩選
+                </button>
+              ) : (
+                <Link href="/quote-costs" className={workspacePrimaryButtonClass}>
+                  前往報價成本
                 </Link>
-              </div>
-
-              <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-                <ArchiveValueCard label="對外報價總額" value={formatCurrency(project.quotationTotal)} />
-                <ArchiveValueCard label="專案成本" value={formatCurrency(project.projectCostTotal)} />
-                <ArchiveValueCard label="毛利" value={formatCurrency(project.grossProfit)} />
-              </div>
-            </article>
-          ))}
-        </div>
+              )
+            }
+          />
+        )}
 
         <div className="mt-6 flex items-center justify-between gap-3">
           <p className="text-sm text-slate-500">第 {currentPage} / {totalPages} 頁</p>

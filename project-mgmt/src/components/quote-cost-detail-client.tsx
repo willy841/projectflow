@@ -344,7 +344,7 @@ export function QuoteCostDetailClient({ project, mode = "active", presenter = ge
 
       setState((prev) => ({ ...prev, projectStatus: '已結案', closeStatus: '已結案' }));
       router.refresh();
-      router.push(`/closeout/${state.id}`);
+      router.push(`/closeouts/${state.id}`);
     } catch (error) {
       console.error(error);
       setCloseoutError('結案失敗');

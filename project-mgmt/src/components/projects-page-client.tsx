@@ -4,18 +4,24 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { AppShell } from "@/components/app-shell";
-import { getProjectRouteId, getStatusClass, type Project } from "@/components/project-data";
+import { getProjectRouteId, type Project } from "@/components/project-data";
 import { formatCurrency, getProjectCostTotal, getQuotationTotal } from "@/components/quote-cost-data";
 import { getQuoteCostProjectsWithWorkflow } from "@/components/project-workflow-store";
+import { WorkspaceEmptyState, WorkspaceStatusNotice, workspacePrimaryButtonClass } from "@/components/workspace-ui";
 import { isUuidLike } from "@/lib/db/project-flow-toggle";
 
 const parseEventDate = (value: string) => new Date(value).getTime();
+const PROJECTS_PER_PAGE = 10;
+const PROJECT_STATUS_FILTERS = ["全部", "執行中", "待發包", "採購中"] as const;
+type ProjectStatusFilter = (typeof PROJECT_STATUS_FILTERS)[number];
 
 export function ProjectsPageClient({ initialProjects }: { initialProjects: Project[] }) {
   const router = useRouter();
   const [projects, setProjects] = useState<Project[]>(initialProjects);
   const [dateSortOrder, setDateSortOrder] = useState<"asc" | "desc">("desc");
   const [searchKeyword, setSearchKeyword] = useState("");
+  const [statusFilter, setStatusFilter] = useState<ProjectStatusFilter>("全部");
+  const [page, setPage] = useState(1);
   const [deletingProjectId, setDeletingProjectId] = useState<string | null>(null);
   const [pendingDeleteProject, setPendingDeleteProject] = useState<Project | null>(null);
   const [deleteConfirmName, setDeleteConfirmName] = useState("");
@@ -29,11 +35,12 @@ export function ProjectsPageClient({ initialProjects }: { initialProjects: Proje
     const keyword = searchKeyword.trim().toLowerCase();
     const financialProjects = getQuoteCostProjectsWithWorkflow();
 
-    const filteredProjects = keyword
-      ? projects.filter((project) => {
-          return [project.name, project.client, project.location, project.code].some((value) => value.toLowerCase().includes(keyword));
-        })
-      : projects;
+    const filteredProjects = projects.filter((project) => {
+      const matchesKeyword =
+        !keyword || [project.name, project.client, project.location, project.code, project.owner].some((value) => value.toLowerCase().includes(keyword));
+      const matchesStatus = statusFilter === "全部" || project.status === statusFilter;
+      return matchesKeyword && matchesStatus;
+    });
 
     return [...filteredProjects]
       .map((project) => {
@@ -51,7 +58,11 @@ export function ProjectsPageClient({ initialProjects }: { initialProjects: Proje
         const dateDiff = parseEventDate(a.eventDate) - parseEventDate(b.eventDate);
         return dateSortOrder === "asc" ? dateDiff : -dateDiff;
       });
-  }, [dateSortOrder, projects, searchKeyword]);
+  }, [dateSortOrder, projects, searchKeyword, statusFilter]);
+
+  const totalPages = Math.max(1, Math.ceil(visibleProjects.length / PROJECTS_PER_PAGE));
+  const currentPage = Math.min(page, totalPages);
+  const pagedProjects = visibleProjects.slice((currentPage - 1) * PROJECTS_PER_PAGE, currentPage * PROJECTS_PER_PAGE);
 
   async function confirmDeleteProject() {
     if (!pendingDeleteProject) return;
@@ -118,89 +129,166 @@ export function ProjectsPageClient({ initialProjects }: { initialProjects: Proje
               <p className="text-sm leading-none text-slate-500">
                 目前顯示 <span className="font-semibold text-slate-800">{visibleProjects.length}</span> / {projects.length} 個專案
               </p>
+              <p className="text-sm leading-none text-slate-500">
+                第 <span className="font-semibold text-slate-800">{currentPage}</span> / {totalPages} 頁
+              </p>
             </div>
           </div>
           <div className="flex w-full flex-col items-end gap-2 sm:flex-row sm:items-center xl:w-auto">
             <input
               value={searchKeyword}
-              onChange={(event) => setSearchKeyword(event.target.value)}
+              onChange={(event) => {
+                setSearchKeyword(event.target.value);
+                setPage(1);
+              }}
               placeholder="搜尋專案 / 客戶 / 地點"
               className="h-11 w-full min-w-0 rounded-2xl border border-slate-200 px-4 text-sm outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-200 sm:w-80 xl:w-72"
             />
           </div>
         </div>
 
-        <div className="overflow-x-auto rounded-2xl border border-slate-200">
-          <table className="min-w-[1280px] divide-y divide-slate-200 text-left text-sm xl:min-w-full">
-            <thead className="bg-slate-50 text-slate-500">
-              <tr>
-                <th className="px-4 py-3 font-medium">專案名稱</th>
-                <th className="px-4 py-3 font-medium">客戶</th>
-                <th className="px-4 py-3 font-medium">
-                  <button
-                    type="button"
-                    onClick={() => setDateSortOrder((current) => (current === "asc" ? "desc" : "asc"))}
-                    className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-left transition ${
-                      dateSortOrder === "asc" || dateSortOrder === "desc"
-                        ? "bg-slate-200 text-slate-900 shadow-sm"
-                        : "text-slate-500"
-                    } hover:bg-slate-200 hover:text-slate-900`}
-                  >
-                    <span>活動日期</span>
-                    <span className={`text-xs ${dateSortOrder === "asc" || dateSortOrder === "desc" ? "text-slate-700" : "text-slate-400"}`}>
-                      {dateSortOrder === "asc" ? "↑ 最舊" : "↓ 最新"}
-                    </span>
-                  </button>
-                </th>
-                <th className="px-4 py-3 font-medium">地點</th>
-                <th className="px-4 py-3 font-medium">預算</th>
-                <th className="px-4 py-3 font-medium">成本</th>
-                <th className="px-4 py-3 font-medium">負責人</th>
-                <th className="px-4 py-3 font-medium text-right">操作</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100 bg-white">
-              {visibleProjects.map((project) => {
-                const isDbProject = isUuidLike(project.id);
-                const isDeleting = deletingProjectId === project.id;
-
-                return (
-                  <tr key={project.id} className="align-middle">
-                    <td className="px-4 py-4 align-middle">
-                      <Link href={`/projects/${getProjectRouteId(project)}`} className="font-medium text-slate-900 underline-offset-4 hover:underline">
-                        {project.name}
-                      </Link>
-                    </td>
-                    <td className="px-4 py-4 align-middle text-slate-600">{project.client}</td>
-                    <td className="px-4 py-4 align-middle text-slate-600">{project.eventDate}</td>
-                    <td className="px-4 py-4 align-middle text-slate-600">{project.location}</td>
-                    <td className="px-4 py-4 align-middle text-slate-600">{project.budget}</td>
-                    <td className="px-4 py-4 align-middle text-slate-600">{project.cost}</td>
-                    <td className="px-4 py-4 align-middle text-slate-600">{project.owner}</td>
-                    <td className="px-4 py-4 align-middle text-right">
-                      {isDbProject ? (
-                        <button
-                          type="button"
-                          disabled={isDeleting}
-                          onClick={() => {
-                            setDeleteError("");
-                            setDeleteConfirmName("");
-                            setPendingDeleteProject(project);
-                          }}
-                          className="inline-flex items-center justify-center rounded-2xl border border-rose-200 bg-rose-50 px-3 py-2 text-xs font-semibold text-rose-700 transition hover:bg-rose-100 disabled:cursor-not-allowed disabled:opacity-50"
-                        >
-                          {isDeleting ? "刪除中..." : "刪除"}
-                        </button>
-                      ) : (
-                        <span className="text-xs text-slate-400">僅 DB 專案可刪除</span>
-                      )}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+        <div className="mb-5 flex flex-wrap gap-2">
+          {PROJECT_STATUS_FILTERS.map((filter) => {
+            const isActive = statusFilter === filter;
+            return (
+              <button
+                key={filter}
+                type="button"
+                onClick={() => {
+                  setStatusFilter(filter);
+                  setPage(1);
+                }}
+                className={`inline-flex items-center justify-center rounded-2xl px-4 py-2 text-sm font-semibold ring-1 transition ${
+                  isActive ? "bg-slate-900 text-white ring-slate-900" : "bg-white text-slate-700 ring-slate-200 hover:bg-slate-50"
+                }`}
+              >
+                {filter}
+              </button>
+            );
+          })}
         </div>
+
+        {visibleProjects.length ? (
+          <div className="overflow-x-auto rounded-2xl border border-slate-200">
+            <table className="min-w-[1280px] divide-y divide-slate-200 text-left text-sm xl:min-w-full">
+              <thead className="bg-slate-50 text-slate-500">
+                <tr>
+                  <th className="px-4 py-3 font-medium">專案名稱</th>
+                  <th className="px-4 py-3 font-medium">客戶</th>
+                  <th className="px-4 py-3 font-medium">
+                    <button
+                      type="button"
+                      onClick={() => setDateSortOrder((current) => (current === "asc" ? "desc" : "asc"))}
+                      className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-left transition ${
+                        dateSortOrder === "asc" || dateSortOrder === "desc"
+                          ? "bg-slate-200 text-slate-900 shadow-sm"
+                          : "text-slate-500"
+                      } hover:bg-slate-200 hover:text-slate-900`}
+                    >
+                      <span>活動日期</span>
+                      <span className={`text-xs ${dateSortOrder === "asc" || dateSortOrder === "desc" ? "text-slate-700" : "text-slate-400"}`}>
+                        {dateSortOrder === "asc" ? "↑ 最舊" : "↓ 最新"}
+                      </span>
+                    </button>
+                  </th>
+                  <th className="px-4 py-3 font-medium">地點</th>
+                  <th className="px-4 py-3 font-medium">預算</th>
+                  <th className="px-4 py-3 font-medium">成本</th>
+                  <th className="px-4 py-3 font-medium">負責人</th>
+                  <th className="px-4 py-3 font-medium text-right">操作</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100 bg-white">
+                {pagedProjects.map((project) => {
+                  const isDbProject = isUuidLike(project.id);
+                  const isDeleting = deletingProjectId === project.id;
+
+                  return (
+                    <tr key={project.id} className="align-middle">
+                      <td className="px-4 py-4 align-middle">
+                        <Link href={`/projects/${getProjectRouteId(project)}`} className="font-medium text-slate-900 underline-offset-4 hover:underline">
+                          {project.name}
+                        </Link>
+                      </td>
+                      <td className="px-4 py-4 align-middle text-slate-600">{project.client}</td>
+                      <td className="px-4 py-4 align-middle text-slate-600">{project.eventDate}</td>
+                      <td className="px-4 py-4 align-middle text-slate-600">{project.location}</td>
+                      <td className="px-4 py-4 align-middle text-slate-600">{project.budget}</td>
+                      <td className="px-4 py-4 align-middle text-slate-600">{project.cost}</td>
+                      <td className="px-4 py-4 align-middle text-slate-600">{project.owner}</td>
+                      <td className="px-4 py-4 align-middle text-right">
+                        {isDbProject ? (
+                          <button
+                            type="button"
+                            disabled={isDeleting}
+                            onClick={() => {
+                              setDeleteError("");
+                              setDeleteConfirmName("");
+                              setPendingDeleteProject(project);
+                            }}
+                            className="inline-flex items-center justify-center rounded-2xl border border-rose-200 bg-rose-50 px-3 py-2 text-xs font-semibold text-rose-700 transition hover:bg-rose-100 disabled:cursor-not-allowed disabled:opacity-50"
+                          >
+                            {isDeleting ? "刪除中..." : "刪除"}
+                          </button>
+                        ) : (
+                          <span className="text-xs text-slate-400">僅 DB 專案可刪除</span>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <WorkspaceEmptyState
+            title={searchKeyword.trim() || statusFilter !== "全部" ? "找不到符合條件的專案" : "目前尚無執行中專案"}
+            description={searchKeyword.trim() || statusFilter !== "全部" ? "請調整搜尋或狀態條件後再查看。" : "建立新專案後，這裡會顯示可進入的執行中專案。"}
+            actions={
+              searchKeyword.trim() || statusFilter !== "全部" ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSearchKeyword("");
+                    setStatusFilter("全部");
+                    setPage(1);
+                  }}
+                  className={workspacePrimaryButtonClass}
+                >
+                  清除篩選
+                </button>
+              ) : (
+                <Link href="/projects/new" className={workspacePrimaryButtonClass}>
+                  建立新專案
+                </Link>
+              )
+            }
+          />
+        )}
+
+        {visibleProjects.length ? (
+          <div className="mt-6 flex items-center justify-between gap-3">
+            <p className="text-sm text-slate-500">第 {currentPage} / {totalPages} 頁</p>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => setPage((current) => Math.max(1, current - 1))}
+                disabled={currentPage === 1}
+                className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                上一頁
+              </button>
+              <button
+                type="button"
+                onClick={() => setPage((current) => Math.min(totalPages, current + 1))}
+                disabled={currentPage === totalPages}
+                className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                下一頁
+              </button>
+            </div>
+          </div>
+        ) : null}
       </section>
 
       {pendingDeleteProject ? (
@@ -240,7 +328,11 @@ export function ProjectsPageClient({ initialProjects }: { initialProjects: Proje
             ) : null}
           </div>
 
-          {deleteError ? <p className="mt-4 text-sm text-rose-700">{deleteError}</p> : null}
+          {deleteError ? (
+            <div className="mt-4" data-testid="project-delete-inline-error">
+              <WorkspaceStatusNotice tone="error">{deleteError}</WorkspaceStatusNotice>
+            </div>
+          ) : null}
 
           <div className="mt-5 flex flex-wrap gap-3">
             <button
