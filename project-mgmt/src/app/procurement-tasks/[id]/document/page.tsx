@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AppShell } from "@/components/app-shell";
 import { ProcurementDocumentExportButton } from "@/components/document-export-button";
-import { MockProcurementDocumentView } from "@/components/mock-procurement-document-view";
+import { TaskDocumentTable } from "@/components/task-document-table";
 import { procurementTaskBoardRecords } from "@/components/procurement-task-board-data";
 import { WorkspaceHeader, WorkspaceSection } from "@/components/workspace-ui";
 import { getDbProcurementTaskById } from "@/lib/db/procurement-flow-adapter";
@@ -35,8 +35,17 @@ export default async function ProcurementTaskDocumentPage({ params }: { params: 
         }
       />
 
-      <WorkspaceSection title="文件">
-        <MockProcurementDocumentView taskId={task.id} fallbackRows={task.documentRows} />
+      <WorkspaceSection title="文件" meta="此頁僅顯示正式確認後承接的文件內容。">
+        <TaskDocumentTable
+          rows={task.documentRows}
+          columns={[
+            { key: "id", label: "編號", render: (row) => row.id },
+            { key: "item", label: "項目", render: (row) => row.item },
+            { key: "quantity", label: "數量", render: (row) => row.quantity },
+          ]}
+          emptyTitle="目前尚無正式備品文件"
+          emptyDescription="請先回到任務頁完成全部確認，文件頁才會承接正式成立的內容。"
+        />
       </WorkspaceSection>
     </AppShell>
   );

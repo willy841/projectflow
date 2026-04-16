@@ -5,6 +5,7 @@ import { useMemo, useState } from "react";
 import { AppShell } from "@/components/app-shell";
 import { getQuoteCostProjectsWithWorkflow } from "@/components/project-workflow-store";
 import type { QuoteCostProject } from "@/components/quote-cost-data";
+import { WorkspaceEmptyState, workspacePrimaryButtonClass } from "@/components/workspace-ui";
 
 export function QuoteCostListClient({ mode = "active", initialProjects }: { mode?: "active" | "closed"; initialProjects?: QuoteCostProject[] }) {
   const [searchKeyword, setSearchKeyword] = useState("");
@@ -39,6 +40,8 @@ export function QuoteCostListClient({ mode = "active", initialProjects }: { mode
     return null;
   }
 
+  const hasKeyword = Boolean(searchKeyword.trim());
+
   return (
     <AppShell activePath="/quote-costs">
       <header className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200 xl:p-7">
@@ -57,34 +60,59 @@ export function QuoteCostListClient({ mode = "active", initialProjects }: { mode
       </header>
 
       <section className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
-        <div className="space-y-4">
-          {activeProjects.map(({ project }) => (
-            <article key={project.id} className="rounded-3xl border border-slate-200 p-5">
-              <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
-                <div className="space-y-3">
-                  <div className="flex flex-wrap items-center gap-3">
-                    <h3 className="text-xl font-semibold text-slate-900">{project.projectName}</h3>
-                    <span
-                      className={`inline-flex rounded-full px-4 py-1.5 text-sm font-semibold ring-1 ${project.quotationImported ? "bg-emerald-100 text-emerald-800 ring-emerald-300" : "bg-amber-100 text-amber-800 ring-amber-300"}`}
-                    >
-                      {project.quotationImported ? "已上傳" : "未上傳"}
-                    </span>
+        {activeProjects.length ? (
+          <div className="space-y-4">
+            {activeProjects.map(({ project }) => (
+              <article key={project.id} className="rounded-3xl border border-slate-200 p-5">
+                <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
+                  <div className="space-y-3">
+                    <div className="flex flex-wrap items-center gap-3">
+                      <h3 className="text-xl font-semibold text-slate-900">{project.projectName}</h3>
+                      <span
+                        className={`inline-flex rounded-full px-4 py-1.5 text-sm font-semibold ring-1 ${project.quotationImported ? "bg-emerald-100 text-emerald-800 ring-emerald-300" : "bg-amber-100 text-amber-800 ring-amber-300"}`}
+                      >
+                        {project.quotationImported ? "已上傳" : "未上傳"}
+                      </span>
+                    </div>
+                    <p className="text-sm text-slate-500">活動日期 {project.eventDate}</p>
                   </div>
-                  <p className="text-sm text-slate-500">活動日期 {project.eventDate}</p>
-                </div>
 
-                <Link
-                  href={`/quote-costs/${project.id}`}
-                  className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 transition hover:border-slate-400 hover:bg-slate-50"
+                  <Link
+                    href={`/quote-costs/${project.id}`}
+                    className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 transition hover:border-slate-400 hover:bg-slate-50"
+                  >
+                    查看
+                  </Link>
+                </div>
+              </article>
+            ))}
+          </div>
+        ) : (
+          <WorkspaceEmptyState
+            title={hasKeyword ? "找不到符合條件的專案" : "目前尚無可進入的報價成本專案"}
+            description={
+              hasKeyword
+                ? "請調整搜尋條件，或改從其他關鍵字重新查找。"
+                : "待正式 DB 端已有執行中專案、確認成本項目或報價資料後，這裡才會出現可承接專案。"
+            }
+            actions={
+              hasKeyword ? (
+                <button
+                  type="button"
+                  onClick={() => setSearchKeyword("")}
+                  className={workspacePrimaryButtonClass}
                 >
-                  查看
+                  清除搜尋
+                </button>
+              ) : (
+                <Link href="/projects" className={workspacePrimaryButtonClass}>
+                  前往專案列表
                 </Link>
-              </div>
-            </article>
-          ))}
-        </div>
+              )
+            }
+          />
+        )}
       </section>
     </AppShell>
   );
 }
-

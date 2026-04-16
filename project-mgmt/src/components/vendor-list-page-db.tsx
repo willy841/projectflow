@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { formatCurrency, type VendorBasicProfile } from '@/components/vendor-data';
+import { WorkspaceEmptyState, workspacePrimaryButtonClass } from '@/components/workspace-ui';
 
 type VendorListPageDbProps = {
   vendors: VendorBasicProfile[];
@@ -312,9 +313,35 @@ export function VendorListPageDb({ vendors, tradeOptions: initialTradeOptions }:
           ))}
         </section>
       ) : (
-        <section className="rounded-3xl border border-dashed border-slate-300 bg-white px-6 py-10 text-center shadow-sm">
-          <p className="text-sm font-semibold text-slate-700">目前沒有符合條件的廠商</p>
-        </section>
+        <WorkspaceEmptyState
+          title={vendorCards.length ? '目前沒有符合條件的廠商' : '目前尚無正式廠商資料'}
+          description={vendorCards.length ? '可調整搜尋關鍵字或工種篩選後再查看。' : '待正式 DB 建立廠商資料後，這裡才會出現可管理的廠商清單。'}
+          actions={
+            vendorCards.length ? (
+              <button
+                type="button"
+                onClick={() => {
+                  setKeyword('');
+                  setActiveTrade(null);
+                }}
+                className={workspacePrimaryButtonClass}
+              >
+                清除篩選
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={() => {
+                  setIsCreateVendorOpen(true);
+                  setCreateVendorError(null);
+                }}
+                className={workspacePrimaryButtonClass}
+              >
+                建立第一個廠商
+              </button>
+            )
+          }
+        />
       )}
 
       {isCreateVendorOpen ? (

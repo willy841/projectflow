@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { AppShell } from "@/components/app-shell";
 import { getProjectRouteId } from "@/components/project-data";
+import { WorkspaceEmptyState } from "@/components/workspace-ui";
 import { getHomeOverviewReadModel } from "@/lib/db/home-overview-read-model";
 
 export default async function Home() {
@@ -50,32 +51,39 @@ export default async function Home() {
             </Link>
           </div>
 
-          <div className="overflow-x-auto rounded-2xl border border-slate-200">
-            <table className="min-w-full table-fixed divide-y divide-slate-200 text-left text-sm">
-              <thead className="bg-slate-50/80 text-slate-500">
-                <tr>
-                  <th className="w-[38%] px-4 py-3 font-medium">專案</th>
-                  <th className="w-[18%] px-4 py-3 font-medium">客戶</th>
-                  <th className="w-[18%] px-4 py-3 font-medium">日期</th>
-                  <th className="w-[16%] px-4 py-3 font-medium">負責人</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100 bg-white">
-                {overview.recentProjects.map((project) => (
-                  <tr key={project.id} className="align-top transition hover:bg-slate-50/70">
-                    <td className="px-4 py-4 align-top">
-                      <Link href={`/projects/${getProjectRouteId({ id: project.id, name: project.name })}`} className="line-clamp-2 font-semibold leading-6 text-slate-900 underline-offset-4 hover:text-slate-700 hover:underline">
-                        {project.name}
-                      </Link>
-                    </td>
-                    <td className="break-words px-4 py-4 align-top text-slate-600">{project.client}</td>
-                    <td className="break-words px-4 py-4 align-top text-slate-600">{project.eventDate}</td>
-                    <td className="px-4 py-4 text-slate-600">{project.owner}</td>
+          {overview.recentProjects.length ? (
+            <div className="overflow-x-auto rounded-2xl border border-slate-200">
+              <table className="min-w-full table-fixed divide-y divide-slate-200 text-left text-sm">
+                <thead className="bg-slate-50/80 text-slate-500">
+                  <tr>
+                    <th className="w-[38%] px-4 py-3 font-medium">專案</th>
+                    <th className="w-[18%] px-4 py-3 font-medium">客戶</th>
+                    <th className="w-[18%] px-4 py-3 font-medium">日期</th>
+                    <th className="w-[16%] px-4 py-3 font-medium">負責人</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody className="divide-y divide-slate-100 bg-white">
+                  {overview.recentProjects.map((project) => (
+                    <tr key={project.id} className="align-top transition hover:bg-slate-50/70">
+                      <td className="px-4 py-4 align-top">
+                        <Link href={`/projects/${getProjectRouteId({ id: project.id, name: project.name })}`} className="line-clamp-2 font-semibold leading-6 text-slate-900 underline-offset-4 hover:text-slate-700 hover:underline">
+                          {project.name}
+                        </Link>
+                      </td>
+                      <td className="break-words px-4 py-4 align-top text-slate-600">{project.client}</td>
+                      <td className="break-words px-4 py-4 align-top text-slate-600">{project.eventDate}</td>
+                      <td className="px-4 py-4 text-slate-600">{project.owner}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <WorkspaceEmptyState
+              title="目前尚無近期專案"
+              description="待正式 DB 端已有可顯示專案後，首頁才會在這裡顯示最近更新內容。"
+            />
+          )}
         </article>
 
         <article className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
@@ -88,14 +96,21 @@ export default async function Home() {
             </Link>
           </div>
 
-          <div className="space-y-3">
-            {financeMetrics.map((item) => (
-              <div key={item.label} className="rounded-2xl border border-slate-200 bg-slate-50/80 px-4 py-4">
-                <p className="text-sm text-slate-500">{item.label}</p>
-                <p className="mt-2 text-xl font-semibold text-slate-900">{item.value}</p>
-              </div>
-            ))}
-          </div>
+          {financeMetrics.length ? (
+            <div className="space-y-3">
+              {financeMetrics.map((item) => (
+                <div key={item.label} className="rounded-2xl border border-slate-200 bg-slate-50/80 px-4 py-4">
+                  <p className="text-sm text-slate-500">{item.label}</p>
+                  <p className="mt-2 text-xl font-semibold text-slate-900">{item.value}</p>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <WorkspaceEmptyState
+              title="目前尚無收款概況"
+              description="待正式 DB 端已有收款或報價成本資料後，首頁才會在這裡顯示匯總結果。"
+            />
+          )}
         </article>
       </section>
     </AppShell>

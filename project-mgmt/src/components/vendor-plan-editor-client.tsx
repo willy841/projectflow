@@ -54,7 +54,7 @@ export function VendorPlanEditorClient({ taskId, initialPlans, showConfirmButton
     setMessage("");
     try {
       if (!useDbActions) {
-        setMessage("這筆任務目前仍是舊 mock 路由資料，請改從正式任務列表進入。\n目前不會寫入正式資料。");
+        setMessage("這筆任務目前不是正式 DB 任務。\n請改從正式任務列表進入，這裡不會寫入正式資料。");
         return;
       }
       await persistCurrentPlans();
@@ -71,7 +71,7 @@ export function VendorPlanEditorClient({ taskId, initialPlans, showConfirmButton
     setMessage("");
     try {
       if (!useDbActions) {
-        setMessage("這筆任務目前仍是舊 mock 路由資料，請改從正式任務列表進入。\n目前不會建立正式確認結果。");
+        setMessage("這筆任務目前不是正式 DB 任務。\n請改從正式任務列表進入，這裡不會建立正式確認結果。");
         return;
       }
       await persistCurrentPlans();
