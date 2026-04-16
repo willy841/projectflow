@@ -258,6 +258,7 @@
 - 已新增：`MD135-projectflow-ui-consistency-95-percent-closure-and-guardrails-2026-04-15.md`
 - 已新增：`MD136-projectflow-product-guardrails-and-formalization-rules-2026-04-15.md`
 - 已新增：`MD137-projectflow-guardrails-round1-implementation-closure-2026-04-15.md`
+- 已新增：`MD138-projectflow-md-repo-status-audit-and-classification-2026-04-16.md`
 - 這份文件的重要性在於：
   - 它正式承接 `MD133` 之後的最新完成項
   - 把本輪最實際的驗收主線一次收斂成：
@@ -276,6 +277,22 @@
     - 哪些衝突已修正
     - 哪些仍待處理（例如測試資料治理、closeout/已結案主線正式收斂）
 - 若之後續接 `project detail / dispatch / overview / projects list / new project` 相關主線，`MD134` 應視為 `MD133` 之後的最新 closure / handoff 主入口。
+
+### P-1. 2026-04-16 每次續接 projectflow 的必讀清單（固定規則）
+只要要在新對話 / 新 session 續接 `projectflow`，至少必須先讀：
+1. `MD-MASTER-projectflow-system-source-of-truth.md`
+2. `MD-INDEX-projectflow-document-map-2026-04-09.md`
+3. `MD-INDEX-projectflow-status-board-2026-04-12.md`
+4. `MD133-projectflow-post-md108-phase-p3-home-overview-active-aggregation-final-closure-2026-04-13.md`
+5. `MD134-projectflow-post-md133-project-detail-dispatch-and-ui-closure-2026-04-14.md`
+6. `MD135-projectflow-ui-consistency-95-percent-closure-and-guardrails-2026-04-15.md`
+7. `MD136-projectflow-product-guardrails-and-formalization-rules-2026-04-15.md`
+8. `MD137-projectflow-guardrails-round1-implementation-closure-2026-04-15.md`
+
+補充規則：
+- `MD-CLEANUP-projectflow-status-map-2026-04-09.md` 與 `MD138-projectflow-md-repo-status-audit-and-classification-2026-04-16.md` 為閱讀輔助 / 分類盤點檔；不是新的 source of truth，但在整理哪些文件屬於 active / completed / superseded / historical / archive candidates 時，應優先回查。
+- 若上述文件與較早 handoff 衝突，以這份必讀鏈條為準。
+- 若後續新增比 `MD137` 更晚、且明確標示為最新 closure / guardrails / master continuation 的文件，續接前也必須一併補讀。
 
 本輪新增文件包括：
 1. `MD100-projectflow-upstream-usage-scenario-alignment-summary-2026-04-12.md`
