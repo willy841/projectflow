@@ -19,6 +19,7 @@ export type ReconciliationGroupItemView = {
 export type ReconciliationGroupView = {
   key: string;
   sourceType: '設計' | '備品' | '廠商';
+  vendorId?: string | null;
   vendorName: string;
   amountTotal: number;
   itemCount: number;

@@ -69,13 +69,15 @@ export async function getDbProcurementTaskById(id: string): Promise<DbBackedProc
   const task = await repositories.procurementTasks.findById(id);
   if (!task) return null;
 
-  const [project, plans, confirmations] = await Promise.all([
+  const [project, plans, confirmations, vendors] = await Promise.all([
     repositories.projects.findById(task.project_id),
     repositories.procurementTaskPlans.listByTask(task.id),
     repositories.taskConfirmations.listByTask('procurement', task.id),
+    repositories.vendors.list(),
   ]);
 
   const latestConfirmation = confirmations[0] ?? null;
+  const vendorNameById = new Map(vendors.map((vendor) => [vendor.id, vendor.name]));
   const snapshots = latestConfirmation
     ? await repositories.taskConfirmations.listSnapshots(latestConfirmation.id)
     : [];
@@ -104,7 +106,7 @@ export async function getDbProcurementTaskById(id: string): Promise<DbBackedProc
     replyCount: latestConfirmation ? 1 : 0,
     confirmStatus: latestConfirmation ? '已確認' : '待確認',
     documentStatus: latestConfirmation ? '已生成' : '未生成',
-    vendorName: plans[0]?.vendor_name_text ?? '未指定',
+    vendorName: (plans[0]?.vendor_id ? vendorNameById.get(plans[0].vendor_id) : null) ?? plans[0]?.vendor_name_text ?? '未指定',
     costLabel: task.budget_note ?? '未填寫',
     costAmount: Number(task.budget_note?.replace?.(/[^\d.-]/g, '') ?? 0),
     costLocked: Boolean(latestConfirmation),
@@ -116,7 +118,8 @@ export async function getDbProcurementTaskById(id: string): Promise<DbBackedProc
       quantity: plan.quantity ?? '',
       amount: plan.amount ? `NT$ ${plan.amount}` : '',
       previewUrl: plan.preview_url ?? '',
-      vendor: plan.vendor_name_text ?? '',
+      vendor: (plan.vendor_id ? vendorNameById.get(plan.vendor_id) : null) ?? plan.vendor_name_text ?? '',
+      vendorId: plan.vendor_id ?? undefined,
     })),
     documentRows,
     source: 'db',

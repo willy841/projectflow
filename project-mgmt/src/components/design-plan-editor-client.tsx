@@ -13,6 +13,7 @@ type DesignPlanInput = {
   amount: string;
   previewUrl: string;
   vendor: string;
+  vendorId?: string;
 };
 
 type VendorOption = {
@@ -76,9 +77,27 @@ export function DesignPlanEditorClient({
     };
   }, [useDbActions]);
 
+  useEffect(() => {
+    if (!vendorOptions.length) return;
+    setPlans((current) =>
+      current.map((plan) => {
+        if (plan.vendorId) return plan;
+        const matchedVendor = vendorOptions.find((vendor) => vendor.name === plan.vendor);
+        return matchedVendor ? { ...plan, vendorId: matchedVendor.id } : plan;
+      }),
+    );
+  }, [vendorOptions]);
+
   function updatePlan(id: string, key: keyof DesignPlanInput, value: string) {
     setPlans((current) =>
-      current.map((plan) => (plan.id === id ? { ...plan, [key]: value } : plan)),
+      current.map((plan) => {
+        if (plan.id !== id) return plan;
+        if (key === "vendor") {
+          const matchedVendor = vendorOptions.find((vendor) => vendor.name === value);
+          return { ...plan, vendor: value, vendorId: matchedVendor?.id };
+        }
+        return { ...plan, [key]: value };
+      }),
     );
   }
 
@@ -111,7 +130,7 @@ export function DesignPlanEditorClient({
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ plans: currentPlans }),
+      body: JSON.stringify({ plans: currentPlans.map((plan) => ({ ...plan, vendorId: plan.vendorId ?? null })) }),
     });
 
     if (!response.ok) {

@@ -7,6 +7,7 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     const body = (await request.json()) as {
       groups?: Array<{
         sourceType?: string;
+        vendorId?: string | null;
         vendorName?: string;
         reconciliationStatus?: '未對帳' | '已對帳';
       }>;
@@ -26,14 +27,15 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
             insert into financial_reconciliation_groups (
               project_id,
               source_type,
+              vendor_id,
               vendor_name,
               reconciliation_status,
               reconciled_at
             )
-            values ($1, $2, $3, $4, case when $4 = '已對帳' then now() else null end)
+            values ($1, $2, $3, $4, $5, case when $5 = '已對帳' then now() else null end)
             returning *
           `,
-          [id, group.sourceType, group.vendorName, group.reconciliationStatus ?? '未對帳'],
+          [id, group.sourceType, group.vendorId ?? null, group.vendorName, group.reconciliationStatus ?? '未對帳'],
         );
         if (result.rows[0]) rows.push(result.rows[0]);
       }

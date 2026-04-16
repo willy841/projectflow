@@ -10,6 +10,7 @@ type ProcurementPlanInput = {
   amount: string;
   previewUrl: string;
   vendor: string;
+  vendorId?: string;
 };
 
 type VendorOption = {
@@ -61,8 +62,24 @@ export function ProcurementPlanEditorClient({
     };
   }, [useDbActions]);
 
+  useEffect(() => {
+    if (!vendorOptions.length) return;
+    setPlans((current) => current.map((plan) => {
+      if (plan.vendorId) return plan;
+      const matchedVendor = vendorOptions.find((vendor) => vendor.name === plan.vendor);
+      return matchedVendor ? { ...plan, vendorId: matchedVendor.id } : plan;
+    }));
+  }, [vendorOptions]);
+
   function updatePlan(id: string, key: keyof ProcurementPlanInput, value: string) {
-    setPlans((current) => current.map((plan) => (plan.id === id ? { ...plan, [key]: value } : plan)));
+    setPlans((current) => current.map((plan) => {
+      if (plan.id !== id) return plan;
+      if (key === "vendor") {
+        const matchedVendor = vendorOptions.find((vendor) => vendor.name === value);
+        return { ...plan, vendor: value, vendorId: matchedVendor?.id };
+      }
+      return { ...plan, [key]: value };
+    }));
   }
 
   function addPlan() {
@@ -81,7 +98,7 @@ export function ProcurementPlanEditorClient({
     const response = await fetch(`/api/procurement-tasks/${taskId}/sync-plans`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ plans: currentPlans }),
+      body: JSON.stringify({ plans: currentPlans.map((plan) => ({ ...plan, vendorId: plan.vendorId ?? null })) }),
     });
 
     if (!response.ok) {

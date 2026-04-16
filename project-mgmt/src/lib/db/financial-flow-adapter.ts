@@ -201,6 +201,7 @@ type SnapshotAmountRow = {
   snapshotId: string;
   title: string | null;
   amount: number | null;
+  vendorId: string | null;
   vendorName: string | null;
 };
 
@@ -342,9 +343,11 @@ async function listDesignFinancialItems(): Promise<CostLineItem[]> {
       ts.id as "snapshotId",
       coalesce(ts.payload_json->>'title', '未命名設計項目') as title,
       nullif(ts.payload_json->>'amount', '')::numeric as amount,
-      nullif(ts.payload_json->>'vendor_name_text', '') as "vendorName"
+      nullif(ts.payload_json->>'vendor_id', '') as "vendorId",
+      coalesce(v.name, nullif(ts.payload_json->>'vendor_name_text', '')) as "vendorName"
     from latest_task_confirmations tc
     inner join task_confirmation_plan_snapshots ts on ts.task_confirmation_id = tc.id
+    left join vendors v on v.id = nullif(ts.payload_json->>'vendor_id', '')::uuid
     where tc.flow_type = 'design'
     order by tc.confirmed_at desc, ts.sort_order asc, ts.created_at asc
   `);
@@ -354,7 +357,7 @@ async function listDesignFinancialItems(): Promise<CostLineItem[]> {
     itemName: row.title ?? '未命名設計項目',
     sourceType: '設計',
     sourceRef: `設計正式確認 / ${row.taskId}`,
-    vendorId: null,
+    vendorId: row.vendorId,
     vendorName: row.vendorName,
     originalAmount: Number(row.amount ?? 0),
     adjustedAmount: Number(row.amount ?? 0),
@@ -374,9 +377,11 @@ async function listProcurementFinancialItems(): Promise<CostLineItem[]> {
       ts.id as "snapshotId",
       coalesce(ts.payload_json->>'title', '未命名備品項目') as title,
       nullif(ts.payload_json->>'amount', '')::numeric as amount,
-      nullif(ts.payload_json->>'vendor_name_text', '') as "vendorName"
+      nullif(ts.payload_json->>'vendor_id', '') as "vendorId",
+      coalesce(v.name, nullif(ts.payload_json->>'vendor_name_text', '')) as "vendorName"
     from latest_task_confirmations tc
     inner join task_confirmation_plan_snapshots ts on ts.task_confirmation_id = tc.id
+    left join vendors v on v.id = nullif(ts.payload_json->>'vendor_id', '')::uuid
     where tc.flow_type = 'procurement'
     order by tc.confirmed_at desc, ts.sort_order asc, ts.created_at asc
   `);
@@ -386,7 +391,7 @@ async function listProcurementFinancialItems(): Promise<CostLineItem[]> {
     itemName: row.title ?? '未命名備品項目',
     sourceType: '備品',
     sourceRef: `備品正式確認 / ${row.taskId}`,
-    vendorId: null,
+    vendorId: row.vendorId,
     vendorName: row.vendorName,
     originalAmount: Number(row.amount ?? 0),
     adjustedAmount: Number(row.amount ?? 0),
@@ -406,6 +411,7 @@ async function listVendorFinancialItems(): Promise<CostLineItem[]> {
       ts.id as "snapshotId",
       coalesce(ts.payload_json->>'title', '未命名廠商項目') as title,
       nullif(ts.payload_json->>'amount', '')::numeric as amount,
+      v.id as "vendorId",
       v.name as "vendorName"
     from latest_task_confirmations tc
     inner join task_confirmation_plan_snapshots ts on ts.task_confirmation_id = tc.id
@@ -420,7 +426,7 @@ async function listVendorFinancialItems(): Promise<CostLineItem[]> {
     itemName: row.title ?? '未命名廠商項目',
     sourceType: '廠商',
     sourceRef: `廠商正式確認 / ${row.vendorName ?? row.taskId}`,
-    vendorId: null,
+    vendorId: row.vendorId,
     vendorName: row.vendorName,
     originalAmount: Number(row.amount ?? 0),
     adjustedAmount: Number(row.amount ?? 0),
@@ -589,6 +595,7 @@ export async function getQuoteCostProjectsWithDbFinancials(): Promise<QuoteCostP
 export type FinancialReconciliationGroup = {
   key: string;
   sourceType: Exclude<CostSourceType, '人工'>;
+  vendorId: string | null;
   vendorName: string;
   amountTotal: number;
   itemCount: number;
@@ -600,8 +607,8 @@ export type QuoteCostProjectWithGroups = QuoteCostProject & {
   reconciliationGroups: FinancialReconciliationGroup[];
 };
 
-function buildFinancialGroupKey(projectId: string, sourceType: Exclude<CostSourceType, '人工'>, vendorName: string) {
-  return `${projectId}::${sourceType}::${vendorName}`;
+function buildFinancialGroupKey(projectId: string, sourceType: Exclude<CostSourceType, '人工'>, vendorId: string | null, vendorName: string) {
+  return `${projectId}::${sourceType}::${vendorId ?? `name:${vendorName}`}`;
 }
 
 async function attachReconciliationGroups(project: QuoteCostProject): Promise<QuoteCostProjectWithGroups> {
@@ -612,7 +619,7 @@ async function attachReconciliationGroups(project: QuoteCostProject): Promise<Qu
     .filter((item) => item.vendorName && item.includedInCost)
     .forEach((item) => {
       const vendorName = item.vendorName as string;
-      const key = buildFinancialGroupKey(project.id, item.sourceType, vendorName);
+      const key = buildFinancialGroupKey(project.id, item.sourceType, item.vendorId, vendorName);
       const existing = groupMap.get(key);
       if (existing) {
         existing.amountTotal += item.adjustedAmount;
@@ -624,6 +631,7 @@ async function attachReconciliationGroups(project: QuoteCostProject): Promise<Qu
       groupMap.set(key, {
         key,
         sourceType: item.sourceType,
+        vendorId: item.vendorId,
         vendorName,
         amountTotal: item.adjustedAmount,
         itemCount: 1,
@@ -635,12 +643,14 @@ async function attachReconciliationGroups(project: QuoteCostProject): Promise<Qu
   const db = createPhase1DbClient();
   const rows = await db.query<{
     sourceType: '設計' | '備品' | '廠商';
+    vendorId: string | null;
     vendorName: string;
     reconciliationStatus: '未對帳' | '已對帳';
   }>(
     `
       select
         source_type as "sourceType",
+        vendor_id as "vendorId",
         vendor_name as "vendorName",
         reconciliation_status as "reconciliationStatus"
       from financial_reconciliation_groups
@@ -650,7 +660,7 @@ async function attachReconciliationGroups(project: QuoteCostProject): Promise<Qu
   );
 
   for (const row of rows.rows) {
-    const key = buildFinancialGroupKey(project.id, row.sourceType, row.vendorName);
+    const key = buildFinancialGroupKey(project.id, row.sourceType, row.vendorId ?? null, row.vendorName);
     const existing = groupMap.get(key);
     if (existing) {
       existing.reconciliationStatus = row.reconciliationStatus;
@@ -659,6 +669,7 @@ async function attachReconciliationGroups(project: QuoteCostProject): Promise<Qu
     groupMap.set(key, {
       key,
       sourceType: row.sourceType,
+      vendorId: null,
       vendorName: row.vendorName,
       amountTotal: 0,
       itemCount: 0,

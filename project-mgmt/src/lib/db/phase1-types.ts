@@ -104,6 +104,7 @@ export interface DesignTaskPlanRow extends BaseMutableRow {
   quantity: string | null;
   amount: string | null;
   preview_url: string | null;
+  vendor_id: UUID | null;
   vendor_name_text: string | null;
   sort_order: number;
 }
@@ -114,6 +115,7 @@ export interface ProcurementTaskPlanRow extends BaseMutableRow {
   quantity: string | null;
   amount: string | null;
   preview_url: string | null;
+  vendor_id: UUID | null;
   vendor_name_text: string | null;
   sort_order: number;
 }
@@ -152,6 +154,7 @@ export interface TaskConfirmationPlanPayloadByFlow {
     quantity: string | null;
     amount: string | null;
     preview_url: string | null;
+    vendor_id: UUID | null;
     vendor_name_text: string | null;
   };
   procurement: {
@@ -159,6 +162,7 @@ export interface TaskConfirmationPlanPayloadByFlow {
     quantity: string | null;
     amount: string | null;
     preview_url: string | null;
+    vendor_id: UUID | null;
     vendor_name_text: string | null;
   };
   vendor: {

@@ -83,13 +83,15 @@ export async function getDbDesignTaskById(id: string): Promise<DbBackedDesignTas
   const task = await repositories.designTasks.findById(id);
   if (!task) return null;
 
-  const [project, plans, confirmations] = await Promise.all([
+  const [project, plans, confirmations, vendors] = await Promise.all([
     repositories.projects.findById(task.project_id),
     repositories.designTaskPlans.listByTask(task.id),
     repositories.taskConfirmations.listByTask('design', task.id),
+    repositories.vendors.list(),
   ]);
 
   const latestConfirmation = confirmations[0] ?? null;
+  const vendorNameById = new Map(vendors.map((vendor) => [vendor.id, vendor.name]));
   const snapshots = latestConfirmation
     ? await repositories.taskConfirmations.listSnapshots(latestConfirmation.id)
     : [];
@@ -129,7 +131,7 @@ export async function getDbDesignTaskById(id: string): Promise<DbBackedDesignTas
     referenceUrl: task.reference_url ?? '',
     structureRequired: task.material ?? '未填寫',
     outsourceStatus: latestConfirmation ? '已確認' : '待確認',
-    outsourceTarget: plans[0]?.vendor_name_text ?? '尚未指定',
+    outsourceTarget: (plans[0]?.vendor_id ? vendorNameById.get(plans[0].vendor_id) : null) ?? plans[0]?.vendor_name_text ?? '尚未指定',
     cost: plans[0]?.amount ? `NT$ ${plans[0].amount}` : 'NT$ 0',
     note: task.requirement_text ?? '',
     plans: plans.map((plan) => ({
@@ -141,7 +143,8 @@ export async function getDbDesignTaskById(id: string): Promise<DbBackedDesignTas
       quantity: plan.quantity ?? '',
       amount: plan.amount ? `NT$ ${plan.amount}` : '',
       previewUrl: plan.preview_url ?? '',
-      vendor: plan.vendor_name_text ?? '',
+      vendor: (plan.vendor_id ? vendorNameById.get(plan.vendor_id) : null) ?? plan.vendor_name_text ?? '',
+      vendorId: plan.vendor_id ?? undefined,
     })),
     documentRows,
     documentLink: '#',

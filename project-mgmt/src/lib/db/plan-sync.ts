@@ -153,6 +153,7 @@ function getComparableDesignValues(
     quantity: value.quantity ?? null,
     amount: value.amount ?? null,
     preview_url: value.preview_url ?? null,
+    vendor_id: value.vendor_id ?? null,
     vendor_name_text: value.vendor_name_text ?? null,
     sort_order: value.sort_order,
   };
@@ -167,6 +168,7 @@ function getComparableProcurementValues(
     quantity: value.quantity ?? null,
     amount: value.amount ?? null,
     preview_url: value.preview_url ?? null,
+    vendor_id: value.vendor_id ?? null,
     vendor_name_text: value.vendor_name_text ?? null,
     sort_order: value.sort_order,
   };

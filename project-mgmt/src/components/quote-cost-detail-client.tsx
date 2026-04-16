@@ -201,6 +201,7 @@ export function QuoteCostDetailClient({ project, mode = "active", presenter = ge
         body: JSON.stringify({
           groups: nextGroups.map((group) => ({
             sourceType: group.sourceType,
+            vendorId: group.vendorId ?? null,
             vendorName: group.vendorName,
             reconciliationStatus: group.reconciliationStatus,
           })),

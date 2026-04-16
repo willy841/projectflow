@@ -20,27 +20,36 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
         amount?: string;
         previewUrl?: string;
         vendor?: string;
+        vendorId?: string;
       }>;
     };
 
     const db = createPhase1DbClient();
     const repositories = createPhase1Repositories(db);
     const services = createPhase1Services(repositories);
+    const vendors = await repositories.vendors.list();
+    const vendorById = new Map(vendors.map((vendor) => [vendor.id, vendor]));
+    const vendorByName = new Map(vendors.map((vendor) => [vendor.name.trim(), vendor]));
 
     const result = await services.syncProcurementPlans(
       id,
       body.plans
         .filter((plan) => plan.title?.trim())
-        .map((plan, index) => ({
-          id: plan.id,
-          procurement_task_id: id,
-          title: plan.title,
-          quantity: plan.quantity ?? null,
-          amount: plan.amount?.replace(/[^\d.-]/g, '') || null,
-          preview_url: plan.previewUrl ?? null,
-          vendor_name_text: plan.vendor ?? null,
-          sort_order: index + 1,
-        })),
+        .map((plan, index) => {
+          const rawVendorName = plan.vendor?.trim() ?? '';
+          const matchedVendor = (plan.vendorId ? vendorById.get(plan.vendorId) : null) ?? (rawVendorName ? vendorByName.get(rawVendorName) : null) ?? null;
+          return {
+            id: plan.id,
+            procurement_task_id: id,
+            title: plan.title,
+            quantity: plan.quantity ?? null,
+            amount: plan.amount?.replace(/[^\d.-]/g, '') || null,
+            preview_url: plan.previewUrl ?? null,
+            vendor_id: matchedVendor?.id ?? null,
+            vendor_name_text: matchedVendor?.name ?? (rawVendorName || null),
+            sort_order: index + 1,
+          };
+        }),
     );
 
     return NextResponse.json({ ok: true, ...result });

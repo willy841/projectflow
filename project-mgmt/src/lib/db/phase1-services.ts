@@ -91,6 +91,35 @@ async function nextConfirmationNo(
   return (existing[0]?.confirmation_no ?? 0) + 1;
 }
 
+function normalizeVendorIdentityLookup(value: string | null | undefined): string {
+  return value?.trim() ?? '';
+}
+
+async function validateConfirmedPlanVendor(
+  repositories: Phase1Repositories,
+  flowLabel: '設計' | '備品',
+  planLabel: string,
+  vendorId: UUID | null,
+  vendorNameText: string | null,
+): Promise<{ id: UUID; name: string }> {
+  const normalizedVendorName = normalizeVendorIdentityLookup(vendorNameText);
+
+  if (!normalizedVendorName) {
+    throw new Error(`${flowLabel} ${planLabel} 尚未選擇正式廠商，無法全部確認。`);
+  }
+
+  if (!vendorId) {
+    throw new Error(`${flowLabel} ${planLabel} 的廠商「${normalizedVendorName}」無法對應既有 vendor identity，無法全部確認。`);
+  }
+
+  const vendor = await repositories.vendors.findById(vendorId);
+  if (!vendor) {
+    throw new Error(`${flowLabel} ${planLabel} 的廠商「${normalizedVendorName}」無法對應既有 vendor identity，無法全部確認。`);
+  }
+
+  return { id: vendor.id, name: vendor.name };
+}
+
 export function createPhase1Services(repositories: Phase1Repositories): Phase1Services {
   return {
     async publishDesignTask(input) {
@@ -200,6 +229,17 @@ export function createPhase1Services(repositories: Phase1Repositories): Phase1Se
       }
 
       const plans = await repositories.designTaskPlans.listByTask(taskId);
+      const resolvedVendors = await Promise.all(
+        plans.map((plan, index) =>
+          validateConfirmedPlanVendor(
+            repositories,
+            '設計',
+            `執行處理 #${index + 1}${plan.title ? `「${plan.title}」` : ''}`,
+            plan.vendor_id,
+            plan.vendor_name_text,
+          ),
+        ),
+      );
       const confirmation = await repositories.taskConfirmations.insert({
         project_id: task.project_id,
         flow_type: 'design',
@@ -208,7 +248,8 @@ export function createPhase1Services(repositories: Phase1Repositories): Phase1Se
         status: 'confirmed',
       });
 
-      for (const plan of plans) {
+      for (const [index, plan] of plans.entries()) {
+        const resolvedVendor = resolvedVendors[index];
         const payload: TaskConfirmationPlanPayloadByFlow['design'] = {
           title: plan.title,
           size: plan.size,
@@ -217,7 +258,8 @@ export function createPhase1Services(repositories: Phase1Repositories): Phase1Se
           quantity: plan.quantity,
           amount: plan.amount,
           preview_url: plan.preview_url,
-          vendor_name_text: plan.vendor_name_text,
+          vendor_id: resolvedVendor.id,
+          vendor_name_text: resolvedVendor.name,
         };
 
         const snapshotInput: InsertTaskConfirmationPlanSnapshotInput<'design'> = {
@@ -238,6 +280,17 @@ export function createPhase1Services(repositories: Phase1Repositories): Phase1Se
       }
 
       const plans = await repositories.procurementTaskPlans.listByTask(taskId);
+      const resolvedVendors = await Promise.all(
+        plans.map((plan, index) =>
+          validateConfirmedPlanVendor(
+            repositories,
+            '備品',
+            `執行處理 #${index + 1}${plan.title ? `「${plan.title}」` : ''}`,
+            plan.vendor_id,
+            plan.vendor_name_text,
+          ),
+        ),
+      );
       const confirmation = await repositories.taskConfirmations.insert({
         project_id: task.project_id,
         flow_type: 'procurement',
@@ -246,13 +299,15 @@ export function createPhase1Services(repositories: Phase1Repositories): Phase1Se
         status: 'confirmed',
       });
 
-      for (const plan of plans) {
+      for (const [index, plan] of plans.entries()) {
+        const resolvedVendor = resolvedVendors[index];
         const payload: TaskConfirmationPlanPayloadByFlow['procurement'] = {
           title: plan.title,
           quantity: plan.quantity,
           amount: plan.amount,
           preview_url: plan.preview_url,
-          vendor_name_text: plan.vendor_name_text,
+          vendor_id: resolvedVendor.id,
+          vendor_name_text: resolvedVendor.name,
         };
 
         const snapshotInput: InsertTaskConfirmationPlanSnapshotInput<'procurement'> = {
