@@ -2,10 +2,9 @@ import {
   type QuoteImportRecord,
   type QuoteLineItem,
 } from '@/components/quote-cost-data';
-import { quoteCostProjectFixtures } from '@/components/quote-cost-fixtures';
 import { createPhase1DbClient } from '@/lib/db/phase1-client';
 
-export type QuotationReadModelStatus = 'db-read-model' | 'missing-schema-seed-fallback' | 'query-failed-seed-fallback';
+export type QuotationReadModelStatus = 'db-read-model' | 'missing-schema-empty' | 'query-failed-empty';
 
 export type QuotationReadModel = {
   quotationImported: boolean;
@@ -18,16 +17,12 @@ const EMPTY_QUOTATION_READ_MODEL: QuotationReadModel = {
   quotationImported: false,
   quotationImport: null,
   quotationItems: [],
-  status: 'query-failed-seed-fallback',
+  status: 'query-failed-empty',
 };
 
-function buildSeedProjection(projectId: string, status: QuotationReadModelStatus): QuotationReadModel {
-  const fixtureProject = quoteCostProjectFixtures.find((project) => project.id === projectId);
-
+function buildEmptyProjection(status: QuotationReadModelStatus): QuotationReadModel {
   return {
-    quotationImported: fixtureProject?.quotationImported ?? EMPTY_QUOTATION_READ_MODEL.quotationImported,
-    quotationImport: fixtureProject?.quotationImport ?? EMPTY_QUOTATION_READ_MODEL.quotationImport,
-    quotationItems: fixtureProject?.quotationItems ?? EMPTY_QUOTATION_READ_MODEL.quotationItems,
+    ...EMPTY_QUOTATION_READ_MODEL,
     status,
   };
 }
@@ -144,7 +139,7 @@ export async function loadQuotationReadModelIndex(projectIds: string[]): Promise
 
   if (!hasSchema) {
     for (const projectId of projectIds) {
-      result.set(projectId, buildSeedProjection(projectId, 'missing-schema-seed-fallback'));
+      result.set(projectId, buildEmptyProjection('missing-schema-empty'));
     }
     return result;
   }
@@ -191,7 +186,7 @@ export async function loadQuotationReadModelIndex(projectIds: string[]): Promise
     return result;
   } catch {
     for (const projectId of projectIds) {
-      result.set(projectId, buildSeedProjection(projectId, 'query-failed-seed-fallback'));
+      result.set(projectId, buildEmptyProjection('query-failed-empty'));
     }
     return result;
   }

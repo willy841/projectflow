@@ -1,18 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { AppShell } from "@/components/app-shell";
 import { getQuoteCostProjectsWithWorkflow } from "@/components/project-workflow-store";
 import type { QuoteCostProject } from "@/components/quote-cost-data";
 
-const TRACE_PROJECT_ID = "11111111-1111-4111-8111-111111111111";
-
 export function QuoteCostListClient({ mode = "active", initialProjects }: { mode?: "active" | "closed"; initialProjects?: QuoteCostProject[] }) {
   const [searchKeyword, setSearchKeyword] = useState("");
   const sourceProjects = initialProjects ?? getQuoteCostProjectsWithWorkflow();
-
-  const tracedSourceProject = useMemo(() => sourceProjects.find((project) => project.id === TRACE_PROJECT_ID) ?? null, [sourceProjects]);
 
   const activeProjects = useMemo(() => {
     const keyword = searchKeyword.trim().toLowerCase();
@@ -38,23 +34,6 @@ export function QuoteCostListClient({ mode = "active", initialProjects }: { mode
         return a.project.eventDate.localeCompare(b.project.eventDate);
       });
   }, [searchKeyword, sourceProjects]);
-
-  const tracedActiveProject = useMemo(
-    () => activeProjects.find(({ project }) => project.id === TRACE_PROJECT_ID)?.project ?? null,
-    [activeProjects],
-  );
-
-  useEffect(() => {
-    console.info("[quote-costs][trace] client-pre-render", {
-      traceProjectId: TRACE_PROJECT_ID,
-      sourcePresent: Boolean(tracedSourceProject),
-      sourceProjectStatus: tracedSourceProject?.projectStatus ?? null,
-      sourceCostItemsCount: tracedSourceProject?.costItems.length ?? 0,
-      activePresent: Boolean(tracedActiveProject),
-      searchKeyword,
-      mode,
-    });
-  }, [mode, searchKeyword, tracedActiveProject, tracedSourceProject]);
 
   if (mode === "closed") {
     return null;

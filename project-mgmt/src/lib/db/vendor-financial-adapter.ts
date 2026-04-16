@@ -27,10 +27,11 @@ function normalizeVendorName(value: string) {
 }
 
 export async function getVendorFinancialSummary({ vendorId, vendorName }: { vendorId?: string; vendorName: string }): Promise<VendorFinancialSummary> {
-  const projects = await getQuoteCostProjectsWithDbFinancialsAndGroups();
-  const normalizedVendorName = normalizeVendorName(vendorName);
+  try {
+    const projects = await getQuoteCostProjectsWithDbFinancialsAndGroups();
+    const normalizedVendorName = normalizeVendorName(vendorName);
 
-  const records = projects
+    const records = projects
     .map((project) => {
       const vendorGroups = project.reconciliationGroups.filter((group) => normalizeVendorName(group.vendorName) === normalizedVendorName);
       const matchedGroups = vendorGroups.filter((group) => group.reconciliationStatus === '已對帳');
@@ -59,8 +60,14 @@ export async function getVendorFinancialSummary({ vendorId, vendorName }: { vend
     })
     .filter((record) => record.reconciledGroups.length > 0);
 
-  return {
-    unpaidTotal: records.reduce((sum, record) => sum + record.adjustedCost, 0),
-    records,
-  };
+    return {
+      unpaidTotal: records.reduce((sum, record) => sum + record.adjustedCost, 0),
+      records,
+    };
+  } catch {
+    return {
+      unpaidTotal: 0,
+      records: [],
+    };
+  }
 }

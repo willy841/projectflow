@@ -3,9 +3,6 @@ import {
   type CostSourceType,
   type QuoteCostProject,
 } from '@/components/quote-cost-data';
-import { quoteCostProjectFixtures } from '@/components/quote-cost-fixtures';
-
-const TRACE_PROJECT_ID = '11111111-1111-4111-8111-111111111111';
 import { createPhase1DbClient } from '@/lib/db/phase1-client';
 import { shouldUseDbDesignFlow } from '@/lib/db/design-flow-toggle';
 import { shouldUseDbProcurementFlow } from '@/lib/db/procurement-flow-toggle';
@@ -22,40 +19,17 @@ type DbFinancialProjectIdentity = {
   latestFinancialActivityAt: string;
 };
 
-function normalizeProjectName(value: string) {
-  return value.replace(/\s+/g, '').trim().toLowerCase();
-}
-
-function logQuoteCostTrace(stage: string, payload: Record<string, unknown>) {
-  console.info(`[quote-costs][trace] ${stage}`, payload);
-}
-
-function mergeDbAndSeedCostItems(seedProject: QuoteCostProject | undefined, dbItems: CostLineItem[]) {
-  if (!seedProject) return dbItems;
-
-  const dbSourceTypes = new Set(dbItems.map((dbItem) => dbItem.sourceType));
-  const fallbackSeedCostItems = seedProject.costItems.filter((item) => !dbSourceTypes.has(item.sourceType));
-
-  return [...fallbackSeedCostItems, ...dbItems];
-}
-
 function buildFinancialProjectNote({
   quotationReadModel,
-  hasSeedCostFallback,
 }: {
   quotationReadModel: QuotationReadModel;
-  hasSeedCostFallback: boolean;
 }) {
   const notes = ['正式 Financial project source'];
 
-  if (quotationReadModel.status === 'missing-schema-seed-fallback') {
-    notes.push('quotation 正式 DB schema/read model 尚未存在，暫由 quotation fallback 承接');
-  } else if (quotationReadModel.status === 'query-failed-seed-fallback') {
-    notes.push('quotation DB readback 失敗，暫回退 quotation fallback');
-  }
-
-  if (hasSeedCostFallback) {
-    notes.push('僅保留 DB 尚未接管的成本來源作過渡 fallback');
+  if (quotationReadModel.status === 'missing-schema-empty') {
+    notes.push('quotation 正式 DB schema/read model 尚未存在，目前維持空資料');
+  } else if (quotationReadModel.status === 'query-failed-empty') {
+    notes.push('quotation DB readback 失敗，目前維持空資料');
   }
 
   return `${notes.join('；')}。`;
@@ -63,25 +37,20 @@ function buildFinancialProjectNote({
 
 function buildMergedFinancialProject({
   dbProject,
-  matchedSeed,
   quotationReadModel,
   dbItems,
   reconciliationStatus,
 }: {
   dbProject: DbFinancialProjectIdentity;
-  matchedSeed?: QuoteCostProject;
   quotationReadModel: QuotationReadModel;
   dbItems: CostLineItem[];
   reconciliationStatus: QuoteCostProject['reconciliationStatus'];
 }): QuoteCostProject {
-  const mergedCostItems = mergeDbAndSeedCostItems(matchedSeed, dbItems);
-  const hasSeedCostFallback = Boolean(matchedSeed) && mergedCostItems.length > dbItems.length;
-
   return {
     id: dbProject.id,
-    projectCode: matchedSeed?.projectCode ?? dbProject.projectCode,
+    projectCode: dbProject.projectCode,
     projectName: dbProject.projectName,
-    clientName: matchedSeed?.clientName ?? dbProject.clientName,
+    clientName: dbProject.clientName,
     eventDate: dbProject.eventDate,
     projectStatus: dbProject.projectStatus,
     quotationImported: quotationReadModel.quotationImported,
@@ -89,11 +58,8 @@ function buildMergedFinancialProject({
     reconciliationStatus,
     closeStatus: dbProject.projectStatus === '已結案' ? '已結案' : '未結案',
     quotationItems: quotationReadModel.quotationItems,
-    costItems: mergedCostItems,
-    note: buildFinancialProjectNote({
-      quotationReadModel,
-      hasSeedCostFallback,
-    }),
+    costItems: dbItems,
+    note: buildFinancialProjectNote({ quotationReadModel }),
   };
 }
 
@@ -105,8 +71,7 @@ async function loadFinancialItemsSafely<T>(
   try {
     return await loader();
   } catch (error) {
-    console.error(`[quote-costs][trace] ${label}-items-load-failed`, {
-      traceProjectId: TRACE_PROJECT_ID,
+    console.error(`[quote-costs] ${label}-items-load-failed`, {
       error: error instanceof Error ? error.message : String(error),
     });
     return fallback;
@@ -473,23 +438,11 @@ async function listManualFinancialItems(): Promise<Array<{ projectId: string; it
 
 export async function getQuoteCostProjectsWithDbFinancials(): Promise<QuoteCostProject[]> {
   if (!hasDbConnectionString()) {
-    logQuoteCostTrace('adapter-no-db-connection-string', {
-      traceProjectId: TRACE_PROJECT_ID,
-    });
-    return quoteCostProjectFixtures;
+    return [];
   }
 
   try {
     const dbProjects = await listDbFinancialProjects();
-    const traceDbProject = dbProjects.find((project) => project.id === TRACE_PROJECT_ID) ?? null;
-
-    logQuoteCostTrace('adapter-db-project-source', {
-      traceProjectId: TRACE_PROJECT_ID,
-      projectCount: dbProjects.length,
-      present: Boolean(traceDbProject),
-      projectName: traceDbProject?.projectName ?? null,
-      projectStatus: traceDbProject?.projectStatus ?? null,
-    });
 
     const [designItems, procurementItems, vendorItems, manualItems, quotationReadModelIndex, reconciliationStatusIndex] = await Promise.all([
       loadFinancialItemsSafely('design', listDesignFinancialItems, [] as CostLineItem[]),
@@ -523,13 +476,6 @@ export async function getQuoteCostProjectsWithDbFinancials(): Promise<QuoteCostP
 
     const allDbItems = [...designItems, ...procurementItems, ...vendorItems];
 
-    logQuoteCostTrace('adapter-item-source-summary', {
-      traceProjectId: TRACE_PROJECT_ID,
-      designItemCount: designItems.length,
-      procurementItemCount: procurementItems.length,
-      vendorItemCount: vendorItems.length,
-      manualItemCount: manualItems.length,
-    });
     for (const item of allDbItems) {
       const snapshotId = item.id.replace(/^db-(design|procurement|vendor)-/, '');
       const projectId = snapshotToProject.get(snapshotId);
@@ -543,52 +489,33 @@ export async function getQuoteCostProjectsWithDbFinancials(): Promise<QuoteCostP
       byProject.get(manualEntry.projectId)?.push(manualEntry.item);
     }
 
-    const seedById = new Map(quoteCostProjectFixtures.map((project) => [project.id, project]));
-    const seedByName = new Map(quoteCostProjectFixtures.map((project) => [normalizeProjectName(project.projectName), project]));
-
     if (!dbProjects.length) {
-      logQuoteCostTrace('adapter-db-project-source-empty', {
-        traceProjectId: TRACE_PROJECT_ID,
-      });
-      return quoteCostProjectFixtures;
+      return [];
     }
 
     const mergedProjects = dbProjects.map((dbProject) => {
-      const matchedSeed = seedById.get(dbProject.id) ?? seedByName.get(normalizeProjectName(dbProject.projectName));
       const dbItems = byProject.get(dbProject.id) ?? [];
       const quotationReadModel = quotationReadModelIndex.get(dbProject.id) ?? {
-        quotationImported: matchedSeed?.quotationImported ?? false,
-        quotationImport: matchedSeed?.quotationImport ?? null,
-        quotationItems: matchedSeed?.quotationItems ?? [],
-        status: 'missing-schema-seed-fallback' as const,
+        quotationImported: false,
+        quotationImport: null,
+        quotationItems: [],
+        status: 'missing-schema-empty' as const,
       };
 
       return buildMergedFinancialProject({
         dbProject,
-        matchedSeed,
         quotationReadModel,
         dbItems,
         reconciliationStatus: reconciliationStatusIndex.get(dbProject.id) ?? '未開始',
       });
     });
 
-    const tracedMergedProject = mergedProjects.find((project) => project.id === TRACE_PROJECT_ID) ?? null;
-    logQuoteCostTrace('adapter-merged-projects', {
-      traceProjectId: TRACE_PROJECT_ID,
-      projectCount: mergedProjects.length,
-      present: Boolean(tracedMergedProject),
-      projectStatus: tracedMergedProject?.projectStatus ?? null,
-      costItemsCount: tracedMergedProject?.costItems.length ?? 0,
-      costSourceTypes: tracedMergedProject ? [...new Set(tracedMergedProject.costItems.map((item) => item.sourceType))] : [],
-    });
-
     return mergedProjects;
   } catch (error) {
-    console.error('[quote-costs][trace] adapter-fell-back-to-seed', {
-      traceProjectId: TRACE_PROJECT_ID,
+    console.error('[quote-costs] adapter-load-failed', {
       error: error instanceof Error ? error.message : String(error),
     });
-    return quoteCostProjectFixtures;
+    return [];
   }
 }
 
@@ -639,6 +566,13 @@ async function attachReconciliationGroups(project: QuoteCostProject): Promise<Qu
         reconciliationStatus: '未對帳',
       });
     });
+
+  if (!(await hasFinancialReconciliationGroupsTable())) {
+    return {
+      ...project,
+      reconciliationGroups: Array.from(groupMap.values()),
+    };
+  }
 
   const db = createPhase1DbClient();
   const rows = await db.query<{
