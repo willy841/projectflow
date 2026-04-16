@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect } from "react";
-import { AppShell } from "@/components/app-shell";
+import { AuthShellClient } from "@/components/auth-shell-client";
 import { WorkspaceStatusNotice, workspacePrimaryButtonClass } from "@/components/workspace-ui";
 
 export default function GlobalRouteError({
@@ -17,7 +17,7 @@ export default function GlobalRouteError({
   }, [error]);
 
   return (
-    <AppShell activePath="/projects">
+    <AuthShellClient activePath="/projects" navItems={[{ label: '首頁總覽', href: '/' }, { label: '專案管理', href: '/projects' }]} user={null}>
       <section className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
         <div className="space-y-4">
           <div>
@@ -42,6 +42,6 @@ export default function GlobalRouteError({
           </div>
         </div>
       </section>
-    </AppShell>
+    </AuthShellClient>
   );
 }

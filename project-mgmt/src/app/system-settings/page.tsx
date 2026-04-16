@@ -14,7 +14,14 @@ async function createUserAction(formData: FormData) {
   }
 
   const initialPasswordToken = createInitialPasswordToken();
-  await createUser({ email, name, role, initialPasswordToken });
+  try {
+    await createUser({ email, name, role, initialPasswordToken });
+  } catch (error) {
+    if (error instanceof Error && error.message === 'EMAIL_ALREADY_EXISTS') {
+      redirect('/system-settings?error=email-exists');
+    }
+    throw error;
+  }
   redirect(`/system-settings?created=1&initialPassword=${encodeURIComponent(initialPasswordToken)}`);
 }
 
@@ -27,6 +34,7 @@ async function updateRoleAction(formData: FormData) {
 
   if (isOwner) redirect('/system-settings?error=owner-protected');
   if (actor.id === userId && nextRole !== 'admin') redirect('/system-settings?error=self-protected');
+  if (actor.id === userId && actor.isOwner && nextRole !== 'admin') redirect('/system-settings?error=owner-protected');
 
   await updateUserRole(userId, nextRole);
   redirect('/system-settings?updated=role');
@@ -39,7 +47,8 @@ async function updateActiveAction(formData: FormData) {
   const nextActive = String(formData.get('isActive') ?? '') === 'true';
   const isOwner = String(formData.get('isOwner') ?? '') === 'true';
 
-  if (isOwner || actor.id === userId) redirect('/system-settings?error=self-protected');
+  if (isOwner) redirect('/system-settings?error=owner-protected');
+  if (actor.id === userId) redirect('/system-settings?error=self-protected');
   await updateUserActiveStatus(userId, nextActive);
   redirect('/system-settings?updated=status');
 }
@@ -89,7 +98,13 @@ export default async function SystemSettingsPage({ searchParams }: { searchParam
 
         {error ? (
           <div className="mt-6 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
-            {error === 'owner-protected' ? 'Owner 帳號不可被一般管理操作降權。' : error === 'self-protected' ? '不能停用、降權或破壞自己的管理身份。' : '輸入資料不完整。'}
+            {error === 'owner-protected'
+              ? 'Owner 帳號不可被一般管理操作降權、停用或改動核心權限。'
+              : error === 'self-protected'
+                ? '不能停用、降權或破壞自己的管理身份。'
+                : error === 'email-exists'
+                  ? '這個 Email 已存在，請改用其他 Email。'
+                  : '輸入資料不完整。'}
           </div>
         ) : null}
 

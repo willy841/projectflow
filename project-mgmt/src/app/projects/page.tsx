@@ -1,3 +1,4 @@
+import { AppShellAuth } from "@/components/app-shell-auth";
 import { ProjectsPageClient } from "@/components/projects-page-client";
 import { projects } from "@/components/project-data";
 import { listDbProjects } from "@/lib/db/project-flow-adapter";
@@ -11,5 +12,9 @@ export default async function ProjectsPage() {
     (project) => project.status !== '已結案',
   );
 
-  return <ProjectsPageClient initialProjects={initialProjects} />;
+  return (
+    <AppShellAuth activePath="/projects">
+      <ProjectsPageClient initialProjects={initialProjects} />
+    </AppShellAuth>
+  );
 }

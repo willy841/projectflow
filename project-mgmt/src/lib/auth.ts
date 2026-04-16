@@ -86,6 +86,11 @@ export async function createUser(input: { email: string; name: string; role: App
   const normalizedEmail = normalizeEmail(email);
   const passwordHash = input.initialPasswordToken ? hashInitialPasswordToken(input.initialPasswordToken) : null;
 
+  const existing = await db.query(`select id from system_users where normalized_email = $1 limit 1`, [normalizedEmail]);
+  if (existing.rows[0]) {
+    throw new Error('EMAIL_ALREADY_EXISTS');
+  }
+
   const result = await db.query(
     `insert into system_users (email, normalized_email, name, role, is_owner, password_hash, must_change_password, is_active)
      values ($1, $2, $3, $4, $5, $6, true, true)
