@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation';
-import { AppShell } from '@/components/app-shell';
+import { AppShellAuth } from '@/components/app-shell-auth';
 import { VendorDetailShellDb } from '@/components/vendor-detail-shell-db';
 import { getDbVendorById, listDbVendorPaymentRecordsByVendorId, listDbVendorProjectRecordsByVendorId, listDbVendorTrades } from '@/lib/db/vendor-directory-adapter';
 
@@ -22,8 +22,8 @@ export default async function VendorDetailPage({
   ]);
 
   return (
-    <AppShell activePath="/vendors">
+    <AppShellAuth activePath="/vendors">
       <VendorDetailShellDb vendor={vendor} records={records} paymentRecords={paymentRecords} tradeOptions={tradeOptions} />
-    </AppShell>
+    </AppShellAuth>
   );
 }

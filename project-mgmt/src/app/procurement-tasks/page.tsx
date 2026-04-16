@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { AppShell } from "@/components/app-shell";
+import { AppShellAuth } from "@/components/app-shell-auth";
 import { procurementTaskBoardRecords } from "@/components/procurement-task-board-data";
 import { WorkspaceEmptyState, WorkspaceHeader, WorkspaceSection, WorkspaceStat, workspacePrimaryButtonClass } from "@/components/workspace-ui";
 import {
@@ -67,7 +67,7 @@ export default async function ProcurementTasksPage({
   const activeProject = projects.find((project) => project.projectId === activeProjectId);
 
   return (
-    <AppShell activePath="/procurement-tasks">
+    <AppShellAuth activePath="/procurement-tasks">
       <WorkspaceHeader
         title="採購備品板"
         badge={<span className="inline-flex items-center rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-600 ring-1 ring-slate-200">共 {activeProject ? projectTasks.length : projects.length} {activeProject ? "筆任務" : "個專案"}</span>}
@@ -130,6 +130,6 @@ export default async function ProcurementTasksPage({
           </div>
         )}
       </WorkspaceSection>
-    </AppShell>
+    </AppShellAuth>
   );
 }

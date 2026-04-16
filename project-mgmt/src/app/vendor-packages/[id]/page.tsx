@@ -1,4 +1,4 @@
-import { AppShell } from "@/components/app-shell";
+import { AppShellAuth } from "@/components/app-shell-auth";
 import { VendorPackageDetailRoute } from "@/components/vendor-package-detail-route";
 
 export default async function VendorPackageDetailPage({
@@ -9,8 +9,8 @@ export default async function VendorPackageDetailPage({
   const { id } = await params;
 
   return (
-    <AppShell activePath="/vendor-packages">
+    <AppShellAuth activePath="/vendor-packages">
       <VendorPackageDetailRoute id={id} />
-    </AppShell>
+    </AppShellAuth>
   );
 }
