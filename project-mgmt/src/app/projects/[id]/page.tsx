@@ -22,8 +22,11 @@ export default async function ProjectDetailPage({
   const { id } = await params;
   const resolvedSearchParams = (await searchParams) ?? {};
   const useDbProjectFlow = shouldUseDbProjectFlow();
+  const resolvedDbProjectId = useDbProjectFlow ? await resolveDbProjectIdByRouteId(id) : null;
   const project = useDbProjectFlow
-    ? await getDbProjectById((await resolveDbProjectIdByRouteId(id)) ?? id)
+    ? resolvedDbProjectId
+      ? await getDbProjectById(resolvedDbProjectId)
+      : null
     : getProjectById(id);
 
   if (!project) {
