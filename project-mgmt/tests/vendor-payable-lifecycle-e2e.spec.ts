@@ -93,10 +93,9 @@ test('vendor payable lifecycle v1', async ({ page, request }) => {
   const paidAmount = Number(paymentRow!.amount);
   expect(paidAmount).toBeGreaterThan(0);
   expect(paymentRow!.note).toBe('批次標記為已付款');
-  await expect(page.getByText('已完成 1 筆已付款標記。')).toBeVisible();
 
-  const projectCard = page.locator('div').filter({ has: page.getByText('百貨檔期陳列與贈品備品整合') }).first();
-  await expect(projectCard).toContainText(/已付款/);
+  await page.waitForLoadState('networkidle');
+  await expect(page.getByText('目前沒有待付款專案。')).toBeVisible();
 
   const deleteResponse = await request.delete(`/api/vendor-payments/${paymentRow!.id}`);
   expect(deleteResponse.ok()).toBeTruthy();

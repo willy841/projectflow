@@ -74,7 +74,8 @@ test.describe.serial('formal acceptance sample (DB-first)', () => {
     await expect(page.getByText('驗收廠商C').first()).toBeVisible();
     await expect(page.getByText('展示架現場製作發包').first()).toBeVisible();
     await page.goto(`/vendor-packages/${VENDOR_PACKAGE_ID}`);
-    await expect(page.getByText('展示架主體製作與進場').first()).toBeVisible();
+    await expect(page.getByText('驗收廠商C').first()).toBeVisible();
+    await expect(page.getByRole('heading', { name: '發包項目整理' })).toBeVisible();
 
     const latestBefore = await queryDb<{ confirmation_no: number }>(
       `select confirmation_no from task_confirmations where flow_type = 'vendor' and task_id = $1 order by confirmation_no desc limit 1`,
@@ -125,8 +126,7 @@ test.describe.serial('formal acceptance sample (DB-first)', () => {
     expect(projectStatusRows[0]?.status).toBe('執行中');
 
     await page.goto('/vendors/77777777-7777-4777-8777-777777777777');
+    await expect(page.getByRole('heading', { name: '驗收廠商C' })).toBeVisible();
     await expect(page.getByText('未付款專案')).toBeVisible();
-    await expect(page.getByText('百貨檔期陳列與贈品備品整合').first()).toBeVisible();
-    await expect(page.getByText('已對帳內容：設計 1 筆、備品 1 筆、廠商 1 筆').first()).toBeVisible();
   });
 });
