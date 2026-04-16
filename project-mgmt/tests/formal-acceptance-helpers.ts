@@ -3,6 +3,7 @@ import type { APIRequestContext, Page } from '@playwright/test';
 import { Client, type QueryResultRow } from 'pg';
 import { readFileSync, existsSync } from 'node:fs';
 import path from 'node:path';
+import { slugifyProjectName } from '@/components/project-data';
 
 export const PROJECT_ID = '11111111-1111-4111-8111-111111111111';
 export const PROJECT_NAME = '百貨檔期陳列與贈品備品整合';
@@ -123,4 +124,77 @@ export async function syncVendorPlanAndConfirm(request: APIRequestContext, title
 
   const confirmGroup = await request.post(`/api/vendor-groups/${PROJECT_ID}/${VENDOR_ID}/confirm`);
   expect(confirmGroup.ok()).toBeTruthy();
+}
+
+export async function createFormalAcceptanceTempProject(request: APIRequestContext, overrides?: {
+  name?: string;
+  client?: string;
+  eventDate?: string;
+  location?: string;
+  eventType?: string;
+  contactName?: string;
+  contactPhone?: string;
+  contactEmail?: string;
+  contactLine?: string;
+  owner?: string;
+  note?: string;
+  loadInTime?: string;
+}) {
+  const runId = Date.now();
+  const payload = {
+    name: overrides?.name ?? `正式驗收暫時專案 ${runId}`,
+    client: overrides?.client ?? '正式驗收客戶',
+    eventDate: overrides?.eventDate ?? '2026-05-01',
+    location: overrides?.location ?? '台北南港展覽館',
+    eventType: overrides?.eventType ?? '正式驗收活動',
+    contactName: overrides?.contactName ?? '驗收聯絡人',
+    contactPhone: overrides?.contactPhone ?? '0900-000-000',
+    contactEmail: overrides?.contactEmail ?? 'formal-acceptance@example.com',
+    contactLine: overrides?.contactLine ?? 'formal-acceptance-line',
+    owner: overrides?.owner ?? 'Formal Acceptance Bot',
+    note: overrides?.note ?? 'formal acceptance temp project',
+    loadInTime: overrides?.loadInTime ?? '08:30',
+  };
+
+  const response = await request.post('/api/projects', { data: payload });
+  expect(response.ok()).toBeTruthy();
+  const result = await response.json();
+  expect(result.ok).toBeTruthy();
+  expect(result.project?.id).toBeTruthy();
+
+  return {
+    payload,
+    project: result.project as { id: string; name: string; code?: string | null },
+    routeId: slugifyProjectName(result.project.name as string),
+  };
+}
+
+export async function cleanupProjectById(projectId: string) {
+  const client = new Client({ connectionString: getDatabaseUrl() });
+  await client.connect();
+  try {
+    await client.query('begin');
+    await client.query(`delete from project_vendor_payment_records where project_id = $1`, [projectId]);
+    await client.query(`delete from project_collection_records where project_id = $1`, [projectId]);
+    await client.query(`delete from financial_reconciliation_groups where project_id = $1`, [projectId]);
+    await client.query(`delete from financial_quotation_line_items where quotation_import_id in (select id from financial_quotation_imports where project_id = $1)`, [projectId]);
+    await client.query(`delete from financial_quotation_imports where project_id = $1`, [projectId]);
+    await client.query(`delete from task_confirmation_plan_snapshots where task_confirmation_id in (select id from task_confirmations where project_id = $1)`, [projectId]);
+    await client.query(`delete from task_confirmations where project_id = $1`, [projectId]);
+    await client.query(`delete from design_task_plans where design_task_id in (select id from design_tasks where project_id = $1)`, [projectId]);
+    await client.query(`delete from procurement_task_plans where procurement_task_id in (select id from procurement_tasks where project_id = $1)`, [projectId]);
+    await client.query(`delete from vendor_task_plans where vendor_task_id in (select id from vendor_tasks where project_id = $1)`, [projectId]);
+    await client.query(`delete from design_tasks where project_id = $1`, [projectId]);
+    await client.query(`delete from procurement_tasks where project_id = $1`, [projectId]);
+    await client.query(`delete from vendor_tasks where project_id = $1`, [projectId]);
+    await client.query(`delete from project_requirements where project_id = $1`, [projectId]);
+    await client.query(`delete from project_execution_items where project_id = $1`, [projectId]);
+    await client.query(`delete from projects where id = $1`, [projectId]);
+    await client.query('commit');
+  } catch (error) {
+    await client.query('rollback');
+    throw error;
+  } finally {
+    await client.end();
+  }
 }
