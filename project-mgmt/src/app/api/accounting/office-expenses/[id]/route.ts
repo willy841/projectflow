@@ -1,7 +1,11 @@
 import { NextResponse } from 'next/server';
 import { createPhase1DbClient } from '@/lib/db/phase1-client';
+import { requireAdminApi } from '@/lib/api-auth';
 
 export async function PATCH(request: Request, context: { params: Promise<{ id: string }> }) {
+  const auth = await requireAdminApi();
+  if (auth) return auth;
+
   try {
     const { id } = await context.params;
     const body = (await request.json()) as {
@@ -24,6 +28,9 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
 }
 
 export async function DELETE(_request: Request, context: { params: Promise<{ id: string }> }) {
+  const auth = await requireAdminApi();
+  if (auth) return auth;
+
   try {
     const { id } = await context.params;
     const db = createPhase1DbClient();

@@ -1,7 +1,11 @@
 import { NextResponse } from 'next/server';
 import { createPhase1DbClient } from '@/lib/db/phase1-client';
+import { requireAdminApi } from '@/lib/api-auth';
 
 export async function POST(request: Request) {
+  const auth = await requireAdminApi();
+  if (auth) return auth;
+
   try {
     const body = (await request.json()) as {
       expenseMonth?: string;

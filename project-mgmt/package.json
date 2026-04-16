@@ -10,6 +10,7 @@
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "test:formal-acceptance": "playwright test tests/formal-acceptance-mainline.spec.ts tests/formal-acceptance-home.spec.ts tests/formal-acceptance-projects.spec.ts tests/formal-acceptance-project-lists.spec.ts tests/formal-acceptance-project-creation.spec.ts tests/formal-acceptance-project-detail.spec.ts tests/formal-acceptance-requirements-crud.spec.ts tests/formal-acceptance-execution-item-excel-import.spec.ts tests/formal-acceptance-execution-item-excel-upload-ui.spec.ts tests/formal-acceptance-design.spec.ts tests/formal-acceptance-procurement.spec.ts tests/formal-acceptance-vendor-assignments.spec.ts tests/formal-acceptance-vendor-packages.spec.ts tests/formal-acceptance-vendor-payments.spec.ts tests/formal-acceptance-quote-costs.spec.ts tests/formal-acceptance-closeouts.spec.ts tests/formal-acceptance-vendors.spec.ts",
+    "test:auth-smoke": "playwright test tests/auth-smoke.spec.ts",
     "db:phase1:check": "bash db/scripts/check-phase1-sql.sh",
     "db:phase1:smoke": "bash db/scripts/smoke-check-phase1.sh",
     "db:seed:formal-acceptance": "node scripts/seed-projectflow-formal-acceptance-sample.js",
