@@ -1,10 +1,21 @@
 import { expect, test } from '@playwright/test';
 import { Client } from 'pg';
+import { readFileSync, existsSync } from 'node:fs';
+import path from 'node:path';
 
 const PROJECT_ID = '11111111-1111-4111-8111-111111111111';
 
+function readEnvLocalDatabaseUrl() {
+  const envPath = path.resolve(process.cwd(), '.env.local');
+  if (!existsSync(envPath)) return null;
+  const content = readFileSync(envPath, 'utf8');
+  const line = content.split('\n').find((entry) => entry.startsWith('DATABASE_URL='));
+  if (!line) return null;
+  return line.slice('DATABASE_URL='.length).trim().replace(/^['\"]|['\"]$/g, '');
+}
+
 async function queryDb<T = Record<string, unknown>>(sql: string, params: unknown[] = []) {
-  const connectionString = process.env.DATABASE_URL || process.env.POSTGRES_URL || process.env.POSTGRES_PRISMA_URL || process.env.POSTGRES_URL_NON_POOLING;
+  const connectionString = process.env.DATABASE_URL || process.env.POSTGRES_URL || process.env.POSTGRES_PRISMA_URL || process.env.POSTGRES_URL_NON_POOLING || readEnvLocalDatabaseUrl();
   if (!connectionString) throw new Error('Missing DATABASE_URL');
   const client = new Client({ connectionString });
   await client.connect();
