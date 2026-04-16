@@ -1,9 +1,5 @@
-import { CloseoutListClient } from "@/components/closeout-list-client";
-import { getCloseoutListReadModel } from "@/lib/db/closeout-list-read-model";
+import { redirect } from "next/navigation";
 
-export const dynamic = "force-dynamic";
-
-export default async function CloseoutPage() {
-  const projects = await getCloseoutListReadModel();
-  return <CloseoutListClient initialProjects={projects} />;
+export default function CloseoutAliasPage() {
+  redirect("/closeouts");
 }

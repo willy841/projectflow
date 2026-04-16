@@ -9,10 +9,13 @@ import {
   listAccountingPersonnelEmployees,
   listAccountingPersonnelRecordsByMonth,
 } from '@/lib/db/accounting-center-adapter';
+import { requireAdmin } from '@/lib/auth';
 
 export const dynamic = 'force-dynamic';
 
 export default async function AccountingCenterRoute() {
+  await requireAdmin();
+
   const workspaceMonth = '2026-04';
   const revenueMonth = '2026-04';
 

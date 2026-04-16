@@ -1,16 +1,6 @@
-import { notFound } from "next/navigation";
-import { CloseoutDetailClient } from "@/components/closeout-detail-client";
-import { getCloseoutArchiveDetailReadModel } from "@/lib/db/closeout-detail-read-model";
+import { redirect } from "next/navigation";
 
-export const dynamic = "force-dynamic";
-
-export default async function CloseoutDetailPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function CloseoutAliasDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const readModel = await getCloseoutArchiveDetailReadModel(id);
-
-  if (!readModel) {
-    notFound();
-  }
-
-  return <CloseoutDetailClient readModel={readModel} />;
+  redirect(`/closeouts/${id}`);
 }
