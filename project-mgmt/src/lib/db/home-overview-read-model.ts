@@ -138,7 +138,7 @@ export async function getHomeOverviewReadModel(): Promise<HomeOverviewReadModel>
       `未收款 ${formatCurrency(metrics.activeOutstandingTotal)}`,
     ],
     metrics: [
-      { label: '專案總數', value: String(metrics.totalProjects), change: `執行中 ${metrics.inProgressProjects}` },
+      { label: '執行中專案', value: String(metrics.inProgressProjects), change: '' },
       { label: '待處理設計交辦', value: String(metrics.pendingDesignCount), change: 'overview active aggregation' },
       { label: '待採購備品', value: String(metrics.pendingProcurementCount), change: 'overview active aggregation' },
       { label: '待廠商處理', value: String(metrics.pendingVendorCount), change: 'overview active aggregation' },
