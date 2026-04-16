@@ -1,10 +1,10 @@
 import Link from "next/link";
-import { AppShell } from "@/components/app-shell";
+import { AppShellAuth } from "@/components/app-shell-auth";
 import { ProjectForm } from "@/components/project-form";
 
 export default function NewProjectPage() {
   return (
-    <AppShell activePath="/projects">
+    <AppShellAuth activePath="/projects">
       <header className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
         <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div>
@@ -18,6 +18,6 @@ export default function NewProjectPage() {
       </header>
 
       <ProjectForm />
-    </AppShell>
+    </AppShellAuth>
   );
 }

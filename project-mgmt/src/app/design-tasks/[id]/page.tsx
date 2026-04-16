@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { AppShell } from "@/components/app-shell";
+import { AppShellAuth } from "@/components/app-shell-auth";
 import { DesignPlanEditorClient } from "@/components/design-plan-editor-client";
 import { getDesignTaskById } from "@/components/design-task-data";
 import { WorkspaceHeader, WorkspaceSection, WorkspaceStat } from "@/components/workspace-ui";
@@ -21,7 +21,7 @@ export default async function DesignTaskDetailPage({
   }
 
   return (
-    <AppShell activePath="/design-tasks">
+    <AppShellAuth activePath="/design-tasks">
       <WorkspaceHeader
         title={task.title}
         meta={task.projectName}
@@ -82,6 +82,6 @@ export default async function DesignTaskDetailPage({
           }))}
         />
       </WorkspaceSection>
-    </AppShell>
+    </AppShellAuth>
   );
 }

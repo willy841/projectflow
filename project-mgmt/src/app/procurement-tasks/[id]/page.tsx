@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { AppShell } from "@/components/app-shell";
+import { AppShellAuth } from "@/components/app-shell-auth";
 import { ProcurementPlanEditorClient } from "@/components/procurement-plan-editor-client";
 import { procurementTaskBoardRecords } from "@/components/procurement-task-board-data";
 import { WorkspaceHeader, WorkspaceSection, WorkspaceStat } from "@/components/workspace-ui";
@@ -16,7 +16,7 @@ export default async function ProcurementTaskDetailPage({ params }: { params: Pr
   if (!task) notFound();
 
   return (
-    <AppShell activePath="/procurement-tasks">
+    <AppShellAuth activePath="/procurement-tasks">
       <WorkspaceHeader
         title={task.title}
         meta={task.projectName}
@@ -57,6 +57,6 @@ export default async function ProcurementTaskDetailPage({ params }: { params: Pr
           }))}
         />
       </WorkspaceSection>
-    </AppShell>
+    </AppShellAuth>
   );
 }

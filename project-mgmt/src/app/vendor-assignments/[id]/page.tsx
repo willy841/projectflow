@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { AppShell } from "@/components/app-shell";
+import { AppShellAuth } from "@/components/app-shell-auth";
 import { VendorGroupConfirmClient } from "@/components/vendor-group-confirm-client";
 import { VendorPlanEditorClient } from "@/components/vendor-plan-editor-client";
 import { WorkspaceHeader, WorkspaceSection, WorkspaceStat } from "@/components/workspace-ui";
@@ -31,7 +31,7 @@ export default async function VendorAssignmentTaskPage({ params }: { params: Pro
   const packageId = buildVendorPackageId(group.projectId, group.vendorId);
 
   return (
-    <AppShell activePath="/vendor-assignments">
+    <AppShellAuth activePath="/vendor-assignments">
       <WorkspaceHeader
         title={group.vendorName}
         meta={group.projectName}
@@ -82,6 +82,6 @@ export default async function VendorAssignmentTaskPage({ params }: { params: Pro
           </WorkspaceSection>
         ))}
       </div>
-    </AppShell>
+    </AppShellAuth>
   );
 }

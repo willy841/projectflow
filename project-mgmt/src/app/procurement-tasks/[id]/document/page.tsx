@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { AppShell } from "@/components/app-shell";
+import { AppShellAuth } from "@/components/app-shell-auth";
 import { ProcurementDocumentExportButton } from "@/components/document-export-button";
 import { TaskDocumentTable } from "@/components/task-document-table";
 import { procurementTaskBoardRecords } from "@/components/procurement-task-board-data";
@@ -17,7 +17,7 @@ export default async function ProcurementTaskDocumentPage({ params }: { params: 
   if (!task) notFound();
 
   return (
-    <AppShell activePath="/procurement-tasks">
+    <AppShellAuth activePath="/procurement-tasks">
       <WorkspaceHeader
         title={task.title}
         meta={
@@ -47,6 +47,6 @@ export default async function ProcurementTaskDocumentPage({ params }: { params: 
           emptyDescription="請先回到任務頁完成全部確認，文件頁才會承接正式成立的內容。"
         />
       </WorkspaceSection>
-    </AppShell>
+    </AppShellAuth>
   );
 }
