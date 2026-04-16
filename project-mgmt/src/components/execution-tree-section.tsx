@@ -114,7 +114,6 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
                   material: "",
                   quantity: "",
                   referenceUrl: "",
-                  vendorName: task.assignee === '-' ? '' : task.assignee,
                   requirement: task.title,
                 },
               ]),
@@ -142,7 +141,6 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
                   material: "",
                   quantity: "",
                   styleUrl: "",
-                  vendorName: task.buyer === '-' ? '' : task.buyer,
                   requirement: task.title,
                 },
               ]),
@@ -402,7 +400,6 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
               quantity: draft.quantity,
               referenceUrl: draft.referenceUrl,
               note: draft.requirement,
-              vendorName: draft.vendorName,
             }),
           });
           const result = await response.json();
@@ -421,7 +418,6 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
               budgetNote: "",
               note: draft.requirement,
               referenceUrl: draft.styleUrl,
-              vendorName: draft.vendorName,
             }),
           });
           const result = await response.json();

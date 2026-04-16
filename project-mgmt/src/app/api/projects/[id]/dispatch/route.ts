@@ -46,16 +46,6 @@ export async function POST(
     const title = body.title?.trim() || body.item?.trim() || '未命名任務';
 
     const taskStatus = '進行中';
-    const normalizedVendorName = body.vendorName?.trim();
-    if (!normalizedVendorName) {
-      return NextResponse.json({ ok: false, error: '執行廠商必填，且需匹配既有廠商資料' }, { status: 400 });
-    }
-
-    const normalized = normalizeVendorName(normalizedVendorName);
-    const vendor = await repositories.vendors.findByNormalizedName(normalized);
-    if (!vendor) {
-      return NextResponse.json({ ok: false, error: '執行廠商未匹配既有廠商資料' }, { status: 400 });
-    }
 
     if (body.flowType === 'design') {
       const existing = (await repositories.designTasks.listByProject(id)).find(
@@ -64,7 +54,7 @@ export async function POST(
 
       const task = existing
         ? await repositories.designTasks.update(existing.id, {
-            vendor_id: vendor.id,
+            vendor_id: null,
             title,
             size: body.size?.trim() || null,
             material: body.material?.trim() || null,
@@ -77,7 +67,7 @@ export async function POST(
         : await services.publishDesignTask({
             project_id: id,
             source_execution_item_id: body.executionItemId,
-            vendor_id: vendor.id,
+            vendor_id: null,
             title,
             size: body.size?.trim() || null,
             material: body.material?.trim() || null,
@@ -98,7 +88,7 @@ export async function POST(
 
       const task = existing
         ? await repositories.procurementTasks.update(existing.id, {
-            vendor_id: vendor.id,
+            vendor_id: null,
             title,
             quantity: body.quantity?.trim() || null,
             budget_note: body.budgetNote?.trim() || null,
@@ -109,7 +99,7 @@ export async function POST(
         : await services.publishProcurementTask({
             project_id: id,
             source_execution_item_id: body.executionItemId,
-            vendor_id: vendor.id,
+            vendor_id: null,
             title,
             quantity: body.quantity?.trim() || null,
             budget_note: body.budgetNote?.trim() || null,
@@ -119,6 +109,17 @@ export async function POST(
           });
 
       return NextResponse.json({ ok: true, taskId: task.id, boardPath: `/procurement-tasks/${task.id}`, storage: access.storage });
+    }
+
+    const normalizedVendorName = body.vendorName?.trim();
+    if (!normalizedVendorName) {
+      return NextResponse.json({ ok: false, error: '執行廠商必填，且需匹配既有廠商資料' }, { status: 400 });
+    }
+
+    const normalized = normalizeVendorName(normalizedVendorName);
+    const vendor = await repositories.vendors.findByNormalizedName(normalized);
+    if (!vendor) {
+      return NextResponse.json({ ok: false, error: '執行廠商未匹配既有廠商資料' }, { status: 400 });
     }
 
     const existing = (await repositories.vendorTasks.listByProjectAndVendor(id, vendor.id)).find(

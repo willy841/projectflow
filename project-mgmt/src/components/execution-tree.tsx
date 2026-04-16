@@ -38,7 +38,6 @@ export type DesignAssignmentDraft = {
   material: string;
   quantity: string;
   referenceUrl: string;
-  vendorName: string;
   requirement: string;
   replies?: AssignmentReply[];
 };
@@ -50,7 +49,6 @@ export type ProcurementAssignmentDraft = {
   material: string;
   quantity: string;
   styleUrl: string;
-  vendorName: string;
   requirement: string;
   replies?: AssignmentReply[];
 };
@@ -92,7 +90,6 @@ const defaultDesignAssignmentDraft: DesignAssignmentDraft = {
   material: "",
   quantity: "",
   referenceUrl: "",
-  vendorName: "",
   requirement: "",
 };
 
@@ -103,7 +100,6 @@ const defaultProcurementAssignmentDraft: ProcurementAssignmentDraft = {
   material: "",
   quantity: "",
   styleUrl: "",
-  vendorName: "",
   requirement: "",
 };
 
@@ -117,6 +113,35 @@ const defaultVendorAssignmentDraft: VendorAssignmentDraft = {
   referenceUrl: "",
   amount: "",
 };
+
+function normalizeDesignAssignmentDraft(
+  draft?: Partial<DesignAssignmentDraft> | null,
+): DesignAssignmentDraft {
+  return {
+    assignee: draft?.assignee ?? "",
+    size: draft?.size ?? "",
+    material: draft?.material ?? "",
+    quantity: draft?.quantity ?? "",
+    referenceUrl: draft?.referenceUrl ?? "",
+    requirement: draft?.requirement ?? "",
+    replies: draft?.replies ? [...draft.replies] : undefined,
+  };
+}
+
+function normalizeProcurementAssignmentDraft(
+  draft?: Partial<ProcurementAssignmentDraft> | null,
+): ProcurementAssignmentDraft {
+  return {
+    assignee: draft?.assignee ?? "",
+    item: draft?.item ?? "",
+    size: draft?.size ?? "",
+    material: draft?.material ?? "",
+    quantity: draft?.quantity ?? "",
+    styleUrl: draft?.styleUrl ?? "",
+    requirement: draft?.requirement ?? "",
+    replies: draft?.replies ? [...draft.replies] : undefined,
+  };
+}
 
 function normalizeVendorKeyword(value: string) {
   return value.trim().toLowerCase().replace(/\s+/g, " ");
@@ -307,7 +332,6 @@ function DesignAssignmentForm({
   isEditing,
   onChange,
   actions,
-  vendors,
 }: {
   title: string;
   draft: DesignAssignmentDraft;
@@ -315,7 +339,6 @@ function DesignAssignmentForm({
   isEditing: boolean;
   onChange: (key: keyof DesignAssignmentDraft, value: string) => void;
   actions: FormActions;
-  vendors: VendorBasicProfile[];
 }) {
   return (
     <div className="mt-4 rounded-3xl border border-slate-200 bg-slate-50 p-5 sm:p-6">
@@ -335,7 +358,6 @@ function DesignAssignmentForm({
             saved.size ? `尺寸：${saved.size}` : null,
             saved.material ? `材質 + 結構：${saved.material}` : null,
             saved.quantity ? `數量：${saved.quantity}` : null,
-            saved.vendorName ? `執行廠商：${saved.vendorName}` : null,
           ].filter((item): item is string => Boolean(item))}
           fields={[
             { label: "來源項目 / 次項目", value: title },
@@ -343,7 +365,6 @@ function DesignAssignmentForm({
             { label: "尺寸", value: saved.size || "未填寫" },
             { label: "材質 + 結構", value: saved.material || "未填寫" },
             { label: "數量", value: saved.quantity || "未填寫" },
-            { label: "執行廠商", value: saved.vendorName || "未填寫" },
             { label: "需求說明", value: saved.requirement || "未填寫" },
             { label: "參考連結", value: saved.referenceUrl || "未填寫" },
           ]}
@@ -351,7 +372,7 @@ function DesignAssignmentForm({
         />
       ) : (
         <>
-          <div className="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          <div className="mt-4 grid gap-4 md:grid-cols-2">
             <label className="flex flex-col gap-2">
               <span className="text-sm font-medium text-slate-700">負責人</span>
               <input
@@ -390,12 +411,7 @@ function DesignAssignmentForm({
                 className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400"
               />
             </label>
-            <VendorMatchField
-              value={draft.vendorName}
-              onChange={(value) => onChange("vendorName", value)}
-              vendors={vendors}
-            />
-            <label className="flex flex-col gap-2 md:col-span-2 xl:col-span-3">
+            <label className="flex flex-col gap-2 md:col-span-2">
               <span className="text-sm font-medium text-slate-700">
                 參考連結
               </span>
@@ -406,7 +422,7 @@ function DesignAssignmentForm({
                 className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400"
               />
             </label>
-            <label className="flex flex-col gap-2 md:col-span-2 xl:col-span-2">
+            <label className="flex flex-col gap-2 md:col-span-2">
               <span className="text-sm font-medium text-slate-700">
                 設計內容 / 需求說明
               </span>
@@ -449,7 +465,6 @@ function ProcurementAssignmentForm({
   isEditing,
   onChange,
   actions,
-  vendors,
 }: {
   title: string;
   draft: ProcurementAssignmentDraft;
@@ -457,7 +472,6 @@ function ProcurementAssignmentForm({
   isEditing: boolean;
   onChange: (key: keyof ProcurementAssignmentDraft, value: string) => void;
   actions: FormActions;
-  vendors: VendorBasicProfile[];
 }) {
   return (
     <div className="mt-4 rounded-3xl border border-slate-200 bg-slate-50 p-5 sm:p-6">
@@ -477,7 +491,6 @@ function ProcurementAssignmentForm({
             saved.size ? `尺寸：${saved.size}` : null,
             saved.material ? `材質：${saved.material}` : null,
             saved.quantity ? `數量：${saved.quantity}` : null,
-            saved.vendorName ? `執行廠商：${saved.vendorName}` : null,
           ].filter((item): item is string => Boolean(item))}
           fields={[
             { label: "來源項目 / 次項目", value: title },
@@ -485,7 +498,6 @@ function ProcurementAssignmentForm({
             { label: "尺寸", value: saved.size || "未填寫" },
             { label: "材質", value: saved.material || "未填寫" },
             { label: "數量", value: saved.quantity || "未填寫" },
-            { label: "執行廠商", value: saved.vendorName || "未填寫" },
             { label: "需求說明", value: saved.requirement || "未填寫" },
             { label: "參考連結", value: saved.styleUrl || "未填寫" },
             { label: "負責人", value: saved.assignee || "未指定" },
@@ -494,7 +506,7 @@ function ProcurementAssignmentForm({
         />
       ) : (
         <>
-          <div className="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          <div className="mt-4 grid gap-4 md:grid-cols-2">
             <label className="flex flex-col gap-2">
               <span className="text-sm font-medium text-slate-700">負責人</span>
               <input
@@ -513,11 +525,6 @@ function ProcurementAssignmentForm({
                 className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400"
               />
             </label>
-            <VendorMatchField
-              value={draft.vendorName}
-              onChange={(value) => onChange("vendorName", value)}
-              vendors={vendors}
-            />
             <label className="flex flex-col gap-2">
               <span className="text-sm font-medium text-slate-700">數量</span>
               <input
@@ -545,7 +552,7 @@ function ProcurementAssignmentForm({
                 className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400"
               />
             </label>
-            <label className="flex flex-col gap-2 md:col-span-2 xl:col-span-1">
+            <label className="flex flex-col gap-2 md:col-span-2">
               <span className="text-sm font-medium text-slate-700">
                 參考連結
               </span>
@@ -556,7 +563,7 @@ function ProcurementAssignmentForm({
                 className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400"
               />
             </label>
-            <label className="flex flex-col gap-2 md:col-span-2 xl:col-span-2">
+            <label className="flex flex-col gap-2 md:col-span-2">
               <span className="text-sm font-medium text-slate-700">
                 需求說明
               </span>
@@ -961,7 +968,6 @@ function AssignmentDrawer({
               saved={savedDesign}
               isEditing
               onChange={onDesignChange}
-              vendors={vendorOptions}
               actions={{
                 onSave: onSaveDesign,
                 onCancel: onClose,
@@ -979,7 +985,6 @@ function AssignmentDrawer({
               saved={savedProcurement}
               isEditing
               onChange={onProcurementChange}
-              vendors={vendorOptions}
               actions={{
                 onSave: onSaveProcurement,
                 onCancel: onClose,
@@ -1080,7 +1085,7 @@ export function ExecutionTree({
     Record<string, SavedAssignment<DesignAssignmentDraft>>
   >(
     Object.fromEntries(
-      Object.entries(initialDesignAssignments).map(([targetId, data]) => [targetId, { data }]),
+      Object.entries(initialDesignAssignments).map(([targetId, data]) => [targetId, { data: normalizeDesignAssignmentDraft(data) }]),
     ),
   );
   const [procurementAssignmentDrafts, setProcurementAssignmentDrafts] =
@@ -1088,7 +1093,7 @@ export function ExecutionTree({
   const [savedProcurementAssignments, setSavedProcurementAssignments] =
     useState<Record<string, SavedAssignment<ProcurementAssignmentDraft>>>(
       Object.fromEntries(
-        Object.entries(initialProcurementAssignments).map(([targetId, data]) => [targetId, { data }]),
+        Object.entries(initialProcurementAssignments).map(([targetId, data]) => [targetId, { data: normalizeProcurementAssignmentDraft(data) }]),
       ),
     );
   const [vendorAssignmentDrafts, setVendorAssignmentDrafts] = useState<
@@ -1117,8 +1122,11 @@ export function ExecutionTree({
         Object.entries(stored.savedDesignAssignments ?? {}).map(([targetId, value]) => [
           targetId,
           value && typeof value === "object" && "data" in value
-            ? (value as SavedAssignment<DesignAssignmentDraft>)
-            : { data: value as DesignAssignmentDraft },
+            ? {
+                ...(value as SavedAssignment<DesignAssignmentDraft>),
+                data: normalizeDesignAssignmentDraft((value as SavedAssignment<DesignAssignmentDraft>).data),
+              }
+            : { data: normalizeDesignAssignmentDraft(value as DesignAssignmentDraft) },
         ]),
       ),
     );
@@ -1127,8 +1135,11 @@ export function ExecutionTree({
         Object.entries(stored.savedProcurementAssignments ?? {}).map(([targetId, value]) => [
           targetId,
           value && typeof value === "object" && "data" in value
-            ? (value as SavedAssignment<ProcurementAssignmentDraft>)
-            : { data: value as ProcurementAssignmentDraft },
+            ? {
+                ...(value as SavedAssignment<ProcurementAssignmentDraft>),
+                data: normalizeProcurementAssignmentDraft((value as SavedAssignment<ProcurementAssignmentDraft>).data),
+              }
+            : { data: normalizeProcurementAssignmentDraft(value as ProcurementAssignmentDraft) },
         ]),
       ),
     );
@@ -1147,12 +1158,12 @@ export function ExecutionTree({
   useEffect(() => {
     setSavedDesignAssignments(
       Object.fromEntries(
-        Object.entries(initialDesignAssignments).map(([targetId, data]) => [targetId, { data }]),
+        Object.entries(initialDesignAssignments).map(([targetId, data]) => [targetId, { data: normalizeDesignAssignmentDraft(data) }]),
       ),
     );
     setSavedProcurementAssignments(
       Object.fromEntries(
-        Object.entries(initialProcurementAssignments).map(([targetId, data]) => [targetId, { data }]),
+        Object.entries(initialProcurementAssignments).map(([targetId, data]) => [targetId, { data: normalizeProcurementAssignmentDraft(data) }]),
       ),
     );
     setSavedVendorAssignments(
