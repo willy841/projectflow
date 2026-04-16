@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createDbVendorTrade, listDbVendorTrades } from '@/lib/db/vendor-directory-adapter';
 import { ensureProjectDbWriteEnabled } from '@/lib/db/project-flow-guard';
+import { requireAdminApi } from '@/lib/api-auth';
 
 export async function GET() {
   try {
@@ -12,6 +13,9 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
+  const auth = await requireAdminApi();
+  if (auth) return auth;
+
   try {
     const access = ensureProjectDbWriteEnabled();
     if (!access.ok) {

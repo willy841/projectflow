@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { AppShell } from "@/components/app-shell";
 import { formatCurrency } from "@/components/quote-cost-data";
 import { WorkspaceEmptyState, workspacePrimaryButtonClass } from "@/components/workspace-ui";
 import type { CloseoutListRow } from "@/lib/db/closeout-list-read-model";
@@ -40,7 +39,7 @@ export function CloseoutListClient({ initialProjects }: { initialProjects: Close
   const pagedProjects = filteredProjects.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
 
   return (
-    <AppShell activePath="/closeouts">
+    <>
       <header className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200 xl:p-7">
         <div className="flex items-center justify-between gap-3">
           <h2 className="text-3xl font-semibold tracking-tight text-slate-900">結案紀錄</h2>
@@ -156,7 +155,7 @@ export function CloseoutListClient({ initialProjects }: { initialProjects: Close
           </div>
         </div>
       </section>
-    </AppShell>
+    </>
   );
 }
 

@@ -3,7 +3,6 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { AppShell } from "@/components/app-shell";
 import { getProjectRouteId, type Project } from "@/components/project-data";
 import { formatCurrency, getProjectCostTotal, getQuotationTotal } from "@/components/quote-cost-data";
 import { getQuoteCostProjectsWithWorkflow } from "@/components/project-workflow-store";
@@ -103,7 +102,7 @@ export function ProjectsPageClient({ initialProjects }: { initialProjects: Proje
   const isDeleteNameMatched = pendingDeleteProject ? deleteConfirmName.trim() === pendingDeleteProject.name : false;
 
   return (
-    <AppShell activePath="/projects">
+    <>
       <header className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200 xl:p-7">
         <div className="flex flex-col gap-5 2xl:flex-row 2xl:items-center 2xl:justify-between">
           <div className="flex items-center gap-3">
@@ -346,6 +345,6 @@ export function ProjectsPageClient({ initialProjects }: { initialProjects: Proje
           </div>
         </section>
       ) : null}
-    </AppShell>
+    </>
   );
 }

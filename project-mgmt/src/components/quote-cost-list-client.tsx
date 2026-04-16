@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { AppShell } from "@/components/app-shell";
 import { getQuoteCostProjectsWithWorkflow } from "@/components/project-workflow-store";
 import type { QuoteCostProject } from "@/components/quote-cost-data";
 import { WorkspaceEmptyState, workspacePrimaryButtonClass } from "@/components/workspace-ui";
@@ -43,7 +42,7 @@ export function QuoteCostListClient({ mode = "active", initialProjects }: { mode
   const hasKeyword = Boolean(searchKeyword.trim());
 
   return (
-    <AppShell activePath="/quote-costs">
+    <>
       <header className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200 xl:p-7">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
           <div className="flex items-center gap-3">
@@ -113,6 +112,6 @@ export function QuoteCostListClient({ mode = "active", initialProjects }: { mode
           />
         )}
       </section>
-    </AppShell>
+    </>
   );
 }
