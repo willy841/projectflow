@@ -25,7 +25,7 @@ export default defineConfig({
   webServer: process.env.PLAYWRIGHT_SKIP_WEBSERVER
     ? undefined
     : {
-        command: 'npm run dev -- --webpack',
+        command: 'npm run dev',
         url: 'http://localhost:3000',
         reuseExistingServer: true,
         timeout: 120_000,

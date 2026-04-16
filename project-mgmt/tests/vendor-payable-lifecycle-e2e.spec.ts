@@ -1,9 +1,13 @@
+// LEGACY / DEPRECATED: 舊正式驗收拆分腳本；已由 formal-acceptance-mainline.spec.ts 接手正式主線。
+// 保留作局部回歸參考，不再視為正式 blocker。
 import { expect, test } from '@playwright/test';
 import { Client } from 'pg';
 import { readFileSync, existsSync } from 'node:fs';
 import path from 'node:path';
 
 const PROJECT_ID = '11111111-1111-4111-8111-111111111111';
+const VENDOR_TASK_ID = '88888888-8888-4888-8888-888888888888';
+const PLAN_ID = '99999999-9999-4999-8999-999999999999';
 
 function readEnvLocalDatabaseUrl() {
   const envPath = path.resolve(process.cwd(), '.env.local');
@@ -27,45 +31,85 @@ async function queryDb<T = Record<string, unknown>>(sql: string, params: unknown
   }
 }
 
-test('vendor payable lifecycle v1', async ({ page }) => {
+test('vendor payable lifecycle v1', async ({ page, request }) => {
   test.setTimeout(120_000);
-
-  const note = `vendor payment e2e ${Date.now()}`;
 
   const vendorRows = await queryDb<{ id: string; name: string }>(`select id, name from vendors where name = '驗收廠商C' limit 1`);
   const vendorId = vendorRows[0]?.id;
   if (!vendorId) throw new Error('Vendor not found: 驗收廠商C');
 
+  await queryDb(
+    `delete from project_vendor_payment_records where project_id = $1 and vendor_id = $2`,
+    [PROJECT_ID, vendorId],
+  );
+  const baselinePaid = 0;
+
+  const syncPlan = await request.post(`/api/vendor-tasks/${VENDOR_TASK_ID}/sync-plans`, {
+    data: {
+      plans: [{
+        id: PLAN_ID,
+        title: '展示架主體製作與進場',
+        requirement: '含主體製作、現場安裝、拆除回收。',
+        amount: '28000',
+        vendorName: '驗收廠商C',
+      }],
+    },
+  });
+  expect(syncPlan.ok()).toBeTruthy();
+  const confirmGroup = await request.post(`/api/vendor-groups/${PROJECT_ID}/${vendorId}/confirm`);
+  expect(confirmGroup.ok()).toBeTruthy();
+
   await page.goto(`/vendors/${vendorId}`);
   await expect(page.getByText('未付款專案')).toBeVisible();
 
-  await page.getByRole('button', { name: '登記付款' }).first().click();
-  const modal = page.locator('div').filter({ has: page.getByRole('heading', { name: '登記付款' }) }).last();
-  const inputs = modal.getByRole('textbox');
-  await inputs.nth(0).fill('2026-04-12');
-  await inputs.nth(1).fill('1000');
-  await inputs.nth(2).fill(note);
-  await modal.getByRole('button', { name: '建立付款' }).click();
+  const targetCard = page.locator('label').filter({ has: page.getByText('百貨檔期陳列與贈品備品整合') }).first();
+  await expect(targetCard).toBeVisible();
+  const checkbox = targetCard.locator('input[type="checkbox"]');
+  await expect(checkbox).toBeEnabled();
+  await checkbox.check();
 
-  const paymentRow = await expect.poll(async () => {
-    const rows = await queryDb<{ id: string; amount: number; note: string }>(
-      `select id, amount::float8 as amount, coalesce(note, '') as note from project_vendor_payment_records where project_id = $1 and note = $2 order by created_at desc limit 1`,
-      [PROJECT_ID, note],
-    );
-    return rows[0] ?? null;
-  }, { timeout: 15000 }).not.toBeNull();
-
-  const paymentEntry = page.locator('div.rounded-2xl.bg-white').filter({ has: page.getByText(note) }).first();
-  await expect(paymentEntry).toContainText(note);
-  await expect(paymentEntry).toContainText('$1,000');
-  const projectCard = page.locator('div').filter({ has: page.getByText('Projectflow 驗收測試專案') }).first();
-  await expect(projectCard).toContainText(/部分付款|已付款/);
-
-  page.once('dialog', (dialog) => dialog.accept());
-  await paymentEntry.getByRole('button', { name: '刪除' }).click();
+  await page.getByRole('button', { name: '標記為已付款' }).click();
 
   await expect.poll(async () => {
-    const rows = await queryDb<{ count: number }>(`select count(*)::int as count from project_vendor_payment_records where project_id = $1 and note = $2`, [PROJECT_ID, note]);
+    const rows = await queryDb<{ count: number }>(
+      `select count(*)::int as count
+       from project_vendor_payment_records
+       where project_id = $1 and vendor_id = $2`,
+      [PROJECT_ID, vendorId],
+    );
     return rows[0]?.count ?? 0;
-  }, { timeout: 15000 }).toBe(0);
+  }, { timeout: 15000 }).toBeGreaterThan(0);
+
+  const paymentRows = await queryDb<{ id: string; amount: number; note: string }>(
+    `select id, amount::float8 as amount, coalesce(note, '') as note
+     from project_vendor_payment_records
+     where project_id = $1 and vendor_id = $2
+     order by created_at desc
+     limit 1`,
+    [PROJECT_ID, vendorId],
+  );
+  const paymentRow = paymentRows[0];
+  expect(paymentRow).toBeTruthy();
+  const paidAmount = Number(paymentRow!.amount);
+  expect(paidAmount).toBeGreaterThan(0);
+  expect(paymentRow!.note).toBe('批次標記為已付款');
+  await expect(page.getByText('已完成 1 筆已付款標記。')).toBeVisible();
+
+  const projectCard = page.locator('div').filter({ has: page.getByText('百貨檔期陳列與贈品備品整合') }).first();
+  await expect(projectCard).toContainText(/已付款/);
+
+  const deleteResponse = await request.delete(`/api/vendor-payments/${paymentRow!.id}`);
+  expect(deleteResponse.ok()).toBeTruthy();
+
+  await expect.poll(async () => {
+    const rows = await queryDb<{ paid_amount: number }>(
+      `select coalesce(sum(amount), 0)::float8 as paid_amount from project_vendor_payment_records where project_id = $1 and vendor_id = $2`,
+      [PROJECT_ID, vendorId],
+    );
+    return rows[0]?.paid_amount ?? 0;
+  }, { timeout: 15000 }).toBe(baselinePaid);
+
+  await page.goto(`/vendors/${vendorId}`);
+  await expect(page.getByText('未付款專案')).toBeVisible();
+  await expect(page.getByText('百貨檔期陳列與贈品備品整合').first()).toBeVisible();
 });

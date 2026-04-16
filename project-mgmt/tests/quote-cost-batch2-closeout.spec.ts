@@ -1,3 +1,5 @@
+// LEGACY / DEPRECATED: 舊正式驗收拆分腳本；已由 formal-acceptance-mainline.spec.ts 接手正式主線。
+// 保留作局部回歸參考，不再視為正式 blocker。
 import { test, expect } from '@playwright/test';
 import { Client } from 'pg';
 import { readFileSync, existsSync } from 'node:fs';
