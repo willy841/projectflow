@@ -49,6 +49,7 @@ PROJECTFLOW_USE_PGMEM=0
 ### Important note
 
 - If DB runtime fails on `db.vkjabxekxnnczpulumod.supabase.co`, switch to the Supabase **Transaction Pooler** URI before assuming projectflow code is broken.
+- For local `webapp-platform` deployment / runtime verification, reuse this exact pooler path instead of inventing another host.
 
 ## Examples
 
