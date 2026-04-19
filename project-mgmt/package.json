@@ -6,6 +6,8 @@
     "dev": "next dev",
     "dev:acceptance": "sh ./scripts/start-acceptance.sh",
     "dev:production-local": "sh ./scripts/start-production-local.sh",
+    "dev:stop": "sh ./scripts/stop-dev.sh",
+    "dev:status": "sh ./scripts/status-dev.sh",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
