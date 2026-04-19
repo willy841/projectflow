@@ -4,6 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "dev:acceptance": "sh ./scripts/start-acceptance.sh",
+    "dev:production-local": "sh ./scripts/start-production-local.sh",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",

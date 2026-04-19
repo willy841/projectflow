@@ -30,6 +30,7 @@ export async function AuthShellServer({ children, activePath = '/' }: { children
       activePath={activePath}
       navItems={filteredNavItems}
       user={user ? { name: user.name, email: user.email, role: user.role } : null}
+      environmentLabel={process.env.PROJECTFLOW_ENV_LABEL}
     >
       {children}
     </AuthShellClient>
