@@ -96,12 +96,19 @@ export function VendorStoreProvider({ children }: { children: React.ReactNode })
 
   useEffect(() => {
     const storedVendors = readStoredVendors();
+    const storedTradeOptions = readStoredTradeOptions();
 
     setVendors((current) => {
       if (hasLocalChangesRef.current || !storedVendors) {
         return current;
       }
       return storedVendors;
+    });
+    setTradeOptions((current) => {
+      if (hasLocalChangesRef.current || !storedTradeOptions) {
+        return current;
+      }
+      return storedTradeOptions;
     });
     setIsReady(true);
   }, []);
@@ -191,6 +198,7 @@ export function VendorStoreProvider({ children }: { children: React.ReactNode })
     addTradeOption(trade) {
       const nextTrade = trade.trim();
       if (!nextTrade) return;
+      hasLocalChangesRef.current = true;
       setTradeOptions((current) => {
         if (current.includes(nextTrade)) return current;
         const next = [...current, nextTrade];
@@ -199,6 +207,7 @@ export function VendorStoreProvider({ children }: { children: React.ReactNode })
       });
     },
     removeTradeOption(trade) {
+      hasLocalChangesRef.current = true;
       setTradeOptions((current) => {
         const next = current.filter((item) => item !== trade);
         persistTradeOptions(next);
