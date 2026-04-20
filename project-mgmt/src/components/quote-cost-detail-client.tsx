@@ -88,6 +88,10 @@ export function QuoteCostDetailClient({ project, mode = "active", presenter = ge
   const grossProfit = useMemo(() => getGrossProfit(quotationTotal, projectCostTotal), [quotationTotal, projectCostTotal]);
   const costSourceSummary = useMemo(() => getCostSourceSummary(state.costItems, state.id), [state.costItems, state.id]);
   const manualItems = useMemo(() => state.costItems.filter((item) => item.isManual), [state.costItems]);
+  const visibleReconciliationGroups = useMemo(
+    () => (activeArchiveSource === '人工' ? [] : reconciliationGroups.filter((group) => group.sourceType === activeArchiveSource)),
+    [activeArchiveSource, reconciliationGroups],
+  );
   const manualSyncPayload = useMemo(() => JSON.stringify(manualItems.map((item) => ({
     itemName: item.itemName,
     description: item.sourceRef,
@@ -483,18 +487,18 @@ export function QuoteCostDetailClient({ project, mode = "active", presenter = ge
           </button>
         </div>
 
-        {reconciliationGroups.length ? (
+        {visibleReconciliationGroups.length ? (
           <div className="mt-6 rounded-3xl border border-slate-200 bg-slate-50 p-5">
             <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
               <div>
                 <h4 className="text-lg font-semibold text-slate-900">對帳群組</h4>
               </div>
               <div className="rounded-2xl bg-white px-4 py-3 text-sm text-slate-600 ring-1 ring-slate-200">
-                共 {reconciliationGroups.length} 組
+                共 {visibleReconciliationGroups.length} 組
               </div>
             </div>
             <div className="mt-4 space-y-3">
-              {reconciliationGroups.map((group) => (
+              {visibleReconciliationGroups.map((group) => (
                 <div key={group.key} className="rounded-2xl border border-slate-200 bg-white p-5">
                   <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
                     <div className="min-w-0 flex-1">
