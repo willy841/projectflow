@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AppShellAuth } from "@/components/app-shell-auth";
-import { DesignPlanEditorClient } from "@/components/design-plan-editor-client";
+import { DesignTaskWorkspace } from "@/components/design-task-workspace";
 import { getDesignTaskById } from "@/components/design-task-data";
 import { WorkspaceHeader, WorkspaceSection, WorkspaceStat } from "@/components/workspace-ui";
 import { getDbDesignTaskById } from "@/lib/db/design-flow-adapter";
@@ -67,9 +67,10 @@ export default async function DesignTaskDetailPage({
       </WorkspaceSection>
 
       <WorkspaceSection title="執行處理">
-        <DesignPlanEditorClient
+        <DesignTaskWorkspace
           taskId={task.id}
-          initialPlans={task.plans.map((plan) => ({
+          taskTitle={task.title}
+          plans={task.plans.map((plan) => ({
             id: plan.id,
             title: plan.title,
             size: plan.size,
