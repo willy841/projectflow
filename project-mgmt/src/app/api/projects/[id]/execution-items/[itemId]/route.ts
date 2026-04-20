@@ -53,6 +53,15 @@ export async function DELETE(
     }
 
     const childIds = existing.filter((item) => item.parent_id === itemId).map((item) => item.id);
+    const targetIds = [itemId, ...childIds];
+    const db = createPhase1DbClient();
+
+    for (const targetExecutionItemId of targetIds) {
+      await db.query(`delete from design_tasks where source_execution_item_id = $1`, [targetExecutionItemId]);
+      await db.query(`delete from procurement_tasks where source_execution_item_id = $1`, [targetExecutionItemId]);
+      await db.query(`delete from vendor_tasks where source_execution_item_id = $1`, [targetExecutionItemId]);
+    }
+
     for (const childId of childIds) {
       await repositories.executionItems.delete(childId);
     }
