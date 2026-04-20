@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   ProjectTaskSummaryList,
   type ProjectTaskSummaryItem,
@@ -88,6 +89,7 @@ function dedupeProjectTaskSummaryItems(items: ProjectTaskSummaryItem[]) {
 }
 
 export function ExecutionTreeSection({ project }: { project: Project }) {
+  const router = useRouter();
   const isDbProject = isUuidLike(project.id);
   const [designAssignments, setDesignAssignments] = useState<DesignAssignmentItem[]>([]);
   const [procurementAssignments, setProcurementAssignments] = useState<ProcurementAssignmentItem[]>([]);
@@ -504,8 +506,9 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
             }
             setSaveFeedback({
               category: flowType,
-              message: "已建立，摘要已更新。",
+              message: "已儲存，正在重新整理任務資料。",
             });
+            router.refresh();
           }}
           initialDesignAssignments={initialDesignAssignments}
           initialProcurementAssignments={initialProcurementAssignments}
