@@ -131,11 +131,6 @@ export default async function DesignTasksPage({
           </div> : <WorkspaceEmptyState title="目前尚無可查看的專案" description="待這條工作臺有正式任務後，會從這裡進入單專案工作臺。" />
         ) : (
           <div className="space-y-3">
-            <div className="grid gap-3 md:grid-cols-3">
-              <WorkspaceStat label="任務數量" value={`共 ${projectTasks.length} 筆`} />
-              <WorkspaceStat label="活動日期" value={activeProject.eventDate} />
-            </div>
-
             {projectTasks.length ? projectTasks.map((task) => (
               <article
                 key={task.id}
@@ -143,13 +138,17 @@ export default async function DesignTasksPage({
               >
                 <div className="flex flex-col gap-4">
                   <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
-                    <div className="grid flex-1 gap-3 md:grid-cols-6">
-                      <WorkspaceStat label="活動日期" value={task.eventDate || activeProject.eventDate} />
-                      <WorkspaceStat label="任務標題" value={task.title} />
-                      <WorkspaceStat label="尺寸" value={task.size} />
-                      <WorkspaceStat label="材質" value={task.material} />
-                      <WorkspaceStat label="結構" value={task.structureRequired} />
-                      <WorkspaceStat label="數量" value={task.quantity} />
+                    <div className="flex-1 space-y-3">
+                      <div className="grid gap-3 md:grid-cols-[minmax(0,2fr)_180px]">
+                        <WorkspaceStat label="任務標題" value={task.title} />
+                        <WorkspaceStat label="活動日期" value={task.eventDate || activeProject.eventDate} />
+                      </div>
+                      <div className="grid gap-3 md:grid-cols-4">
+                        <WorkspaceStat label="尺寸" value={task.size} />
+                        <WorkspaceStat label="材質" value={task.material} />
+                        <WorkspaceStat label="結構" value={task.structureRequired} />
+                        <WorkspaceStat label="數量" value={task.quantity} />
+                      </div>
                     </div>
 
                     <div className="flex justify-end">
