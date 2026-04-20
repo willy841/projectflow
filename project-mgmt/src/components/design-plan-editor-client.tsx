@@ -24,9 +24,13 @@ type VendorOption = {
 export function DesignPlanEditorClient({
   taskId,
   initialPlans,
+  selectedPlanId,
+  onSelectPlanId,
 }: {
   taskId: string;
   initialPlans: DesignPlanInput[];
+  selectedPlanId?: string | null;
+  onSelectPlanId?: (planId: string | null) => void;
 }) {
   const router = useRouter();
   const vendorListId = useId();
@@ -102,9 +106,10 @@ export function DesignPlanEditorClient({
   }
 
   function addPlan() {
+    const nextId = `draft-${Date.now()}-${plans.length + 1}`;
     setPlans((current) => [
       {
-        id: `draft-${Date.now()}-${current.length + 1}`,
+        id: nextId,
         title: "",
         size: "",
         material: "",
@@ -116,10 +121,17 @@ export function DesignPlanEditorClient({
       },
       ...current,
     ]);
+    onSelectPlanId?.(nextId);
   }
 
   function removePlan(id: string) {
-    setPlans((current) => current.filter((plan) => plan.id !== id));
+    setPlans((current) => {
+      const next = current.filter((plan) => plan.id !== id);
+      if (selectedPlanId === id) {
+        onSelectPlanId?.(next[0]?.id ?? null);
+      }
+      return next;
+    });
   }
 
   async function persistCurrentPlans() {
@@ -191,6 +203,8 @@ export function DesignPlanEditorClient({
     }
   }
 
+  const visiblePlans = selectedPlanId ? plans.filter((plan) => plan.id === selectedPlanId) : plans;
+
   return (
     <div className="space-y-4">
       <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
@@ -223,7 +237,7 @@ export function DesignPlanEditorClient({
         </div>
       </div>
 
-      {plans.map((plan, index) => (
+      {visiblePlans.map((plan, index) => (
         <article key={plan.id} className="rounded-2xl border border-slate-200 bg-white p-5">
           <div className="mb-4 flex items-center justify-between gap-3 border-b border-slate-100 pb-4">
             <div>

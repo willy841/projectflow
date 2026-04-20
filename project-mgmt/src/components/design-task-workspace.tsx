@@ -68,16 +68,18 @@ export function DesignTaskWorkspace({
         </div>
       </section>
 
-      <section className="rounded-2xl border border-slate-200 bg-white p-4">
-        <div className="mb-4 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
-          <p className="text-xs font-medium tracking-wide text-slate-500">目前檢視</p>
-          <p className="mt-1 text-base font-semibold text-slate-900">{selectedPlan?.title || taskTitle}</p>
-          <p className="mt-1 text-sm text-slate-500">右側維持原本的設計執行處理編輯流程，先不動底層邏輯。</p>
+      <section className="rounded-2xl border border-slate-200 bg-white p-5">
+        <div className="mb-5 border-b border-slate-100 pb-4">
+          <p className="text-xs font-medium tracking-wide text-slate-500">執行處理</p>
+          <p className="mt-1 text-lg font-semibold text-slate-900">{selectedPlan?.title || taskTitle}</p>
+          <p className="mt-1 text-sm text-slate-500">右側固定只顯示一筆執行回覆的欄位內容，左側切換時同步切換。</p>
         </div>
 
         <DesignPlanEditorClient
           taskId={taskId}
           initialPlans={plans}
+          selectedPlanId={selectedPlan?.id ?? null}
+          onSelectPlanId={setSelectedPlanId}
         />
       </section>
     </div>
