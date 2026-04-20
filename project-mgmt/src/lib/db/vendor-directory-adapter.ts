@@ -34,13 +34,21 @@ async function ensureVendorTradeCatalogTable() {
   await db.query(`create index if not exists idx_vendor_trade_catalog_normalized_name on vendor_trade_catalog (normalized_name)`);
 }
 
+function splitTradeLabels(tradeLabel: string | null | undefined) {
+  return (tradeLabel ?? '')
+    .split('/')
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
 function mapVendorRowToProfile(vendor: Awaited<ReturnType<ReturnType<typeof createPhase1Repositories>['vendors']['findById']>> extends infer T ? NonNullable<T> : never): VendorBasicProfile {
+  const tradeLabels = splitTradeLabels(vendor.trade_label);
   return {
     id: vendor.id,
     name: vendor.name,
-    category: vendor.trade_label?.trim() || '待補充',
-    tradeLabel: vendor.trade_label?.trim() || '待補充',
-    tradeLabels: vendor.trade_label?.trim() ? [vendor.trade_label.trim()] : [],
+    category: tradeLabels[0] || vendor.trade_label?.trim() || '待補充',
+    tradeLabel: tradeLabels[0] || vendor.trade_label?.trim() || '待補充',
+    tradeLabels,
     contactName: vendor.contact_name ?? '',
     phone: vendor.phone ?? '',
     email: vendor.email ?? '',
@@ -80,7 +88,10 @@ export async function listDbVendorTrades(): Promise<string[]> {
 
   return Array.from(
     new Set(
-      [...catalogRows.rows.map((row) => row.name), ...vendorRows.rows.map((row) => row.trade_label?.trim() || '')]
+      [
+        ...catalogRows.rows.map((row) => row.name),
+        ...vendorRows.rows.flatMap((row) => splitTradeLabels(row.trade_label)),
+      ]
         .map((item) => item.trim())
         .filter(Boolean),
     ),

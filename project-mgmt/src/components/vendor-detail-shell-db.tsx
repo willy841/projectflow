@@ -7,6 +7,7 @@ import type { VendorPaymentRecord } from '@/lib/db/vendor-directory-adapter';
 
 type VendorEditableForm = {
   tradeLabel: string;
+  tradeLabels: string[];
   contactName: string;
   phone: string;
   email: string;
@@ -24,6 +25,7 @@ type VendorEditableForm = {
 function buildVendorEditableForm(vendor: VendorBasicProfile): VendorEditableForm {
   return {
     tradeLabel: vendor.tradeLabel || '',
+    tradeLabels: vendor.tradeLabels?.length ? vendor.tradeLabels : (vendor.tradeLabel ? vendor.tradeLabel.split(/\s*\/\s*/).map((item) => item.trim()).filter(Boolean) : []),
     contactName: vendor.contactName || '',
     phone: vendor.phone || '',
     email: vendor.email || '',
@@ -152,7 +154,10 @@ export function VendorDetailShellDb({ vendor, records, paymentRecords, tradeOpti
     const response = await fetch(`/api/vendors/${vendor.id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(profileForm),
+      body: JSON.stringify({
+        ...profileForm,
+        tradeLabel: profileForm.tradeLabels.length ? profileForm.tradeLabels.join(' / ') : profileForm.tradeLabel,
+      }),
     });
     const result = await response.json();
     setProfileSaving(false);
@@ -235,7 +240,9 @@ export function VendorDetailShellDb({ vendor, records, paymentRecords, tradeOpti
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-3">
               <h2 className="text-3xl font-semibold tracking-tight text-slate-900">{vendor.name}</h2>
-              <span className="inline-flex rounded-full bg-sky-50 px-3 py-1 text-xs font-medium text-sky-700 ring-1 ring-sky-200">{vendor.tradeLabel || vendor.category || '—'}</span>
+              {(vendor.tradeLabels?.length ? vendor.tradeLabels : [vendor.tradeLabel || vendor.category || '—']).map((trade) => (
+                <span key={`${vendor.id}-${trade}`} className="inline-flex rounded-full bg-sky-50 px-3 py-1 text-xs font-medium text-sky-700 ring-1 ring-sky-200">{trade}</span>
+              ))}
             </div>
           </div>
           <div className="flex flex-wrap gap-3">
@@ -257,15 +264,30 @@ export function VendorDetailShellDb({ vendor, records, paymentRecords, tradeOpti
             </div>
           </div>
           <div className="grid gap-4 md:grid-cols-2">
-            <label className="rounded-2xl bg-slate-50 p-4">
-              <p className="text-sm text-slate-500">工種</p>
-              <select value={profileForm.tradeLabel} onChange={(event) => updateProfileField('tradeLabel', event.target.value)} className="mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400">
-                <option value="">不指定</option>
-                {tradeOptions.map((trade) => (
-                  <option key={trade} value={trade}>{trade}</option>
-                ))}
-              </select>
-            </label>
+            <div className="rounded-2xl bg-slate-50 p-4 md:col-span-2">
+              <p className="text-sm text-slate-500">工種（可複選）</p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {tradeOptions.map((trade) => {
+                  const active = profileForm.tradeLabels.includes(trade);
+                  return (
+                    <button
+                      key={trade}
+                      type="button"
+                      onClick={() => setProfileForm((current) => ({
+                        ...current,
+                        tradeLabel: trade,
+                        tradeLabels: active
+                          ? current.tradeLabels.filter((item) => item !== trade)
+                          : [...current.tradeLabels, trade],
+                      }))}
+                      className={`rounded-full px-3 py-2 text-xs font-medium ring-1 transition ${active ? 'bg-slate-900 text-white ring-slate-900' : 'bg-white text-slate-700 ring-slate-200 hover:bg-slate-50'}`}
+                    >
+                      {trade}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
             {[
               ['聯絡人', 'contactName', '請輸入聯絡人'],
               ['電話', 'phone', '請輸入電話'],

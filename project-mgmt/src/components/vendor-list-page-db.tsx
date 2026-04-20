@@ -37,9 +37,12 @@ export function VendorListPageDb({ vendors, tradeOptions: initialTradeOptions }:
   const tradeUsageCountMap = useMemo(() => {
     const map = new Map<string, number>();
     for (const vendor of vendorCards) {
-      const trade = vendor.tradeLabel || vendor.category || '';
-      if (!trade) continue;
-      map.set(trade, (map.get(trade) ?? 0) + 1);
+      const trades = vendor.tradeLabels?.length
+        ? vendor.tradeLabels
+        : [vendor.tradeLabel || vendor.category || ''].filter(Boolean);
+      for (const trade of trades) {
+        map.set(trade, (map.get(trade) ?? 0) + 1);
+      }
     }
     return map;
   }, [vendorCards]);
@@ -47,9 +50,11 @@ export function VendorListPageDb({ vendors, tradeOptions: initialTradeOptions }:
   const filteredVendorCards = useMemo(() => {
     const normalizedKeyword = keyword.trim().toLowerCase();
     return vendorCards.filter((vendor) => {
-      const trade = vendor.tradeLabel || vendor.category || '';
-      const matchesKeyword = !normalizedKeyword || [vendor.name, trade].join(' ').toLowerCase().includes(normalizedKeyword);
-      const matchesTrade = !activeTrade || trade === activeTrade;
+      const trades = vendor.tradeLabels?.length
+        ? vendor.tradeLabels
+        : [vendor.tradeLabel || vendor.category || ''].filter(Boolean);
+      const matchesKeyword = !normalizedKeyword || [vendor.name, ...trades].join(' ').toLowerCase().includes(normalizedKeyword);
+      const matchesTrade = !activeTrade || trades.includes(activeTrade);
       return matchesKeyword && matchesTrade;
     });
   }, [activeTrade, keyword, vendorCards]);
@@ -96,7 +101,6 @@ export function VendorListPageDb({ vendors, tradeOptions: initialTradeOptions }:
     setIsCreateVendorOpen(false);
     setNewVendorName('');
     setNewVendorTrade('');
-    router.push(`/vendors/${encodeURIComponent(result.vendor.id)}`);
     router.refresh();
   }
 
@@ -291,9 +295,11 @@ export function VendorListPageDb({ vendors, tradeOptions: initialTradeOptions }:
                     <Link href={`/vendors/${vendor.id}`} className="text-2xl font-semibold tracking-tight text-slate-900 underline-offset-4 transition hover:text-slate-700 hover:underline">
                       {vendor.name}
                     </Link>
-                    <span className="inline-flex rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700 ring-1 ring-slate-200">
-                      {vendor.tradeLabel || vendor.category || '—'}
-                    </span>
+                    {(vendor.tradeLabels?.length ? vendor.tradeLabels : [vendor.tradeLabel || vendor.category || '—']).map((trade) => (
+                      <span key={`${vendor.id}-${trade}`} className="inline-flex rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700 ring-1 ring-slate-200">
+                        {trade}
+                      </span>
+                    ))}
                   </div>
                 </div>
                 <button
