@@ -105,7 +105,7 @@ export default async function VendorAssignmentsPage({
       />
 
       <WorkspaceSection
-        title={activeProject ? activeProject.projectName : "專案入口"}
+        title={activeProject ? activeProject.projectName : ""}
         meta={null}
         actions={
           activeProject ? (

@@ -90,7 +90,7 @@ export default async function DesignTasksPage({
       />
 
       <WorkspaceSection
-        title={activeProject ? `${activeProject.projectName}｜${activeProject.eventDate}` : "專案入口"}
+        title={activeProject ? `${activeProject.projectName}｜${activeProject.eventDate}` : ""}
         meta={null}
         actions={
           activeProject ? (
