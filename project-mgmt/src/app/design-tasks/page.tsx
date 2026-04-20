@@ -130,44 +130,38 @@ export default async function DesignTasksPage({
             ))}
           </div> : <WorkspaceEmptyState title="目前尚無可查看的專案" description="待這條工作臺有正式任務後，會從這裡進入單專案工作臺。" />
         ) : (
-          <div className="space-y-3">
-            {projectTasks.length ? projectTasks.map((task) => (
-              <article
-                key={task.id}
-                className="rounded-2xl border border-slate-200 bg-white p-5 transition hover:border-slate-300 hover:bg-slate-50/70"
-              >
-                <div className="flex flex-col gap-4">
-                  <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
-                    <div className="flex-1 space-y-3">
-                      <div className="grid gap-3 md:grid-cols-1">
-                        <WorkspaceStat label="任務標題" value={task.title} />
-                      </div>
-                      <div className="grid gap-3 md:grid-cols-4">
-                        <WorkspaceStat label="尺寸" value={task.size} />
-                        <WorkspaceStat label="材質" value={task.material} />
-                        <WorkspaceStat label="結構" value={task.structureRequired} />
-                        <WorkspaceStat label="數量" value={task.quantity} />
-                      </div>
-                    </div>
-
-                    <div className="flex justify-end">
-                      <Link
-                        href={`/design-tasks/${task.id}`}
-                        className={workspacePrimaryButtonClass}
-                      >
-                        進入任務
-                      </Link>
-                    </div>
-                  </div>
-
-                  <div className="grid gap-3 md:grid-cols-2 xl:max-w-xl">
-                    <WorkspaceStat label="任務數量" value="1 筆" />
-                    <WorkspaceStat label="執行回覆" value={`共 ${task.replyCount ?? 0} 筆`} />
-                  </div>
-                </div>
-              </article>
-            )) : <WorkspaceEmptyState title="目前尚無任務" description="這個專案目前還沒有正式資料可進入處理頁。" />}
-          </div>
+          projectTasks.length ? (
+            <div className="overflow-x-auto rounded-2xl border border-slate-200">
+              <table className="min-w-[1180px] divide-y divide-slate-200 text-left text-sm xl:min-w-full">
+                <thead className="bg-slate-50 text-slate-500">
+                  <tr>
+                    <th className="px-4 py-3 font-medium">任務標題</th>
+                    <th className="px-4 py-3 font-medium">尺寸</th>
+                    <th className="px-4 py-3 font-medium">材質</th>
+                    <th className="px-4 py-3 font-medium">結構</th>
+                    <th className="px-4 py-3 font-medium">數量</th>
+                    <th className="px-4 py-3 font-medium">執行回覆</th>
+                    <th className="px-4 py-3 font-medium text-right">操作</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100 bg-white">
+                  {projectTasks.map((task) => (
+                    <tr key={task.id} className="align-middle">
+                      <td className="px-4 py-4 font-medium text-slate-900">{task.title}</td>
+                      <td className="px-4 py-4 text-slate-600">{task.size}</td>
+                      <td className="px-4 py-4 text-slate-600">{task.material}</td>
+                      <td className="px-4 py-4 text-slate-600">{task.structureRequired}</td>
+                      <td className="px-4 py-4 text-slate-600">{task.quantity}</td>
+                      <td className="px-4 py-4 text-slate-600">共 {task.replyCount ?? 0} 筆</td>
+                      <td className="px-4 py-4 text-right">
+                        <Link href={`/design-tasks/${task.id}`} className={workspacePrimaryButtonClass}>進入任務</Link>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : <WorkspaceEmptyState title="目前尚無任務" description="這個專案目前還沒有正式資料可進入處理頁。" />
         )}
       </WorkspaceSection>
     </AppShellAuth>

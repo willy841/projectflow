@@ -131,38 +131,42 @@ export default async function VendorAssignmentsPage({
             ))}
           </div> : <WorkspaceEmptyState title="目前尚無可查看的專案" description="待這條工作臺有正式任務後，會從這裡進入單專案工作臺。" />
         ) : (
-          <div className="space-y-3">
-            <div className="grid gap-3 md:grid-cols-3">
-              <WorkspaceStat label="目前專案" value={activeProject.projectName} />
-              <WorkspaceStat label="廠商群組" value={`共 ${vendorGroups.length} 組`} />
-              <WorkspaceStat label="活動日期" value={activeProject.eventDate} />
+          vendorGroups.length ? (
+            <div className="overflow-x-auto rounded-2xl border border-slate-200">
+              <table className="min-w-[1180px] divide-y divide-slate-200 text-left text-sm xl:min-w-full">
+                <thead className="bg-slate-50 text-slate-500">
+                  <tr>
+                    <th className="px-4 py-3 font-medium">廠商</th>
+                    <th className="px-4 py-3 font-medium">任務數量</th>
+                    <th className="px-4 py-3 font-medium">活動日期</th>
+                    <th className="px-4 py-3 font-medium">任務摘要</th>
+                    <th className="px-4 py-3 font-medium text-right">操作</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100 bg-white">
+                  {vendorGroups.map((group) => (
+                    <tr key={group.vendorKey} className="align-middle">
+                      <td className="px-4 py-4 font-medium text-slate-900">{group.vendorName}</td>
+                      <td className="px-4 py-4 text-slate-600">共 {group.taskCount} 筆</td>
+                      <td className="px-4 py-4 text-slate-600">{group.eventDate}</td>
+                      <td className="px-4 py-4 text-slate-600">
+                        <div className="flex flex-wrap gap-2">
+                          {group.taskTitles.map((title, index) => (
+                            <span key={`${group.vendorKey}-${index}`} className="inline-flex rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-medium text-slate-700">
+                              {title}
+                            </span>
+                          ))}
+                        </div>
+                      </td>
+                      <td className="px-4 py-4 text-right">
+                        <Link href={`/vendor-assignments/${encodeURIComponent(buildVendorGroupRouteId(activeProject.projectId, group.vendorId))}`} className={workspacePrimaryButtonClass}>進入廠商</Link>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
-
-            {vendorGroups.length ? vendorGroups.map((group) => (
-              <article key={group.vendorKey} className="rounded-2xl border border-slate-200 bg-white p-5 transition hover:border-slate-300 hover:bg-slate-50/70">
-                <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
-                  <div className="grid flex-1 gap-3 md:grid-cols-3">
-                    <WorkspaceStat label="廠商" value={group.vendorName} />
-                    <WorkspaceStat label="任務數量" value={`共 ${group.taskCount} 筆`} />
-                    <WorkspaceStat label="活動日期" value={group.eventDate} />
-                  </div>
-                  <div className="flex justify-end">
-                    <Link href={`/vendor-assignments/${encodeURIComponent(buildVendorGroupRouteId(activeProject.projectId, group.vendorId))}`} className={workspacePrimaryButtonClass}>進入廠商</Link>
-                  </div>
-                </div>
-                  <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3.5">
-                    <p className="text-xs font-medium tracking-wide text-slate-500">本組任務</p>
-                    <div className="mt-2 flex flex-wrap gap-2">
-                      {group.taskTitles.map((title, index) => (
-                        <span key={`${group.vendorKey}-${index}`} className="inline-flex rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-700">
-                          {title}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-              </article>
-            )) : <WorkspaceEmptyState title="目前尚無廠商群組" description="請先完成廠商任務發布與廠商指定，再回到這裡進行處理。" />}
-          </div>
+          ) : <WorkspaceEmptyState title="目前尚無廠商群組" description="請先完成廠商任務發布與廠商指定，再回到這裡進行處理。" />
         )}
       </WorkspaceSection>
     </AppShellAuth>

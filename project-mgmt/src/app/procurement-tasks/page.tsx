@@ -106,28 +106,32 @@ export default async function ProcurementTasksPage({
             ))}
           </div> : <WorkspaceEmptyState title="目前尚無可查看的專案" description="待這條工作臺有正式任務後，會從這裡進入單專案工作臺。" />
         ) : (
-          <div className="space-y-3">
-            <div className="grid gap-3 md:grid-cols-3">
-              <WorkspaceStat label="目前專案" value={activeProject.projectName} />
-              <WorkspaceStat label="任務數量" value={`共 ${projectTasks.length} 筆`} />
-              <WorkspaceStat label="活動日期" value={activeProject.eventDate} />
+          projectTasks.length ? (
+            <div className="overflow-x-auto rounded-2xl border border-slate-200">
+              <table className="min-w-[980px] divide-y divide-slate-200 text-left text-sm xl:min-w-full">
+                <thead className="bg-slate-50 text-slate-500">
+                  <tr>
+                    <th className="px-4 py-3 font-medium">任務標題</th>
+                    <th className="px-4 py-3 font-medium">數量</th>
+                    <th className="px-4 py-3 font-medium">預算</th>
+                    <th className="px-4 py-3 font-medium text-right">操作</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100 bg-white">
+                  {projectTasks.map((task) => (
+                    <tr key={task.id} className="align-middle">
+                      <td className="px-4 py-4 font-medium text-slate-900">{task.title}</td>
+                      <td className="px-4 py-4 text-slate-600">{task.quantity}</td>
+                      <td className="px-4 py-4 text-slate-600">{task.costLabel}</td>
+                      <td className="px-4 py-4 text-right">
+                        <Link href={`/procurement-tasks/${task.id}`} className={workspacePrimaryButtonClass}>進入任務</Link>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
-
-            {projectTasks.length ? projectTasks.map((task) => (
-              <article key={task.id} className="rounded-2xl border border-slate-200 bg-white p-5 transition hover:border-slate-300 hover:bg-slate-50/70">
-                <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
-                  <div className="grid flex-1 gap-3 md:grid-cols-3">
-                    <WorkspaceStat label="任務標題" value={task.title} />
-                    <WorkspaceStat label="數量" value={task.quantity} />
-                    <WorkspaceStat label="預算" value={task.costLabel} />
-                  </div>
-                  <div className="flex justify-end">
-                    <Link href={`/procurement-tasks/${task.id}`} className={workspacePrimaryButtonClass}>進入任務</Link>
-                  </div>
-                </div>
-              </article>
-            )) : <WorkspaceEmptyState title="目前尚無任務" description="這個專案目前還沒有正式資料可進入處理頁。" />}
-          </div>
+          ) : <WorkspaceEmptyState title="目前尚無任務" description="這個專案目前還沒有正式資料可進入處理頁。" />
         )}
       </WorkspaceSection>
     </AppShellAuth>
