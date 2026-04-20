@@ -78,6 +78,19 @@ export async function POST(
             status: taskStatus,
           });
 
+      await services.replaceDesignPlans(task.id, [
+        {
+          title,
+          size: body.size?.trim() || null,
+          material: body.material?.trim() || null,
+          structure: body.structure?.trim() || null,
+          quantity: body.quantity?.trim() || null,
+          requirement_text: body.note?.trim() || null,
+          reference_url: body.referenceUrl?.trim() || null,
+          sort_order: 1,
+        },
+      ]);
+
       return NextResponse.json({ ok: true, taskId: task.id, boardPath: `/design-tasks/${task.id}`, storage: access.storage });
     }
 
@@ -107,6 +120,16 @@ export async function POST(
             reference_url: body.referenceUrl?.trim() || null,
             status: taskStatus,
           });
+
+      await services.syncProcurementPlans(task.id, [
+        {
+          title,
+          quantity: body.quantity?.trim() || null,
+          requirement_text: body.note?.trim() || null,
+          reference_url: body.referenceUrl?.trim() || null,
+          sort_order: 1,
+        },
+      ]);
 
       return NextResponse.json({ ok: true, taskId: task.id, boardPath: `/procurement-tasks/${task.id}`, storage: access.storage });
     }
@@ -141,17 +164,15 @@ export async function POST(
           status: taskStatus,
         });
 
-    if (body.amount?.trim() || body.requirement?.trim()) {
-      await services.syncVendorPlans(task.id, [
-        {
-          vendor_task_id: task.id,
-          title,
-          requirement_text: body.requirement?.trim() || null,
-          amount: body.amount?.trim() || null,
-          sort_order: 1,
-        },
-      ]);
-    }
+    await services.syncVendorPlans(task.id, [
+      {
+        vendor_task_id: task.id,
+        title,
+        requirement_text: body.requirement?.trim() || body.note?.trim() || null,
+        amount: body.amount?.trim() || null,
+        sort_order: 1,
+      },
+    ]);
 
     return NextResponse.json({ ok: true, taskId: task.id, boardPath: `/vendor-assignments/${task.id}`, storage: access.storage });
   } catch (error) {
