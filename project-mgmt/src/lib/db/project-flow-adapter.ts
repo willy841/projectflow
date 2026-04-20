@@ -174,6 +174,6 @@ export async function resolveDbProjectIdByRouteId(routeId: string): Promise<stri
   }
 
   const projects = await listDbProjects();
-  const matched = projects.find((project) => slugifyProjectName(project.name) === routeId || getProjectRouteId(project) === routeId);
+  const matched = projects.find((project) => getProjectRouteId(project) === routeId || slugifyProjectName(project.name) === routeId);
   return matched?.id ?? null;
 }

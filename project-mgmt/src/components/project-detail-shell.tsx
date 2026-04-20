@@ -94,7 +94,7 @@ export function ProjectDetailShell({ project, entryContext }: { project: Project
   useEffect(() => {
     setProjectView(normalizedIncomingProject);
     setProjectForm(buildProjectForm(normalizedIncomingProject));
-  }, [normalizedIncomingProject.id]);
+  }, [normalizedIncomingProject]);
 
   function updateField(key: keyof ProjectFormState, value: string) {
     setProjectForm((prev) => ({ ...prev, [key]: value }));
