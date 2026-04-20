@@ -22,6 +22,8 @@ type ProjectTaskEntry = {
   material: string;
   structureRequired: string;
   quantity: string;
+  eventDate?: string;
+  replyCount?: number;
 };
 
 export default async function DesignTasksPage({
@@ -37,7 +39,13 @@ export default async function DesignTasksPage({
 
   if (shouldUseDbDesignFlow()) {
     projects = await listDbDesignTaskProjects();
-    projectTasks = activeProjectId ? await listDbDesignTasksByProject(activeProjectId) : [];
+    projectTasks = activeProjectId
+      ? (await listDbDesignTasksByProject(activeProjectId)).map((task) => ({
+          ...task,
+          eventDate: task.eventDate,
+          replyCount: task.replyCount,
+        }))
+      : [];
   } else {
     const map = new Map<string, ProjectEntry>();
 
@@ -124,7 +132,6 @@ export default async function DesignTasksPage({
         ) : (
           <div className="space-y-3">
             <div className="grid gap-3 md:grid-cols-3">
-              <WorkspaceStat label="目前專案" value={activeProject.projectName} />
               <WorkspaceStat label="任務數量" value={`共 ${projectTasks.length} 筆`} />
               <WorkspaceStat label="活動日期" value={activeProject.eventDate} />
             </div>
@@ -134,22 +141,30 @@ export default async function DesignTasksPage({
                 key={task.id}
                 className="rounded-2xl border border-slate-200 bg-white p-5 transition hover:border-slate-300 hover:bg-slate-50/70"
               >
-                <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
-                  <div className="grid flex-1 gap-3 md:grid-cols-5">
-                    <WorkspaceStat label="任務標題" value={task.title} />
-                    <WorkspaceStat label="尺寸" value={task.size} />
-                    <WorkspaceStat label="材質" value={task.material} />
-                    <WorkspaceStat label="結構" value={task.structureRequired} />
-                    <WorkspaceStat label="數量" value={task.quantity} />
+                <div className="flex flex-col gap-4">
+                  <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
+                    <div className="grid flex-1 gap-3 md:grid-cols-6">
+                      <WorkspaceStat label="活動日期" value={task.eventDate || activeProject.eventDate} />
+                      <WorkspaceStat label="任務標題" value={task.title} />
+                      <WorkspaceStat label="尺寸" value={task.size} />
+                      <WorkspaceStat label="材質" value={task.material} />
+                      <WorkspaceStat label="結構" value={task.structureRequired} />
+                      <WorkspaceStat label="數量" value={task.quantity} />
+                    </div>
+
+                    <div className="flex justify-end">
+                      <Link
+                        href={`/design-tasks/${task.id}`}
+                        className={workspacePrimaryButtonClass}
+                      >
+                        進入任務
+                      </Link>
+                    </div>
                   </div>
 
-                  <div className="flex justify-end">
-                    <Link
-                      href={`/design-tasks/${task.id}`}
-                      className={workspacePrimaryButtonClass}
-                    >
-                      進入任務
-                    </Link>
+                  <div className="grid gap-3 md:grid-cols-2 xl:max-w-xl">
+                    <WorkspaceStat label="任務數量" value="1 筆" />
+                    <WorkspaceStat label="執行回覆" value={`共 ${task.replyCount ?? 0} 筆`} />
                   </div>
                 </div>
               </article>

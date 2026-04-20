@@ -17,6 +17,7 @@ type DbDesignTaskSummary = {
   structureRequired: string;
   quantity: string;
   materialStructure: string;
+  replyCount: number;
 };
 
 type DbDesignProjectSummary = {
@@ -64,10 +65,13 @@ export async function listDbDesignTasksByProject(projectId: string): Promise<DbD
         coalesce(dt.material, '未填寫') as material,
         coalesce(dt.structure, '未填寫') as "structureRequired",
         coalesce(dt.quantity, '未填寫') as quantity,
-        coalesce(dt.material, '未填寫') as "materialStructure"
+        coalesce(dt.material, '未填寫') as "materialStructure",
+        coalesce(count(dtp.id), 0)::int as "replyCount"
       from design_tasks dt
       inner join projects p on p.id = dt.project_id
+      left join design_task_plans dtp on dtp.design_task_id = dt.id
       where dt.project_id = $1
+      group by dt.id, dt.project_id, p.name, p.event_date, dt.title, dt.size, dt.material, dt.structure, dt.quantity
       order by dt.created_at desc
     `,
     [projectId],
