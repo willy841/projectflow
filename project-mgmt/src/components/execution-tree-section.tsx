@@ -228,6 +228,7 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
       statusClass: getStatusClass(task.status),
       href: task.id ? `/design-tasks/${task.id}` : `/design-tasks?project=${encodeURIComponent(project.id)}`,
       ctaLabel: task.id ? "前往設計任務詳情" : "前往設計任務板",
+      onDelete: task.sourceExecutionItemId && !deletingSummaryKey ? () => void handleDeleteDispatchedTask('design', task.sourceExecutionItemId as string) : undefined,
     }));
 
     return dedupeProjectTaskSummaryItems([...fromAssignments, ...fromLegacyTasks]);
@@ -253,6 +254,7 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
       statusClass: getStatusClass(task.status),
       href: task.id ? `/procurement-tasks/${task.id}` : `/procurement-tasks?project=${encodeURIComponent(project.id)}`,
       ctaLabel: task.id ? "前往備品任務詳情" : "前往採購備品板",
+      onDelete: task.sourceExecutionItemId && !deletingSummaryKey ? () => void handleDeleteDispatchedTask('procurement', task.sourceExecutionItemId as string) : undefined,
     }));
 
     return dedupeProjectTaskSummaryItems([...fromAssignments, ...fromLegacyTasks]);
@@ -279,6 +281,7 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
           statusClass: getStatusClass(task.status),
           href: task.id ? `/vendor-assignments/${task.id}` : `/vendor-assignments?project=${encodeURIComponent(project.id)}`,
           ctaLabel: task.id ? "前往廠商任務詳情" : "前往廠商發包板",
+          onDelete: task.sourceExecutionItemId && !deletingSummaryKey ? () => void handleDeleteDispatchedTask('vendor', task.sourceExecutionItemId as string) : undefined,
         })),
       ]),
     [vendorAssignments, project.id, project.vendorTasks],
