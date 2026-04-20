@@ -34,7 +34,7 @@ export default async function DesignTaskDetailPage({
               返回任務列表
             </Link>
             <Link
-              href={`/design-tasks/${task.id}/document`}
+              href={`/projects/${encodeURIComponent(task.projectId)}/design-document`}
               className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white"
             >
               前往文件

@@ -23,7 +23,7 @@ export default async function ProcurementTaskDetailPage({ params }: { params: Pr
         actions={
           <>
             <Link href={`/procurement-tasks?project=${encodeURIComponent(task.projectId)}`} className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-700">返回任務列表</Link>
-            <Link href={`/procurement-tasks/${task.id}/document`} className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white">前往文件</Link>
+            <Link href={`/projects/${encodeURIComponent(task.projectId)}/procurement-document`} className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white">前往文件</Link>
           </>
         }
       />
