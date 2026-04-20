@@ -70,9 +70,9 @@ export function DesignTaskWorkspace({
 
       <section className="rounded-2xl border border-slate-200 bg-white p-5">
         <div className="mb-5 border-b border-slate-100 pb-4">
-          <p className="text-xs font-medium tracking-wide text-slate-500">執行處理</p>
+          <p className="text-xs font-medium tracking-wide text-slate-500">目前檢視</p>
           <p className="mt-1 text-lg font-semibold text-slate-900">{selectedPlan?.title || taskTitle}</p>
-          <p className="mt-1 text-sm text-slate-500">右側固定只顯示一筆執行回覆的欄位內容，左側切換時同步切換。</p>
+          <p className="mt-1 text-sm text-slate-500">左側切換執行回覆時，右側會只顯示對應的一筆欄位內容。</p>
         </div>
 
         <DesignPlanEditorClient

@@ -26,11 +26,13 @@ export function DesignPlanEditorClient({
   initialPlans,
   selectedPlanId,
   onSelectPlanId,
+  hideTopActions = false,
 }: {
   taskId: string;
   initialPlans: DesignPlanInput[];
   selectedPlanId?: string | null;
   onSelectPlanId?: (planId: string | null) => void;
+  hideTopActions?: boolean;
 }) {
   const router = useRouter();
   const vendorListId = useId();
@@ -207,36 +209,39 @@ export function DesignPlanEditorClient({
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
-        <div className="flex flex-wrap items-center gap-3">
-          <button
-            type="button"
-            onClick={addPlan}
-            className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
-          >
-            新增執行處理
-          </button>
+      {!hideTopActions ? (
+        <div className="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4 xl:flex-row xl:items-center xl:justify-between">
+          <div>
+            <p className="text-xs font-medium tracking-wide text-slate-500">執行處理</p>
+            <p className="mt-1 text-base font-semibold text-slate-900">目前正在編輯單筆執行回覆</p>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              onClick={addPlan}
+              className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+            >
+              新增執行處理
+            </button>
+            <button
+              type="button"
+              onClick={saveAllPlans}
+              disabled={saving}
+              className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 disabled:opacity-60"
+            >
+              {saving ? "儲存中..." : "儲存"}
+            </button>
+            <button
+              type="button"
+              onClick={confirmPlans}
+              disabled={confirming}
+              className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-60"
+            >
+              {confirming ? "確認中..." : "全部確認"}
+            </button>
+          </div>
         </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <button
-            type="button"
-            onClick={saveAllPlans}
-            disabled={saving}
-            className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 disabled:opacity-60"
-          >
-            {saving ? "儲存中..." : "儲存"}
-          </button>
-          <button
-            type="button"
-            onClick={confirmPlans}
-            disabled={confirming}
-            className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-60"
-          >
-            {confirming ? "確認中..." : "全部確認"}
-          </button>
-        </div>
-      </div>
-
+      ) : null}
       {visiblePlans.map((plan, index) => (
         <article key={plan.id} className="rounded-2xl border border-slate-200 bg-white p-5">
           <div className="mb-4 flex items-center justify-between gap-3 border-b border-slate-100 pb-4">
