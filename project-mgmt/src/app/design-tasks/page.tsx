@@ -90,7 +90,7 @@ export default async function DesignTasksPage({
       />
 
       <WorkspaceSection
-        title={activeProject ? activeProject.projectName : "專案入口"}
+        title={activeProject ? `${activeProject.projectName}｜${activeProject.eventDate}` : "專案入口"}
         meta={null}
         actions={
           activeProject ? (
@@ -139,9 +139,8 @@ export default async function DesignTasksPage({
                 <div className="flex flex-col gap-4">
                   <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
                     <div className="flex-1 space-y-3">
-                      <div className="grid gap-3 md:grid-cols-[minmax(0,2fr)_180px]">
+                      <div className="grid gap-3 md:grid-cols-1">
                         <WorkspaceStat label="任務標題" value={task.title} />
-                        <WorkspaceStat label="活動日期" value={task.eventDate || activeProject.eventDate} />
                       </div>
                       <div className="grid gap-3 md:grid-cols-4">
                         <WorkspaceStat label="尺寸" value={task.size} />
