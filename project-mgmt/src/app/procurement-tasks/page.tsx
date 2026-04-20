@@ -89,22 +89,32 @@ export default async function ProcurementTasksPage({
         }
       >
         {!activeProject ? (
-          projects.length ? <div className="space-y-3">
-            {projects.map((project) => (
-              <article key={project.projectId} className="rounded-2xl border border-slate-200 bg-white p-5 transition hover:border-slate-300 hover:bg-slate-50/70">
-                <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
-                  <div className="grid flex-1 gap-3 md:grid-cols-3">
-                    <WorkspaceStat label="專案名稱" value={project.projectName} />
-                    <WorkspaceStat label="任務數量" value={`共 ${project.taskCount} 筆`} />
-                    <WorkspaceStat label="活動日期" value={project.eventDate} />
-                  </div>
-                  <div className="flex justify-end">
-                    <Link href={`/procurement-tasks?project=${encodeURIComponent(project.projectId)}`} className={workspacePrimaryButtonClass}>進入工作臺</Link>
-                  </div>
-                </div>
-              </article>
-            ))}
-          </div> : <WorkspaceEmptyState title="目前尚無可查看的專案" description="待這條工作臺有正式任務後，會從這裡進入單專案工作臺。" />
+          projects.length ? (
+            <div className="overflow-x-auto rounded-2xl border border-slate-200">
+              <table className="min-w-[980px] divide-y divide-slate-200 text-left text-sm xl:min-w-full">
+                <thead className="bg-slate-50 text-slate-500">
+                  <tr>
+                    <th className="px-4 py-3 font-medium">專案名稱</th>
+                    <th className="px-4 py-3 font-medium">任務數量</th>
+                    <th className="px-4 py-3 font-medium">活動日期</th>
+                    <th className="px-4 py-3 font-medium text-right">操作</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100 bg-white">
+                  {projects.map((project) => (
+                    <tr key={project.projectId} className="align-middle">
+                      <td className="px-4 py-4 font-medium text-slate-900">{project.projectName}</td>
+                      <td className="px-4 py-4 text-slate-600">共 {project.taskCount} 筆</td>
+                      <td className="px-4 py-4 text-slate-600">{project.eventDate}</td>
+                      <td className="px-4 py-4 text-right">
+                        <Link href={`/procurement-tasks?project=${encodeURIComponent(project.projectId)}`} className={workspacePrimaryButtonClass}>進入工作臺</Link>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : <WorkspaceEmptyState title="目前尚無可查看的專案" description="待這條工作臺有正式任務後，會從這裡進入單專案工作臺。" />
         ) : (
           projectTasks.length ? (
             <div className="overflow-x-auto rounded-2xl border border-slate-200">
