@@ -26,13 +26,8 @@ export function AppShell({
     <main className="min-h-screen bg-[#f4f7fb] text-slate-900">
       <div className="mx-auto flex min-h-screen w-full max-w-[1600px] gap-5 px-4 py-6 lg:px-6 xl:px-8">
         <aside className="hidden w-56 shrink-0 rounded-3xl bg-slate-950 p-6 text-white lg:block xl:w-60">
-          <div className="mb-6 flex min-h-10 flex-col items-center justify-center gap-2 text-center">
+          <div className="mb-6 flex min-h-10 items-center justify-center text-center">
             <h1 className="text-2xl font-semibold">任務版</h1>
-            {process.env.PROJECTFLOW_ENV_LABEL ? (
-              <span className="inline-flex rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs font-semibold text-slate-200">
-                {process.env.PROJECTFLOW_ENV_LABEL}
-              </span>
-            ) : null}
           </div>
 
           <nav className="space-y-2 text-sm">
