@@ -95,6 +95,7 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
   const [openCategory, setOpenCategory] = useState<OpenCategory>("design");
   const [saveFeedback, setSaveFeedback] = useState<{ category: OpenCategory; message: string } | null>(null);
   const [vendorOptions, setVendorOptions] = useState<VendorBasicProfile[]>([]);
+  const [deletingSummaryKey, setDeletingSummaryKey] = useState<string | null>(null);
 
   const initialDesignAssignments = useMemo<Record<string, DesignAssignmentDraft>>(
     () =>
@@ -177,6 +178,36 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
     [isDbProject, project.vendorTasks],
   );
 
+  async function handleDeleteDispatchedTask(flowType: OpenCategory, targetId: string) {
+    const confirmed = window.confirm('確定要刪除這筆已交辦任務嗎？刪除後對應板塊資料會一起移除。');
+    if (!confirmed) return;
+
+    try {
+      setDeletingSummaryKey(`${flowType}:${targetId}`);
+      const response = await fetch(`/api/projects/${project.id}/dispatch/${flowType}/${targetId}`, {
+        method: 'DELETE',
+      });
+      const result = await response.json();
+      if (!response.ok || !result?.ok) {
+        throw new Error(result?.error ?? '刪除交辦任務失敗');
+      }
+
+      if (flowType === 'design') {
+        setDesignAssignments((prev) => prev.filter((item) => item.targetId !== targetId));
+      } else if (flowType === 'procurement') {
+        setProcurementAssignments((prev) => prev.filter((item) => item.targetId !== targetId));
+      } else {
+        setVendorAssignments((prev) => prev.filter((item) => item.targetId !== targetId));
+      }
+
+      setSaveFeedback({ category: flowType, message: '已刪除交辦任務，摘要與對應板塊已同步移除。' });
+    } catch (error) {
+      window.alert(error instanceof Error ? error.message : '刪除交辦任務失敗');
+    } finally {
+      setDeletingSummaryKey(null);
+    }
+  }
+
   const designSummaryList = useMemo<ProjectTaskSummaryItem[]>(() => {
     const fromAssignments = designAssignments.map((assignment) => ({
       id: assignment.targetId,
@@ -186,6 +217,7 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
       statusClass: getStatusClass('已完成'),
       href: assignment.boardPath || `/design-tasks?project=${encodeURIComponent(project.id)}`,
       ctaLabel: assignment.boardPath ? "前往設計任務詳情" : "前往設計任務板",
+      onDelete: deletingSummaryKey ? undefined : () => void handleDeleteDispatchedTask('design', assignment.targetId),
     }));
 
     const fromLegacyTasks = project.designTasks.map((task, index) => ({
@@ -210,6 +242,7 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
       statusClass: getStatusClass('已完成'),
       href: assignment.boardPath || `/procurement-tasks?project=${encodeURIComponent(project.id)}`,
       ctaLabel: assignment.boardPath ? "前往備品任務詳情" : "前往採購備品板",
+      onDelete: deletingSummaryKey ? undefined : () => void handleDeleteDispatchedTask('procurement', assignment.targetId),
     }));
 
     const fromLegacyTasks = project.procurementTasks.map((task, index) => ({
@@ -236,6 +269,7 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
           statusClass: getStatusClass('已完成'),
           href: assignment.boardPath || `/vendor-assignments?project=${encodeURIComponent(project.id)}`,
           ctaLabel: assignment.boardPath ? "前往廠商任務詳情" : "前往廠商發包板",
+          onDelete: deletingSummaryKey ? undefined : () => void handleDeleteDispatchedTask('vendor', assignment.targetId),
         })),
         ...(project.vendorTasks ?? []).map((task, index) => ({
           id: task.id ?? `${task.sourceExecutionItemId ?? task.title}-vendor-${index}`,

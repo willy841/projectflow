@@ -10,6 +10,7 @@ export type ProjectTaskSummaryItem = {
   href: string;
   ctaLabel: string;
   extraSummary?: string;
+  onDelete?: () => void;
 };
 
 export function ProjectTaskSummaryList({
@@ -62,7 +63,16 @@ export function ProjectTaskSummaryList({
               </div>
             </div>
 
-            <div className="flex xl:w-[220px] xl:justify-end">
+            <div className="flex gap-2 xl:w-[320px] xl:justify-end">
+              {item.onDelete ? (
+                <button
+                  type="button"
+                  onClick={item.onDelete}
+                  className="inline-flex w-full items-center justify-center rounded-xl border border-rose-200 bg-white px-3 py-2.5 text-xs font-semibold text-rose-600 transition hover:bg-rose-50 xl:w-auto"
+                >
+                  刪除
+                </button>
+              ) : null}
               <Link
                 href={item.href}
                 className="inline-flex w-full items-center justify-center rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-xs font-semibold text-slate-700 transition hover:bg-slate-50 xl:w-auto"
