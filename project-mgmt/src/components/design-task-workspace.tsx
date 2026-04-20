@@ -33,7 +33,6 @@ export function DesignTaskWorkspace({
       <section className="rounded-2xl border border-slate-200 bg-white overflow-hidden">
         <div className="border-b border-slate-200 px-4 py-4">
           <h3 className="text-base font-semibold text-slate-900">執行回覆列表</h3>
-          <p className="mt-1 text-sm text-slate-500">左側快速切換這筆設計任務底下的執行回覆。</p>
         </div>
         <div className="divide-y divide-slate-100">
           {plans.length ? plans.map((plan, index) => {
