@@ -80,13 +80,15 @@ export async function POST(
 
       await services.replaceDesignPlans(task.id, [
         {
+          design_task_id: task.id,
           title,
           size: body.size?.trim() || null,
           material: body.material?.trim() || null,
           structure: body.structure?.trim() || null,
           quantity: body.quantity?.trim() || null,
-          requirement_text: body.note?.trim() || null,
-          reference_url: body.referenceUrl?.trim() || null,
+          amount: null,
+          preview_url: body.referenceUrl?.trim() || null,
+          vendor_name_text: null,
           sort_order: 1,
         },
       ]);
@@ -125,8 +127,9 @@ export async function POST(
         {
           title,
           quantity: body.quantity?.trim() || null,
-          requirement_text: body.note?.trim() || null,
-          reference_url: body.referenceUrl?.trim() || null,
+          amount: null,
+          preview_url: body.referenceUrl?.trim() || null,
+          vendor_name_text: null,
           sort_order: 1,
         },
       ]);
