@@ -78,20 +78,17 @@ export async function POST(
             status: taskStatus,
           });
 
-      await services.replaceDesignPlans(task.id, [
-        {
-          design_task_id: task.id,
+      const currentPlans = await repositories.designTaskPlans.listByTask(task.id);
+      if (currentPlans.length === 1) {
+        await repositories.designTaskPlans.update(currentPlans[0].id, {
           title,
           size: body.size?.trim() || null,
           material: body.material?.trim() || null,
           structure: body.structure?.trim() || null,
           quantity: body.quantity?.trim() || null,
-          amount: null,
           preview_url: body.referenceUrl?.trim() || null,
-          vendor_name_text: null,
-          sort_order: 1,
-        },
-      ]);
+        });
+      }
 
       return NextResponse.json({ ok: true, taskId: task.id, boardPath: `/design-tasks/${task.id}`, storage: access.storage });
     }
@@ -123,16 +120,14 @@ export async function POST(
             status: taskStatus,
           });
 
-      await services.syncProcurementPlans(task.id, [
-        {
+      const currentPlans = await repositories.procurementTaskPlans.listByTask(task.id);
+      if (currentPlans.length === 1) {
+        await repositories.procurementTaskPlans.update(currentPlans[0].id, {
           title,
           quantity: body.quantity?.trim() || null,
-          amount: null,
           preview_url: body.referenceUrl?.trim() || null,
-          vendor_name_text: null,
-          sort_order: 1,
-        },
-      ]);
+        });
+      }
 
       return NextResponse.json({ ok: true, taskId: task.id, boardPath: `/procurement-tasks/${task.id}`, storage: access.storage });
     }
@@ -167,15 +162,14 @@ export async function POST(
           status: taskStatus,
         });
 
-    await services.syncVendorPlans(task.id, [
-      {
-        vendor_task_id: task.id,
+    const currentPlans = await repositories.vendorTaskPlans.listByTask(task.id);
+    if (currentPlans.length === 1) {
+      await repositories.vendorTaskPlans.update(currentPlans[0].id, {
         title,
         requirement_text: body.requirement?.trim() || body.note?.trim() || null,
         amount: body.amount?.trim() || null,
-        sort_order: 1,
-      },
-    ]);
+      });
+    }
 
     return NextResponse.json({ ok: true, taskId: task.id, boardPath: `/vendor-assignments/${task.id}`, storage: access.storage });
   } catch (error) {
