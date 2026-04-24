@@ -26,7 +26,7 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     const rows = await services.replaceDesignPlans(
       id,
       body.plans
-        .filter((plan) => plan.title?.trim())
+        .filter((plan) => [plan.title, plan.size, plan.material, plan.structure, plan.quantity, plan.amount, plan.previewUrl, plan.vendor].some((value) => value?.trim()))
         .map((plan, index) => ({
           design_task_id: id,
           title: plan.title,

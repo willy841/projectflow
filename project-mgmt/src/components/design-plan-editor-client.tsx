@@ -141,7 +141,7 @@ export function DesignPlanEditorClient({
       return fields.some((value) => value.trim());
     });
 
-    const response = await fetch(`/api/design-tasks/${taskId}/sync-plans`, {
+    const response = await fetch(`/api/design-tasks/${taskId}/replace-plans`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
