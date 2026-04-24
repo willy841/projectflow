@@ -213,11 +213,23 @@ export function DesignPlanEditorClient({
   }
 
   async function persistCurrentPlans() {
+    const selectedBeforeSave = selectedPlanId ? plans.find((plan) => plan.id === selectedPlanId) ?? null : null;
     const persistedRows = await syncPlans(plans);
 
     if (selectedPlanId) {
-      const currentSelectedTitle = plans.find((plan) => plan.id === selectedPlanId)?.title;
-      const matchedRow = persistedRows.find((row) => row.id === selectedPlanId || (currentSelectedTitle && row.title === currentSelectedTitle));
+      const matchedRow = persistedRows.find((row) => {
+        if (row.id === selectedPlanId) return true;
+        if (!selectedBeforeSave) return false;
+        return (
+          row.title === selectedBeforeSave.title &&
+          row.size === selectedBeforeSave.size &&
+          row.material === selectedBeforeSave.material &&
+          row.structure === selectedBeforeSave.structure &&
+          row.quantity === selectedBeforeSave.quantity &&
+          row.previewUrl === selectedBeforeSave.previewUrl &&
+          row.vendor === selectedBeforeSave.vendor
+        );
+      });
       onSelectPlanId?.(matchedRow?.id ?? persistedRows[0]?.id ?? null);
     }
 
