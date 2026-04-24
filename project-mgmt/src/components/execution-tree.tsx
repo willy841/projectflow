@@ -345,7 +345,7 @@ function DesignAssignmentForm({
     <div className="mt-4 rounded-3xl border border-slate-200 bg-slate-50 p-5 sm:p-6">
       <div className="flex flex-wrap items-center gap-2">
         <p className="text-sm font-semibold text-slate-900">設計交辦</p>
-        <span className="inline-flex items-center justify-center rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700 ring-1 ring-slate-200">
+        <span className="inline-flex items-center justify-center rounded-full bg-sky-50 px-3 py-1 text-xs font-medium text-sky-700 ring-1 ring-sky-200">
           設計
         </span>
         <span className="text-sm text-slate-600">來源項目：{title}</span>
@@ -2107,7 +2107,7 @@ export function ExecutionTree({
                           <span>{item.children?.length ?? 0}</span>
                         </span>
                         {savedDesignAssignments[item.id] ? (
-                          <span className="inline-flex items-center justify-center rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700 ring-1 ring-slate-200">
+                          <span className="inline-flex items-center justify-center rounded-full bg-sky-50 px-3 py-1 text-xs font-medium text-sky-700 ring-1 ring-sky-200">
                             已建立設計交辦
                           </span>
                         ) : null}
@@ -2224,7 +2224,7 @@ export function ExecutionTree({
                                     </span>
                                   ) : null}
                                   {savedDesignAssignments[child.id] ? (
-                                    <span className="inline-flex items-center justify-center rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700 ring-1 ring-slate-200">
+                                    <span className="inline-flex items-center justify-center rounded-full bg-sky-50 px-3 py-1 text-xs font-medium text-sky-700 ring-1 ring-sky-200">
                                       已建立設計交辦
                                     </span>
                                   ) : null}
