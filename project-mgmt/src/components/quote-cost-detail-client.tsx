@@ -499,27 +499,27 @@ export function QuoteCostDetailClient({ project, mode = "active", presenter = ge
             </div>
             <div className="mt-4 space-y-3">
               {visibleReconciliationGroups.map((group) => (
-                <div key={group.key} className="rounded-2xl border border-slate-200 bg-white p-5">
+                <div key={group.key} className="rounded-2xl border border-slate-200 bg-white p-4">
                   <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
                     <div className="min-w-0 flex-1">
                       <div className="flex flex-wrap items-center gap-2">
                         <span className="inline-flex rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700 ring-1 ring-slate-200">{group.sourceType}</span>
                         <span className="inline-flex rounded-full bg-white px-3 py-1 text-xs font-semibold text-slate-700 ring-1 ring-slate-200">{group.vendorName}</span>
                         <span className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ring-1 ${group.reconciliationStatus === '已對帳' ? 'bg-emerald-50 text-emerald-700 ring-emerald-200' : 'bg-amber-50 text-amber-700 ring-amber-200'}`}>{group.reconciliationStatus}</span>
+                        <span className="text-xs font-medium text-slate-500">{group.itemCount} 筆資料來源</span>
                       </div>
-                      <p className="mt-2 text-sm text-slate-500">{group.itemCount} 筆來源項目</p>
                     </div>
-                    <div className="flex flex-col items-start gap-3 xl:items-end">
-                      <div className="text-left xl:text-right">
-                        <p className="text-sm text-slate-500">群組金額總額</p>
-                        <p className="text-2xl font-semibold tracking-tight text-slate-900">{formatCurrency(group.amountTotal)}</p>
+                    <div className="flex flex-wrap items-center gap-3 xl:justify-end">
+                      <div className="flex items-center gap-2 text-sm">
+                        <span className="text-slate-500">群組總額</span>
+                        <span className="text-lg font-semibold tracking-tight text-slate-900">{formatCurrency(group.amountTotal)}</span>
                       </div>
                       {presenter.canConfirmReconciliationGroup ? (
                         <button
                           type="button"
                           onClick={() => handleConfirmGroup(group.key)}
                           disabled={group.reconciliationStatus === '已對帳' || reconciliationSyncingKey === group.key}
-                          className="inline-flex items-center justify-center rounded-2xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:bg-slate-300"
+                          className="inline-flex items-center justify-center rounded-2xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:bg-slate-300"
                         >
                           {group.reconciliationStatus === '已對帳'
                             ? '已對帳'
@@ -531,7 +531,7 @@ export function QuoteCostDetailClient({ project, mode = "active", presenter = ge
                     </div>
                   </div>
 
-                  <div className="mt-4 overflow-x-auto rounded-2xl border border-slate-200">
+                  <div className="mt-3 overflow-x-auto rounded-2xl border border-slate-200">
                     <table className="min-w-full divide-y divide-slate-200 text-left text-sm">
                       <thead className="bg-slate-50 text-slate-500">
                         <tr>
