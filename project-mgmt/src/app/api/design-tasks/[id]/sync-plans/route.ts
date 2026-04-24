@@ -41,8 +41,11 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
         .map((plan, index) => {
           const rawVendorName = plan.vendor?.trim() ?? '';
           const matchedVendor = (plan.vendorId ? vendorById.get(plan.vendorId) : null) ?? (rawVendorName ? vendorByName.get(rawVendorName) : null) ?? null;
+          const normalizedPlanId = plan.id && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(plan.id)
+            ? plan.id
+            : undefined;
           return {
-            id: plan.id,
+            id: normalizedPlanId,
             design_task_id: id,
             title: plan.title,
             size: plan.size ?? null,
