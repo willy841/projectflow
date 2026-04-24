@@ -12,8 +12,9 @@ export type CloseoutArchiveCollectionRecord = {
 
 export type CloseoutArchiveVendorPaymentRecord = {
   vendorName: string;
+  reconciledCount: number;
+  unreconciledCount: number;
   payableAmount: number;
-  paidAmount: number;
 };
 
 export type CloseoutArchiveDetailReadModel = {
@@ -27,18 +28,25 @@ export type CloseoutArchiveDetailReadModel = {
   };
 };
 
-function buildArchiveVendorPaymentRows(project: QuoteCostProjectWithGroups, paidRows: Array<{ vendorName: string; paidAmount: number }>): CloseoutArchiveVendorPaymentRecord[] {
-  const paidMap = new Map(paidRows.map((row) => [row.vendorName, row.paidAmount]));
-  const payableMap = new Map<string, number>();
+function buildArchiveVendorPaymentRows(project: QuoteCostProjectWithGroups, _paidRows: Array<{ vendorName: string; paidAmount: number }>): CloseoutArchiveVendorPaymentRecord[] {
+  const vendorGroupMap = new Map<string, { reconciledCount: number; unreconciledCount: number; payableAmount: number }>();
 
-  for (const group of project.reconciliationGroups.filter((item) => item.reconciliationStatus === '已對帳')) {
-    payableMap.set(group.vendorName, (payableMap.get(group.vendorName) ?? 0) + group.amountTotal);
+  for (const group of project.reconciliationGroups) {
+    const current = vendorGroupMap.get(group.vendorName) ?? { reconciledCount: 0, unreconciledCount: 0, payableAmount: 0 };
+    if (group.reconciliationStatus === '已對帳') {
+      current.reconciledCount += 1;
+      current.payableAmount += group.amountTotal;
+    } else {
+      current.unreconciledCount += 1;
+    }
+    vendorGroupMap.set(group.vendorName, current);
   }
 
-  return Array.from(payableMap.entries()).map(([vendorName, payableAmount]) => ({
+  return Array.from(vendorGroupMap.entries()).map(([vendorName, summary]) => ({
     vendorName,
-    payableAmount,
-    paidAmount: paidMap.get(vendorName) ?? 0,
+    reconciledCount: summary.reconciledCount,
+    unreconciledCount: summary.unreconciledCount,
+    payableAmount: summary.payableAmount,
   }));
 }
 
