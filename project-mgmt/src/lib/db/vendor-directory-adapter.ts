@@ -198,50 +198,14 @@ export async function listDbVendors(): Promise<VendorBasicProfile[]> {
   const vendors = await repositories.vendors.list();
 
   const outstandingRows = await db.query<{ vendorId: string | null; vendorName: string; outstandingTotal: number }>(`
-    with latest_confirmations as (
-      select distinct on (tc.project_id, tc.flow_type, tc.task_id)
-        tc.project_id,
-        tc.flow_type,
-        tc.task_id,
-        tc.id
-      from task_confirmations tc
-      where tc.status = 'confirmed'
-      order by tc.project_id, tc.flow_type, tc.task_id, tc.confirmation_no desc, tc.confirmed_at desc, tc.id desc
-    ),
-    latest_vendor_snapshots as (
-      select
-        lc.project_id,
-        coalesce(v.id, null) as vendor_id,
-        coalesce(v.name, trim(ts.payload_json ->> 'vendorName')) as vendor_name,
-        coalesce(sum((nullif(ts.payload_json ->> 'amount', '')::numeric)), 0)::float8 as adjusted_cost
-      from latest_confirmations lc
-      inner join task_confirmation_plan_snapshots ts on ts.task_confirmation_id = lc.id
-      left join vendors v on lower(regexp_replace(coalesce(v.name, ''), '\s+', ' ', 'g')) = lower(regexp_replace(coalesce(trim(ts.payload_json ->> 'vendorName'), ''), '\s+', ' ', 'g'))
-      where lc.flow_type = 'vendor'
-        and coalesce(trim(ts.payload_json ->> 'vendorName'), '') <> ''
-      group by lc.project_id, v.id, coalesce(v.name, trim(ts.payload_json ->> 'vendorName'))
-    ),
-    paid_rows as (
-      select
-        project_id,
-        vendor_id,
-        vendor_name,
-        coalesce(sum(amount), 0)::float8 as paid_amount
-      from project_vendor_payment_records
-      group by project_id, vendor_id, vendor_name
-    )
     select
-      lvs.vendor_id as "vendorId",
-      lvs.vendor_name as "vendorName",
-      coalesce(sum(greatest(lvs.adjusted_cost - coalesce(pr.paid_amount, 0), 0)), 0)::float8 as "outstandingTotal"
-    from latest_vendor_snapshots lvs
-    left join paid_rows pr
-      on pr.project_id = lvs.project_id
-     and (
-       (pr.vendor_id is not null and pr.vendor_id = lvs.vendor_id)
-       or (pr.vendor_id is null and pr.vendor_name = lvs.vendor_name)
-     )
-    group by lvs.vendor_id, lvs.vendor_name
+      frg.vendor_id as "vendorId",
+      coalesce(v.name, frg.vendor_name) as "vendorName",
+      coalesce(sum(frg.amount_total), 0)::float8 as "outstandingTotal"
+    from financial_reconciliation_groups frg
+    left join vendors v on v.id = frg.vendor_id
+    where frg.reconciliation_status = '已對帳'
+    group by frg.vendor_id, coalesce(v.name, frg.vendor_name)
   `);
 
   const outstandingByVendorId = new Map<string, number>();
