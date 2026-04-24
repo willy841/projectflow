@@ -38,16 +38,6 @@ type VendorGroupRow = {
   reconciliationStatus: string;
 };
 
-type VendorCostItemRow = {
-  projectId: string;
-  sourceType: '設計' | '備品' | '廠商';
-  itemName: string;
-  sourceRef: string;
-  vendorId: string | null;
-  vendorName: string;
-  adjustedAmount: number;
-};
-
 export async function getVendorFinancialSummary({ vendorId, vendorName }: { vendorId?: string; vendorName: string }): Promise<VendorFinancialSummary> {
   try {
     const db = createPhase1DbClient();
@@ -79,45 +69,6 @@ export async function getVendorFinancialSummary({ vendorId, vendorName }: { vend
       return { unpaidTotal: 0, records: [] };
     }
 
-    const projectIds = Array.from(new Set(groupRows.map((row) => row.projectId)));
-
-    const costItemsResult = await db.query<VendorCostItemRow>(`
-      select
-        fci.project_id as "projectId",
-        fci.source_type as "sourceType",
-        fci.item_name as "itemName",
-        coalesce(fci.source_ref, '') as "sourceRef",
-        fci.vendor_id as "vendorId",
-        coalesce(v.name, fci.vendor_name) as "vendorName",
-        fci.adjusted_amount::float8 as "adjustedAmount"
-      from financial_cost_items fci
-      left join vendors v on v.id = fci.vendor_id
-      where fci.project_id = any($1::uuid[])
-        and (
-          ($2::uuid is not null and fci.vendor_id = $2::uuid)
-          or lower(trim(coalesce(v.name, fci.vendor_name))) = lower($3)
-        )
-      order by fci.project_id asc, fci.source_type asc, fci.created_at asc, fci.id asc
-    `, [projectIds, vendorId ?? null, normalizedVendorName]);
-
-    const costItemsByProjectId = new Map<string, CostLineItem[]>();
-    for (const row of costItemsResult.rows) {
-      const current = costItemsByProjectId.get(row.projectId) ?? [];
-      current.push({
-        id: `financial-cost-${row.projectId}-${row.sourceType}-${current.length + 1}`,
-        itemName: row.itemName,
-        sourceType: row.sourceType,
-        sourceRef: row.sourceRef,
-        vendorId: row.vendorId,
-        vendorName: row.vendorName,
-        originalAmount: row.adjustedAmount,
-        adjustedAmount: row.adjustedAmount,
-        includedInCost: true,
-        isManual: false,
-      });
-      costItemsByProjectId.set(row.projectId, current);
-    }
-
     const groupedByProject = new Map<string, VendorGroupRow[]>();
     for (const row of groupRows) {
       const current = groupedByProject.get(row.projectId) ?? [];
@@ -139,6 +90,19 @@ export async function getVendorFinancialSummary({ vendorId, vendorName }: { vend
       const hasUnreconciledGroups = rows.some((row) => row.reconciliationStatus !== '已對帳');
       const adjustedCost = reconciledGroups.reduce((sum, row) => sum + row.amountTotal, 0);
       const reconciliationStatus = reconciledGroups.length > 0 ? '已完成' : '未開始';
+      const costItems: CostLineItem[] = reconciledGroups.map((group, index) => ({
+        id: `vendor-group-${projectId}-${group.sourceType}-${index + 1}`,
+        itemName: `${group.sourceType} 對帳內容`,
+        sourceType: group.sourceType,
+        sourceRef: `${group.itemCount} 筆已對帳內容`,
+        vendorId: vendorId ?? null,
+        vendorName: group.vendorName,
+        originalAmount: group.amountTotal,
+        adjustedAmount: group.amountTotal,
+        includedInCost: true,
+        isManual: false,
+      }));
+
       return {
         projectId,
         vendorId: vendorId ?? null,
@@ -147,7 +111,7 @@ export async function getVendorFinancialSummary({ vendorId, vendorName }: { vend
         reconciliationStatus,
         adjustedCost,
         adjustedCostLabel: `NT$ ${adjustedCost.toLocaleString('zh-TW')}`,
-        costItems: costItemsByProjectId.get(projectId) ?? [],
+        costItems,
         reconciledGroups,
         hasUnreconciledGroups,
       };
