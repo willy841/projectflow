@@ -62,6 +62,7 @@ export function VendorDetailShellDb({ vendor, records, paymentRecords, tradeOpti
   const [profileMessage, setProfileMessage] = useState('');
   const [expandedRecordIds, setExpandedRecordIds] = useState<string[]>([]);
   const [historyTab, setHistoryTab] = useState<'open' | 'history'>('open');
+  const [detailSectionTab, setDetailSectionTab] = useState<'unpaid' | 'history'>('unpaid');
   const [historyKeyword, setHistoryKeyword] = useState('');
   const [historySort, setHistorySort] = useState<'project-asc' | 'project-desc' | 'amount-desc' | 'amount-asc'>('project-asc');
   const [selectedRecordIds, setSelectedRecordIds] = useState<string[]>([]);
@@ -322,7 +323,26 @@ export function VendorDetailShellDb({ vendor, records, paymentRecords, tradeOpti
           </div>
         </article>
 
-        <article className="rounded-3xl border border-amber-200 bg-amber-50/70 p-6 shadow-sm ring-1 ring-amber-100">
+        <div className="space-y-4">
+        <div className="flex flex-wrap items-center gap-2 rounded-3xl bg-white p-3 shadow-sm ring-1 ring-slate-200">
+          <button
+            type="button"
+            onClick={() => setDetailSectionTab('unpaid')}
+            className={`inline-flex h-10 items-center justify-center rounded-2xl px-4 text-sm font-medium ring-1 transition ${detailSectionTab === 'unpaid' ? 'bg-slate-900 text-white ring-slate-900' : 'bg-white text-slate-700 ring-slate-200 hover:bg-slate-50'}`}
+          >
+            未付款專案
+          </button>
+          <button
+            type="button"
+            onClick={() => setDetailSectionTab('history')}
+            className={`inline-flex h-10 items-center justify-center rounded-2xl px-4 text-sm font-medium ring-1 transition ${detailSectionTab === 'history' ? 'bg-slate-900 text-white ring-slate-900' : 'bg-white text-slate-700 ring-slate-200 hover:bg-slate-50'}`}
+          >
+            往來紀錄
+          </button>
+        </div>
+
+        {detailSectionTab === 'unpaid' ? (
+      <article className="rounded-3xl border border-amber-200 bg-amber-50/70 p-6 shadow-sm ring-1 ring-amber-100">
           <div className="mb-5 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
             <div>
               <h3 className="text-xl font-semibold text-slate-900">未付款專案</h3>
@@ -431,8 +451,9 @@ export function VendorDetailShellDb({ vendor, records, paymentRecords, tradeOpti
             </button>
           </div>
         </article>
-      </section>
+        ) : null}
 
+        {detailSectionTab === 'history' ? (
       <article className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
         <div className="mb-5 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
           <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
@@ -518,6 +539,9 @@ export function VendorDetailShellDb({ vendor, records, paymentRecords, tradeOpti
           }) : <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-5 py-6 text-sm text-slate-500">目前沒有符合條件的往來紀錄。</div>}
         </div>
       </article>
+        ) : null}
+      </div>
+      </section>
 
       {paymentForm ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/35 px-4">
