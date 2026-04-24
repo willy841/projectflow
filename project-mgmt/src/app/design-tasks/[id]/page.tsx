@@ -66,23 +66,21 @@ export default async function DesignTaskDetailPage({
         </div>
       </WorkspaceSection>
 
-      <WorkspaceSection title="執行處理">
-        <DesignTaskWorkspace
-          taskId={task.id}
-          taskTitle={task.title}
-          plans={task.plans.map((plan) => ({
-            id: plan.id,
-            title: plan.title,
-            size: plan.size,
-            material: plan.material,
-            structure: plan.structure,
-            quantity: plan.quantity,
-            amount: plan.amount,
-            previewUrl: plan.previewUrl,
-            vendor: plan.vendor,
-          }))}
-        />
-      </WorkspaceSection>
+      <DesignTaskWorkspace
+        taskId={task.id}
+        taskTitle={task.title}
+        plans={task.plans.map((plan) => ({
+          id: plan.id,
+          title: plan.title,
+          size: plan.size,
+          material: plan.material,
+          structure: plan.structure,
+          quantity: plan.quantity,
+          amount: plan.amount,
+          previewUrl: plan.previewUrl,
+          vendor: plan.vendor,
+        }))}
+      />
     </AppShellAuth>
   );
 }

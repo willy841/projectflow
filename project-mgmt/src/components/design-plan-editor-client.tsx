@@ -27,12 +27,18 @@ export function DesignPlanEditorClient({
   selectedPlanId,
   onSelectPlanId,
   hideTopActions = false,
+  externalHeaderActions,
 }: {
   taskId: string;
   initialPlans: DesignPlanInput[];
   selectedPlanId?: string | null;
   onSelectPlanId?: (planId: string | null) => void;
   hideTopActions?: boolean;
+  externalHeaderActions?: (actions: {
+    addPlan: () => void;
+    confirmPlans: () => void;
+    confirming: boolean;
+  }) => void;
 }) {
   const router = useRouter();
   const vendorListId = useId();
@@ -61,6 +67,14 @@ export function DesignPlanEditorClient({
   const [saving, setSaving] = useState(false);
   const [confirming, setConfirming] = useState(false);
   const [vendorOptions, setVendorOptions] = useState<VendorOption[]>([]);
+
+  useEffect(() => {
+    externalHeaderActions?.({
+      addPlan,
+      confirmPlans,
+      confirming,
+    });
+  }, [externalHeaderActions, confirming, plans.length, selectedPlanId]);
 
   useEffect(() => {
     if (!useDbActions) return;
@@ -290,7 +304,15 @@ export function DesignPlanEditorClient({
               />
             </label>
           </div>
-          <div className="mt-4 flex items-center justify-between gap-3 border-t border-slate-100 pt-4">
+          <div className="mt-4 flex flex-wrap items-center justify-end gap-2 border-t border-slate-100 pt-4">
+            <button
+              type="button"
+              onClick={saveAllPlans}
+              disabled={saving}
+              className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 disabled:opacity-60"
+            >
+              {saving ? "儲存中..." : "儲存"}
+            </button>
             <button
               type="button"
               onClick={() => removePlan(plan.id)}
