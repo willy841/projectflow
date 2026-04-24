@@ -82,30 +82,40 @@ export function CloseoutListClient({ initialProjects }: { initialProjects: Close
         </div>
 
         {pagedProjects.length ? (
-          <div className="space-y-4">
-            {pagedProjects.map((project) => (
-              <article key={project.id} className="rounded-3xl border border-slate-200 p-5">
-                <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
-                  <div>
-                    <h4 className="text-xl font-semibold text-slate-900">{project.projectName}</h4>
-                    <p className="mt-2 text-sm text-slate-600">{project.clientName} ・ 活動日期 {project.eventDate}</p>
-                  </div>
-
-                  <Link
-                    href={`/closeouts/${project.id}`}
-                    className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 transition hover:border-slate-400 hover:bg-slate-50"
-                  >
-                    查看
-                  </Link>
-                </div>
-
-                <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-                  <ArchiveValueCard label="對外報價總額" value={formatCurrency(project.quotationTotal)} />
-                  <ArchiveValueCard label="專案成本" value={formatCurrency(project.projectCostTotal)} />
-                  <ArchiveValueCard label="毛利" value={formatCurrency(project.grossProfit)} />
-                </div>
-              </article>
-            ))}
+          <div className="overflow-x-auto rounded-2xl border border-slate-200">
+            <table className="min-w-full divide-y divide-slate-200 text-left text-sm">
+              <thead className="bg-slate-50 text-slate-500">
+                <tr>
+                  <th className="px-4 py-3 font-medium">客戶名稱</th>
+                  <th className="px-4 py-3 font-medium">專案名稱</th>
+                  <th className="px-4 py-3 font-medium">活動日期</th>
+                  <th className="px-4 py-3 font-medium">對外報價總額</th>
+                  <th className="px-4 py-3 font-medium">專案成本</th>
+                  <th className="px-4 py-3 font-medium">毛利</th>
+                  <th className="px-4 py-3 font-medium">操作</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100 bg-white">
+                {pagedProjects.map((project) => (
+                  <tr key={project.id}>
+                    <td className="px-4 py-4 text-slate-700">{project.clientName}</td>
+                    <td className="px-4 py-4 font-medium text-slate-900">{project.projectName}</td>
+                    <td className="px-4 py-4 text-slate-700">{project.eventDate}</td>
+                    <td className="px-4 py-4 text-slate-700">{formatCurrency(project.quotationTotal)}</td>
+                    <td className="px-4 py-4 text-slate-700">{formatCurrency(project.projectCostTotal)}</td>
+                    <td className="px-4 py-4 font-semibold text-slate-900">{formatCurrency(project.grossProfit)}</td>
+                    <td className="px-4 py-4">
+                      <Link
+                        href={`/closeouts/${project.id}`}
+                        className="inline-flex min-h-10 items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-800 transition hover:border-slate-400 hover:bg-slate-50"
+                      >
+                        查看
+                      </Link>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         ) : (
           <WorkspaceEmptyState
@@ -156,14 +166,5 @@ export function CloseoutListClient({ initialProjects }: { initialProjects: Close
         </div>
       </section>
     </>
-  );
-}
-
-function ArchiveValueCard({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="rounded-2xl bg-slate-50 p-4 ring-1 ring-slate-200">
-      <p className="text-xs font-medium text-slate-500">{label}</p>
-      <p className="mt-2 text-sm font-semibold leading-6 text-slate-900">{value}</p>
-    </div>
   );
 }
