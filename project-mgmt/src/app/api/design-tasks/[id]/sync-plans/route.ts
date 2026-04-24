@@ -37,7 +37,7 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     const result = await services.syncDesignPlans(
       id,
       body.plans
-        .filter((plan) => plan.title?.trim())
+        .filter((plan) => [plan.title, plan.size, plan.material, plan.structure, plan.quantity, plan.amount, plan.previewUrl, plan.vendor].some((value) => value?.trim()))
         .map((plan, index) => {
           const rawVendorName = plan.vendor?.trim() ?? '';
           const matchedVendor = (plan.vendorId ? vendorById.get(plan.vendorId) : null) ?? (rawVendorName ? vendorByName.get(rawVendorName) : null) ?? null;
