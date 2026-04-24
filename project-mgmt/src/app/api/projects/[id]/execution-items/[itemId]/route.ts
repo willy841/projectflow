@@ -20,14 +20,62 @@ export async function PATCH(
       return NextResponse.json({ ok: false, error: '項目名稱必填' }, { status: 400 });
     }
 
-    const repositories = createPhase1Repositories(createPhase1DbClient());
+    const db = createPhase1DbClient();
+    const repositories = createPhase1Repositories(db);
     const existing = await repositories.executionItems.listByProject(id);
     const target = existing.find((item) => item.id === itemId);
     if (!target) {
       return NextResponse.json({ ok: false, error: '找不到執行項目' }, { status: 404 });
     }
 
+    const previousTitle = target.title?.trim() ?? '';
     const item = await repositories.executionItems.update(itemId, { title });
+
+    await db.query(
+      `
+        update design_tasks
+        set title = $1,
+            requirement_text = case
+              when coalesce(nullif(trim(requirement_text), ''), '') = '' then requirement_text
+              when trim(requirement_text) = $2 then $1
+              else requirement_text
+            end
+        where project_id = $3
+          and source_execution_item_id = $4
+      `,
+      [title, previousTitle, id, itemId],
+    );
+
+    await db.query(
+      `
+        update procurement_tasks
+        set title = $1,
+            requirement_text = case
+              when coalesce(nullif(trim(requirement_text), ''), '') = '' then requirement_text
+              when trim(requirement_text) = $2 then $1
+              else requirement_text
+            end
+        where project_id = $3
+          and source_execution_item_id = $4
+      `,
+      [title, previousTitle, id, itemId],
+    );
+
+    await db.query(
+      `
+        update vendor_tasks
+        set title = $1,
+            requirement_text = case
+              when coalesce(nullif(trim(requirement_text), ''), '') = '' then requirement_text
+              when trim(requirement_text) = $2 then $1
+              else requirement_text
+            end
+        where project_id = $3
+          and source_execution_item_id = $4
+      `,
+      [title, previousTitle, id, itemId],
+    );
+
     return NextResponse.json({ ok: true, item, storage: access.storage });
   } catch (error) {
     return NextResponse.json({ ok: false, error: error instanceof Error ? error.message : 'Unknown update execution item error' }, { status: 500 });
