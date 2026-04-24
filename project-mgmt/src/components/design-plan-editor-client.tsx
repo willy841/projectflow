@@ -1,5 +1,6 @@
 "use client";
 
+import type { Dispatch, SetStateAction } from "react";
 import { useRouter } from "next/navigation";
 import { useEffect, useId, useMemo, useState } from "react";
 
@@ -23,14 +24,16 @@ type VendorOption = {
 
 export function DesignPlanEditorClient({
   taskId,
-  initialPlans,
+  plans,
+  onPlansChange,
   selectedPlanId,
   onSelectPlanId,
   hideTopActions = false,
   externalHeaderActions,
 }: {
   taskId: string;
-  initialPlans: DesignPlanInput[];
+  plans: DesignPlanInput[];
+  onPlansChange: Dispatch<SetStateAction<DesignPlanInput[]>>;
   selectedPlanId?: string | null;
   onSelectPlanId?: (planId: string | null) => void;
   hideTopActions?: boolean;
@@ -46,23 +49,7 @@ export function DesignPlanEditorClient({
     () => /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(taskId),
     [taskId],
   );
-  const [plans, setPlans] = useState<DesignPlanInput[]>(
-    initialPlans.length
-      ? initialPlans
-      : [
-          {
-            id: `draft-${Date.now()}`,
-            title: "",
-            size: "",
-            material: "",
-            structure: "",
-            quantity: "",
-            amount: "",
-            previewUrl: "",
-            vendor: "",
-          },
-        ],
-  );
+  const setPlans = onPlansChange;
   const [message, setMessage] = useState("");
   const [saving, setSaving] = useState(false);
   const [confirming, setConfirming] = useState(false);

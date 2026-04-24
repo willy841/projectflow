@@ -19,13 +19,30 @@ type PlanRow = {
 export function DesignTaskWorkspace({
   taskId,
   taskTitle,
-  plans,
+  plans: initialPlans,
 }: {
   taskId: string;
   taskTitle: string;
   plans: PlanRow[];
 }) {
-  const [selectedPlanId, setSelectedPlanId] = useState<string | null>(plans[0]?.id ?? null);
+  const [plans, setPlans] = useState<PlanRow[]>(
+    initialPlans.length
+      ? initialPlans
+      : [
+          {
+            id: `draft-${Date.now()}`,
+            title: "",
+            size: "",
+            material: "",
+            structure: "",
+            quantity: "",
+            amount: "",
+            previewUrl: "",
+            vendor: "",
+          },
+        ],
+  );
+  const [selectedPlanId, setSelectedPlanId] = useState<string | null>(initialPlans[0]?.id ?? plans[0]?.id ?? null);
   const [headerActions, setHeaderActions] = useState<{
     addPlan: () => void;
     confirmPlans: () => void;
@@ -104,7 +121,8 @@ export function DesignTaskWorkspace({
 
           <DesignPlanEditorClient
             taskId={taskId}
-            initialPlans={plans}
+            plans={plans}
+            onPlansChange={setPlans}
             selectedPlanId={selectedPlan?.id ?? null}
             onSelectPlanId={setSelectedPlanId}
             hideTopActions
