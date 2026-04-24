@@ -608,6 +608,7 @@ function VendorAssignmentForm({
   onChange,
   actions,
   vendors,
+  tradeOptions,
 }: {
   title: string;
   draft: VendorAssignmentDraft;
@@ -616,7 +617,14 @@ function VendorAssignmentForm({
   onChange: (key: keyof VendorAssignmentDraft, value: string) => void;
   actions: FormActions;
   vendors: VendorBasicProfile[];
+  tradeOptions: string[];
 }) {
+  const filteredVendors = useMemo(() => {
+    const selectedTrade = draft.category?.trim();
+    if (!selectedTrade) return vendors;
+    return vendors.filter((vendor) => (vendor.tradeLabels ?? [vendor.tradeLabel || vendor.category || ""]).includes(selectedTrade));
+  }, [draft.category, vendors]);
+
   return (
     <div className="mt-4 rounded-3xl border border-slate-200 bg-slate-50 p-5 sm:p-6">
       <div className="flex flex-wrap items-center gap-2">
@@ -669,16 +677,16 @@ function VendorAssignmentForm({
               </span>
               <select
                 value={draft.category}
-                onChange={(e) => onChange("category", e.target.value)}
+                onChange={(e) => {
+                  onChange("category", e.target.value);
+                  onChange("vendorName", "");
+                }}
                 className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400"
               >
-                <option value="音響">音響</option>
-                <option value="燈光">燈光</option>
-                <option value="結構">結構</option>
-                <option value="印刷">印刷</option>
-                <option value="輸出">輸出</option>
-                <option value="租借">租借</option>
-                <option value="其他">其他</option>
+                <option value="">請選擇工種</option>
+                {tradeOptions.map((trade) => (
+                  <option key={trade} value={trade}>{trade}</option>
+                ))}
               </select>
             </label>
             <label className="flex flex-col gap-2">
@@ -694,7 +702,7 @@ function VendorAssignmentForm({
               label="執行廠商"
               value={draft.vendorName}
               onChange={(value) => onChange("vendorName", value)}
-              vendors={vendors}
+              vendors={filteredVendors}
             />
             <label className="flex flex-col gap-2">
               <span className="text-sm font-medium text-slate-700">
@@ -903,6 +911,7 @@ function AssignmentDrawer({
   onDeleteProcurement,
   onDeleteVendor,
   vendorOptions,
+  tradeOptions,
   isSaving = false,
   errorMessage,
 }: {
@@ -924,6 +933,7 @@ function AssignmentDrawer({
   onDeleteProcurement: () => void;
   onDeleteVendor: () => void;
   vendorOptions: VendorBasicProfile[];
+  tradeOptions: string[];
   isSaving?: boolean;
   errorMessage?: string | null;
 }) {
@@ -1004,6 +1014,7 @@ function AssignmentDrawer({
               isEditing
               onChange={onVendorChange}
               vendors={vendorOptions}
+              tradeOptions={tradeOptions}
               actions={{
                 onSave: onSaveVendor,
                 onCancel: onClose,
@@ -1982,6 +1993,7 @@ export function ExecutionTree({
             ? savedVendorAssignments[activeAssignmentDrawer.targetId]?.data
             : undefined
         }
+        tradeOptions={Array.from(new Set(vendorOptions.flatMap((vendor) => vendor.tradeLabels?.length ? vendor.tradeLabels : [vendor.tradeLabel || vendor.category || ""]).filter(Boolean))).sort((a, b) => a.localeCompare(b, "zh-Hant"))}
         onClose={() => setActiveAssignmentDrawer(null)}
         onDesignChange={(key, value) => {
           if (!activeAssignmentDrawer) return;
