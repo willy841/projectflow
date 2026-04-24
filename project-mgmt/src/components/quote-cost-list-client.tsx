@@ -74,15 +74,15 @@ export function QuoteCostListClient({ mode = "active", initialProjects }: { mode
               <tbody className="divide-y divide-slate-100 bg-white">
                 {activeProjects.map(({ project }) => (
                   <tr key={project.id}>
-                    <td className="px-4 py-3 text-slate-700">{project.clientName}</td>
-                    <td className="px-4 py-3 font-medium text-slate-900">{project.projectName}</td>
-                    <td className="px-4 py-3 text-slate-700">{project.eventDate}</td>
-                    <td className="px-4 py-3">
+                    <td className="px-4 py-4 text-slate-700">{project.clientName}</td>
+                    <td className="px-4 py-4 font-medium text-slate-900">{project.projectName}</td>
+                    <td className="px-4 py-4 text-slate-700">{project.eventDate}</td>
+                    <td className="px-4 py-4">
                       <span className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ring-1 ${project.quotationImported ? "bg-emerald-100 text-emerald-800 ring-emerald-300" : "bg-amber-100 text-amber-800 ring-amber-300"}`}>
                         {project.quotationImported ? "已上傳" : "未上傳"}
                       </span>
                     </td>
-                    <td className="px-4 py-3">
+                    <td className="px-4 py-4">
                       <Link
                         href={`/quote-costs/${project.id}`}
                         className="inline-flex min-h-10 items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-800 transition hover:border-slate-400 hover:bg-slate-50"
