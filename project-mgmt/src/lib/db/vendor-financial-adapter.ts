@@ -33,8 +33,6 @@ type VendorGroupRow = {
   sourceType: '設計' | '備品' | '廠商';
   vendorId: string | null;
   vendorName: string;
-  amountTotal: number;
-  itemCount: number;
   reconciliationStatus: string;
 };
 
@@ -51,8 +49,6 @@ export async function getVendorFinancialSummary({ vendorId, vendorName }: { vend
         frg.source_type as "sourceType",
         frg.vendor_id as "vendorId",
         coalesce(v.name, frg.vendor_name) as "vendorName",
-        frg.amount_total::float8 as "amountTotal",
-        frg.item_count::int as "itemCount",
         frg.reconciliation_status as "reconciliationStatus"
       from financial_reconciliation_groups frg
       inner join projects p on p.id = frg.project_id
@@ -76,17 +72,50 @@ export async function getVendorFinancialSummary({ vendorId, vendorName }: { vend
       groupedByProject.set(row.projectId, current);
     }
 
+    const projectIds = Array.from(groupedByProject.keys());
+    const costSummaryRows = await db.query<{
+      projectId: string;
+      sourceType: '設計' | '備品' | '廠商';
+      amountTotal: number;
+      itemCount: number;
+    }>(`
+      select
+        fci.project_id as "projectId",
+        fci.source_type as "sourceType",
+        coalesce(sum(fci.adjusted_amount), 0)::float8 as "amountTotal",
+        count(*)::int as "itemCount"
+      from financial_cost_items fci
+      left join vendors v on v.id = fci.vendor_id
+      where fci.project_id = any($1::uuid[])
+        and (
+          ($2::uuid is not null and fci.vendor_id = $2::uuid)
+          or lower(trim(coalesce(v.name, fci.vendor_name))) = lower($3)
+        )
+      group by fci.project_id, fci.source_type
+    `, [projectIds, vendorId ?? null, normalizedVendorName]);
+
+    const costSummaryByProjectAndSource = new Map<string, { amountTotal: number; itemCount: number }>();
+    for (const row of costSummaryRows.rows) {
+      costSummaryByProjectAndSource.set(`${row.projectId}::${row.sourceType}`, {
+        amountTotal: row.amountTotal,
+        itemCount: row.itemCount,
+      });
+    }
+
     const records = Array.from(groupedByProject.entries()).map(([projectId, rows]) => {
       const projectName = rows[0]?.projectName ?? '未命名專案';
       const projectStatus = rows[0]?.projectStatus ?? '執行中';
       const reconciledGroups = rows
         .filter((row) => row.reconciliationStatus === '已對帳')
-        .map((row) => ({
-          sourceType: row.sourceType,
-          vendorName: row.vendorName,
-          amountTotal: row.amountTotal,
-          itemCount: row.itemCount,
-        }));
+        .map((row) => {
+          const summary = costSummaryByProjectAndSource.get(`${projectId}::${row.sourceType}`) ?? { amountTotal: 0, itemCount: 0 };
+          return {
+            sourceType: row.sourceType,
+            vendorName: row.vendorName,
+            amountTotal: summary.amountTotal,
+            itemCount: summary.itemCount,
+          };
+        });
       const hasUnreconciledGroups = rows.some((row) => row.reconciliationStatus !== '已對帳');
       const adjustedCost = reconciledGroups.reduce((sum, row) => sum + row.amountTotal, 0);
       const reconciliationStatus = reconciledGroups.length > 0 ? '已完成' : '未開始';
