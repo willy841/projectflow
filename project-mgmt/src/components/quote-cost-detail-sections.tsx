@@ -36,8 +36,9 @@ export type CollectionRecordView = {
 
 export type VendorPaymentView = {
   vendorName: string;
+  reconciledCount: number;
+  unreconciledCount: number;
   payableAmount: number;
-  paidAmount: number;
 };
 
 export function QuoteCostHeader({
@@ -157,34 +158,28 @@ export function ActiveOnlyFinancialSections({
     <>
       <section className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-sm">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-          <SimpleSectionTitle title="廠商付款狀態" />
-          <p className="text-sm text-slate-500">這裡只做 project 視角 readback；實際付款主入口在 Vendor Data detail。</p>
+          <SimpleSectionTitle title="廠商對帳摘要" />
+          <p className="text-sm text-slate-500">這裡承接 project 視角下的對帳完成度與應付總額；邏輯應與 Vendor Data 的未付款專案一致。</p>
         </div>
         <div className="mt-5 overflow-x-auto rounded-2xl border border-slate-200">
           <table className="min-w-full divide-y divide-slate-200 text-left text-sm">
             <thead className="bg-slate-50 text-slate-500">
               <tr>
                 <th className="px-4 py-3 font-medium">廠商</th>
-                <th className="px-4 py-3 font-medium">目前應付</th>
-                <th className="px-4 py-3 font-medium">已付款</th>
-                <th className="px-4 py-3 font-medium">未付款</th>
-                <th className="px-4 py-3 font-medium">付款狀態</th>
+                <th className="px-4 py-3 font-medium">已對帳</th>
+                <th className="px-4 py-3 font-medium">未對帳</th>
+                <th className="px-4 py-3 font-medium">目前應付總額</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 bg-white">
-              {vendorPaymentRecords.map((record) => {
-                const unpaid = Math.max(record.payableAmount - record.paidAmount, 0);
-                const status = record.paidAmount <= 0 ? '未付款' : record.paidAmount < record.payableAmount ? '部分付款' : '已付款';
-                return (
-                  <tr key={record.vendorName}>
-                    <td className="px-4 py-3 font-medium text-slate-900">{record.vendorName}</td>
-                    <td className="px-4 py-3 text-slate-700">{formatCurrency(record.payableAmount)}</td>
-                    <td className="px-4 py-3 text-slate-700">{formatCurrency(record.paidAmount)}</td>
-                    <td className="px-4 py-3 text-slate-700">{formatCurrency(unpaid)}</td>
-                    <td className="px-4 py-3"><span className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ring-1 ${status === '已付款' ? 'bg-emerald-50 text-emerald-700 ring-emerald-200' : status === '部分付款' ? 'bg-sky-50 text-sky-700 ring-sky-200' : 'bg-amber-50 text-amber-700 ring-amber-200'}`}>{status}</span></td>
-                  </tr>
-                );
-              })}
+              {vendorPaymentRecords.map((record) => (
+                <tr key={record.vendorName}>
+                  <td className="px-4 py-3 font-medium text-slate-900">{record.vendorName}</td>
+                  <td className="px-4 py-3 text-slate-700">{record.reconciledCount} 筆</td>
+                  <td className="px-4 py-3 text-slate-700">{record.unreconciledCount} 筆</td>
+                  <td className="px-4 py-3 font-semibold text-slate-900">{formatCurrency(record.payableAmount)}</td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>

@@ -20,22 +20,22 @@ export default async function QuoteCostDetailPage({ params }: { params: Promise<
     notFound();
   }
 
-  const paymentRows = await db.query<{ vendorName: string; paidAmount: number }>(`
-    select vendor_name as "vendorName", sum(amount)::float8 as "paidAmount"
-    from project_vendor_payment_records
-    where project_id = $1
-    group by vendor_name
-    order by vendor_name asc
-  `, [id]);
-  const paidMap = new Map(paymentRows.rows.map((row) => [row.vendorName, row.paidAmount]));
-  const payableMap = new Map<string, number>();
-  for (const group of project.reconciliationGroups.filter((group) => group.reconciliationStatus === '已對帳')) {
-    payableMap.set(group.vendorName, (payableMap.get(group.vendorName) ?? 0) + group.amountTotal);
+  const vendorGroupMap = new Map<string, { reconciledCount: number; unreconciledCount: number; payableAmount: number }>();
+  for (const group of project.reconciliationGroups) {
+    const current = vendorGroupMap.get(group.vendorName) ?? { reconciledCount: 0, unreconciledCount: 0, payableAmount: 0 };
+    if (group.reconciliationStatus === '已對帳') {
+      current.reconciledCount += 1;
+      current.payableAmount += group.amountTotal;
+    } else {
+      current.unreconciledCount += 1;
+    }
+    vendorGroupMap.set(group.vendorName, current);
   }
-  const vendorPaymentRows = Array.from(payableMap.entries()).map(([vendorName, payableAmount]) => ({
+  const vendorPaymentRows = Array.from(vendorGroupMap.entries()).map(([vendorName, summary]) => ({
     vendorName,
-    payableAmount,
-    paidAmount: paidMap.get(vendorName) ?? 0,
+    reconciledCount: summary.reconciledCount,
+    unreconciledCount: summary.unreconciledCount,
+    payableAmount: summary.payableAmount,
   }));
 
   return <QuoteCostDetailClient project={project} initialProject={{ ...project, collectionRecords: collectionRows.rows, vendorPaymentRecords: vendorPaymentRows }} mode="active" />;
