@@ -146,7 +146,10 @@ export function DesignPlanEditorClient({
   }
 
   async function persistCurrentPlans() {
-    const currentPlans = plans.filter((plan) => plan.title.trim());
+    const currentPlans = plans.filter((plan) => {
+      const fields = [plan.title, plan.size, plan.material, plan.structure, plan.quantity, plan.amount, plan.previewUrl, plan.vendor];
+      return fields.some((value) => value.trim());
+    });
 
     const response = await fetch(`/api/design-tasks/${taskId}/sync-plans`, {
       method: "POST",
