@@ -47,9 +47,17 @@ export function DesignTaskWorkspace({
     addPlan: () => void;
     confirmPlans: () => void;
     confirming: boolean;
+    saveSelectedPlan: () => void;
+    removeSelectedPlan: () => void;
+    saving: boolean;
   } | null>(null);
 
-  const selectedPlan = useMemo(() => plans.find((plan) => plan.id === selectedPlanId) ?? plans[0] ?? null, [plans, selectedPlanId]);
+  const selectedPlan = useMemo(() => {
+    if (selectedPlanId) {
+      return plans.find((plan) => plan.id === selectedPlanId) ?? null;
+    }
+    return plans[0] ?? null;
+  }, [plans, selectedPlanId]);
 
   return (
     <WorkspaceSection
@@ -114,16 +122,37 @@ export function DesignTaskWorkspace({
         </section>
 
         <section className="rounded-2xl border border-slate-200 bg-white p-5">
-          <div className="mb-5 border-b border-slate-100 pb-4">
-            <p className="text-xs font-medium tracking-wide text-slate-500">目前檢視</p>
-            <p className="mt-1 text-lg font-semibold text-slate-900">{selectedPlan?.title || taskTitle}</p>
+          <div className="mb-5 flex flex-wrap items-start justify-between gap-3 border-b border-slate-100 pb-4">
+            <div>
+              <p className="text-xs font-medium tracking-wide text-slate-500">目前檢視</p>
+              <p className="mt-1 text-lg font-semibold text-slate-900">{selectedPlan?.title || taskTitle}</p>
+            </div>
+            {selectedPlan && headerActions ? (
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  onClick={headerActions.saveSelectedPlan}
+                  disabled={headerActions.saving}
+                  className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 disabled:opacity-60"
+                >
+                  {headerActions.saving ? "儲存中..." : "儲存"}
+                </button>
+                <button
+                  type="button"
+                  onClick={headerActions.removeSelectedPlan}
+                  className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-rose-200 bg-rose-50 px-4 py-2.5 text-sm font-medium text-rose-700"
+                >
+                  刪除這筆處理
+                </button>
+              </div>
+            ) : null}
           </div>
 
           <DesignPlanEditorClient
             taskId={taskId}
             plans={plans}
             onPlansChange={setPlans}
-            selectedPlanId={selectedPlan?.id ?? null}
+            selectedPlanId={selectedPlanId}
             onSelectPlanId={setSelectedPlanId}
             hideTopActions
             externalHeaderActions={setHeaderActions}

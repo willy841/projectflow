@@ -41,6 +41,9 @@ export function DesignPlanEditorClient({
     addPlan: () => void;
     confirmPlans: () => void;
     confirming: boolean;
+    saveSelectedPlan: () => void;
+    removeSelectedPlan: () => void;
+    saving: boolean;
   }) => void;
 }) {
   const router = useRouter();
@@ -60,8 +63,13 @@ export function DesignPlanEditorClient({
       addPlan,
       confirmPlans,
       confirming,
+      saveSelectedPlan: saveAllPlans,
+      removeSelectedPlan: () => {
+        if (selectedPlanId) removePlan(selectedPlanId);
+      },
+      saving,
     });
-  }, [externalHeaderActions, confirming, plans.length, selectedPlanId]);
+  }, [externalHeaderActions, confirming, saving, plans.length, selectedPlanId]);
 
   useEffect(() => {
     if (!useDbActions) return;
@@ -291,23 +299,7 @@ export function DesignPlanEditorClient({
               />
             </label>
           </div>
-          <div className="mt-4 flex flex-wrap items-center justify-end gap-2 border-t border-slate-100 pt-4">
-            <button
-              type="button"
-              onClick={saveAllPlans}
-              disabled={saving}
-              className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 disabled:opacity-60"
-            >
-              {saving ? "儲存中..." : "儲存"}
-            </button>
-            <button
-              type="button"
-              onClick={() => removePlan(plan.id)}
-              className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-rose-200 bg-rose-50 px-4 py-2.5 text-sm font-medium text-rose-700"
-            >
-              刪除這筆處理
-            </button>
-          </div>
+          <div className="mt-4 border-t border-slate-100 pt-4" />
         </article>
       ))}
 
