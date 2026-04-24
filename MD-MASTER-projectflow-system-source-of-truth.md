@@ -13,6 +13,7 @@
 1. `MD-MASTER-projectflow-system-source-of-truth.md`
 2. `MD155-projectflow-single-track-acceptance-first-and-production-freeze-rule-2026-04-20.md`
 3. `MD156-projectflow-project-document-routing-and-dispatch-trade-linkage-rules-2026-04-24.md`
+4. `MD157-projectflow-vendor-financial-source-formalization-and-vendor-detail-performance-investigation-2026-04-24.md`
 
 ### 第二層：仍可能需要的近代主線 closure（按需回查）
 4. `MD134-projectflow-post-md133-project-detail-dispatch-and-ui-closure-2026-04-14.md`
@@ -42,7 +43,7 @@
 ## 1. 2026-04-24 最新補充（當前驗收站主線必對齊）
 
 - 已新增：`MD156-projectflow-project-document-routing-and-dispatch-trade-linkage-rules-2026-04-24.md`
-- 本文件的重要性在於正式校正兩條目前仍容易被舊 handoff 誤導的規則：
+- 本文件的重要性在於正式校正三條目前仍容易被舊 handoff 誤導的規則：
   1. **設計 / 備品 `全部確認` 後，正式出口一律直接導向 project-level document**
      - 設計：`/projects/[projectId]/design-document`
      - 備品：`/projects/[projectId]/procurement-document`
@@ -50,6 +51,10 @@
   2. **`Project Detail` 任務發布區中的 `工種` 與 `選擇廠商`，一律以 `Vendor Data` 為唯一正式來源**
      - `工種` 不可再用硬編碼常數
      - 選定工種後，`選擇廠商` 清單只能顯示該工種底下的廠商
+  3. **Vendor 對帳後金額主線已正式化為 `financial_reconciliation_groups`（含 `amount_total / item_count`）**
+     - vendor list / vendor detail 都必須承接同一條正式來源
+     - `financial_cost_items` 在目前正式 DB 中不存在，不可再假設為既定正式來源
+     - vendor detail 性能問題仍是 open task，不可宣稱已解決
 
 ---
 

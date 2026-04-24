@@ -162,6 +162,19 @@
 
 ---
 
-## 6. 一句話總結
+## 6. 2026-04-24 晚間後續延伸（補記）
+
+本文件之後，本輪又在同一天晚間繼續新增：
+- quote-cost / reconciliation / vendor financial source formalization
+- vendor detail UI reflow
+- vendor detail performance investigation
+
+以上內容不再混進本文件，而已另外記錄於：
+- `MD157-projectflow-vendor-financial-source-formalization-and-vendor-detail-performance-investigation-2026-04-24.md`
+
+重要：
+> **若續接 `Vendor Data` / vendor list / vendor detail / vendor 對帳後金額承接 / vendor detail 性能問題，不可只停在 `MD156`，必須再讀 `MD157`。**
+
+## 7. 一句話總結
 
 > **2026-04-24 起，設計 / 備品兩條線的 `全部確認` 後文件承接正式統一為 project-level document；同時 `Project Detail` 任務發布區中的 `工種` 與 `選擇廠商` 也正式統一以 `Vendor Data` 為唯一來源，並在選定工種後只顯示該工種底下的廠商。**

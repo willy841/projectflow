@@ -117,10 +117,14 @@
 
 本文件主要管的是環境與執行策略，不負責重寫產品文件層規則；但為避免後續 agent 把「測試站單軌」誤解成可以忽略當前最新產品校正，補記如下：
 
-- 已新增：`MD156-projectflow-project-document-routing-and-dispatch-trade-linkage-rules-2026-04-24.md`
-- 在目前測試站單軌主線中，以下兩條已屬現行有效規則：
+- 已新增：
+  - `MD156-projectflow-project-document-routing-and-dispatch-trade-linkage-rules-2026-04-24.md`
+  - `MD157-projectflow-vendor-financial-source-formalization-and-vendor-detail-performance-investigation-2026-04-24.md`
+- 在目前測試站單軌主線中，以下幾條已屬現行有效規則：
   1. 設計 / 備品 `全部確認` 後，正式出口直接導向 project-level document，不再經過 task-level document
   2. `Project Detail` 任務發布區中的 `工種` 與 `選擇廠商`，一律以 `Vendor Data` 為唯一來源，並依工種過濾廠商
+  3. vendor 對帳後金額主線已 formalize 到 `financial_reconciliation_groups`（含 `amount_total / item_count`）
+  4. vendor detail 性能問題目前仍未關閉，必須視為 open investigation，不可宣稱已解決
 
 也就是：
 > **`MD155` 管的是「先在測試站把規則做對」；而 `MD156` 則記錄了 2026-04-24 這一輪剛剛拍板並已落地的最新對齊規則。**
