@@ -68,6 +68,7 @@ export default async function DesignTaskDetailPage({
 
       <DesignTaskWorkspace
         taskId={task.id}
+        projectId={task.projectId}
         taskTitle={task.title}
         plans={task.plans.map((plan) => ({
           id: plan.id,

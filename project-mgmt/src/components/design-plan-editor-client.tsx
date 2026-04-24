@@ -24,6 +24,7 @@ type VendorOption = {
 
 export function DesignPlanEditorClient({
   taskId,
+  projectId,
   plans,
   onPlansChange,
   selectedPlanId,
@@ -32,6 +33,7 @@ export function DesignPlanEditorClient({
   externalHeaderActions,
 }: {
   taskId: string;
+  projectId: string;
   plans: DesignPlanInput[];
   onPlansChange: Dispatch<SetStateAction<DesignPlanInput[]>>;
   selectedPlanId?: string | null;
@@ -274,7 +276,7 @@ export function DesignPlanEditorClient({
         throw new Error("confirm failed");
       }
 
-      router.push(`/design-tasks/${taskId}/document`);
+      router.push(`/projects/${projectId}/design-document`);
       router.refresh();
     } catch (error) {
       setMessage(`全部確認失敗：${error instanceof Error ? error.message : "請稍後再試。"}`);

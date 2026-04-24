@@ -15,10 +15,12 @@ type PlanRow = {
 
 export function ProcurementTaskWorkspace({
   taskId,
+  projectId,
   taskTitle,
   plans: initialPlans,
 }: {
   taskId: string;
+  projectId: string;
   taskTitle: string;
   plans: PlanRow[];
 }) {
@@ -143,6 +145,7 @@ export function ProcurementTaskWorkspace({
 
           <ProcurementPlanEditorClient
             taskId={taskId}
+            projectId={projectId}
             plans={plans}
             onPlansChange={setPlans}
             selectedPlanId={selectedPlanId}

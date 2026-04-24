@@ -18,10 +18,12 @@ type PlanRow = {
 
 export function DesignTaskWorkspace({
   taskId,
+  projectId,
   taskTitle,
   plans: initialPlans,
 }: {
   taskId: string;
+  projectId: string;
   taskTitle: string;
   plans: PlanRow[];
 }) {
@@ -150,6 +152,7 @@ export function DesignTaskWorkspace({
 
           <DesignPlanEditorClient
             taskId={taskId}
+            projectId={projectId}
             plans={plans}
             onPlansChange={setPlans}
             selectedPlanId={selectedPlanId}

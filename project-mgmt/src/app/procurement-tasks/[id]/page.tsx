@@ -46,6 +46,7 @@ export default async function ProcurementTaskDetailPage({ params }: { params: Pr
 
       <ProcurementTaskWorkspace
         taskId={task.id}
+        projectId={task.projectId}
         taskTitle={task.title}
         plans={task.plans.map((plan) => ({
           id: plan.id,

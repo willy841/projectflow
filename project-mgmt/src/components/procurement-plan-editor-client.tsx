@@ -21,6 +21,7 @@ type VendorOption = {
 
 export function ProcurementPlanEditorClient({
   taskId,
+  projectId,
   plans,
   onPlansChange,
   selectedPlanId,
@@ -29,6 +30,7 @@ export function ProcurementPlanEditorClient({
   externalHeaderActions,
 }: {
   taskId: string;
+  projectId: string;
   plans: ProcurementPlanInput[];
   onPlansChange: Dispatch<SetStateAction<ProcurementPlanInput[]>>;
   selectedPlanId?: string | null;
@@ -232,7 +234,7 @@ export function ProcurementPlanEditorClient({
         const payload = (await response.json().catch(() => null)) as { error?: string } | null;
         throw new Error(payload?.error || "confirm procurement failed");
       }
-      router.push(`/procurement-tasks/${taskId}/document`);
+      router.push(`/projects/${projectId}/procurement-document`);
       router.refresh();
     } catch (error) {
       setMessage(`全部確認失敗：${error instanceof Error ? error.message : "請稍後再試。"}`);
