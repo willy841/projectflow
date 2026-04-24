@@ -1,7 +1,7 @@
 "use client";
 
 import Link from 'next/link';
-import { useMemo, useState } from 'react';
+import { Fragment, useMemo, useState } from 'react';
 import { formatCurrency, getVendorPaymentStatusClass, type VendorBasicProfile, type VendorProjectRecord } from '@/components/vendor-data';
 import type { VendorPaymentRecord } from '@/lib/db/vendor-directory-adapter';
 
@@ -359,81 +359,90 @@ export function VendorDetailShellDb({ vendor, records, paymentRecords, tradeOpti
             </div>
           ) : null}
 
-          <div className="space-y-3">
-            {unpaidRecords.length ? unpaidRecords.map((record) => {
-              const isSelectable = !record.hasUnreconciledGroups;
-              const isSelected = selectedRecordIds.includes(record.id);
-              return (
-                <label key={record.id} className="block rounded-2xl border border-amber-200 bg-white p-4 ring-1 ring-amber-100">
-                  <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
-                    <div className="flex min-w-0 flex-1 gap-3">
-                      <input
-                        type="checkbox"
-                        checked={isSelected}
-                        disabled={!isSelectable}
-                        onChange={() => toggleSelectableRecord(record)}
-                        className="mt-1 h-4 w-4 rounded border-slate-300 text-slate-900 focus:ring-slate-400 disabled:cursor-not-allowed disabled:opacity-50"
-                      />
-                      <div className="min-w-0 flex-1">
-                        <div className="flex flex-wrap items-center gap-2">
-                          <p className="font-semibold text-slate-900">{record.projectName}</p>
-                        </div>
-                        <div className="mt-3 grid gap-2 text-sm text-slate-600 sm:grid-cols-2">
-                          <div className="flex items-center justify-between gap-3 rounded-2xl bg-slate-50 px-3 py-2.5">
-                            <span>對帳狀態</span>
+          <div className="overflow-x-auto rounded-2xl border border-amber-200 bg-white">
+            {unpaidRecords.length ? (
+              <table className="min-w-full divide-y divide-slate-200 text-left text-sm">
+                <thead className="bg-slate-50 text-slate-500">
+                  <tr>
+                    <th className="px-4 py-3 font-medium">勾選</th>
+                    <th className="px-4 py-3 font-medium">專案名稱</th>
+                    <th className="px-4 py-3 font-medium">對帳狀態</th>
+                    <th className="px-4 py-3 font-medium">累計未付金額</th>
+                    <th className="px-4 py-3 font-medium">對帳摘要</th>
+                    <th className="px-4 py-3 font-medium">操作</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100 bg-white">
+                  {unpaidRecords.map((record) => {
+                    const isSelectable = !record.hasUnreconciledGroups;
+                    const isSelected = selectedRecordIds.includes(record.id);
+                    const isExpanded = expandedRecordIds.includes(record.id);
+                    return (
+                      <Fragment key={record.id}>
+                        <tr>
+                          <td className="px-4 py-4 align-top">
+                            <input
+                              type="checkbox"
+                              checked={isSelected}
+                              disabled={!isSelectable}
+                              onChange={() => toggleSelectableRecord(record)}
+                              className="mt-1 h-4 w-4 rounded border-slate-300 text-slate-900 focus:ring-slate-400 disabled:cursor-not-allowed disabled:opacity-50"
+                            />
+                          </td>
+                          <td className="px-4 py-4 align-top font-medium text-slate-900">{record.projectName}</td>
+                          <td className="px-4 py-4 align-top">
                             <span className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold leading-tight text-center ring-1 ${getVendorReconciliationStatusClass(record)}`}>{record.reconciliationStatus}</span>
-                          </div>
-                          <div className="flex items-center justify-between gap-3 rounded-2xl bg-slate-50 px-3 py-2.5">
-                            <span>累計未付金額</span>
-                            <span className="font-semibold text-slate-900">{formatCurrency(record.unpaidAmount ?? record.adjustedCost)}</span>
-                          </div>
-                        </div>
-                        <p className="mt-3 text-sm text-slate-500">{record.reconciliationSummary}</p>
-                        {record.reconciliationWarning ? (
-                          <div className="mt-3 rounded-2xl border border-amber-200 bg-amber-50 px-3 py-2.5 text-sm text-amber-800">
-                            <p className="font-semibold">{record.reconciliationWarning}</p>
-                            <p className="mt-1 text-amber-700">未全部對帳前，不可勾選已付款；目前金額僅代表已進入對帳主線的累積總額。</p>
-                          </div>
-                        ) : null}
-                      </div>
-                    </div>
-                    <div className="flex flex-col items-start gap-3 xl:items-end">
-                      <button
-                        type="button"
-                        onClick={() => toggleExpandedRecord(record.id)}
-                        className="inline-flex rounded-full bg-white px-3 py-1 text-xs font-medium text-slate-700 ring-1 ring-slate-300 transition hover:bg-slate-50"
-                      >
-                        {expandedRecordIds.includes(record.id) ? '收合明細' : '查看明細'}
-                      </button>
-                    </div>
-                  </div>
-
-                  {expandedRecordIds.includes(record.id) ? (
-                    <div className="mt-5 grid gap-4 xl:grid-cols-2">
-                      <div className="rounded-2xl bg-slate-50 p-4 ring-1 ring-slate-200">
-                        <p className="text-sm font-semibold text-slate-900">成本明細</p>
-                        <div className="mt-3 space-y-3">
-                          {record.costBreakdown.map((item) => (
-                            <div key={`${record.id}-${item.label}`} className="flex items-center justify-between gap-3 text-sm">
-                              <span className="text-slate-600">{item.label}</span>
-                              <span className="font-medium text-slate-900">{item.amount}</span>
+                          </td>
+                          <td className="px-4 py-4 align-top font-semibold text-slate-900">{formatCurrency(record.unpaidAmount ?? record.adjustedCost)}</td>
+                          <td className="px-4 py-4 align-top text-slate-600">
+                            <div>{record.reconciliationSummary}</div>
+                            {record.reconciliationWarning ? (
+                              <div className="mt-2 text-xs text-amber-700">{record.reconciliationWarning}</div>
+                            ) : null}
+                          </td>
+                          <td className="px-4 py-4 align-top">
+                            <button
+                              type="button"
+                              onClick={() => toggleExpandedRecord(record.id)}
+                              className="inline-flex min-h-10 items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-800 transition hover:bg-slate-50"
+                            >
+                              {isExpanded ? '收合明細' : '查看明細'}
+                            </button>
+                          </td>
+                        </tr>
+                      {isExpanded ? (
+                        <tr key={`${record.id}-detail`}>
+                          <td colSpan={6} className="px-4 py-4 bg-slate-50/70">
+                            <div className="grid gap-4 xl:grid-cols-2">
+                              <div className="rounded-2xl bg-white p-4 ring-1 ring-slate-200">
+                                <p className="text-sm font-semibold text-slate-900">成本明細</p>
+                                <div className="mt-3 space-y-3">
+                                  {record.costBreakdown.map((item) => (
+                                    <div key={`${record.id}-${item.label}`} className="flex items-center justify-between gap-3 text-sm">
+                                      <span className="text-slate-600">{item.label}</span>
+                                      <span className="font-medium text-slate-900">{item.amount}</span>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                              <div className="rounded-2xl bg-white p-4 ring-1 ring-slate-200">
+                                <p className="text-sm font-semibold text-slate-900">發包內容明細</p>
+                                <ul className="mt-3 space-y-2 text-sm text-slate-600">
+                                  {record.sourceItemDetails.map((item) => (
+                                    <li key={`${record.id}-${item}`} className="rounded-2xl bg-slate-50 px-3 py-2">• {item}</li>
+                                  ))}
+                                </ul>
+                              </div>
                             </div>
-                          ))}
-                        </div>
-                      </div>
-                      <div className="rounded-2xl bg-slate-50 p-4 ring-1 ring-slate-200">
-                        <p className="text-sm font-semibold text-slate-900">發包內容明細</p>
-                        <ul className="mt-3 space-y-2 text-sm text-slate-600">
-                          {record.sourceItemDetails.map((item) => (
-                            <li key={`${record.id}-${item}`} className="rounded-2xl bg-white px-3 py-2 ring-1 ring-slate-200">• {item}</li>
-                          ))}
-                        </ul>
-                      </div>
-                    </div>
-                  ) : null}
-                </label>
-              );
-            }) : <div className="rounded-2xl border border-dashed border-amber-300 bg-white px-5 py-6 text-sm text-slate-500">目前沒有待付款專案。</div>}
+                          </td>
+                        </tr>
+                      ) : null}
+                      </Fragment>
+                    );
+                  })}
+                </tbody>
+              </table>
+            ) : <div className="px-5 py-6 text-sm text-slate-500">目前沒有待付款專案。</div>}
           </div>
 
           <div className="mt-4 flex flex-col gap-3 rounded-2xl bg-slate-900 px-4 py-4 text-white lg:flex-row lg:items-center lg:justify-between">
