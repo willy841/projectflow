@@ -503,9 +503,9 @@ export function QuoteCostDetailClient({ project, mode = "active", presenter = ge
                   <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
                     <div className="min-w-0 flex-1">
                       <div className="flex flex-wrap items-center gap-2">
-                        <span className="inline-flex rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700 ring-1 ring-slate-200">{group.sourceType}</span>
+                        <span className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ring-1 ${group.sourceType === '設計' ? 'bg-sky-50 text-sky-700 ring-sky-200' : group.sourceType === '備品' ? 'bg-amber-50 text-amber-700 ring-amber-200' : 'bg-violet-50 text-violet-700 ring-violet-200'}`}>{group.sourceType}</span>
                         <span className="inline-flex rounded-full bg-white px-3 py-1 text-xs font-semibold text-slate-700 ring-1 ring-slate-200">{group.vendorName}</span>
-                        <span className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ring-1 ${group.reconciliationStatus === '已對帳' ? 'bg-emerald-50 text-emerald-700 ring-emerald-200' : 'bg-amber-50 text-amber-700 ring-amber-200'}`}>{group.reconciliationStatus}</span>
+                        <span className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ring-1 ${group.reconciliationStatus === '已對帳' ? 'bg-emerald-50 text-emerald-700 ring-emerald-200' : 'bg-rose-50 text-rose-700 ring-rose-200'}`}>{group.reconciliationStatus}</span>
                         <span className="text-xs font-medium text-slate-500">{group.itemCount} 筆資料來源</span>
                       </div>
                     </div>
