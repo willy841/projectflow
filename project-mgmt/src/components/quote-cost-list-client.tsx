@@ -60,31 +60,40 @@ export function QuoteCostListClient({ mode = "active", initialProjects }: { mode
 
       <section className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
         {activeProjects.length ? (
-          <div className="space-y-4">
-            {activeProjects.map(({ project }) => (
-              <article key={project.id} className="rounded-3xl border border-slate-200 p-5">
-                <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
-                  <div className="space-y-3">
-                    <div className="flex flex-wrap items-center gap-3">
-                      <h3 className="text-xl font-semibold text-slate-900">{project.projectName}</h3>
-                      <span
-                        className={`inline-flex rounded-full px-4 py-1.5 text-sm font-semibold ring-1 ${project.quotationImported ? "bg-emerald-100 text-emerald-800 ring-emerald-300" : "bg-amber-100 text-amber-800 ring-amber-300"}`}
-                      >
+          <div className="overflow-x-auto rounded-2xl border border-slate-200">
+            <table className="min-w-full divide-y divide-slate-200 text-left text-sm">
+              <thead className="bg-slate-50 text-slate-500">
+                <tr>
+                  <th className="px-4 py-3 font-medium">客戶名稱</th>
+                  <th className="px-4 py-3 font-medium">專案名稱</th>
+                  <th className="px-4 py-3 font-medium">活動日期</th>
+                  <th className="px-4 py-3 font-medium">報價資料狀態</th>
+                  <th className="px-4 py-3 font-medium">操作</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100 bg-white">
+                {activeProjects.map(({ project }) => (
+                  <tr key={project.id}>
+                    <td className="px-4 py-3 text-slate-700">{project.clientName}</td>
+                    <td className="px-4 py-3 font-medium text-slate-900">{project.projectName}</td>
+                    <td className="px-4 py-3 text-slate-700">{project.eventDate}</td>
+                    <td className="px-4 py-3">
+                      <span className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ring-1 ${project.quotationImported ? "bg-emerald-100 text-emerald-800 ring-emerald-300" : "bg-amber-100 text-amber-800 ring-amber-300"}`}>
                         {project.quotationImported ? "已上傳" : "未上傳"}
                       </span>
-                    </div>
-                    <p className="text-sm text-slate-500">活動日期 {project.eventDate}</p>
-                  </div>
-
-                  <Link
-                    href={`/quote-costs/${project.id}`}
-                    className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 transition hover:border-slate-400 hover:bg-slate-50"
-                  >
-                    查看
-                  </Link>
-                </div>
-              </article>
-            ))}
+                    </td>
+                    <td className="px-4 py-3">
+                      <Link
+                        href={`/quote-costs/${project.id}`}
+                        className="inline-flex min-h-10 items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-800 transition hover:border-slate-400 hover:bg-slate-50"
+                      >
+                        查看
+                      </Link>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         ) : (
           <WorkspaceEmptyState
