@@ -10,11 +10,15 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
         vendorId?: string | null;
         vendorName?: string;
         reconciliationStatus?: '未對帳' | '已對帳';
+        amountTotal?: number;
+        itemCount?: number;
       }>;
     };
 
     const groups = (body.groups ?? []).filter((group) => group.sourceType && group.vendorName);
     const db = createPhase1DbClient();
+    await db.query(`alter table financial_reconciliation_groups add column if not exists amount_total numeric null`);
+    await db.query(`alter table financial_reconciliation_groups add column if not exists item_count integer null`);
     await db.query('begin');
 
     try {
@@ -30,12 +34,22 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
               vendor_id,
               vendor_name,
               reconciliation_status,
-              reconciled_at
+              reconciled_at,
+              amount_total,
+              item_count
             )
-            values ($1, $2, $3, $4, $5, case when $5 = '已對帳' then now() else null end)
+            values ($1, $2, $3, $4, $5, case when $5 = '已對帳' then now() else null end, $6, $7)
             returning *
           `,
-          [id, group.sourceType, group.vendorId ?? null, group.vendorName, group.reconciliationStatus ?? '未對帳'],
+          [
+            id,
+            group.sourceType,
+            group.vendorId ?? null,
+            group.vendorName,
+            group.reconciliationStatus ?? '未對帳',
+            Number(group.amountTotal ?? 0),
+            Number(group.itemCount ?? 0),
+          ],
         );
         if (result.rows[0]) rows.push(result.rows[0]);
       }
