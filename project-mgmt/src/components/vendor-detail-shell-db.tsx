@@ -70,6 +70,7 @@ export function VendorDetailShellDb({ vendor, records, paymentRecords, tradeOpti
   const [batchPaying, setBatchPaying] = useState(false);
   const [paymentForm, setPaymentForm] = useState<{ projectId: string; projectName: string; paidOn: string; amount: string; note: string } | null>(null);
   const [payments, setPayments] = useState<VendorPaymentRecord[]>(paymentRecords);
+  const [profileExpanded, setProfileExpanded] = useState(false);
 
   const paymentMap = useMemo(() => {
     const map = new Map<string, VendorPaymentRecord[]>();
@@ -247,81 +248,90 @@ export function VendorDetailShellDb({ vendor, records, paymentRecords, tradeOpti
             </div>
           </div>
           <div className="flex flex-wrap gap-3">
+            <button
+              type="button"
+              onClick={() => setProfileExpanded((current) => !current)}
+              className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-800 shadow-sm transition hover:border-slate-400 hover:bg-slate-50"
+            >
+              {profileExpanded ? '收合廠商資訊' : '展開廠商資訊'}
+            </button>
             <Link href="/vendors" className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-800 shadow-sm transition hover:border-slate-400 hover:bg-slate-50">返回廠商列表</Link>
           </div>
         </div>
-      </header>
 
-      <section className="space-y-6">
-        <article className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
-          <div className="mb-5 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-            <div>
-              <h3 className="text-xl font-semibold text-slate-900">廠商資訊</h3>
-
-            </div>
-            <div className="flex items-center gap-3">
-              {profileMessage ? <p className="text-xs text-emerald-700">{profileMessage}</p> : null}
-              <button type="button" onClick={handleSaveProfile} disabled={profileSaving} className="inline-flex items-center justify-center rounded-2xl border border-slate-900 bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60">{profileSaving ? '儲存中…' : '儲存'}</button>
-            </div>
-          </div>
-          <div className="grid gap-4 md:grid-cols-2">
-            <div className="rounded-2xl bg-slate-50 p-4 md:col-span-2">
-              <p className="text-sm text-slate-500">工種（可複選）</p>
-              <div className="mt-3 flex flex-wrap gap-2">
-                {tradeOptions.map((trade) => {
-                  const active = profileForm.tradeLabels.includes(trade);
-                  return (
-                    <button
-                      key={trade}
-                      type="button"
-                      onClick={() => setProfileForm((current) => ({
-                        ...current,
-                        tradeLabel: trade,
-                        tradeLabels: active
-                          ? current.tradeLabels.filter((item) => item !== trade)
-                          : [...current.tradeLabels, trade],
-                      }))}
-                      className={`rounded-full px-3 py-2 text-xs font-medium ring-1 transition ${active ? 'bg-slate-900 text-white ring-slate-900' : 'bg-white text-slate-700 ring-slate-200 hover:bg-slate-50'}`}
-                    >
-                      {trade}
-                    </button>
-                  );
-                })}
+        {profileExpanded ? (
+          <div className="mt-6 border-t border-slate-200 pt-6">
+            <div className="mb-5 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+              <div>
+                <h3 className="text-xl font-semibold text-slate-900">廠商資訊</h3>
+              </div>
+              <div className="flex items-center gap-3">
+                {profileMessage ? <p className="text-xs text-emerald-700">{profileMessage}</p> : null}
+                <button type="button" onClick={handleSaveProfile} disabled={profileSaving} className="inline-flex items-center justify-center rounded-2xl border border-slate-900 bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60">{profileSaving ? '儲存中…' : '儲存'}</button>
               </div>
             </div>
-            {[
-              ['聯絡人', 'contactName', '請輸入聯絡人'],
-              ['電話', 'phone', '請輸入電話'],
-              ['Email', 'email', '請輸入 Email'],
-              ['LINE', 'lineId', '請輸入 LINE'],
-              ['地址', 'address', '請輸入地址'],
-              ['銀行', 'bankName', '請輸入銀行名稱'],
-              ['戶名', 'accountName', '請輸入戶名'],
-              ['帳號', 'accountNumber', '請輸入帳號'],
-            ].map(([label, field, placeholder]) => (
-              <label key={String(field)} className="rounded-2xl bg-slate-50 p-4">
-                <p className="text-sm text-slate-500">{label}</p>
-                <input value={profileForm[field as keyof VendorEditableForm]} onChange={(event) => updateProfileField(field as keyof VendorEditableForm, event.target.value)} placeholder={String(placeholder)} className="mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400" />
-              </label>
-            ))}
-          </div>
-          <div className="mt-6 rounded-3xl border border-slate-200 bg-slate-50/60 p-5">
-            <h4 className="text-base font-semibold text-slate-900">勞報資訊</h4>
-            <div className="mt-4 grid gap-4 md:grid-cols-2">
+            <div className="grid gap-4 md:grid-cols-2">
+              <div className="rounded-2xl bg-slate-50 p-4 md:col-span-2">
+                <p className="text-sm text-slate-500">工種（可複選）</p>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {tradeOptions.map((trade) => {
+                    const active = profileForm.tradeLabels.includes(trade);
+                    return (
+                      <button
+                        key={trade}
+                        type="button"
+                        onClick={() => setProfileForm((current) => ({
+                          ...current,
+                          tradeLabel: trade,
+                          tradeLabels: active
+                            ? current.tradeLabels.filter((item) => item !== trade)
+                            : [...current.tradeLabels, trade],
+                        }))}
+                        className={`rounded-full px-3 py-2 text-xs font-medium ring-1 transition ${active ? 'bg-slate-900 text-white ring-slate-900' : 'bg-white text-slate-700 ring-slate-200 hover:bg-slate-50'}`}
+                      >
+                        {trade}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
               {[
-                ['勞報姓名', 'laborName', '請輸入勞報姓名'],
-                ['身分證字號', 'nationalId', '請輸入身分證字號'],
-                ['出生年月日（民國）', 'birthDateRoc', '例如：78/05/21'],
-                ['參加工會', 'unionMembership', '請輸入公會或會員資訊'],
+                ['聯絡人', 'contactName', '請輸入聯絡人'],
+                ['電話', 'phone', '請輸入電話'],
+                ['Email', 'email', '請輸入 Email'],
+                ['LINE', 'lineId', '請輸入 LINE'],
+                ['地址', 'address', '請輸入地址'],
+                ['銀行', 'bankName', '請輸入銀行名稱'],
+                ['戶名', 'accountName', '請輸入戶名'],
+                ['帳號', 'accountNumber', '請輸入帳號'],
               ].map(([label, field, placeholder]) => (
-                <label key={String(field)} className="rounded-2xl bg-white p-4 ring-1 ring-slate-200">
+                <label key={String(field)} className="rounded-2xl bg-slate-50 p-4">
                   <p className="text-sm text-slate-500">{label}</p>
                   <input value={profileForm[field as keyof VendorEditableForm]} onChange={(event) => updateProfileField(field as keyof VendorEditableForm, event.target.value)} placeholder={String(placeholder)} className="mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400" />
                 </label>
               ))}
             </div>
+            <div className="mt-6 rounded-3xl border border-slate-200 bg-slate-50/60 p-5">
+              <h4 className="text-base font-semibold text-slate-900">勞報資訊</h4>
+              <div className="mt-4 grid gap-4 md:grid-cols-2">
+                {[
+                  ['勞報姓名', 'laborName', '請輸入勞報姓名'],
+                  ['身分證字號', 'nationalId', '請輸入身分證字號'],
+                  ['出生年月日（民國）', 'birthDateRoc', '例如：78/05/21'],
+                  ['參加工會', 'unionMembership', '請輸入公會或會員資訊'],
+                ].map(([label, field, placeholder]) => (
+                  <label key={String(field)} className="rounded-2xl bg-white p-4 ring-1 ring-slate-200">
+                    <p className="text-sm text-slate-500">{label}</p>
+                    <input value={profileForm[field as keyof VendorEditableForm]} onChange={(event) => updateProfileField(field as keyof VendorEditableForm, event.target.value)} placeholder={String(placeholder)} className="mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400" />
+                  </label>
+                ))}
+              </div>
+            </div>
           </div>
-        </article>
+        ) : null}
+      </header>
+
+      <section className="space-y-6">
 
         <div className="space-y-4">
         <div className="flex flex-wrap items-center gap-2 rounded-3xl bg-white p-3 shadow-sm ring-1 ring-slate-200">
