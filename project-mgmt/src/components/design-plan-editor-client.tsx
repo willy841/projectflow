@@ -69,7 +69,7 @@ export function DesignPlanEditorClient({
       },
       saving,
     });
-  }, [externalHeaderActions, confirming, saving, plans.length, selectedPlanId]);
+  }, [externalHeaderActions, confirming, saving, plans, selectedPlanId]);
 
   useEffect(() => {
     if (!useDbActions) return;
