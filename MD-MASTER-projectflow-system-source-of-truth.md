@@ -3,6 +3,17 @@
 > 目的：這份文件是 `projectflow` 目前唯一的高階總控母檔（source of truth）。
 > 之後新的對話 / 新的 agent / 新的交接，應優先閱讀本文件，再視需要回查 MD1、MD4～MD11 與 repo。
 >
+> **2026-04-24 最新補充（當前驗收站主線必對齊）**
+> - 已新增：`MD156-projectflow-project-document-routing-and-dispatch-trade-linkage-rules-2026-04-24.md`
+> - 本文件的重要性在於正式校正兩條目前仍容易被舊 handoff 誤導的規則：
+>   1. **設計 / 備品 `全部確認` 後，正式出口一律直接導向 project-level document**
+>      - 設計：`/projects/[projectId]/design-document`
+>      - 備品：`/projects/[projectId]/procurement-document`
+>      - `task-level document` 不再是主線、不再是過渡頁、也不再是確認後預設出口
+>   2. **`Project Detail` 任務發布區中的 `工種` 與 `選擇廠商`，一律以 `Vendor Data` 為唯一正式來源**
+>      - `工種` 不可再用硬編碼常數
+>      - 選定工種後，`選擇廠商` 清單只能顯示該工種底下的廠商
+>
 > **2026-04-20 最新最高優先執行目的（目前主線）**
 > 目前 `projectflow` 的最主要執行目的，已更新為：
 > 1. **先以 GitHub 驗收測試站作為現階段唯一主線**
@@ -449,6 +460,19 @@
 5. 視需要回查：`MD42`～`MD48`
 
 > 目標不是保存流水帳，而是用結構化方式，讓閱讀者一次掌握：
+>
+> **2026-04-20 最新補讀規則：**
+> 若要續接目前最新主線，除本母檔外，應優先補讀：
+> 1. `MD152-projectflow-acceptance-vs-production-environment-separation-spec-2026-04-19.md`
+> 2. `MD153-projectflow-environment-separation-clean-finish-without-visual-diff-2026-04-20.md`
+> 3. `MD154-projectflow-production-auth-login-pass-but-home-crash-record-2026-04-20.md`
+> 4. `MD155-projectflow-single-track-acceptance-first-and-production-freeze-rule-2026-04-20.md`
+>
+> 其中：
+> - `MD152` = 測試站 vs 正式站環境切分規格
+> - `MD153` = 不依賴視覺差異的環境切分收尾規則
+> - `MD154` = 正式站 auth 登入已通但首頁 crash 記錄
+> - `MD155` = 現階段正式拍板的「測試站單軌開發 / 驗收優先，正式站先凍住」新規則
 > - 專案是什麼
 > - 目前產品主線是什麼
 > - 哪些規則已拍板

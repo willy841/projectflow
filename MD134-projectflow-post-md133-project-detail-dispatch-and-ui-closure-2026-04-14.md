@@ -327,6 +327,22 @@ create index if not exists idx_procurement_tasks_vendor on procurement_tasks (ve
 
 ---
 
+## 5.5 2026-04-24 後續校正（補記）
+
+本文件記錄的是 2026-04-14 當下的 closure；其後測試站主線又新增了兩條重要校正，若續接 `project detail / dispatch / 文件承接`，不可只停在本文件判斷：
+
+1. **設計 / 備品確認後的正式文件出口已改成 project-level document**
+   - 設計：`/projects/[projectId]/design-document`
+   - 備品：`/projects/[projectId]/procurement-document`
+   - `task-level document` 不再是主出口
+2. **`Project Detail` 任務發布區中的工種 / 廠商規則已再往前收斂**
+   - `工種` 必須與 `Vendor Data` 同步
+   - 選定工種後，`選擇廠商` 清單只能顯示該工種底下的廠商
+
+以上補記以：
+- `MD156-projectflow-project-document-routing-and-dispatch-trade-linkage-rules-2026-04-24.md`
+為準。
+
 ## 6. 下一步建議
 
 ### 第一優先

@@ -1,5 +1,17 @@
 # MD16 - projectflow 本輪完成事項與續接 handoff（2026-04-04）
 
+> **狀態註記（2026-04-24 更新）：本檔已降級為歷史 handoff。**
+> 本檔反映的是 2026-04-04 當下完成事項與判斷；其後 `project detail` 責任、三條主線承接位置、成本成立點、前端 mock 閉環版策略，以及測試站最新文件承接 / dispatch 工種規則，已被後續文件更新覆蓋：
+> - `MD21-projectflow-project-detail-responsibility-redistribution-spec-2026-04-05.md`
+> - `MD22-projectflow-mock-closed-loop-frontend-execution-brief-2026-04-05.md`
+> - `MD155-projectflow-single-track-acceptance-first-and-production-freeze-rule-2026-04-20.md`
+> - `MD156-projectflow-project-document-routing-and-dispatch-trade-linkage-rules-2026-04-24.md`
+>
+> 後續若要續接目前最新主線：
+> - 不可只讀 MD16
+> - 應先讀 `MD-MASTER`
+> - 再讀目前測試站主線文件（至少 `MD155`、`MD156`）
+
 > 用途：整理本輪已完成項目、目前狀態、已停用背景排程、以及下一輪若要續接時的正確入口。
 > 適用情境：
 > - 新對話 / 新 agent 要快速接手
