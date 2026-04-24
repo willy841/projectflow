@@ -135,18 +135,8 @@ export function DesignPlanEditorClient({
     onSelectPlanId?.(nextId);
   }
 
-  function removePlan(id: string) {
-    setPlans((current) => {
-      const next = current.filter((plan) => plan.id !== id);
-      if (selectedPlanId === id) {
-        onSelectPlanId?.(next[0]?.id ?? null);
-      }
-      return next;
-    });
-  }
-
-  async function persistCurrentPlans() {
-    const currentPlans = plans.filter((plan) => {
+  async function syncPlans(nextPlans: DesignPlanInput[]) {
+    const currentPlans = nextPlans.filter((plan) => {
       const fields = [plan.title, plan.size, plan.material, plan.structure, plan.quantity, plan.amount, plan.previewUrl, plan.vendor];
       return fields.some((value) => value.trim());
     });
@@ -179,27 +169,60 @@ export function DesignPlanEditorClient({
       }>;
     };
 
-    if (Array.isArray(payload.rows)) {
-      const normalizedRows = payload.rows.map((row) => ({
-        id: row.id,
-        title: row.title ?? "",
-        size: row.size ?? "",
-        material: row.material ?? "",
-        structure: row.structure ?? "",
-        quantity: row.quantity ?? "",
-        amount: row.amount ? `NT$ ${row.amount}` : "",
-        previewUrl: row.preview_url ?? "",
-        vendor: row.vendor_name_text ?? "",
-        vendorId: row.vendor_id ?? undefined,
-      }));
-      setPlans(normalizedRows);
-      if (selectedPlanId) {
-        const matchedRow = normalizedRows.find((row) => row.id === selectedPlanId || row.title === plans.find((plan) => plan.id === selectedPlanId)?.title);
-        onSelectPlanId?.(matchedRow?.id ?? normalizedRows[0]?.id ?? null);
+    const normalizedRows = Array.isArray(payload.rows)
+      ? payload.rows.map((row) => ({
+          id: row.id,
+          title: row.title ?? "",
+          size: row.size ?? "",
+          material: row.material ?? "",
+          structure: row.structure ?? "",
+          quantity: row.quantity ?? "",
+          amount: row.amount ? `NT$ ${row.amount}` : "",
+          previewUrl: row.preview_url ?? "",
+          vendor: row.vendor_name_text ?? "",
+          vendorId: row.vendor_id ?? undefined,
+        }))
+      : [];
+
+    setPlans(normalizedRows);
+    return normalizedRows;
+  }
+
+  async function removePlan(id: string) {
+    const next = plans.filter((plan) => plan.id !== id);
+
+    if (!useDbActions) {
+      setPlans(next);
+      if (selectedPlanId === id) {
+        onSelectPlanId?.(next[0]?.id ?? null);
       }
+      return;
     }
 
-    return currentPlans.length;
+    try {
+      setSaving(true);
+      const persistedRows = await syncPlans(next);
+      if (selectedPlanId === id) {
+        onSelectPlanId?.(persistedRows[0]?.id ?? null);
+      }
+      router.refresh();
+    } catch (error) {
+      setMessage(`刪除失敗：${error instanceof Error ? error.message : "請稍後再試。"}`);
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function persistCurrentPlans() {
+    const persistedRows = await syncPlans(plans);
+
+    if (selectedPlanId) {
+      const currentSelectedTitle = plans.find((plan) => plan.id === selectedPlanId)?.title;
+      const matchedRow = persistedRows.find((row) => row.id === selectedPlanId || (currentSelectedTitle && row.title === currentSelectedTitle));
+      onSelectPlanId?.(matchedRow?.id ?? persistedRows[0]?.id ?? null);
+    }
+
+    return persistedRows.length;
   }
 
   async function saveAllPlans() {
