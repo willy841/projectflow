@@ -91,6 +91,7 @@ async function loadQuotationImports(projectIds: string[]) {
       "importedAt",
       "fileName",
       note,
+      "totalAmount",
       row_no
     from ranked_imports
     where row_no = 1
