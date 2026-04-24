@@ -164,6 +164,41 @@ export function DesignPlanEditorClient({
       throw new Error(payload?.error || "sync design plans failed");
     }
 
+    const payload = (await response.json()) as {
+      rows?: Array<{
+        id: string;
+        title: string;
+        size: string | null;
+        material: string | null;
+        structure: string | null;
+        quantity: string | null;
+        amount: string | number | null;
+        preview_url: string | null;
+        vendor_name_text: string | null;
+        vendor_id: string | null;
+      }>;
+    };
+
+    if (Array.isArray(payload.rows)) {
+      const normalizedRows = payload.rows.map((row) => ({
+        id: row.id,
+        title: row.title ?? "",
+        size: row.size ?? "",
+        material: row.material ?? "",
+        structure: row.structure ?? "",
+        quantity: row.quantity ?? "",
+        amount: row.amount ? `NT$ ${row.amount}` : "",
+        previewUrl: row.preview_url ?? "",
+        vendor: row.vendor_name_text ?? "",
+        vendorId: row.vendor_id ?? undefined,
+      }));
+      setPlans(normalizedRows);
+      if (selectedPlanId) {
+        const matchedRow = normalizedRows.find((row) => row.id === selectedPlanId || row.title === plans.find((plan) => plan.id === selectedPlanId)?.title);
+        onSelectPlanId?.(matchedRow?.id ?? normalizedRows[0]?.id ?? null);
+      }
+    }
+
     return currentPlans.length;
   }
 
