@@ -175,7 +175,6 @@ export function DesignPlanEditorClient({
       }
 
       await persistCurrentPlans();
-      setMessage("已儲存目前執行處理內容。\n重新整理後應可看到最新結果。");
       router.refresh();
     } catch (error) {
       setMessage(`儲存失敗：${error instanceof Error ? error.message : "請稍後再試。"}`);
@@ -204,7 +203,6 @@ export function DesignPlanEditorClient({
         throw new Error("confirm failed");
       }
 
-      setMessage("已完成全部確認，正在前往文件。\n文件會承接這次正式成立的內容。");
       router.push(`/design-tasks/${taskId}/document`);
       router.refresh();
     } catch (error) {
