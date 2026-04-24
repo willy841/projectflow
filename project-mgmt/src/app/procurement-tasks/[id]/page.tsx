@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AppShellAuth } from "@/components/app-shell-auth";
-import { ProcurementPlanEditorClient } from "@/components/procurement-plan-editor-client";
+import { ProcurementTaskWorkspace } from "@/components/procurement-task-workspace";
 import { procurementTaskBoardRecords } from "@/components/procurement-task-board-data";
 import { WorkspaceHeader, WorkspaceSection, WorkspaceStat } from "@/components/workspace-ui";
 import { getDbProcurementTaskById } from "@/lib/db/procurement-flow-adapter";
@@ -44,19 +44,18 @@ export default async function ProcurementTaskDetailPage({ params }: { params: Pr
         </div>
       </WorkspaceSection>
 
-      <WorkspaceSection title="執行處理">
-        <ProcurementPlanEditorClient
-          taskId={task.id}
-          initialPlans={task.plans.map((plan) => ({
-            id: plan.id,
-            title: plan.title,
-            quantity: plan.quantity,
-            amount: plan.amount,
-            previewUrl: plan.previewUrl,
-            vendor: plan.vendor,
-          }))}
-        />
-      </WorkspaceSection>
+      <ProcurementTaskWorkspace
+        taskId={task.id}
+        taskTitle={task.title}
+        plans={task.plans.map((plan) => ({
+          id: plan.id,
+          title: plan.title,
+          quantity: plan.quantity,
+          amount: plan.amount,
+          previewUrl: plan.previewUrl,
+          vendor: plan.vendor,
+        }))}
+      />
     </AppShellAuth>
   );
 }

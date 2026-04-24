@@ -21,7 +21,7 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     await repositories.procurementTaskPlans.deleteByTask(id);
 
     const rows = [];
-    for (const [index, plan] of body.plans.filter((plan) => plan.title?.trim()).entries()) {
+    for (const [index, plan] of body.plans.filter((plan) => [plan.title, plan.quantity, plan.amount, plan.previewUrl, plan.vendor].some((value) => value?.trim())).entries()) {
       rows.push(
         await repositories.procurementTaskPlans.insert({
           procurement_task_id: id,
