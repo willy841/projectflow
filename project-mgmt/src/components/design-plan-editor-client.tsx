@@ -205,7 +205,6 @@ export function DesignPlanEditorClient({
       if (selectedPlanId === id) {
         onSelectPlanId?.(persistedRows[0]?.id ?? null);
       }
-      router.refresh();
     } catch (error) {
       setMessage(`刪除失敗：${error instanceof Error ? error.message : "請稍後再試。"}`);
     } finally {
@@ -236,7 +235,6 @@ export function DesignPlanEditorClient({
       }
 
       await persistCurrentPlans();
-      router.refresh();
     } catch (error) {
       setMessage(`儲存失敗：${error instanceof Error ? error.message : "請稍後再試。"}`);
     } finally {
