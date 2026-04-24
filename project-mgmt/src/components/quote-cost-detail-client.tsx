@@ -565,7 +565,7 @@ export function QuoteCostDetailClient({ project, mode = "active", presenter = ge
 
         <div className="mt-6 rounded-3xl border border-slate-200 bg-white p-5">
           <div className="mb-5 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-            <h4 className="text-lg font-semibold text-slate-900">成本明細</h4>
+            <h4 className="text-lg font-semibold text-slate-900">項目明細</h4>
             <div className="flex flex-wrap items-center justify-end gap-2">
               {presenter.canPersistManualCosts && activeArchiveSource === "人工" ? (
                 <button
@@ -610,13 +610,8 @@ export function QuoteCostDetailClient({ project, mode = "active", presenter = ge
                     : "目前人工新增費用已與正式資料同步。")}
             </div>
           ) : null}
-          {presenter.canCloseProject ? (
-            <div className={`mb-4 text-xs ${closeoutError ? 'text-rose-600' : canCloseProject ? 'text-emerald-600' : 'text-amber-600'}`}>
-              {closeoutError
-                ?? (canCloseProject
-                  ? '已符合結案條件:未收款 = 0 且全部對帳完畢。'
-                  : `尚未符合結案條件:目前未收款 ${formatCurrency(outstandingTotal)},對帳狀態 ${derivedReconciliationStatus}。`)}
-            </div>
+          {presenter.canCloseProject && closeoutError ? (
+            <div className="mb-4 text-xs text-rose-600">{closeoutError}</div>
           ) : null}
           <ArchiveContentPanel source={activeArchiveSource} costItems={state.costItems} manualItems={manualItems} isClosedView={isClosedView} onManualItemChange={handleManualItemChange} />
         </div>
@@ -679,7 +674,7 @@ function ArchiveContentPanel({
       .filter((item) => item.sourceType === "設計" && item.includedInCost)
       .map((item) => [item.itemName, item.sourceRef || '-', item.vendorName || '未指定廠商', formatCurrency(item.adjustedAmount)]);
 
-    return <ArchiveTable title="設計最終留存內容" headers={["標題", "來源摘要", "執行廠商", "金額"]} rows={rows} emptyText="目前沒有設計正式成本項目。" />;
+    return <ArchiveTable title="" headers={["標題", "來源摘要", "執行廠商", "金額"]} rows={rows} emptyText="目前沒有設計正式成本項目。" />;
   }
 
   if (source === "備品") {
@@ -687,7 +682,7 @@ function ArchiveContentPanel({
       .filter((item) => item.sourceType === "備品" && item.includedInCost)
       .map((item) => [item.itemName, item.sourceRef || '-', item.vendorName || '未指定廠商', formatCurrency(item.adjustedAmount)]);
 
-    return <ArchiveTable title="備品最終留存內容" headers={["標題", "來源摘要", "供應廠商", "金額"]} rows={rows} emptyText="目前沒有備品正式成本項目。" />;
+    return <ArchiveTable title="" headers={["標題", "來源摘要", "供應廠商", "金額"]} rows={rows} emptyText="目前沒有備品正式成本項目。" />;
   }
 
   if (source === "廠商") {
@@ -695,7 +690,7 @@ function ArchiveContentPanel({
       .filter((item) => item.sourceType === "廠商" && item.includedInCost)
       .map((item) => [item.vendorName || '未指定廠商', item.itemName, item.sourceRef || '-', formatCurrency(item.adjustedAmount)]);
 
-    return <ArchiveTable title="廠商最終留存內容" headers={["廠商", "標題", "需求內容", "金額"]} rows={rows} emptyText="目前沒有廠商正式成本項目。" />;
+    return <ArchiveTable title="" headers={["廠商", "標題", "需求內容", "金額"]} rows={rows} emptyText="目前沒有廠商正式成本項目。" />;
   }
 
   return <ManualArchiveTable manualItems={manualItems} isClosedView={isClosedView} onManualItemChange={onManualItemChange} />;
@@ -740,9 +735,9 @@ function ManualArchiveTable({
 function ArchiveTable({ title, headers, rows, compact = false, emptyText = '目前沒有內容。' }: { title: string; headers: string[]; rows: string[][]; compact?: boolean; emptyText?: string }) {
   return (
     <div className="rounded-2xl border border-slate-200 bg-white p-4">
-      <h5 className="text-base font-semibold text-slate-900">{title}</h5>
+      {title ? <h5 className="text-base font-semibold text-slate-900">{title}</h5> : null}
       {rows.length ? (
-        <div className="mt-4 overflow-x-auto rounded-2xl border border-slate-200">
+        <div className={`${title ? 'mt-4 ' : ''}overflow-x-auto rounded-2xl border border-slate-200`}>
           <table className="min-w-full divide-y divide-slate-200 text-left text-sm">
             <thead className="bg-slate-50 text-slate-500">
               <tr>
