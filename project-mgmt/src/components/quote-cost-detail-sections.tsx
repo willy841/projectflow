@@ -155,13 +155,49 @@ export function ActiveOnlyFinancialSections({
   onImportExcel?: () => void;
 }) {
   return (
-    <>
-      <section className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-sm">
+    <section className="grid gap-4 xl:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] xl:items-start">
+      <section className="rounded-[28px] border border-slate-200 bg-white p-5 shadow-sm">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-          <SimpleSectionTitle title="廠商對帳摘要" />
-          <p className="text-sm text-slate-500">這裡承接 project 視角下的對帳完成度與應付總額；邏輯應與 Vendor Data 的未付款專案一致。</p>
+          <SimpleSectionTitle title="對外報價單" />
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={onImportExcel}
+              className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 transition hover:border-slate-400 hover:bg-slate-50"
+            >
+              匯入 Excel
+            </button>
+            <button
+              type="button"
+              onClick={onOpenQuoteDetail}
+              disabled={!quotationItems.length && !quoteImportRecord}
+              className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-900 bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:border-slate-300 disabled:bg-slate-300"
+            >
+              查看明細
+            </button>
+          </div>
         </div>
-        <div className="mt-5 overflow-x-auto rounded-2xl border border-slate-200">
+
+        <div className="mt-4 flex flex-wrap items-center gap-2">
+          {quoteImportRecord ? (
+            <span className="inline-flex items-center rounded-2xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700">已承接正式報價版本</span>
+          ) : (
+            <span className="inline-flex items-center rounded-2xl border border-amber-200 bg-amber-50 px-4 py-2 text-sm font-semibold text-amber-700">尚無正式報價資料</span>
+          )}
+          <span className="inline-flex items-center rounded-2xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700">共 {quotationItems.length} 筆</span>
+        </div>
+
+        <div className="mt-4 rounded-3xl border border-slate-900 bg-slate-900 px-5 py-4 text-white shadow-sm">
+          <p className="text-sm text-slate-300">報價總金額</p>
+          <p className="mt-2 text-3xl font-semibold tracking-tight">{formatCurrency(quotationTotal)}</p>
+        </div>
+      </section>
+
+      <section className="rounded-[28px] border border-slate-200 bg-white p-5 shadow-sm">
+        <div className="flex items-center justify-between gap-3">
+          <SimpleSectionTitle title="廠商對帳摘要" />
+        </div>
+        <div className="mt-4 overflow-x-auto rounded-2xl border border-slate-200">
           <table className="min-w-full divide-y divide-slate-200 text-left text-sm">
             <thead className="bg-slate-50 text-slate-500">
               <tr>
@@ -184,50 +220,7 @@ export function ActiveOnlyFinancialSections({
           </table>
         </div>
       </section>
-
-      <section className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-sm">
-        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-          <div className="flex min-w-0 flex-1 flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <SimpleSectionTitle title="對外報價單" />
-            <div className="flex flex-wrap gap-2">
-              <button
-                type="button"
-                onClick={onImportExcel}
-                className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 transition hover:border-slate-400 hover:bg-slate-50"
-              >
-                匯入 Excel
-              </button>
-              <button
-                type="button"
-                onClick={onOpenQuoteDetail}
-                disabled={!quotationItems.length && !quoteImportRecord}
-                className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-900 bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:border-slate-300 disabled:bg-slate-300"
-              >
-                查看明細
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <div className="mt-5 grid gap-4 xl:grid-cols-[minmax(0,1fr)_auto] xl:items-center">
-          <div className="rounded-3xl border border-slate-200 bg-slate-50 p-5">
-            <div className="flex flex-wrap items-center gap-2">
-              {quoteImportRecord ? (
-                <span className="inline-flex items-center rounded-2xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700">已承接正式報價版本</span>
-              ) : (
-                <span className="inline-flex items-center rounded-2xl border border-amber-200 bg-amber-50 px-4 py-2 text-sm font-semibold text-amber-700">尚無正式報價資料</span>
-              )}
-              <span className="inline-flex items-center rounded-2xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700">共 {quotationItems.length} 筆</span>
-            </div>
-            <p className="mt-4 text-sm text-slate-500">主頁僅顯示總金額；完整報價明細請由「查看明細」開啟。</p>
-          </div>
-          <div className="rounded-3xl border border-slate-900 bg-slate-900 px-6 py-5 text-white shadow-sm">
-            <p className="text-sm text-slate-300">報價總金額</p>
-            <p className="mt-3 text-3xl font-semibold tracking-tight">{formatCurrency(quotationTotal)}</p>
-          </div>
-        </div>
-      </section>
-    </>
+    </section>
   );
 }
 
