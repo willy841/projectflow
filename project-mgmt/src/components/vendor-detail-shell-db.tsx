@@ -252,7 +252,7 @@ export function VendorDetailShellDb({ vendor, records, paymentRecords, tradeOpti
         </div>
       </header>
 
-      <section className="grid gap-6 xl:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] xl:items-start">
+      <section className="space-y-6">
         <article className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
           <div className="mb-5 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
             <div>
