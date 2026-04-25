@@ -1,8 +1,8 @@
 # Projectflow NEW Formal Acceptance Suite Spec
 
 Date: 2026-04-25  
-Status: Draft for approval  
-Scope: acceptance suite planning only — **no code changes yet**
+Status: Implemented and cut over on 2026-04-26  
+Scope: acceptance suite source-of-truth and cutover record
 
 ---
 
@@ -582,8 +582,14 @@ Completed in repo:
 - Added `08-closeout-list-and-manual-cost-freeze.spec.ts` to cover retained manual-cost readback, closeout list totals, and reopen back-switch out of closeout views.
 - Began archiving the first clearly superseded legacy batch under `tests/legacy/` with non-`.spec.ts` filenames so they no longer act as active blockers.
 
-Remaining before full cutover:
+Cutover completion update — 2026-04-26
 
-- add the final concise cross-flow smoke (`09-cross-flow-formal-mainline-smoke.spec.ts`)
-- finish archiving the next legacy batch once all v2 parity slices are green
-- switch any external runbooks/CI entrypoints from old blocker definitions to v2-only
+- final concise cross-flow smoke (`09-cross-flow-formal-mainline-smoke.spec.ts`) added
+- `test:formal-acceptance` switched to the v2 suite
+- old page/blocker-style formal acceptance specs archived under `tests/legacy/` as non-`.spec.ts` files
+- v2 is now the primary formal acceptance blocker path
+
+Non-blocking follow-up only:
+
+- update any external CI or operator runbooks that still call old explicit file lists
+- keep legacy/support coverage separate from blocker semantics

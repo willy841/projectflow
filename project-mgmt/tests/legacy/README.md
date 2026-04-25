@@ -21,6 +21,26 @@ These files were archived out of the active Playwright suite because their cover
 - `quote-cost-vendor-payment-readback.archived.ts`
 - `formal-acceptance-vendor-payments.archived.ts`
 
+## Third archived batch — 2026-04-26 v2 primary cutover
+
+These previously-active page/blocker-style formal acceptance specs were archived once `test:formal-acceptance` was cut over to the v2 suite:
+
+- `formal-acceptance-home.archived.ts`
+- `formal-acceptance-projects.archived.ts`
+- `formal-acceptance-project-lists.archived.ts`
+- `formal-acceptance-project-creation.archived.ts`
+- `formal-acceptance-project-detail.archived.ts`
+- `formal-acceptance-design.archived.ts`
+- `formal-acceptance-procurement.archived.ts`
+- `formal-acceptance-vendor-assignments.archived.ts`
+- `formal-acceptance-vendor-packages.archived.ts`
+- `formal-acceptance-quote-costs.archived.ts`
+- `formal-acceptance-closeouts.archived.ts`
+- `formal-acceptance-vendors.archived.ts`
+- `formal-acceptance-db-sample.archived.ts`
+
+These remain available for historical reference only and are no longer formal blocker entrypoints.
+
 ## Archive rule
 
 Archived files keep implementation history for reference, but they are **not blocker tests** and are intentionally named without `.spec.ts` so Playwright does not execute them as part of the active suite.
