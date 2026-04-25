@@ -8,7 +8,7 @@ export function CloseoutDetailClient({ readModel }: { readModel: CloseoutArchive
   const { archiveProject, archiveCollections, archiveVendorPayments, summaryTotals } = readModel;
   const presenter = getCloseoutRetainedPresenter();
 
-  const normalizedProject = {
+  const retainedProject = {
     ...archiveProject,
     quotationImport: archiveProject.quotationImport
       ? {
@@ -18,31 +18,17 @@ export function CloseoutDetailClient({ readModel }: { readModel: CloseoutArchive
       : {
           importedAt: '',
           fileName: '',
-          note: 'closeout summary normalized from confirmed totals',
+          note: 'closeout summary normalized from retained confirmation snapshots + manual costs',
           totalAmount: summaryTotals.quotationTotal,
         },
     quotationImported: summaryTotals.quotationTotal > 0 || archiveProject.quotationImported,
-    costItems: [
-      {
-        id: `closeout-confirmed-total-${archiveProject.id}`,
-        itemName: '已確認結案成本',
-        sourceType: '廠商' as const,
-        sourceRef: 'closeout detail normalized from latest confirmed snapshots + manual costs',
-        vendorId: null,
-        vendorName: '結案成本統計',
-        originalAmount: summaryTotals.projectCostTotal,
-        adjustedAmount: summaryTotals.projectCostTotal,
-        includedInCost: true,
-        isManual: false,
-      },
-    ],
   };
 
   return (
     <QuoteCostDetailClient
-      project={normalizedProject}
+      project={retainedProject}
       initialProject={{
-        ...normalizedProject,
+        ...retainedProject,
         collectionRecords: archiveCollections,
         vendorPaymentRecords: archiveVendorPayments,
       }}
