@@ -130,11 +130,7 @@ export function parseQuotationWorkbook(buffer: ArrayBuffer, fileName: string): I
 
   for (let rowIndex = headerMatch.rowIndex + 1; rowIndex < rows.length; rowIndex += 1) {
     const row = rows[rowIndex] ?? [];
-    const itemNameIndex = (() => {
-      const headerIndex = headerMatch.headerIndexMap.get('商品名稱');
-      if (headerIndex === 0) return 1;
-      return headerIndex ?? 1;
-    })();
+    const itemNameIndex = headerMatch.headerIndexMap.get('商品名稱') ?? 1;
     const itemName = String(row[itemNameIndex] ?? '').trim();
     const unitPriceRaw = row[headerMatch.headerIndexMap.get('單價') ?? 2];
     const quantityRaw = row[headerMatch.headerIndexMap.get('數量') ?? 3];
@@ -156,6 +152,10 @@ export function parseQuotationWorkbook(buffer: ArrayBuffer, fileName: string): I
       amount: parseNumber(amountRaw),
       remark,
     });
+  }
+
+  if (!items.length) {
+    throw new QuotationImportValidationError('這份 Excel 只有表頭 / 總金額，沒有可成立的正式明細列，無法匯入。');
   }
 
   return {

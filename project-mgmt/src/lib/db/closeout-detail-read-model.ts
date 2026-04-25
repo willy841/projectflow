@@ -3,6 +3,7 @@ import { createPhase1DbClient } from '@/lib/db/phase1-client';
 import { hasFinancialQuotationImportTotalAmountColumn } from '@/lib/db/quotation-schema';
 import type { CostLineItem } from '@/components/quote-cost-data';
 import type { QuoteCostProjectWithGroups } from '@/lib/db/financial-flow-adapter';
+import { getCloseoutRetainedSnapshot } from '@/lib/db/closeout-retained-snapshot';
 
 export type CloseoutArchiveCollectionRecord = {
   id: string;
@@ -157,6 +158,7 @@ export async function getCloseoutArchiveDetailReadModel(projectId: string): Prom
   const archiveProject = await getCloseoutArchiveProjectById(projectId);
   if (!archiveProject) return null;
 
+  const retainedSnapshot = await getCloseoutRetainedSnapshot(projectId);
   const db = createPhase1DbClient();
   const hasQuotationImportTotalAmountColumn = await hasFinancialQuotationImportTotalAmountColumn().catch(() => false);
   const [collectionRows, summaryRowResult, retainedSnapshotRows, manualCostRows] = await Promise.all([
@@ -260,20 +262,31 @@ export async function getCloseoutArchiveDetailReadModel(projectId: string): Prom
     `, [projectId]),
   ]);
 
-  const retainedCostItems = [
+  const liveRetainedCostItems = [
     ...retainedSnapshotRows.rows.map((row) => buildRetainedSnapshotCostItem(projectId, row)),
     ...manualCostRows.rows.map(buildRetainedManualCostItem),
   ];
-  const retainedReconciliationGroups = buildRetainedReconciliationGroups(projectId, retainedCostItems);
-  const summaryTotals = summaryRowResult.rows[0] ?? {
+  const liveRetainedReconciliationGroups = buildRetainedReconciliationGroups(projectId, liveRetainedCostItems);
+  const liveSummaryTotals = summaryRowResult.rows[0] ?? {
     quotationTotal: 0,
     projectCostTotal: 0,
     grossProfit: 0,
   };
+  const retainedCostItems = retainedSnapshot?.costItems ?? liveRetainedCostItems;
+  const retainedReconciliationGroups = retainedSnapshot?.reconciliationGroups ?? liveRetainedReconciliationGroups;
+  const summaryTotals = retainedSnapshot
+    ? {
+        quotationTotal: retainedSnapshot.quotationTotal,
+        projectCostTotal: retainedSnapshot.projectCostTotal,
+        grossProfit: retainedSnapshot.grossProfit,
+      }
+    : liveSummaryTotals;
 
   return {
     archiveProject: {
       ...archiveProject,
+      quotationImported: retainedSnapshot?.quotationImported ?? archiveProject.quotationImported,
+      quotationImport: retainedSnapshot?.quotationImport ?? archiveProject.quotationImport,
       costItems: retainedCostItems,
       reconciliationGroups: retainedReconciliationGroups,
       reconciliationStatus: retainedReconciliationGroups.length > 0 ? '已完成' : '未開始',

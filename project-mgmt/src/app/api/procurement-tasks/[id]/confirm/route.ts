@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import { createPhase1DbClient } from '@/lib/db/phase1-client';
 import { ensureProjectDbWriteEnabled } from '@/lib/db/project-flow-guard';
 import { createPhase1Repositories } from '@/lib/db/phase1-repositories';
@@ -16,6 +17,13 @@ export async function POST(_request: Request, context: { params: Promise<{ id: s
     const repositories = createPhase1Repositories(db);
     const services = createPhase1Services(repositories);
     const confirmation = await services.confirmProcurementTaskPlans(id);
+    const task = await repositories.procurementTasks.findById(id);
+    if (task) {
+      revalidatePath('/quote-costs');
+      revalidatePath(`/quote-costs/${task.project_id}`);
+      revalidatePath('/closeouts');
+      revalidatePath(`/closeouts/${task.project_id}`);
+    }
     return NextResponse.json({ ok: true, confirmation });
   } catch (error) {
     return NextResponse.json(

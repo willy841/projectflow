@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import { createPhase1DbClient } from '@/lib/db/phase1-client';
 import { ensureProjectDbWriteEnabled } from '@/lib/db/project-flow-guard';
 import { createPhase1Repositories } from '@/lib/db/phase1-repositories';
@@ -28,6 +29,11 @@ export async function POST(
     for (const task of tasks) {
       confirmations.push(await services.confirmVendorTaskPlans(task.id));
     }
+
+    revalidatePath('/quote-costs');
+    revalidatePath(`/quote-costs/${projectId}`);
+    revalidatePath('/closeouts');
+    revalidatePath(`/closeouts/${projectId}`);
 
     return NextResponse.json({
       ok: true,

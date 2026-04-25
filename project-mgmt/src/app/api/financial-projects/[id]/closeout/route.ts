@@ -1,6 +1,9 @@
 import { NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import { createPhase1DbClient } from '@/lib/db/phase1-client';
 import { hasFinancialQuotationImportTotalAmountColumn } from '@/lib/db/quotation-schema';
+import { getQuoteCostProjectByIdWithDbFinancials } from '@/lib/db/financial-flow-adapter';
+import { saveCloseoutRetainedSnapshot } from '@/lib/db/closeout-retained-snapshot';
 
 export async function POST(request: Request, context: { params: Promise<{ id: string }> }) {
   try {
@@ -81,6 +84,17 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
       return NextResponse.json({ ok: false, error: 'reconciliation-not-complete', outstandingTotal, reconciliationStatus }, { status: 400 });
     }
 
+    const liveProject = await getQuoteCostProjectByIdWithDbFinancials(id);
+    if (!liveProject) {
+      return NextResponse.json({ ok: false, error: 'financial-project-not-found' }, { status: 404 });
+    }
+
+    await saveCloseoutRetainedSnapshot({
+      ...liveProject,
+      projectStatus: '已結案',
+      closeStatus: '已結案',
+    });
+
     const result = await db.query<{ id: string; status: string }>(
       `
         update projects
@@ -90,6 +104,15 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
       `,
       [id],
     );
+
+    revalidatePath('/');
+    revalidatePath('/projects');
+    revalidatePath(`/projects/${id}`);
+    revalidatePath('/quote-costs');
+    revalidatePath(`/quote-costs/${id}`);
+    revalidatePath('/closeouts');
+    revalidatePath(`/closeouts/${id}`);
+    revalidatePath('/accounting-center');
 
     return NextResponse.json({
       ok: true,

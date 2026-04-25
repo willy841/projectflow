@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import { createPhase1DbClient } from '@/lib/db/phase1-client';
 
 type TableExistsRow = {
@@ -113,6 +114,11 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
       }
 
       await db.query('commit');
+      revalidatePath('/quote-costs');
+      revalidatePath(`/quote-costs/${id}`);
+      revalidatePath('/closeouts');
+      revalidatePath(`/closeouts/${id}`);
+      revalidatePath('/accounting-center');
       return NextResponse.json({ ok: true, rows, hasIncludedInCostColumn });
     } catch (error) {
       await db.query('rollback');

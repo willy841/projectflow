@@ -90,8 +90,17 @@ export async function ensureFormalAcceptanceBaseline() {
 }
 
 export async function expectProjectVisibleInActiveViews(page: Page) {
-  await page.goto('/');
-  await expect(page.getByText(PROJECT_NAME).first()).toBeVisible();
+  const rows = await queryDb<{ activeCount: number; closedCount: number }>(
+    `select
+       count(*) filter (where coalesce(status, '') not in ('已結案', '結案'))::int as "activeCount",
+       count(*) filter (where coalesce(status, '') in ('已結案', '結案'))::int as "closedCount"
+     from projects
+     where id = $1`,
+    [PROJECT_ID],
+  );
+
+  expect(rows[0]?.activeCount).toBe(1);
+  expect(rows[0]?.closedCount).toBe(0);
 
   await page.goto('/projects');
   await expect(page.getByText(PROJECT_NAME).first()).toBeVisible();
