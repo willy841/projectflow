@@ -23,6 +23,13 @@ export const VENDOR_PLAN_ID = '99999999-9999-4999-8999-999999999999';
 export const VENDOR_CONFIRMATION_ID = '55555555-5555-4555-8555-555555555553';
 export const VENDOR_PACKAGE_ID = `pkg-${PROJECT_ID}-${VENDOR_ID}`;
 export const VENDOR_GROUP_ID = `${PROJECT_ID}~${VENDOR_ID}`;
+export type ManualCostPayload = {
+  id?: string;
+  itemName: string;
+  description?: string;
+  amount: number;
+  includedInCost?: boolean;
+};
 
 function readEnvLocalDatabaseUrl() {
   const envPath = path.resolve(process.cwd(), '.env.local');
@@ -304,4 +311,41 @@ export async function syncAllReconciliationGroups(request: APIRequestContext) {
     },
   });
   expect(response.ok()).toBeTruthy();
+}
+
+export async function syncManualCosts(request: APIRequestContext, items: ManualCostPayload[]) {
+  const response = await request.post(`/api/financial-projects/${PROJECT_ID}/manual-costs/sync`, {
+    data: { items },
+  });
+  expect(response.ok()).toBeTruthy();
+  return response;
+}
+
+export async function createVendorPayment(
+  request: APIRequestContext,
+  amount: number,
+  note: string,
+  paidOn = '2026-04-16',
+) {
+  const response = await request.post(`/api/vendors/${VENDOR_ID}/payments`, {
+    data: {
+      projectId: PROJECT_ID,
+      paidOn,
+      amount,
+      note,
+    },
+  });
+  expect(response.ok()).toBeTruthy();
+  const payload = await response.json();
+  expect(payload.ok).toBeTruthy();
+  expect(payload.id).toBeTruthy();
+  return payload as { ok: true; id: string };
+}
+
+export async function deleteVendorPayment(request: APIRequestContext, paymentId: string) {
+  const response = await request.delete(`/api/vendor-payments/${paymentId}`);
+  expect(response.ok()).toBeTruthy();
+  const payload = await response.json();
+  expect(payload.ok).toBeTruthy();
+  return payload;
 }

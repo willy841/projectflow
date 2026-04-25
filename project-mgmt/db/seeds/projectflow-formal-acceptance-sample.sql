@@ -5,6 +5,7 @@ begin;
 delete from project_vendor_payment_records where project_id = '11111111-1111-4111-8111-111111111111';
 delete from project_collection_records where project_id = '11111111-1111-4111-8111-111111111111';
 delete from financial_reconciliation_groups where project_id = '11111111-1111-4111-8111-111111111111';
+delete from financial_manual_costs where project_id = '11111111-1111-4111-8111-111111111111';
 delete from financial_quotation_line_items where quotation_import_id = 'aaaaaaa1-aaaa-4aaa-8aaa-aaaaaaaaaaa1';
 delete from financial_quotation_imports where project_id = '11111111-1111-4111-8111-111111111111';
 delete from task_confirmation_plan_snapshots where task_confirmation_id in (
