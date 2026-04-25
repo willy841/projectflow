@@ -18,6 +18,11 @@ export const PROCUREMENT_CONFIRMATION_ID = '55555555-5555-4555-8555-555555555552
 
 export const VENDOR_ID = '77777777-7777-4777-8777-777777777777';
 export const VENDOR_NAME = '驗收廠商C';
+export const VENDOR_TASK_ID = '88888888-8888-4888-8888-888888888888';
+export const VENDOR_PLAN_ID = '99999999-9999-4999-8999-999999999999';
+export const VENDOR_CONFIRMATION_ID = '55555555-5555-4555-8555-555555555553';
+export const VENDOR_PACKAGE_ID = `pkg-${PROJECT_ID}-${VENDOR_ID}`;
+export const VENDOR_GROUP_ID = `${PROJECT_ID}~${VENDOR_ID}`;
 
 function readEnvLocalDatabaseUrl() {
   const envPath = path.resolve(process.cwd(), '.env.local');
@@ -85,7 +90,7 @@ export async function expectProjectVisibleInActiveViews(page: Page) {
   await expect(page.getByText(PROJECT_NAME).first()).toBeVisible();
 }
 
-export async function countConfirmations(flowType: 'design' | 'procurement', taskId: string) {
+export async function countConfirmations(flowType: 'design' | 'procurement' | 'vendor', taskId: string) {
   const rows = await queryDb<{ count: number }>(
     `select count(*)::int as count
      from task_confirmations
@@ -96,7 +101,7 @@ export async function countConfirmations(flowType: 'design' | 'procurement', tas
 }
 
 export async function getLatestSnapshotRow(
-  flowType: 'design' | 'procurement',
+  flowType: 'design' | 'procurement' | 'vendor',
   taskId: string,
 ) {
   const rows = await queryDb<{
@@ -232,5 +237,71 @@ export async function confirmDesignPlans(request: APIRequestContext) {
 
 export async function confirmProcurementPlans(request: APIRequestContext) {
   const response = await request.post(`/api/procurement-tasks/${PROCUREMENT_TASK_ID}/confirm`);
+  expect(response.ok()).toBeTruthy();
+}
+
+export async function syncSingleVendorPlan(
+  request: APIRequestContext,
+  title: string,
+  requirement = '含主體製作、現場安裝、拆除回收。',
+  amount = '20210',
+) {
+  const response = await request.post(`/api/vendor-tasks/${VENDOR_TASK_ID}/sync-plans`, {
+    data: {
+      plans: [
+        {
+          id: VENDOR_PLAN_ID,
+          title,
+          requirement,
+          amount,
+          vendorName: VENDOR_NAME,
+        },
+      ],
+    },
+  });
+  expect(response.ok()).toBeTruthy();
+}
+
+export async function confirmVendorPlans(request: APIRequestContext) {
+  const response = await request.post(`/api/vendor-groups/${PROJECT_ID}/${VENDOR_ID}/confirm`);
+  expect(response.ok()).toBeTruthy();
+}
+
+export async function createCollection(request: APIRequestContext, note: string, amount: number) {
+  const response = await request.post(`/api/accounting/projects/${PROJECT_ID}/collections`, {
+    data: {
+      collectedOn: '2026-04-16',
+      amount,
+      note,
+    },
+  });
+  expect(response.ok()).toBeTruthy();
+}
+
+export async function closeoutProject(request: APIRequestContext) {
+  const response = await request.post(`/api/financial-projects/${PROJECT_ID}/closeout`, {
+    data: {
+      expectedOutstandingTotal: 0,
+      expectedReconciliationStatus: '已完成',
+    },
+  });
+  expect(response.ok()).toBeTruthy();
+}
+
+export async function reopenProject(request: APIRequestContext) {
+  const response = await request.post(`/api/financial-projects/${PROJECT_ID}/reopen`);
+  expect(response.ok()).toBeTruthy();
+}
+
+export async function syncAllReconciliationGroups(request: APIRequestContext) {
+  const response = await request.post(`/api/financial-projects/${PROJECT_ID}/reconciliation-groups/sync`, {
+    data: {
+      groups: [
+        { sourceType: '設計', vendorId: VENDOR_ID, vendorName: VENDOR_NAME, reconciliationStatus: '已對帳' },
+        { sourceType: '備品', vendorId: VENDOR_ID, vendorName: VENDOR_NAME, reconciliationStatus: '已對帳' },
+        { sourceType: '廠商', vendorId: VENDOR_ID, vendorName: VENDOR_NAME, reconciliationStatus: '已對帳' },
+      ],
+    },
+  });
   expect(response.ok()).toBeTruthy();
 }
