@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createPhase1DbClient } from '@/lib/db/phase1-client';
-import { parseQuotationWorkbook } from '@/lib/quotation-import';
+import { parseQuotationWorkbook, QuotationImportValidationError } from '@/lib/quotation-import';
 
 type ProjectExistsRow = { exists: boolean };
 type ImportInsertRow = { id: string };
@@ -100,9 +100,16 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     });
   } catch (error) {
     const queryError = error as QueryError;
+    const status =
+      error instanceof QuotationImportValidationError
+        ? error.status
+        : queryError.code === '23505'
+          ? 409
+          : 500;
+
     return NextResponse.json(
       { ok: false, error: queryError.message ?? 'Excel 匯入失敗。' },
-      { status: queryError.code === '23505' ? 409 : 500 },
+      { status },
     );
   }
 }

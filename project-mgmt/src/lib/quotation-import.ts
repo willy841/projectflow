@@ -1,5 +1,14 @@
 import * as XLSX from 'xlsx';
 
+export class QuotationImportValidationError extends Error {
+  readonly status = 400;
+
+  constructor(message: string) {
+    super(message);
+    this.name = 'QuotationImportValidationError';
+  }
+}
+
 export type ImportedQuotationLine = {
   sortOrder: number;
   itemName: string;
@@ -88,14 +97,20 @@ function findTotalAmount(rows: unknown[][]) {
     }
   }
 
-  throw new Error('找不到名為「總金額」的欄位，無法匯入這份 Excel。');
+  throw new QuotationImportValidationError('找不到名為「總金額」的欄位，無法匯入這份 Excel。');
 }
 
 export function parseQuotationWorkbook(buffer: ArrayBuffer, fileName: string): ImportedQuotationPayload {
-  const workbook = XLSX.read(buffer, { type: 'array' });
+  let workbook: XLSX.WorkBook;
+  try {
+    workbook = XLSX.read(buffer, { type: 'array' });
+  } catch {
+    throw new QuotationImportValidationError('Excel 檔案格式無法辨識，請確認檔案內容與副檔名正確。');
+  }
+
   const firstSheetName = workbook.SheetNames[0];
   if (!firstSheetName) {
-    throw new Error('找不到可讀取的工作表。');
+    throw new QuotationImportValidationError('找不到可讀取的工作表。');
   }
 
   const sheet = workbook.Sheets[firstSheetName];
@@ -108,7 +123,7 @@ export function parseQuotationWorkbook(buffer: ArrayBuffer, fileName: string): I
 
   const headerMatch = findHeaderRow(rows);
   if (!headerMatch) {
-    throw new Error('找不到六欄標題：商品名稱、單價、數量、單位、金額、備註。');
+    throw new QuotationImportValidationError('找不到六欄標題：商品名稱、單價、數量、單位、金額、備註。');
   }
 
   const items: ImportedQuotationLine[] = [];

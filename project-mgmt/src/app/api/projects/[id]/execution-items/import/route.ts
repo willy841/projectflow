@@ -26,13 +26,14 @@ export async function POST(
     }
 
     const repositories = createPhase1Repositories(db);
-    const existing = await repositories.executionItems.listByProject(id);
-    let nextMainSortOrder = existing.filter((item) => item.parent_id == null).length + 1;
+    let nextMainSortOrder = 1;
 
     const persistedItems: Array<{ id: string; title: string; status: string; category: string; detail: string; children: Array<{ id: string; title: string; status: string; assignee: string; category: string }> }> = [];
 
     await db.query('begin');
     try {
+      await db.query(`delete from project_execution_items where project_id = $1`, [id]);
+
       for (const mainItem of items) {
         const mainTitle = mainItem.title?.trim();
         if (!mainTitle) continue;
