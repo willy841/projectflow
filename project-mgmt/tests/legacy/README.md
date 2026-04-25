@@ -13,6 +13,14 @@ These files were archived out of the active Playwright suite because their cover
 - `quote-cost-full-chain-e2e.archived.ts`
 - `tmp-child-debug.archived.ts`
 
+## Second archived batch
+
+- `vendor-payable-lifecycle-e2e.archived.ts`
+- `quote-cost-batch2-closeout.archived.ts`
+- `quote-cost-collection-e2e.archived.ts`
+- `quote-cost-vendor-payment-readback.archived.ts`
+- `formal-acceptance-vendor-payments.archived.ts`
+
 ## Archive rule
 
 Archived files keep implementation history for reference, but they are **not blocker tests** and are intentionally named without `.spec.ts` so Playwright does not execute them as part of the active suite.
