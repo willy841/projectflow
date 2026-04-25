@@ -1,11 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createPhase1DbClient } from '@/lib/db/phase1-client';
-import { requireAdminApi } from '@/lib/api-auth';
 
 export async function POST(request: Request, context: { params: Promise<{ id: string }> }) {
-  const auth = await requireAdminApi();
-  if (auth) return auth;
-
   try {
     const { id } = await context.params;
     const body = (await request.json()) as {

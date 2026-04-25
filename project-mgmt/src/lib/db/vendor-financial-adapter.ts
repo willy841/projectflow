@@ -1,6 +1,7 @@
 import { performance } from 'node:perf_hooks';
 import { createPhase1DbClient } from '@/lib/db/phase1-client';
 import type { CostLineItem } from '@/components/quote-cost-data';
+import { getQuoteCostProjectsWithDbFinancialsAndGroups } from '@/lib/db/financial-flow-adapter';
 
 export type VendorFinancialSummary = {
   unpaidTotal: number;
@@ -20,11 +21,17 @@ export type VendorFinancialSummary = {
       itemCount: number;
     }>;
     hasUnreconciledGroups: boolean;
+    reconciledGroupCount: number;
+    unreconciledGroupCount: number;
   }>;
 };
 
 function normalizeVendorName(value: string) {
   return value.trim();
+}
+
+function buildGroupLookupKey(projectId: string, sourceType: string, vendorId: string | null, vendorName: string) {
+  return `${projectId}::${sourceType}::${vendorId ?? ''}::${vendorName.trim().toLowerCase()}`;
 }
 
 type VendorGroupRow = {
@@ -74,6 +81,20 @@ export async function getVendorFinancialSummary({ vendorId, vendorName }: { vend
       return { unpaidTotal: 0, records: [] };
     }
 
+    const fallbackGroupMap = new Map<string, { amountTotal: number; itemCount: number }>();
+    const needsFallback = groupRows.some((row) => row.amountTotal == null || row.itemCount == null);
+    if (needsFallback) {
+      const fallbackProjects = await getQuoteCostProjectsWithDbFinancialsAndGroups();
+      for (const project of fallbackProjects) {
+        for (const group of project.reconciliationGroups) {
+          fallbackGroupMap.set(
+            buildGroupLookupKey(project.id, group.sourceType, group.vendorId ?? null, group.vendorName),
+            { amountTotal: group.amountTotal, itemCount: group.itemCount },
+          );
+        }
+      }
+    }
+
     const groupedByProject = new Map<string, VendorGroupRow[]>();
     for (const row of groupRows) {
       const current = groupedByProject.get(row.projectId) ?? [];
@@ -86,15 +107,23 @@ export async function getVendorFinancialSummary({ vendorId, vendorName }: { vend
       const projectStatus = rows[0]?.projectStatus ?? '執行中';
       const reconciledGroups = rows
         .filter((row) => row.reconciliationStatus === '已對帳')
-        .map((row) => ({
-          sourceType: row.sourceType,
-          vendorName: row.vendorName,
-          amountTotal: row.amountTotal ?? 0,
-          itemCount: row.itemCount ?? 0,
-        }));
-      const hasUnreconciledGroups = rows.some((row) => row.reconciliationStatus !== '已對帳');
+        .map((row) => {
+          const fallback = fallbackGroupMap.get(
+            buildGroupLookupKey(projectId, row.sourceType, row.vendorId ?? null, row.vendorName),
+          );
+          return {
+            sourceType: row.sourceType,
+            vendorName: row.vendorName,
+            amountTotal: row.amountTotal ?? fallback?.amountTotal ?? 0,
+            itemCount: row.itemCount ?? fallback?.itemCount ?? 0,
+          };
+        });
+      const unreconciledCount = rows.filter((row) => row.reconciliationStatus !== '已對帳').length;
+      const hasUnreconciledGroups = unreconciledCount > 0;
       const adjustedCost = reconciledGroups.reduce((sum, row) => sum + row.amountTotal, 0);
-      const reconciliationStatus = reconciledGroups.length > 0 ? '已完成' : '未開始';
+      const reconciliationStatus = reconciledGroups.length > 0
+        ? (hasUnreconciledGroups ? '待確認' : '已完成')
+        : '未開始';
       const costItems: CostLineItem[] = reconciledGroups.map((group, index) => ({
         id: `vendor-group-${projectId}-${group.sourceType}-${index + 1}`,
         itemName: `${group.sourceType} 對帳內容`,
@@ -119,6 +148,8 @@ export async function getVendorFinancialSummary({ vendorId, vendorName }: { vend
         costItems,
         reconciledGroups,
         hasUnreconciledGroups,
+        reconciledGroupCount: reconciledGroups.length,
+        unreconciledGroupCount: unreconciledCount,
       };
     }).filter((record) => record.reconciledGroups.length > 0);
 

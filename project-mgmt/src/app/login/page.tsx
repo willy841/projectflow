@@ -48,12 +48,12 @@ export default async function LoginPage({ searchParams }: { searchParams?: Promi
           <form action={loginAction} className="space-y-4">
             <input type="hidden" name="next" value={next} />
             <div>
-              <label className="mb-2 block text-sm font-medium text-slate-700">Email</label>
-              <input name="email" type="email" required className="w-full rounded-2xl border border-slate-300 px-4 py-3 text-sm outline-none ring-0 transition focus:border-slate-900" />
+              <label htmlFor="login-email" className="mb-2 block text-sm font-medium text-slate-700">Email</label>
+              <input id="login-email" name="email" type="email" required className="w-full rounded-2xl border border-slate-300 px-4 py-3 text-sm outline-none ring-0 transition focus:border-slate-900" />
             </div>
             <div>
-              <label className="mb-2 block text-sm font-medium text-slate-700">密碼</label>
-              <input name="password" type="password" required className="w-full rounded-2xl border border-slate-300 px-4 py-3 text-sm outline-none ring-0 transition focus:border-slate-900" />
+              <label htmlFor="login-password" className="mb-2 block text-sm font-medium text-slate-700">密碼</label>
+              <input id="login-password" name="password" type="password" required className="w-full rounded-2xl border border-slate-300 px-4 py-3 text-sm outline-none ring-0 transition focus:border-slate-900" />
             </div>
             <button type="submit" className="inline-flex w-full items-center justify-center rounded-2xl bg-slate-950 px-5 py-3.5 text-sm font-semibold text-white transition hover:bg-slate-800">
               登入

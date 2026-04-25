@@ -352,7 +352,15 @@ export async function listDbVendorProjectRecordsByVendorId(
 
     const paidAmount = paidAmountByProjectId.get(financialRecord.projectId) ?? 0;
     const unpaidAmount = Math.max(financialRecord.adjustedCost - paidAmount, 0);
-    const paymentStatus = paidAmount <= 0 ? '未付款' : paidAmount < financialRecord.adjustedCost ? '部分付款' : '已付款';
+    const totalReconciledCount = financialRecord.reconciledGroupCount;
+    const totalUnreconciledCount = financialRecord.unreconciledGroupCount;
+    const paymentStatus = financialRecord.hasUnreconciledGroups
+      ? (paidAmount <= 0 ? '未付款' : '部分付款')
+      : paidAmount <= 0
+        ? '未付款'
+        : paidAmount < financialRecord.adjustedCost
+          ? '部分付款'
+          : '已付款';
 
     return {
       id: pkg?.id ?? `vendor-record-${financialRecord.projectId}-${vendorId}`,
@@ -363,17 +371,7 @@ export async function listDbVendorProjectRecordsByVendorId(
       projectStatus: financialRecord.projectStatus,
       adjustedCost: financialRecord.adjustedCost,
       adjustedCostLabel: financialRecord.adjustedCostLabel,
-      reconciliationSummary:
-        (() => {
-          const sourceCounts = new Map<string, number>();
-          for (const group of financialRecord.reconciledGroups) {
-            sourceCounts.set(group.sourceType, (sourceCounts.get(group.sourceType) ?? 0) + 1);
-          }
-          const summary = Array.from(sourceCounts.entries())
-            .map(([sourceType, count]) => `${sourceType} ${count} 筆`)
-            .join('、');
-          return summary ? `已對帳內容：${summary}` : '目前尚無已對帳內容';
-        })(),
+      reconciliationSummary: `已對帳 ${totalReconciledCount} 筆 / 未對帳 ${totalUnreconciledCount} 筆`,
       reconciliationStatus: financialRecord.hasUnreconciledGroups ? '尚未全部對帳' : '已全部對帳',
       sourceItemDetails: includeDetails ? (sourceItemDetails.length ? sourceItemDetails : ['待補充']) : [],
       costBreakdown: includeDetails
