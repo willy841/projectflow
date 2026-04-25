@@ -1,4 +1,5 @@
 import { createHash, randomBytes, scryptSync, timingSafeEqual } from 'node:crypto';
+import { performance } from 'node:perf_hooks';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { createPhase1DbClient } from '@/lib/db/phase1-client';
@@ -173,11 +174,16 @@ export async function clearSession() {
 }
 
 export async function getCurrentUser(): Promise<AuthUser | null> {
+  const startedAt = performance.now();
   const cookieStore = await cookies();
   const rawToken = cookieStore.get(SESSION_COOKIE)?.value;
-  if (!rawToken) return null;
+  if (!rawToken) {
+    console.log('[auth-get-current-user]', JSON.stringify({ hasSession: false, totalMs: Number((performance.now() - startedAt).toFixed(1)) }));
+    return null;
+  }
 
   const db = createPhase1DbClient();
+  const queryStartedAt = performance.now();
   const result = await db.query(
     `select u.id, u.email, u.name, u.role, u.is_owner, u.must_change_password, u.is_active
      from auth_sessions s
@@ -188,14 +194,20 @@ export async function getCurrentUser(): Promise<AuthUser | null> {
     [hashToken(rawToken)],
   );
 
+  const queryMs = performance.now() - queryStartedAt;
   const row = result.rows[0] as any;
   if (!row) {
     cookieStore.delete(SESSION_COOKIE);
+    console.log('[auth-get-current-user]', JSON.stringify({ hasSession: true, foundUser: false, queryMs: Number(queryMs.toFixed(1)), totalMs: Number((performance.now() - startedAt).toFixed(1)) }));
     return null;
   }
 
+  const touchStartedAt = performance.now();
   await db.query(`update auth_sessions set last_seen_at = now() where session_token_hash = $1`, [hashToken(rawToken)]);
-  return mapUserRow(row);
+  const touchMs = performance.now() - touchStartedAt;
+  const user = mapUserRow(row);
+  console.log('[auth-get-current-user]', JSON.stringify({ hasSession: true, foundUser: true, userRole: user.role, queryMs: Number(queryMs.toFixed(1)), touchMs: Number(touchMs.toFixed(1)), totalMs: Number((performance.now() - startedAt).toFixed(1)) }));
+  return user;
 }
 
 export async function requireUser() {

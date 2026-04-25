@@ -1,3 +1,4 @@
+import { performance } from 'node:perf_hooks';
 import { createPhase1DbClient } from '@/lib/db/phase1-client';
 import { createPhase1Repositories } from '@/lib/db/phase1-repositories';
 import type { VendorPackage } from '@/components/vendor-data';
@@ -144,10 +145,13 @@ async function buildVendorPackageGroups(): Promise<VendorPackageGroupSeed[]> {
 }
 
 export async function listDbVendorPackages(): Promise<VendorPackage[]> {
+  const startedAt = performance.now();
   const repositories = createPhase1Repositories(createPhase1DbClient());
+  const groupsStartedAt = performance.now();
   const groups = await buildVendorPackageGroups();
+  const groupsMs = performance.now() - groupsStartedAt;
 
-  return Promise.all(
+  const packages = await Promise.all(
     groups.map(async (group) => {
       const itemGroups = await Promise.all(
         group.rows.map(async (row) => ({
@@ -195,6 +199,9 @@ export async function listDbVendorPackages(): Promise<VendorPackage[]> {
       } satisfies VendorPackage;
     }),
   );
+
+  console.log('[vendor-packages]', JSON.stringify({ groupCount: groups.length, packageCount: packages.length, groupsMs: Number(groupsMs.toFixed(1)), totalMs: Number((performance.now() - startedAt).toFixed(1)) }));
+  return packages;
 }
 
 export async function getDbVendorPackageById(id: string): Promise<VendorPackage | null> {

@@ -1,3 +1,4 @@
+import { performance } from 'node:perf_hooks';
 import { createPhase1DbClient } from '@/lib/db/phase1-client';
 import type { CostLineItem } from '@/components/quote-cost-data';
 
@@ -39,10 +40,12 @@ type VendorGroupRow = {
 };
 
 export async function getVendorFinancialSummary({ vendorId, vendorName }: { vendorId?: string; vendorName: string }): Promise<VendorFinancialSummary> {
+  const startedAt = performance.now();
   try {
     const db = createPhase1DbClient();
     const normalizedVendorName = normalizeVendorName(vendorName);
 
+    const queryStartedAt = performance.now();
     const groupRowsResult = await db.query<VendorGroupRow>(`
       select
         frg.project_id as "projectId",
@@ -65,7 +68,9 @@ export async function getVendorFinancialSummary({ vendorId, vendorName }: { vend
     `, [vendorId ?? null, normalizedVendorName]);
 
     const groupRows = groupRowsResult.rows;
+    const queryMs = performance.now() - queryStartedAt;
     if (!groupRows.length) {
+      console.log('[vendor-financial-summary]', JSON.stringify({ vendorId: vendorId ?? null, vendorName: normalizedVendorName, rowCount: 0, queryMs: Number(queryMs.toFixed(1)), totalMs: Number((performance.now() - startedAt).toFixed(1)) }));
       return { unpaidTotal: 0, records: [] };
     }
 
@@ -116,6 +121,16 @@ export async function getVendorFinancialSummary({ vendorId, vendorName }: { vend
         hasUnreconciledGroups,
       };
     }).filter((record) => record.reconciledGroups.length > 0);
+
+    const totalMs = performance.now() - startedAt;
+    console.log('[vendor-financial-summary]', JSON.stringify({
+      vendorId: vendorId ?? null,
+      vendorName: normalizedVendorName,
+      rowCount: groupRows.length,
+      projectCount: records.length,
+      queryMs: Number(queryMs.toFixed(1)),
+      totalMs: Number(totalMs.toFixed(1)),
+    }));
 
     return {
       unpaidTotal: records.reduce((sum, record) => sum + record.adjustedCost, 0),

@@ -67,10 +67,14 @@ function mapVendorRowToProfile(vendor: Awaited<ReturnType<ReturnType<typeof crea
 }
 
 export async function listDbVendorTrades(): Promise<string[]> {
+  const startedAt = performance.now();
   const db = createPhase1DbClient();
+  const hasCatalogStartedAt = performance.now();
   const hasCatalogResult = await db.query<{ exists: string | null }>(`select to_regclass('public.vendor_trade_catalog')::text as exists`);
+  const hasCatalogMs = performance.now() - hasCatalogStartedAt;
   const hasCatalog = Boolean(hasCatalogResult.rows[0]?.exists);
 
+  const catalogStartedAt = performance.now();
   const catalogRows = hasCatalog
     ? await db.query<{ name: string }>(`
         select name
@@ -79,14 +83,17 @@ export async function listDbVendorTrades(): Promise<string[]> {
       `)
     : { rows: [] as { name: string }[] };
 
+  const catalogMs = performance.now() - catalogStartedAt;
+  const vendorRowsStartedAt = performance.now();
   const vendorRows = await db.query<{ trade_label: string | null }>(`
     select distinct trade_label
     from vendors
     where trade_label is not null and btrim(trade_label) <> ''
     order by trade_label asc
   `);
+  const vendorRowsMs = performance.now() - vendorRowsStartedAt;
 
-  return Array.from(
+  const trades = Array.from(
     new Set(
       [
         ...catalogRows.rows.map((row) => row.name),
@@ -96,6 +103,9 @@ export async function listDbVendorTrades(): Promise<string[]> {
         .filter(Boolean),
     ),
   ).sort((a, b) => a.localeCompare(b, 'zh-Hant'));
+
+  console.log('[vendor-trades]', JSON.stringify({ hasCatalog, hasCatalogMs: Number(hasCatalogMs.toFixed(1)), catalogMs: Number(catalogMs.toFixed(1)), vendorRowsMs: Number(vendorRowsMs.toFixed(1)), catalogCount: catalogRows.rows.length, vendorTradeRowCount: vendorRows.rows.length, tradeCount: trades.length, totalMs: Number((performance.now() - startedAt).toFixed(1)) }));
+  return trades;
 }
 
 export async function createDbVendorTrade(name: string) {
@@ -222,23 +232,31 @@ export async function listDbVendors(): Promise<VendorBasicProfile[]> {
 }
 
 export async function getDbVendorById(id: string): Promise<VendorBasicProfile | null> {
+  const startedAt = performance.now();
   const repositories = createPhase1Repositories(createPhase1DbClient());
   const vendor = await repositories.vendors.findById(id);
+  console.log('[vendor-base-query]', JSON.stringify({ vendorId: id, found: Boolean(vendor), totalMs: Number((performance.now() - startedAt).toFixed(1)) }));
   if (!vendor) return null;
 
   return mapVendorRowToProfile(vendor);
 }
 
 export async function listDbVendorPaymentRecordsByVendorId(vendorId: string): Promise<VendorPaymentRecord[]> {
+  const startedAt = performance.now();
+  const vendorLookupStartedAt = performance.now();
   const vendor = await getDbVendorById(vendorId);
+  const vendorLookupMs = performance.now() - vendorLookupStartedAt;
   if (!vendor) return [];
   const db = createPhase1DbClient();
+  const queryStartedAt = performance.now();
   const result = await db.query<VendorPaymentRecord>(`
     select id, project_id as "projectId", vendor_id as "vendorId", vendor_name as "vendorName", to_char(paid_on, 'YYYY-MM-DD') as "paidOn", amount::float8 as amount, coalesce(note, '') as note
     from project_vendor_payment_records
     where vendor_id = $1 or (vendor_id is null and vendor_name = $2)
     order by paid_on desc, created_at desc
   `, [vendorId, vendor.name]);
+  const queryMs = performance.now() - queryStartedAt;
+  console.log('[vendor-payment-records]', JSON.stringify({ vendorId, vendorName: vendor.name, vendorLookupMs: Number(vendorLookupMs.toFixed(1)), queryMs: Number(queryMs.toFixed(1)), rowCount: result.rows.length, totalMs: Number((performance.now() - startedAt).toFixed(1)) }));
   return result.rows;
 }
 
@@ -259,8 +277,7 @@ export async function listDbVendorProjectRecordsByVendorId(
 
   const fanoutStartedAt = performance.now();
   const includeDetails = options?.includeDetails ?? false;
-  const [packages, financial, paymentRecords, vendorTasks] = await Promise.all([
-    listDbVendorPackages(),
+  const [financial, paymentRecords, vendorTasks] = await Promise.all([
     getVendorFinancialSummary({ vendorId, vendorName: vendor.name }),
     options?.paymentRecords ? Promise.resolve(options.paymentRecords) : listDbVendorPaymentRecordsByVendorId(vendorId),
     includeDetails
@@ -281,6 +298,32 @@ export async function listDbVendorProjectRecordsByVendorId(
   ]);
 
   const fanoutMs = performance.now() - fanoutStartedAt;
+
+  if (!financial.records.length) {
+    console.log('[vendor-project-records]', JSON.stringify({
+      vendorId,
+      vendorName: vendor.name,
+      vendorLookupMs: Number(vendorLookupMs.toFixed(1)),
+      fanoutMs: Number(fanoutMs.toFixed(1)),
+      packageMs: 0,
+      mapMs: 0,
+      financialProjectCount: 0,
+      packageCount: 0,
+      paymentCount: paymentRecords.length,
+      taskCount: vendorTasks.length,
+      includeDetails,
+      paymentScope: options?.paymentScope ?? 'all',
+      recordId: options?.recordId ?? null,
+      returnedCount: 0,
+      shortCircuitedOnEmptyFinancials: true,
+      totalMs: Number((performance.now() - startedAt).toFixed(1)),
+    }));
+    return [];
+  }
+
+  const packagesStartedAt = performance.now();
+  const packages = await listDbVendorPackages();
+  const packageMs = performance.now() - packagesStartedAt;
 
   const packageByProjectId = new Map(
     packages.filter((pkg) => pkg.vendorId === vendorId).map((pkg) => [pkg.projectId, pkg]),
@@ -367,6 +410,7 @@ export async function listDbVendorProjectRecordsByVendorId(
     vendorName: vendor.name,
     vendorLookupMs: Number(vendorLookupMs.toFixed(1)),
     fanoutMs: Number(fanoutMs.toFixed(1)),
+    packageMs: Number(packageMs.toFixed(1)),
     mapMs: Number(mapMs.toFixed(1)),
     financialProjectCount: financial.records.length,
     packageCount: packages.length,

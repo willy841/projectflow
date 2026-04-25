@@ -4,6 +4,7 @@ import { NextResponse } from 'next/server';
 const PUBLIC_PATHS = ['/login', '/reset-password', '/forbidden'];
 
 export function middleware(request: NextRequest) {
+  const startedAt = Date.now();
   const { pathname } = request.nextUrl;
 
   if (
@@ -16,6 +17,8 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
+  const shouldTrace = pathname.startsWith('/vendors');
+
   if (PUBLIC_PATHS.some((path) => pathname.startsWith(path))) {
     return NextResponse.next();
   }
@@ -24,9 +27,15 @@ export function middleware(request: NextRequest) {
   if (!session) {
     const loginUrl = new URL('/login', request.url);
     loginUrl.searchParams.set('next', pathname);
+    if (shouldTrace) {
+      console.log('[middleware-vendor-detail]', JSON.stringify({ pathname, hasSession: false, action: 'redirect-login', totalMs: Date.now() - startedAt }));
+    }
     return NextResponse.redirect(loginUrl);
   }
 
+  if (shouldTrace) {
+    console.log('[middleware-vendor-detail]', JSON.stringify({ pathname, hasSession: true, action: 'next', totalMs: Date.now() - startedAt }));
+  }
   return NextResponse.next();
 }
 

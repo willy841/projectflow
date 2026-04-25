@@ -1,4 +1,5 @@
 import { ReactNode } from 'react';
+import { performance } from 'node:perf_hooks';
 import { getCurrentUser } from '@/lib/auth';
 import { canAccessAccountingCenter, canAccessSystemSettings } from '@/lib/authz';
 import { AuthShellClient, type AuthShellNavItem } from '@/components/auth-shell-client';
@@ -17,6 +18,7 @@ const navItems: (AuthShellNavItem & { adminOnly?: boolean })[] = [
 ];
 
 export async function AuthShellServer({ children, activePath = '/' }: { children: ReactNode; activePath?: string }) {
+  const startedAt = performance.now();
   const user = await getCurrentUser();
   const filteredNavItems = navItems.filter((item) => {
     if (!item.adminOnly) return true;
@@ -24,6 +26,8 @@ export async function AuthShellServer({ children, activePath = '/' }: { children
     if (item.href === '/system-settings') return canAccessSystemSettings(user);
     return true;
   });
+
+  console.log('[auth-shell-server]', JSON.stringify({ activePath, userRole: user?.role ?? null, navCount: filteredNavItems.length, totalMs: Number((performance.now() - startedAt).toFixed(1)) }));
 
   return (
     <AuthShellClient

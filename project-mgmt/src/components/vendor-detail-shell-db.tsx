@@ -80,6 +80,17 @@ export function VendorDetailShellDb({ vendor, initialOpenRecords, tradeOptions =
   const selectedPayableRecords = unpaidRecords.filter((record) => selectedRecordIds.includes(record.id));
   const selectedPayableTotal = selectedPayableRecords.reduce((sum, record) => sum + (record.unpaidAmount ?? record.adjustedCost), 0);
 
+  useEffect(() => {
+    const navigationEntry = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming | undefined;
+    console.log('[vendor-detail-client-nav]', JSON.stringify({
+      vendorId: vendor.id,
+      openRecordCount: initialOpenRecords.length,
+      domContentLoadedMs: navigationEntry ? Number(navigationEntry.domContentLoadedEventEnd.toFixed(1)) : null,
+      loadEventMs: navigationEntry ? Number(navigationEntry.loadEventEnd.toFixed(1)) : null,
+      type: navigationEntry?.type ?? null,
+    }));
+  }, [initialOpenRecords.length, vendor.id]);
+
   const filteredHistoryRecords = useMemo(() => {
     const keyword = historyKeyword.trim().toLowerCase();
     const sourceRecords = historyTab === 'open' ? openRecords : (historyRecords ?? []);
@@ -111,6 +122,7 @@ export function VendorDetailShellDb({ vendor, initialOpenRecords, tradeOptions =
     if (detailSectionTab !== 'history' || historyRecords !== null || historyLoading) return;
 
     let cancelled = false;
+    const requestStartedAt = performance.now();
     setHistoryLoading(true);
     setHistoryError('');
     fetch(`/api/vendors/${vendor.id}/records?scope=history&includeDetails=false`)
@@ -120,6 +132,7 @@ export function VendorDetailShellDb({ vendor, initialOpenRecords, tradeOptions =
           throw new Error(result?.error ?? '載入往來紀錄失敗');
         }
         if (!cancelled) {
+          console.log('[vendor-detail-client-history-fetch]', JSON.stringify({ vendorId: vendor.id, recordCount: result.records.length, totalMs: Number((performance.now() - requestStartedAt).toFixed(1)) }));
           setHistoryRecords(result.records as VendorProjectRecord[]);
         }
       })
@@ -147,6 +160,7 @@ export function VendorDetailShellDb({ vendor, initialOpenRecords, tradeOptions =
   async function ensureRecordDetails(record: VendorProjectRecord) {
     if (record.costBreakdown.length || detailLoadingIds.includes(record.id)) return;
 
+    const requestStartedAt = performance.now();
     setDetailLoadingIds((current) => [...current, record.id]);
     try {
       const response = await fetch(`/api/vendors/${vendor.id}/records?recordId=${encodeURIComponent(record.id)}&includeDetails=true`);
@@ -154,6 +168,7 @@ export function VendorDetailShellDb({ vendor, initialOpenRecords, tradeOptions =
       if (!response.ok || !result?.ok || !Array.isArray(result?.records) || !result.records[0]) {
         throw new Error(result?.error ?? '載入明細失敗');
       }
+      console.log('[vendor-detail-client-record-fetch]', JSON.stringify({ vendorId: vendor.id, recordId: record.id, totalMs: Number((performance.now() - requestStartedAt).toFixed(1)) }));
       updateRecordCollection(result.records[0] as VendorProjectRecord);
     } catch (error) {
       window.alert(error instanceof Error ? error.message : '載入明細失敗');
