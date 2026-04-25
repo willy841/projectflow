@@ -1,3 +1,4 @@
+import { performance } from 'node:perf_hooks';
 import { createPhase1DbClient } from '@/lib/db/phase1-client';
 import { createPhase1Repositories } from '@/lib/db/phase1-repositories';
 import type { InsertVendorInput } from '@/lib/db/phase1-inputs';
@@ -13,7 +14,6 @@ export type VendorPaymentRecord = {
   note: string;
 };
 import { listDbVendorPackages } from '@/lib/db/vendor-package-adapter';
-import { listDbVendorTasksByProject } from '@/lib/db/vendor-flow-adapter';
 import { getVendorFinancialSummary } from '@/lib/db/vendor-financial-adapter';
 
 function normalizeVendorName(name: string) {
@@ -242,28 +242,45 @@ export async function listDbVendorPaymentRecordsByVendorId(vendorId: string): Pr
   return result.rows;
 }
 
-export async function listDbVendorProjectRecordsByVendorId(vendorId: string): Promise<VendorProjectRecord[]> {
+export async function listDbVendorProjectRecordsByVendorId(
+  vendorId: string,
+  options?: {
+    paymentRecords?: VendorPaymentRecord[];
+    paymentScope?: 'all' | 'open' | 'history';
+    includeDetails?: boolean;
+    recordId?: string;
+  },
+): Promise<VendorProjectRecord[]> {
+  const startedAt = performance.now();
+  const vendorLookupStartedAt = performance.now();
   const vendor = await getDbVendorById(vendorId);
+  const vendorLookupMs = performance.now() - vendorLookupStartedAt;
   if (!vendor) return [];
 
+  const fanoutStartedAt = performance.now();
+  const includeDetails = options?.includeDetails ?? false;
   const [packages, financial, paymentRecords, vendorTasks] = await Promise.all([
     listDbVendorPackages(),
     getVendorFinancialSummary({ vendorId, vendorName: vendor.name }),
-    listDbVendorPaymentRecordsByVendorId(vendorId),
-    (async () => {
-      const db = createPhase1DbClient();
-      const result = await db.query<{ projectId: string; title: string; requirementText: string }>(`
-        select
-          vt.project_id as "projectId",
-          vt.title,
-          coalesce(vt.requirement_text, '') as "requirementText"
-        from vendor_tasks vt
-        where vt.vendor_id = $1
-        order by vt.project_id asc, vt.created_at asc
-      `, [vendorId]);
-      return result.rows;
-    })(),
+    options?.paymentRecords ? Promise.resolve(options.paymentRecords) : listDbVendorPaymentRecordsByVendorId(vendorId),
+    includeDetails
+      ? (async () => {
+          const db = createPhase1DbClient();
+          const result = await db.query<{ projectId: string; title: string; requirementText: string }>(`
+            select
+              vt.project_id as "projectId",
+              vt.title,
+              coalesce(vt.requirement_text, '') as "requirementText"
+            from vendor_tasks vt
+            where vt.vendor_id = $1
+            order by vt.project_id asc, vt.created_at asc
+          `, [vendorId]);
+          return result.rows;
+        })()
+      : Promise.resolve([] as Array<{ projectId: string; title: string; requirementText: string }>),
   ]);
+
+  const fanoutMs = performance.now() - fanoutStartedAt;
 
   const packageByProjectId = new Map(
     packages.filter((pkg) => pkg.vendorId === vendorId).map((pkg) => [pkg.projectId, pkg]),
@@ -279,13 +296,16 @@ export async function listDbVendorProjectRecordsByVendorId(vendorId: string): Pr
     paidAmountByProjectId.set(record.projectId, (paidAmountByProjectId.get(record.projectId) ?? 0) + record.amount);
   }
 
-  return financial.records.map((financialRecord) => {
+  const mapStartedAt = performance.now();
+  const mapped = financial.records.map((financialRecord) => {
     const pkg = packageByProjectId.get(financialRecord.projectId);
     const projectTasks = tasksByProjectId.get(financialRecord.projectId) ?? [];
-    const sourceItemDetails = [
-      ...financialRecord.costItems.map((item) => item.sourceRef || item.itemName).filter(Boolean),
-      ...projectTasks.map((task) => task.requirementText || task.title).filter(Boolean),
-    ];
+    const sourceItemDetails = includeDetails
+      ? [
+          ...financialRecord.costItems.map((item) => item.sourceRef || item.itemName).filter(Boolean),
+          ...projectTasks.map((task) => task.requirementText || task.title).filter(Boolean),
+        ]
+      : [];
 
     const paidAmount = paidAmountByProjectId.get(financialRecord.projectId) ?? 0;
     const unpaidAmount = Math.max(financialRecord.adjustedCost - paidAmount, 0);
@@ -312,13 +332,15 @@ export async function listDbVendorProjectRecordsByVendorId(vendorId: string): Pr
           return summary ? `已對帳內容：${summary}` : '目前尚無已對帳內容';
         })(),
       reconciliationStatus: financialRecord.hasUnreconciledGroups ? '尚未全部對帳' : '已全部對帳',
-      sourceItemDetails: sourceItemDetails.length ? sourceItemDetails : ['待補充'],
-      costBreakdown: financialRecord.costItems.length
-        ? financialRecord.costItems.map((item) => ({
-            label: `${item.sourceType}｜${item.itemName}`,
-            amount: `NT$ ${item.adjustedAmount.toLocaleString('zh-TW')}`,
-          }))
-        : [{ label: '尚無已對帳成本', amount: 'NT$ 0' }],
+      sourceItemDetails: includeDetails ? (sourceItemDetails.length ? sourceItemDetails : ['待補充']) : [],
+      costBreakdown: includeDetails
+        ? (financialRecord.costItems.length
+          ? financialRecord.costItems.map((item) => ({
+              label: `${item.sourceType}｜${item.itemName}`,
+              amount: `NT$ ${item.adjustedAmount.toLocaleString('zh-TW')}`,
+            }))
+          : [{ label: '尚無已對帳成本', amount: 'NT$ 0' }])
+        : [],
       paymentStatus,
       hasUnreconciledGroups: financialRecord.hasUnreconciledGroups,
       reconciliationWarning: financialRecord.hasUnreconciledGroups ? '此專案內該廠商尚未全部對帳' : null,
@@ -327,4 +349,34 @@ export async function listDbVendorProjectRecordsByVendorId(vendorId: string): Pr
       unpaidAmount,
     } satisfies VendorProjectRecord;
   });
+  const filtered = mapped.filter((record) => {
+    if (options?.recordId && record.id !== options.recordId) return false;
+    switch (options?.paymentScope) {
+      case 'open':
+        return record.paymentStatus !== '已付款';
+      case 'history':
+        return record.paymentStatus === '已付款';
+      default:
+        return true;
+    }
+  });
+
+  const mapMs = performance.now() - mapStartedAt;
+  console.log('[vendor-project-records]', JSON.stringify({
+    vendorId,
+    vendorName: vendor.name,
+    vendorLookupMs: Number(vendorLookupMs.toFixed(1)),
+    fanoutMs: Number(fanoutMs.toFixed(1)),
+    mapMs: Number(mapMs.toFixed(1)),
+    financialProjectCount: financial.records.length,
+    packageCount: packages.length,
+    paymentCount: paymentRecords.length,
+    taskCount: vendorTasks.length,
+    includeDetails,
+    paymentScope: options?.paymentScope ?? 'all',
+    recordId: options?.recordId ?? null,
+    returnedCount: filtered.length,
+    totalMs: Number((performance.now() - startedAt).toFixed(1)),
+  }));
+  return filtered;
 }

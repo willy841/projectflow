@@ -1,8 +1,8 @@
 "use client";
 
 import Link from 'next/link';
-import { Fragment, useMemo, useState } from 'react';
-import { formatCurrency, getVendorPaymentStatusClass, type VendorBasicProfile, type VendorProjectRecord } from '@/components/vendor-data';
+import { Fragment, useEffect, useMemo, useState } from 'react';
+import { formatCurrency, type VendorBasicProfile, type VendorProjectRecord } from '@/components/vendor-data';
 import type { VendorPaymentRecord } from '@/lib/db/vendor-directory-adapter';
 
 type VendorEditableForm = {
@@ -41,10 +41,16 @@ function buildVendorEditableForm(vendor: VendorBasicProfile): VendorEditableForm
   };
 }
 
-export function VendorDetailShellDb({ vendor, records, paymentRecords, tradeOptions = [] }: { vendor: VendorBasicProfile; records: VendorProjectRecord[]; paymentRecords: VendorPaymentRecord[]; tradeOptions?: string[] }) {
+export function VendorDetailShellDb({ vendor, initialOpenRecords, tradeOptions = [] }: { vendor: VendorBasicProfile; initialOpenRecords: VendorProjectRecord[]; tradeOptions?: string[] }) {
+  const [openRecords, setOpenRecords] = useState<VendorProjectRecord[]>(initialOpenRecords);
+  const [historyRecords, setHistoryRecords] = useState<VendorProjectRecord[] | null>(null);
+  const [historyLoading, setHistoryLoading] = useState(false);
+  const [historyError, setHistoryError] = useState('');
+  const [detailLoadingIds, setDetailLoadingIds] = useState<string[]>([]);
+
   const unpaidRecords = useMemo(
     () =>
-      [...records]
+      [...openRecords]
         .filter((record) => record.paymentStatus !== '已付款')
         .sort((a, b) => {
           if (a.hasUnreconciledGroups !== b.hasUnreconciledGroups) {
@@ -52,7 +58,7 @@ export function VendorDetailShellDb({ vendor, records, paymentRecords, tradeOpti
           }
           return (b.unpaidAmount ?? b.adjustedCost) - (a.unpaidAmount ?? a.adjustedCost);
         }),
-    [records],
+    [openRecords],
   );
   const unpaidTotalAmount = unpaidRecords.reduce((sum, record) => sum + (record.unpaidAmount ?? record.adjustedCost), 0);
   const incompleteReconciliationCount = unpaidRecords.filter((record) => record.reconciliationStatus === '尚未全部對帳').length;
@@ -69,25 +75,15 @@ export function VendorDetailShellDb({ vendor, records, paymentRecords, tradeOpti
   const [batchPaymentMessage, setBatchPaymentMessage] = useState('');
   const [batchPaying, setBatchPaying] = useState(false);
   const [paymentForm, setPaymentForm] = useState<{ projectId: string; projectName: string; paidOn: string; amount: string; note: string } | null>(null);
-  const [payments, setPayments] = useState<VendorPaymentRecord[]>(paymentRecords);
   const [profileExpanded, setProfileExpanded] = useState(false);
-
-  const paymentMap = useMemo(() => {
-    const map = new Map<string, VendorPaymentRecord[]>();
-    for (const record of payments) {
-      const current = map.get(record.projectId) ?? [];
-      current.push(record);
-      map.set(record.projectId, current);
-    }
-    return map;
-  }, [payments]);
 
   const selectedPayableRecords = unpaidRecords.filter((record) => selectedRecordIds.includes(record.id));
   const selectedPayableTotal = selectedPayableRecords.reduce((sum, record) => sum + (record.unpaidAmount ?? record.adjustedCost), 0);
 
   const filteredHistoryRecords = useMemo(() => {
     const keyword = historyKeyword.trim().toLowerCase();
-    const next = records.filter((record) => {
+    const sourceRecords = historyTab === 'open' ? openRecords : (historyRecords ?? []);
+    const next = sourceRecords.filter((record) => {
       const matchesTab = historyTab === 'open' ? record.paymentStatus !== '已付款' : record.paymentStatus === '已付款';
       if (!matchesTab) return false;
       if (!keyword) return true;
@@ -109,15 +105,78 @@ export function VendorDetailShellDb({ vendor, records, paymentRecords, tradeOpti
     });
 
     return next;
-  }, [historyKeyword, historySort, historyTab, records]);
+  }, [historyKeyword, historySort, historyTab, openRecords, historyRecords]);
+
+  useEffect(() => {
+    if (detailSectionTab !== 'history' || historyRecords !== null || historyLoading) return;
+
+    let cancelled = false;
+    setHistoryLoading(true);
+    setHistoryError('');
+    fetch(`/api/vendors/${vendor.id}/records?scope=history&includeDetails=false`)
+      .then(async (response) => {
+        const result = await response.json();
+        if (!response.ok || !result?.ok || !Array.isArray(result?.records)) {
+          throw new Error(result?.error ?? '載入往來紀錄失敗');
+        }
+        if (!cancelled) {
+          setHistoryRecords(result.records as VendorProjectRecord[]);
+        }
+      })
+      .catch((error) => {
+        if (!cancelled) {
+          setHistoryError(error instanceof Error ? error.message : '載入往來紀錄失敗');
+        }
+      })
+      .finally(() => {
+        if (!cancelled) {
+          setHistoryLoading(false);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [detailSectionTab, historyRecords, historyLoading, vendor.id]);
+
+  function updateRecordCollection(record: VendorProjectRecord) {
+    setOpenRecords((current) => current.map((item) => (item.id === record.id ? record : item)));
+    setHistoryRecords((current) => (current ? current.map((item) => (item.id === record.id ? record : item)) : current));
+  }
+
+  async function ensureRecordDetails(record: VendorProjectRecord) {
+    if (record.costBreakdown.length || detailLoadingIds.includes(record.id)) return;
+
+    setDetailLoadingIds((current) => [...current, record.id]);
+    try {
+      const response = await fetch(`/api/vendors/${vendor.id}/records?recordId=${encodeURIComponent(record.id)}&includeDetails=true`);
+      const result = await response.json();
+      if (!response.ok || !result?.ok || !Array.isArray(result?.records) || !result.records[0]) {
+        throw new Error(result?.error ?? '載入明細失敗');
+      }
+      updateRecordCollection(result.records[0] as VendorProjectRecord);
+    } catch (error) {
+      window.alert(error instanceof Error ? error.message : '載入明細失敗');
+    } finally {
+      setDetailLoadingIds((current) => current.filter((id) => id !== record.id));
+    }
+  }
 
   function updateProfileField(field: keyof VendorEditableForm, value: string) {
     setProfileForm((current) => ({ ...current, [field]: value }));
     if (profileMessage) setProfileMessage('');
   }
 
-  function toggleExpandedRecord(id: string) {
-    setExpandedRecordIds((current) => (current.includes(id) ? current.filter((item) => item !== id) : [...current, id]));
+  async function toggleExpandedRecord(record: VendorProjectRecord) {
+    const id = record.id;
+    const isExpanded = expandedRecordIds.includes(id);
+    if (isExpanded) {
+      setExpandedRecordIds((current) => current.filter((item) => item !== id));
+      return;
+    }
+
+    setExpandedRecordIds((current) => [...current, id]);
+    await ensureRecordDetails(record);
   }
 
   function toggleSelectableRecord(record: VendorProjectRecord) {
@@ -183,7 +242,7 @@ export function VendorDetailShellDb({ vendor, records, paymentRecords, tradeOpti
         amount,
         note: paymentForm.note,
       });
-      setPayments((current) => [createdPayment, ...current]);
+      void createdPayment;
       window.location.reload();
     } catch (error) {
       window.alert(error instanceof Error ? error.message : '新增付款失敗');
@@ -211,7 +270,6 @@ export function VendorDetailShellDb({ vendor, records, paymentRecords, tradeOpti
         });
         createdPayments.push(createdPayment);
       }
-      setPayments((current) => [...createdPayments, ...current]);
       setSelectedRecordIds([]);
       setBatchPaymentMessage(`已完成 ${createdPayments.length} 筆已付款標記。`);
       window.location.reload();
@@ -220,19 +278,6 @@ export function VendorDetailShellDb({ vendor, records, paymentRecords, tradeOpti
     } finally {
       setBatchPaying(false);
     }
-  }
-
-  async function handleDeletePayment(id: string) {
-    const confirmed = window.confirm('確認刪除這筆付款紀錄？');
-    if (!confirmed) return;
-    const response = await fetch(`/api/vendor-payments/${id}`, { method: 'DELETE' });
-    const result = await response.json();
-    if (!response.ok || !result?.ok) {
-      window.alert(result?.error ?? '刪除付款失敗');
-      return;
-    }
-    setPayments((current) => current.filter((item) => item.id !== id));
-    window.location.reload();
   }
 
   return (
@@ -387,6 +432,7 @@ export function VendorDetailShellDb({ vendor, records, paymentRecords, tradeOpti
                     const isSelectable = !record.hasUnreconciledGroups;
                     const isSelected = selectedRecordIds.includes(record.id);
                     const isExpanded = expandedRecordIds.includes(record.id);
+                    const isDetailLoading = detailLoadingIds.includes(record.id);
                     return (
                       <Fragment key={record.id}>
                         <tr>
@@ -413,37 +459,41 @@ export function VendorDetailShellDb({ vendor, records, paymentRecords, tradeOpti
                           <td className="px-4 py-4 align-top">
                             <button
                               type="button"
-                              onClick={() => toggleExpandedRecord(record.id)}
+                              onClick={() => toggleExpandedRecord(record)}
                               className="inline-flex min-h-10 items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-800 transition hover:bg-slate-50"
                             >
-                              {isExpanded ? '收合明細' : '查看明細'}
+                              {isExpanded ? (isDetailLoading ? '載入明細中…' : '收合明細') : '查看明細'}
                             </button>
                           </td>
                         </tr>
                       {isExpanded ? (
                         <tr key={`${record.id}-detail`}>
                           <td colSpan={6} className="px-4 py-4 bg-slate-50/70">
-                            <div className="grid gap-4 xl:grid-cols-2">
-                              <div className="rounded-2xl bg-white p-4 ring-1 ring-slate-200">
-                                <p className="text-sm font-semibold text-slate-900">成本明細</p>
-                                <div className="mt-3 space-y-3">
-                                  {record.costBreakdown.map((item) => (
-                                    <div key={`${record.id}-${item.label}`} className="flex items-center justify-between gap-3 text-sm">
-                                      <span className="text-slate-600">{item.label}</span>
-                                      <span className="font-medium text-slate-900">{item.amount}</span>
-                                    </div>
-                                  ))}
+                            {isDetailLoading ? (
+                              <div className="rounded-2xl border border-dashed border-slate-300 bg-white px-4 py-6 text-sm text-slate-500">明細載入中…</div>
+                            ) : (
+                              <div className="grid gap-4 xl:grid-cols-2">
+                                <div className="rounded-2xl bg-white p-4 ring-1 ring-slate-200">
+                                  <p className="text-sm font-semibold text-slate-900">成本明細</p>
+                                  <div className="mt-3 space-y-3">
+                                    {record.costBreakdown.map((item) => (
+                                      <div key={`${record.id}-${item.label}`} className="flex items-center justify-between gap-3 text-sm">
+                                        <span className="text-slate-600">{item.label}</span>
+                                        <span className="font-medium text-slate-900">{item.amount}</span>
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                                <div className="rounded-2xl bg-white p-4 ring-1 ring-slate-200">
+                                  <p className="text-sm font-semibold text-slate-900">發包內容明細</p>
+                                  <ul className="mt-3 space-y-2 text-sm text-slate-600">
+                                    {record.sourceItemDetails.map((item) => (
+                                      <li key={`${record.id}-${item}`} className="rounded-2xl bg-slate-50 px-3 py-2">• {item}</li>
+                                    ))}
+                                  </ul>
                                 </div>
                               </div>
-                              <div className="rounded-2xl bg-white p-4 ring-1 ring-slate-200">
-                                <p className="text-sm font-semibold text-slate-900">發包內容明細</p>
-                                <ul className="mt-3 space-y-2 text-sm text-slate-600">
-                                  {record.sourceItemDetails.map((item) => (
-                                    <li key={`${record.id}-${item}`} className="rounded-2xl bg-slate-50 px-3 py-2">• {item}</li>
-                                  ))}
-                                </ul>
-                              </div>
-                            </div>
+                            )}
                           </td>
                         </tr>
                       ) : null}
@@ -509,9 +559,11 @@ export function VendorDetailShellDb({ vendor, records, paymentRecords, tradeOpti
         </div>
 
         <div className="space-y-4">
-          {filteredHistoryRecords.length ? filteredHistoryRecords.map((record) => {
-            const projectPayments = paymentMap.get(record.projectId) ?? [];
+          {historyLoading && historyTab === 'history' ? <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-5 py-6 text-sm text-slate-500">往來紀錄載入中…</div> : null}
+          {historyError && historyTab === 'history' ? <div className="rounded-2xl border border-rose-200 bg-rose-50 px-5 py-6 text-sm text-rose-700">{historyError}</div> : null}
+          {(!historyLoading || historyTab === 'open') && filteredHistoryRecords.length ? filteredHistoryRecords.map((record) => {
             const isExpanded = expandedRecordIds.includes(record.id);
+            const isDetailLoading = detailLoadingIds.includes(record.id);
             return (
               <div key={record.id} className="rounded-3xl border border-slate-200 bg-slate-50/70 p-5">
                 <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
@@ -526,31 +578,35 @@ export function VendorDetailShellDb({ vendor, records, paymentRecords, tradeOpti
                       <p className="text-sm text-slate-500">未付金額</p>
                       <p className="text-2xl font-semibold tracking-tight text-slate-900">{formatCurrency(record.unpaidAmount ?? record.adjustedCost)}</p>
                     </div>
-                    <button type="button" onClick={() => toggleExpandedRecord(record.id)} className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 transition hover:bg-slate-100">{isExpanded ? '收合明細' : '查看明細'}</button>
+                    <button type="button" onClick={() => toggleExpandedRecord(record)} className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 transition hover:bg-slate-100">{isExpanded ? (isDetailLoading ? '載入明細中…' : '收合明細') : '查看明細'}</button>
                   </div>
                 </div>
                 {isExpanded ? (
-                  <div className="mt-5 grid gap-4 xl:grid-cols-2">
-                    <div className="rounded-2xl bg-white p-4 ring-1 ring-slate-200">
-                      <p className="text-sm font-semibold text-slate-900">成本明細</p>
-                      <div className="mt-3 space-y-3">
-                        {record.costBreakdown.map((item) => (
-                          <div key={`${record.id}-${item.label}`} className="flex items-center justify-between gap-3 text-sm">
-                            <span className="text-slate-600">{item.label}</span>
-                            <span className="font-medium text-slate-900">{item.amount}</span>
-                          </div>
-                        ))}
+                  isDetailLoading ? (
+                    <div className="mt-5 rounded-2xl border border-dashed border-slate-300 bg-white px-4 py-6 text-sm text-slate-500">明細載入中…</div>
+                  ) : (
+                    <div className="mt-5 grid gap-4 xl:grid-cols-2">
+                      <div className="rounded-2xl bg-white p-4 ring-1 ring-slate-200">
+                        <p className="text-sm font-semibold text-slate-900">成本明細</p>
+                        <div className="mt-3 space-y-3">
+                          {record.costBreakdown.map((item) => (
+                            <div key={`${record.id}-${item.label}`} className="flex items-center justify-between gap-3 text-sm">
+                              <span className="text-slate-600">{item.label}</span>
+                              <span className="font-medium text-slate-900">{item.amount}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                      <div className="rounded-2xl bg-white p-4 ring-1 ring-slate-200">
+                        <p className="text-sm font-semibold text-slate-900">發包內容明細</p>
+                        <ul className="mt-3 space-y-2 text-sm text-slate-600">
+                          {record.sourceItemDetails.map((item) => (
+                            <li key={`${record.id}-${item}`} className="rounded-2xl bg-slate-50 px-3 py-2">• {item}</li>
+                          ))}
+                        </ul>
                       </div>
                     </div>
-                    <div className="rounded-2xl bg-white p-4 ring-1 ring-slate-200">
-                      <p className="text-sm font-semibold text-slate-900">發包內容明細</p>
-                      <ul className="mt-3 space-y-2 text-sm text-slate-600">
-                        {record.sourceItemDetails.map((item) => (
-                          <li key={`${record.id}-${item}`} className="rounded-2xl bg-slate-50 px-3 py-2">• {item}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  </div>
+                  )
                 ) : null}
 
               </div>
