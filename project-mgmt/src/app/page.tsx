@@ -4,6 +4,8 @@ import { getProjectRouteId } from "@/components/project-data";
 import { WorkspaceEmptyState } from "@/components/workspace-ui";
 import { getHomeOverviewReadModel } from "@/lib/db/home-overview-read-model";
 
+export const dynamic = "force-dynamic";
+
 export default async function Home() {
   const overview = await getHomeOverviewReadModel();
   const primaryMetrics = overview.metrics.slice(0, 4);
@@ -33,18 +35,18 @@ export default async function Home() {
 
       <section className="grid gap-4 md:grid-cols-2 2xl:grid-cols-4">
         {primaryMetrics.map((stat) => (
-          <article key={stat.label} className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200 transition hover:-translate-y-0.5 hover:shadow-md">
-            <p className="text-sm text-slate-500">{stat.label}</p>
-            <p className="mt-3 text-3xl font-semibold tracking-tight text-slate-900">{stat.value}</p>
+          <article key={stat.label} className="rounded-[30px] border border-white/10 bg-[linear-gradient(180deg,rgba(11,19,34,0.96),rgba(15,25,44,0.88))] p-5 shadow-[var(--shadow-elevated)] transition hover:-translate-y-0.5">
+            <p className="text-sm text-slate-400">{stat.label}</p>
+            <p className="mt-3 text-3xl font-semibold tracking-tight text-white">{stat.value}</p>
           </article>
         ))}
       </section>
 
       <section className="grid gap-6 2xl:grid-cols-[minmax(0,1.65fr)_minmax(340px,0.95fr)]">
-        <article className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+        <article className="rounded-[32px] border border-white/10 bg-[linear-gradient(180deg,rgba(11,19,34,0.96),rgba(15,25,44,0.88))] p-6 shadow-[var(--shadow-elevated)] backdrop-blur-xl">
           <div className="mb-5 flex items-center justify-between">
             <div>
-              <h3 className="text-xl font-semibold text-slate-900">近期專案</h3>
+              <h3 className="text-xl font-semibold text-white">近期專案</h3>
             </div>
             <Link href="/projects" className="inline-flex items-center justify-center rounded-xl px-3 py-2 text-sm font-semibold !text-slate-800 transition hover:bg-slate-100">
               查看全部
@@ -52,9 +54,9 @@ export default async function Home() {
           </div>
 
           {overview.recentProjects.length ? (
-            <div className="overflow-x-auto rounded-2xl border border-slate-200">
-              <table className="min-w-full table-fixed divide-y divide-slate-200 text-left text-sm">
-                <thead className="bg-slate-50/80 text-slate-500">
+            <div className="overflow-x-auto rounded-[24px] border border-white/10 bg-[rgba(255,255,255,0.03)]">
+              <table className="min-w-full table-fixed divide-y divide-white/10 text-left text-sm">
+                <thead className="bg-white/6 text-slate-400">
                   <tr>
                     <th className="w-[38%] px-4 py-3 font-medium">專案</th>
                     <th className="w-[18%] px-4 py-3 font-medium">客戶</th>
@@ -62,17 +64,17 @@ export default async function Home() {
                     <th className="w-[16%] px-4 py-3 font-medium">負責人</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100 bg-white">
+                <tbody className="divide-y divide-white/8 bg-transparent">
                   {overview.recentProjects.map((project) => (
-                    <tr key={project.id} className="align-top transition hover:bg-slate-50/70">
+                    <tr key={project.id} className="align-top transition hover:bg-white/5">
                       <td className="px-4 py-4 align-top">
-                        <Link href={`/projects/${getProjectRouteId({ id: project.id, name: project.name })}`} className="line-clamp-2 font-semibold leading-6 text-slate-900 underline-offset-4 hover:text-slate-700 hover:underline">
+                        <Link href={`/projects/${getProjectRouteId({ id: project.id, name: project.name })}`} className="line-clamp-2 font-semibold leading-6 text-white underline-offset-4 hover:text-slate-200 hover:underline">
                           {project.name}
                         </Link>
                       </td>
-                      <td className="break-words px-4 py-4 align-top text-slate-600">{project.client}</td>
-                      <td className="break-words px-4 py-4 align-top text-slate-600">{project.eventDate}</td>
-                      <td className="px-4 py-4 text-slate-600">{project.owner}</td>
+                      <td className="break-words px-4 py-4 align-top text-slate-300">{project.client}</td>
+                      <td className="break-words px-4 py-4 align-top text-slate-300">{project.eventDate}</td>
+                      <td className="px-4 py-4 text-slate-300">{project.owner}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -86,12 +88,12 @@ export default async function Home() {
           )}
         </article>
 
-        <article className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+        <article className="rounded-[32px] border border-white/10 bg-[linear-gradient(180deg,rgba(11,19,34,0.96),rgba(15,25,44,0.88))] p-6 shadow-[var(--shadow-elevated)] backdrop-blur-xl">
           <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="min-w-0">
-              <h3 className="text-xl font-semibold text-slate-900">收款概況</h3>
+              <h3 className="text-xl font-semibold text-white">收款概況</h3>
             </div>
-            <Link href="/quote-costs" className="inline-flex shrink-0 self-start items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-800 transition hover:border-slate-400 hover:bg-slate-50">
+            <Link href="/quote-costs" className="inline-flex shrink-0 self-start items-center justify-center rounded-2xl border border-white/12 bg-white/6 px-4 py-2 text-sm font-semibold text-white transition hover:border-white/18 hover:bg-white/10">
               前往報價成本
             </Link>
           </div>
@@ -99,9 +101,9 @@ export default async function Home() {
           {financeMetrics.length ? (
             <div className="space-y-3">
               {financeMetrics.map((item) => (
-                <div key={item.label} className="rounded-2xl border border-slate-200 bg-slate-50/80 px-4 py-4">
-                  <p className="text-sm text-slate-500">{item.label}</p>
-                  <p className="mt-2 text-xl font-semibold text-slate-900">{item.value}</p>
+                <div key={item.label} className="rounded-[22px] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.06),rgba(255,255,255,0.03))] px-4 py-4 shadow-[var(--shadow-soft)]">
+                  <p className="text-sm text-slate-400">{item.label}</p>
+                  <p className="mt-2 text-xl font-semibold text-white">{item.value}</p>
                 </div>
               ))}
             </div>
