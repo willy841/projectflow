@@ -24,7 +24,7 @@ export default async function Home() {
           </div>
 
           <div className="flex w-full max-w-md flex-col gap-3 xl:items-end">
-            <Link href="/projects/new" className="inline-flex items-center justify-center rounded-2xl border border-white/70 bg-white px-5 py-3.5 text-sm font-semibold !text-slate-100 shadow-sm transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-white/40">
+            <Link href="/projects/new" className="inline-flex h-11 items-center justify-center rounded-2xl border border-white/10 bg-[linear-gradient(180deg,rgba(59,130,246,0.42),rgba(37,99,235,0.24))] px-4 text-sm font-semibold text-white shadow-[0_24px_48px_-26px_rgba(30,64,175,0.7),0_0_26px_rgba(96,165,250,0.16),inset_0_1px_0_rgba(255,255,255,0.1)] backdrop-blur-xl transition hover:brightness-105 hover:shadow-[0_0_28px_rgba(96,165,250,0.24)]">
               + 新增專案
             </Link>
           </div>
@@ -53,8 +53,8 @@ export default async function Home() {
 
           {overview.recentProjects.length ? (
             <div className="overflow-x-auto rounded-2xl border border-white/10 bg-[linear-gradient(180deg,rgba(39,52,77,0.62),rgba(17,26,42,0.46))] shadow-[0_24px_46px_-28px_rgba(0,0,0,0.54),0_0_16px_rgba(96,165,250,0.05),inset_0_1px_0_rgba(255,255,255,0.05),inset_0_-16px_24px_-18px_rgba(10,18,32,0.86)] backdrop-blur-2xl">
-              <table className="min-w-full table-fixed divide-y divide-slate-200 text-left text-sm">
-                <thead className="bg-slate-50/80 text-slate-400">
+              <table className="min-w-full table-fixed divide-y divide-white/10 text-left text-sm">
+                <thead className="bg-white/[0.04] text-slate-400">
                   <tr>
                     <th className="w-[38%] px-4 py-3 font-medium">專案</th>
                     <th className="w-[18%] px-4 py-3 font-medium">客戶</th>
@@ -66,13 +66,13 @@ export default async function Home() {
                   {overview.recentProjects.map((project) => (
                     <tr key={project.id} className="align-top transition hover:bg-white/6">
                       <td className="px-4 py-4 align-top">
-                        <Link href={`/projects/${getProjectRouteId({ id: project.id, name: project.name })}`} className="line-clamp-2 font-semibold leading-6 text-slate-100 underline-offset-4 hover:text-slate-700 hover:underline">
+                        <Link href={`/projects/${getProjectRouteId({ id: project.id, name: project.name })}`} className="line-clamp-2 font-semibold leading-6 text-slate-100 underline-offset-4 hover:text-slate-200 hover:underline">
                           {project.name}
                         </Link>
                       </td>
-                      <td className="break-words px-4 py-4 align-top text-slate-600">{project.client}</td>
-                      <td className="break-words px-4 py-4 align-top text-slate-600">{project.eventDate}</td>
-                      <td className="px-4 py-4 text-slate-600">{project.owner}</td>
+                      <td className="break-words px-4 py-4 align-top text-slate-300">{project.client}</td>
+                      <td className="break-words px-4 py-4 align-top text-slate-300">{project.eventDate}</td>
+                      <td className="px-4 py-4 text-slate-300">{project.owner}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -86,7 +86,7 @@ export default async function Home() {
           )}
         </article>
 
-        <article className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+        <article className="rounded-3xl border border-white/10 bg-[linear-gradient(180deg,rgba(18,30,50,0.72),rgba(13,22,39,0.52))] p-6 shadow-[0_34px_90px_-38px_rgba(0,0,0,0.68),0_0_34px_rgba(96,165,250,0.08),inset_0_1px_0_rgba(255,255,255,0.07),inset_0_-22px_44px_-28px_rgba(7,13,25,0.98)] backdrop-blur-[28px]">
           <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="min-w-0">
               <h3 className="text-xl font-semibold text-slate-100">收款概況</h3>

@@ -102,7 +102,7 @@ export default async function DesignTasksPage({
             </Link>
           ) : null
         }
-       className="p-1 border-0 bg-transparent shadow-none backdrop-blur-0">
+       className="shell-none p-1">
         {!activeProject ? (
           projects.length ? (
             <div className="overflow-x-auto rounded-2xl border border-white/10 bg-[linear-gradient(180deg,rgba(39,52,77,0.62),rgba(17,26,42,0.46))] shadow-[0_24px_46px_-28px_rgba(0,0,0,0.54),0_0_16px_rgba(96,165,250,0.05),inset_0_1px_0_rgba(255,255,255,0.05),inset_0_-16px_24px_-18px_rgba(10,18,32,0.86)] backdrop-blur-2xl">
