@@ -20,17 +20,17 @@ export default async function VendorPackagesPage() {
 
       <section className="space-y-4">
         {packages.length ? packages.map((vendorPackage) => (
-          <article key={vendorPackage.id} className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm ring-1 ring-slate-200">
+          <article key={vendorPackage.id} className="pf-card p-6">
             <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
               <div>
-                <h3 className="text-2xl font-semibold tracking-tight text-slate-900">{vendorPackage.vendorName}</h3>
-                <p className="mt-2 text-sm text-slate-600">{vendorPackage.eventDate}｜{vendorPackage.location}｜進場時間 {vendorPackage.loadInTime}</p>
-                <p className="mt-2 text-sm font-medium text-slate-700">{getDocumentStatusMessage(vendorPackage.documentStatus)}</p>
+                <h3 className="text-2xl font-semibold tracking-tight text-slate-50">{vendorPackage.vendorName}</h3>
+                <p className="mt-2 text-sm text-slate-400">{vendorPackage.eventDate}｜{vendorPackage.location}｜進場時間 {vendorPackage.loadInTime}</p>
+                <p className="mt-2 text-sm font-medium text-slate-200">{getDocumentStatusMessage(vendorPackage.documentStatus)}</p>
               </div>
               <Link href={`/vendor-packages/${vendorPackage.id}`} className={workspacePrimaryButtonClass}>查看文件</Link>
             </div>
 
-            <div className="mt-4 grid gap-3 text-sm text-slate-600 md:grid-cols-3">
+            <div className="mt-4 grid gap-3 text-sm text-slate-300 md:grid-cols-3">
               <p>項目數：{vendorPackage.items.length}</p>
               <p>文件狀態：<span className={`ml-1 inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ring-1 ${getVendorDocumentStatusClass(vendorPackage.documentStatus)}`}>{vendorPackage.documentStatus}</span></p>
               <p>文件整體備註：{vendorPackage.note || '-'}</p>

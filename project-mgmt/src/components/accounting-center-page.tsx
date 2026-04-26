@@ -955,15 +955,15 @@ export function AccountingCenterPage({
   return (
     <AppShell activePath="/accounting-center">
       <div className="space-y-6">
-        <header className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200 xl:p-7">
+        <header className="pf-card p-6 xl:p-7">
           <div className="flex flex-wrap items-center gap-3">
-            <h2 className="text-3xl font-semibold tracking-tight text-slate-900">帳務中心</h2>
+            <h2 className="text-3xl font-semibold tracking-tight text-slate-50">帳務中心</h2>
           </div>
         </header>
 
-        <section className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+        <section className="pf-card p-6">
           <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
-            <h3 className="text-2xl font-semibold tracking-tight text-slate-900">營收概況</h3>
+            <h3 className="text-2xl font-semibold tracking-tight text-slate-50">營收概況</h3>
             <div className="flex flex-col gap-3 xl:flex-row xl:flex-wrap xl:items-center xl:gap-4">
               <div className="flex flex-wrap gap-2">
                 {([
@@ -975,7 +975,7 @@ export function AccountingCenterPage({
                     key={mode}
                     type="button"
                     onClick={() => setRevenueMode(mode)}
-                    className={`rounded-2xl px-4 py-2.5 text-sm font-medium ring-1 transition ${revenueMode === mode ? "bg-slate-900 text-white ring-slate-900" : "bg-white text-slate-600 ring-slate-200 hover:bg-slate-100"}`}
+                    className={`rounded-2xl px-4 py-2.5 text-sm font-medium ring-1 transition ${revenueMode === mode ? "bg-sky-500/20 text-sky-100 ring-sky-400/30" : "bg-white/6 text-slate-300 ring-white/10 hover:bg-white/10"}`}
                   >
                     {label}
                   </button>
@@ -983,48 +983,48 @@ export function AccountingCenterPage({
               </div>
 
               {revenueMode === "month" ? (
-                <div className="flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-3 py-2">
-                  <span className="text-sm font-semibold text-slate-700">月份</span>
+                <div className="flex items-center gap-2 rounded-2xl border border-white/10 bg-white/[0.05] px-3 py-2 backdrop-blur-xl">
+                  <span className="text-sm font-semibold text-slate-300">月份</span>
                   <input
                     value={revenueMonth}
                     onChange={(event) => setRevenueMonth(event.target.value)}
                     list="revenue-month-options"
-                    className="h-9 w-32 rounded-xl border border-slate-200 px-3 text-sm outline-none transition focus:border-slate-400"
+                    className="h-9 w-32 rounded-xl border border-white/10 bg-slate-950/40 px-3 text-sm text-slate-100 outline-none transition focus:border-sky-400/40"
                   />
                 </div>
               ) : null}
 
               {revenueMode === "year" ? (
-                <div className="flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-3 py-2">
-                  <span className="text-sm font-semibold text-slate-700">年份</span>
+                <div className="flex items-center gap-2 rounded-2xl border border-white/10 bg-white/[0.05] px-3 py-2 backdrop-blur-xl">
+                  <span className="text-sm font-semibold text-slate-300">年份</span>
                   <input
                     value={yearSelection}
                     onChange={(event) => setYearSelection(event.target.value)}
-                    className="h-9 w-28 rounded-xl border border-slate-200 px-3 text-sm outline-none transition focus:border-slate-400"
+                    className="h-9 w-28 rounded-xl border border-white/10 bg-slate-950/40 px-3 text-sm text-slate-100 outline-none transition focus:border-sky-400/40"
                   />
                 </div>
               ) : null}
 
               {revenueMode === "range" ? (
                 <>
-                  <div className="flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-3 py-2">
-                    <span className="text-sm font-semibold text-slate-700">起始</span>
+                  <div className="flex items-center gap-2 rounded-2xl border border-white/10 bg-white/[0.05] px-3 py-2 backdrop-blur-xl">
+                    <span className="text-sm font-semibold text-slate-300">起始</span>
                     <input
                       value={rangeStart}
                       onChange={(event) => setRangeStart(event.target.value)}
-                      className="h-9 w-32 rounded-xl border border-slate-200 px-3 text-sm outline-none transition focus:border-slate-400"
+                      className="h-9 w-32 rounded-xl border border-white/10 bg-slate-950/40 px-3 text-sm text-slate-100 outline-none transition focus:border-sky-400/40"
                     />
                   </div>
-                  <div className="flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-3 py-2">
-                    <span className="text-sm font-semibold text-slate-700">結束</span>
+                  <div className="flex items-center gap-2 rounded-2xl border border-white/10 bg-white/[0.05] px-3 py-2 backdrop-blur-xl">
+                    <span className="text-sm font-semibold text-slate-300">結束</span>
                     <input
                       value={rangeEnd}
                       onChange={(event) => setRangeEnd(event.target.value)}
-                      className="h-9 w-32 rounded-xl border border-slate-200 px-3 text-sm outline-none transition focus:border-slate-400"
+                      className="h-9 w-32 rounded-xl border border-white/10 bg-slate-950/40 px-3 text-sm text-slate-100 outline-none transition focus:border-sky-400/40"
                     />
                   </div>
-                  <div className="min-w-[220px] rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-700">
-                    <span className="font-semibold text-slate-900">區間：</span>
+                  <div className="min-w-[220px] rounded-2xl border border-white/10 bg-white/[0.05] px-4 py-2.5 text-sm text-slate-300">
+                    <span className="font-semibold text-slate-100">區間：</span>
                     {rangeStart} ～ {rangeEnd}
                   </div>
                 </>
@@ -1051,13 +1051,13 @@ export function AccountingCenterPage({
 
         </section>
 
-        <section className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
-          <div className="flex flex-col gap-4 border-b border-slate-200 pb-5 xl:flex-row xl:items-end xl:justify-between">
+        <section className="pf-card p-6">
+          <div className="flex flex-col gap-4 border-b border-white/10 pb-5 xl:flex-row xl:items-end xl:justify-between">
             <div className="flex items-center gap-4">
-              <h3 className="text-2xl font-semibold tracking-tight text-slate-900">帳務管理</h3>
+              <h3 className="text-2xl font-semibold tracking-tight text-slate-50">帳務管理</h3>
               <div className="flex flex-wrap gap-2">
-              <button type="button" onClick={() => setWorkspaceTab("active-projects")} className={`rounded-2xl px-4 py-2.5 text-sm font-semibold ring-1 transition ${workspaceTab === "active-projects" ? "bg-slate-900 text-white ring-slate-900" : "bg-white text-slate-600 ring-slate-200 hover:bg-slate-50"}`}>執行中專案</button>
-              <button type="button" onClick={() => setWorkspaceTab("operating-expenses")} className={`rounded-2xl px-4 py-2.5 text-sm font-semibold ring-1 transition ${workspaceTab === "operating-expenses" ? "bg-slate-900 text-white ring-slate-900" : "bg-white text-slate-600 ring-slate-200 hover:bg-slate-50"}`}>管銷成本</button>
+              <button type="button" onClick={() => setWorkspaceTab("active-projects")} className={`rounded-2xl px-4 py-2.5 text-sm font-semibold ring-1 transition ${workspaceTab === "active-projects" ? "bg-sky-500/20 text-sky-100 ring-sky-400/30" : "bg-white/6 text-slate-300 ring-white/10 hover:bg-white/10"}`}>執行中專案</button>
+              <button type="button" onClick={() => setWorkspaceTab("operating-expenses")} className={`rounded-2xl px-4 py-2.5 text-sm font-semibold ring-1 transition ${workspaceTab === "operating-expenses" ? "bg-sky-500/20 text-sky-100 ring-sky-400/30" : "bg-white/6 text-slate-300 ring-white/10 hover:bg-white/10"}`}>管銷成本</button>
               </div>
             </div>
             <div className="flex flex-wrap gap-2">
@@ -1069,7 +1069,7 @@ export function AccountingCenterPage({
                     type="button"
                     onClick={() => setWorkspaceMonth(month.key)}
                     className={`rounded-2xl px-4 py-2 text-sm font-medium ring-1 transition ${
-                      active ? "bg-slate-900 text-white ring-slate-900" : "bg-white text-slate-600 ring-slate-200 hover:bg-slate-100"
+                      active ? "bg-sky-500/20 text-sky-100 ring-sky-400/30" : "bg-white/6 text-slate-300 ring-white/10 hover:bg-white/10"
                     }`}
                   >
                     {month.label}
@@ -1086,25 +1086,25 @@ export function AccountingCenterPage({
                 <MetricCard label="已收款" value={formatCurrency(activeProjectSummary.collected)} hint="目前已收回金額" tone="emerald" compact />
                 <MetricCard label="未收款" value={formatCurrency(activeProjectSummary.outstanding)} hint="尚未收回金額" tone="amber" compact />
               </div>
-              <div className="overflow-x-auto rounded-2xl border border-slate-200">
-                <table className="min-w-full divide-y divide-slate-200 text-left text-sm">
-                  <thead className="bg-slate-50 text-slate-500">
+              <div className="pf-table-shell">
+                <table className="pf-table">
+                  <thead className="bg-white/[0.04] text-slate-400">
                     <tr>
                       {['專案名稱', '活動日期', '總金額', '已收款', '未收款', '查看'].map((header) => (
                         <th key={header} className="px-4 py-3 font-medium whitespace-nowrap">{header}</th>
                       ))}
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-100 bg-white">
+                  <tbody className="divide-y divide-white/10">
                     {monthData.activeProjects.map((project) => (
-                      <tr key={project.project} className="align-middle">
-                        <td className="px-4 py-3 font-semibold text-slate-900">{project.project}</td>
-                        <td className="px-4 py-3 text-slate-600">{project.eventDate}</td>
-                        <td className="px-4 py-3 text-slate-900">{formatCurrency(project.totalAmount)}</td>
-                        <td className="px-4 py-3 text-slate-900">{formatCurrency(project.collectedAmount)}</td>
-                        <td className="px-4 py-3 font-semibold text-amber-700">{formatCurrency(Math.max(project.totalAmount - project.collectedAmount, 0))}</td>
+                      <tr key={project.project} className="align-middle text-slate-200">
+                        <td className="px-4 py-3 font-semibold text-slate-100">{project.project}</td>
+                        <td className="px-4 py-3 text-slate-300">{project.eventDate}</td>
+                        <td className="px-4 py-3 text-slate-100">{formatCurrency(project.totalAmount)}</td>
+                        <td className="px-4 py-3 text-slate-100">{formatCurrency(project.collectedAmount)}</td>
+                        <td className="px-4 py-3 font-semibold text-amber-200">{formatCurrency(Math.max(project.totalAmount - project.collectedAmount, 0))}</td>
                         <td className="px-4 py-3">
-                          <Link href={project.projectId ? `/quote-costs/${project.projectId}` : '/quote-costs'} className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-800 transition hover:border-slate-400 hover:bg-slate-50">查看</Link>
+                          <Link href={project.projectId ? `/quote-costs/${project.projectId}` : '/quote-costs'} className="pf-btn-secondary px-3 py-2">查看</Link>
                         </td>
                       </tr>
                     ))}
@@ -1121,7 +1121,7 @@ export function AccountingCenterPage({
                 <MetricCard label="營運支出總計" value={formatCurrency(totalOperatingExpense)} hint="本月份總計" tone="amber" compact />
               </div>
 
-              <div className="flex flex-wrap gap-2 border-b border-slate-200 pb-4">
+              <div className="flex flex-wrap gap-2 border-b border-white/10 pb-4">
                 <button type="button" onClick={() => setExpenseTab("personnel")} className={`rounded-2xl px-4 py-2.5 text-sm font-semibold ring-1 transition ${expenseTab === "personnel" ? "bg-slate-900 text-white ring-slate-900" : "bg-white text-slate-600 ring-slate-200 hover:bg-slate-50"}`}>人事</button>
                 <button type="button" onClick={() => setExpenseTab("office")} className={`rounded-2xl px-4 py-2.5 text-sm font-semibold ring-1 transition ${expenseTab === "office" ? "bg-slate-900 text-white ring-slate-900" : "bg-white text-slate-600 ring-slate-200 hover:bg-slate-50"}`}>庶務</button>
                 <button type="button" onClick={() => setExpenseTab("other")} className={`rounded-2xl px-4 py-2.5 text-sm font-semibold ring-1 transition ${expenseTab === "other" ? "bg-slate-900 text-white ring-slate-900" : "bg-white text-slate-600 ring-slate-200 hover:bg-slate-50"}`}>其他</button>
@@ -1158,7 +1158,7 @@ export function AccountingCenterPage({
 
               {expenseTab === "editor" ? (
                 <div className="space-y-6">
-                  <div className="flex flex-wrap gap-2 border-b border-slate-200 pb-4">
+                  <div className="flex flex-wrap gap-2 border-b border-white/10 pb-4">
                     <button type="button" onClick={() => setExpenseEditorTab("personnel")} className={`rounded-2xl px-4 py-2.5 text-sm font-semibold ring-1 transition ${expenseEditorTab === "personnel" ? "bg-slate-900 text-white ring-slate-900" : "bg-white text-slate-600 ring-slate-200 hover:bg-slate-50"}`}>人事編輯</button>
                     <button type="button" onClick={() => setExpenseEditorTab("office")} className={`rounded-2xl px-4 py-2.5 text-sm font-semibold ring-1 transition ${expenseEditorTab === "office" ? "bg-slate-900 text-white ring-slate-900" : "bg-white text-slate-600 ring-slate-200 hover:bg-slate-50"}`}>庶務編輯</button>
                     <button type="button" onClick={() => setExpenseEditorTab("other")} className={`rounded-2xl px-4 py-2.5 text-sm font-semibold ring-1 transition ${expenseEditorTab === "other" ? "bg-slate-900 text-white ring-slate-900" : "bg-white text-slate-600 ring-slate-200 hover:bg-slate-50"}`}>其他編輯</button>
@@ -1184,7 +1184,7 @@ export function AccountingCenterPage({
                             return (
                               <div key={employee.id} data-testid={`personnel-card-${employee.id}`} className="space-y-3">
                                 <div data-testid={`personnel-preview-toggle-${employee.id}`} onClick={() => { if (editingEmployeeId === employee.id && personnelViewMode === "preview") { setEditingEmployeeId(null); } else { setEditingEmployeeId(employee.id); setPersonnelViewMode("preview"); } }} className="flex cursor-pointer flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-200 px-4 py-2.5 transition hover:border-slate-300 hover:bg-slate-50">
-                                  <div className="flex items-center gap-3"><p className="font-semibold text-slate-900">{employee.name}</p><span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ring-1 ${employee.type === "full-time" ? "bg-sky-50 text-sky-700 ring-sky-200" : "bg-violet-50 text-violet-700 ring-violet-200"}`}>{employee.type === "full-time" ? "正職" : "兼職"}</span></div>
+                                  <div className="flex items-center gap-3"><p className="font-semibold text-slate-100">{employee.name}</p><span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ring-1 ${employee.type === "full-time" ? "bg-sky-50 text-sky-700 ring-sky-200" : "bg-violet-50 text-violet-700 ring-violet-200"}`}>{employee.type === "full-time" ? "正職" : "兼職"}</span></div>
                                   <div className="flex gap-2" onClick={(event) => event.stopPropagation()}>
                                     <button data-testid={`personnel-edit-toggle-${employee.id}`} type="button" onClick={() => { if (editingEmployeeId === employee.id && personnelViewMode === "edit") { setEditingEmployeeId(null); } else { setEditingEmployeeId(employee.id); setPersonnelViewMode("edit"); } }} className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-800 transition hover:bg-slate-50">編輯</button>
                                     <button data-testid={`personnel-delete-${employee.id}`} type="button" onClick={() => handleDeleteEmployee(employee.id)} className="inline-flex items-center justify-center px-2 py-2 text-sm font-semibold text-rose-600 transition hover:text-rose-700">刪除</button>
@@ -1476,15 +1476,15 @@ function ListBlock({
     <section className="rounded-2xl border border-slate-200 p-4">
       {title ? <h5 className="text-base font-semibold text-slate-900">{title}</h5> : null}
       <div className={`${title ? 'mt-4' : ''} overflow-x-auto rounded-2xl border border-slate-200`}>
-        <table className="min-w-full divide-y divide-slate-200 text-left text-sm">
-          <thead className="bg-slate-50 text-slate-500">
+        <table className="pf-table">
+          <thead className="bg-white/[0.04] text-slate-400">
             <tr>
               {headers.map((header) => (
                 <th key={header} className="px-4 py-3 font-medium whitespace-nowrap">{header}</th>
               ))}
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-100 bg-white">
+          <tbody className="divide-y divide-white/10">
             {rows.map((row, index) => (
               <tr key={`${title}-${index}`}>
                 {row.map((cell, cellIndex) => (

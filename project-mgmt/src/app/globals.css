@@ -46,3 +46,70 @@ button[class*="bg-slate-900"],
 button[class*="bg-slate-800"] {
   color: #fff;
 }
+
+@layer components {
+  .pf-auth-page {
+    @apply min-h-screen px-4 py-10 text-slate-100;
+    background:
+      radial-gradient(circle at top left, rgba(96, 165, 250, 0.12), transparent 22%),
+      radial-gradient(circle at top right, rgba(59, 130, 246, 0.1), transparent 20%),
+      radial-gradient(circle at bottom, rgba(37, 99, 235, 0.08), transparent 26%),
+      linear-gradient(180deg, #020617 0%, #030712 36%, #020b17 100%);
+  }
+
+  .pf-card {
+    @apply rounded-[32px] border border-white/10 bg-[linear-gradient(180deg,rgba(18,30,50,0.72),rgba(13,22,39,0.52))] shadow-[0_34px_90px_-38px_rgba(0,0,0,0.68),0_0_34px_rgba(96,165,250,0.08),inset_0_1px_0_rgba(255,255,255,0.07),inset_0_-22px_44px_-28px_rgba(7,13,25,0.98)] backdrop-blur-[28px];
+  }
+
+  .pf-card-soft {
+    @apply rounded-3xl border border-white/10 bg-white/[0.04] shadow-[inset_0_1px_0_rgba(255,255,255,0.04),0_24px_54px_-34px_rgba(0,0,0,0.58)] backdrop-blur-2xl;
+  }
+
+  .pf-input {
+    @apply w-full rounded-2xl border border-white/10 bg-slate-950/45 px-4 py-3 text-sm text-slate-100 outline-none ring-0 transition placeholder:text-slate-500 focus:border-sky-400/45 focus:bg-slate-950/60;
+  }
+
+  .pf-select {
+    @apply rounded-2xl border border-white/10 bg-slate-950/45 px-4 py-3 text-sm text-slate-100 outline-none ring-0 transition focus:border-sky-400/45 focus:bg-slate-950/60;
+  }
+
+  .pf-btn-primary {
+    @apply inline-flex items-center justify-center rounded-2xl border border-sky-400/20 bg-[linear-gradient(180deg,rgba(37,99,235,0.92),rgba(29,78,216,0.84))] px-4 py-3 text-sm font-semibold text-white shadow-[0_24px_50px_-28px_rgba(37,99,235,0.7),inset_0_1px_0_rgba(255,255,255,0.18)] transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60;
+  }
+
+  .pf-btn-secondary {
+    @apply inline-flex items-center justify-center rounded-2xl border border-white/10 bg-white/[0.05] px-4 py-3 text-sm font-semibold text-slate-100 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] backdrop-blur-xl transition hover:bg-white/[0.08] disabled:cursor-not-allowed disabled:opacity-60;
+  }
+
+  .pf-badge {
+    @apply inline-flex items-center rounded-full border border-white/10 bg-white/[0.06] px-2.5 py-1 text-xs font-medium text-slate-200;
+  }
+
+  .pf-table-shell {
+    @apply overflow-x-auto rounded-3xl border border-white/10 bg-[linear-gradient(180deg,rgba(20,31,51,0.8),rgba(10,18,33,0.68))] shadow-[0_28px_70px_-42px_rgba(0,0,0,0.62),inset_0_1px_0_rgba(255,255,255,0.05)] backdrop-blur-2xl;
+  }
+
+  .pf-table {
+    @apply min-w-full text-left text-sm text-slate-200;
+  }
+
+  .pf-table thead {
+    @apply bg-white/[0.04] text-slate-400;
+  }
+
+  .pf-table thead th {
+    @apply px-4 py-3 font-medium;
+  }
+
+  .pf-table tbody {
+    @apply divide-y divide-white/10;
+  }
+
+  .pf-table tbody tr {
+    @apply align-top transition hover:bg-white/[0.03];
+  }
+
+  .pf-table tbody td {
+    @apply px-4 py-4;
+  }
+}

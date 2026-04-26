@@ -79,25 +79,25 @@ export default async function SystemSettingsPage({ searchParams }: { searchParam
 
   return (
     <AppShellAuth activePath="/system-settings">
-      <section className="rounded-[32px] bg-white p-7 shadow-sm ring-1 ring-slate-200 lg:p-8">
+      <section className="pf-card p-7 lg:p-8">
         <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
           <div>
-            <h1 className="text-3xl font-semibold tracking-tight text-slate-900">系統設定</h1>
-            <p className="mt-2 text-sm text-slate-500">管理使用者帳號、角色與首次改密碼狀態。</p>
+            <h1 className="text-3xl font-semibold tracking-tight text-slate-50">系統設定</h1>
+            <p className="mt-2 text-sm text-slate-400">管理使用者帳號、角色與首次改密碼狀態。</p>
           </div>
-          <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600">
-            目前管理者：<span className="font-semibold text-slate-900">{actor.name}</span>
+          <div className="pf-card-soft px-4 py-3 text-sm text-slate-300">
+            目前管理者：<span className="font-semibold text-slate-100">{actor.name}</span>
           </div>
         </div>
 
         {initialPassword ? (
-          <div className="mt-6 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+          <div className="mt-6 rounded-2xl border border-amber-400/20 bg-amber-400/10 px-4 py-3 text-sm text-amber-200">
             本次建立 / 重設後的初始密碼：<span className="font-semibold">{initialPassword}</span>。請安全地提供給對方，對方首次登入後必須自行修改密碼。
           </div>
         ) : null}
 
         {error ? (
-          <div className="mt-6 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+          <div className="mt-6 rounded-2xl border border-rose-400/20 bg-rose-400/10 px-4 py-3 text-sm text-rose-200">
             {error === 'owner-protected'
               ? 'Owner 帳號不可被一般管理操作降權、停用或改動核心權限。'
               : error === 'self-protected'
@@ -109,30 +109,30 @@ export default async function SystemSettingsPage({ searchParams }: { searchParam
         ) : null}
 
         <div className="mt-8 grid gap-6 xl:grid-cols-[minmax(0,1.5fr)_380px]">
-          <section className="rounded-3xl border border-slate-200 bg-slate-50/60 p-5">
+          <section className="pf-card-soft p-5">
             <div className="mb-4 flex flex-col gap-4">
               <div className="flex items-center justify-between">
-                <h2 className="text-lg font-semibold text-slate-900">使用者列表</h2>
-                <span className="text-sm text-slate-500">共 {filteredUsers.length} / {users.length} 位</span>
+                <h2 className="text-lg font-semibold text-slate-100">使用者列表</h2>
+                <span className="text-sm text-slate-400">共 {filteredUsers.length} / {users.length} 位</span>
               </div>
               <form className="grid gap-3 md:grid-cols-[minmax(0,1fr)_160px_auto]" method="get">
                 <input
                   name="keyword"
                   defaultValue={keyword}
                   placeholder="搜尋姓名或 Email"
-                  className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-slate-900"
+                  className="pf-input"
                 />
-                <select name="status" defaultValue={status} className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-slate-900">
+                <select name="status" defaultValue={status} className="pf-input">
                   <option value="all">全部狀態</option>
                   <option value="active">只看啟用</option>
                   <option value="inactive">只看停用</option>
                 </select>
-                <button type="submit" className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm font-medium text-slate-700 hover:bg-slate-50">篩選</button>
+                <button type="submit" className="pf-btn-secondary px-4 py-3 font-medium">篩選</button>
               </form>
             </div>
-            <div className="overflow-x-auto rounded-2xl border border-slate-200 bg-white">
-              <table className="min-w-full divide-y divide-slate-200 text-left text-sm">
-                <thead className="bg-slate-50 text-slate-500">
+            <div className="pf-table-shell">
+              <table className="pf-table">
+                <thead className="bg-white/[0.04] text-slate-400">
                   <tr>
                     <th className="px-4 py-3 font-medium">姓名 / Email</th>
                     <th className="px-4 py-3 font-medium">角色</th>
@@ -141,22 +141,22 @@ export default async function SystemSettingsPage({ searchParams }: { searchParam
                     <th className="px-4 py-3 font-medium">操作</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100 bg-white">
+                <tbody className="divide-y divide-white/10">
                   {filteredUsers.map((user) => (
-                    <tr key={user.id} className="align-top">
+                    <tr key={user.id} className="align-top text-slate-200">
                       <td className="px-4 py-4">
-                        <div className="font-semibold text-slate-900">{user.name}{user.isOwner ? '（Owner）' : ''}</div>
-                        <div className="mt-1 text-slate-500">{user.email}</div>
+                        <div className="font-semibold text-slate-100">{user.name}{user.isOwner ? '（Owner）' : ''}</div>
+                        <div className="mt-1 text-slate-400">{user.email}</div>
                       </td>
                       <td className="px-4 py-4">
                         <form action={updateRoleAction} className="flex items-center gap-2">
                           <input type="hidden" name="userId" value={user.id} />
                           <input type="hidden" name="isOwner" value={String(user.isOwner)} />
-                          <select name="role" defaultValue={user.role} className="rounded-xl border border-slate-300 px-3 py-2 text-sm" disabled={user.isOwner}>
+                          <select name="role" defaultValue={user.role} className="rounded-xl border border-white/10 bg-slate-950/45 px-3 py-2 text-sm text-slate-100" disabled={user.isOwner}>
                             <option value="admin">Admin</option>
                             <option value="member">Member</option>
                           </select>
-                          <button type="submit" className="rounded-xl border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400" disabled={user.isOwner} title={user.isOwner ? 'Owner 帳號不可在這裡降權或改角色。' : undefined}>更新</button>
+                          <button type="submit" className="rounded-xl border border-white/10 bg-white/[0.05] px-3 py-2 text-sm font-medium text-slate-100 transition hover:bg-white/[0.08] disabled:cursor-not-allowed disabled:opacity-40" disabled={user.isOwner} title={user.isOwner ? 'Owner 帳號不可在這裡降權或改角色。' : undefined}>更新</button>
                         </form>
                       </td>
                       <td className="px-4 py-4">
@@ -164,23 +164,23 @@ export default async function SystemSettingsPage({ searchParams }: { searchParam
                           <input type="hidden" name="userId" value={user.id} />
                           <input type="hidden" name="isOwner" value={String(user.isOwner)} />
                           <input type="hidden" name="isActive" value={String(!user.isActive)} />
-                          <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${user.isActive ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-200 text-slate-700'}`}>
+                          <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${user.isActive ? 'border border-emerald-400/20 bg-emerald-400/12 text-emerald-200' : 'border border-white/10 bg-white/8 text-slate-300'}`}>
                             {user.isActive ? '啟用中' : '已停用'}
                           </span>
-                          <button type="submit" className="rounded-xl border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400" disabled={user.isOwner} title={user.isOwner ? 'Owner 帳號不可停用。' : undefined}>
+                          <button type="submit" className="rounded-xl border border-white/10 bg-white/[0.05] px-3 py-2 text-sm font-medium text-slate-100 transition hover:bg-white/[0.08] disabled:cursor-not-allowed disabled:opacity-40" disabled={user.isOwner} title={user.isOwner ? 'Owner 帳號不可停用。' : undefined}>
                             {user.isActive ? '停用' : '啟用'}
                           </button>
                         </form>
                       </td>
                       <td className="px-4 py-4">
-                        <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${user.mustChangePassword ? 'bg-amber-100 text-amber-700' : 'bg-sky-100 text-sky-700'}`}>
+                        <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${user.mustChangePassword ? 'border border-amber-400/20 bg-amber-400/12 text-amber-200' : 'border border-sky-400/20 bg-sky-400/12 text-sky-200'}`}>
                           {user.mustChangePassword ? '首次改密碼中' : '正常'}
                         </span>
                       </td>
                       <td className="px-4 py-4">
                         <form action={resetPasswordStatusAction}>
                           <input type="hidden" name="userId" value={user.id} />
-                          <button type="submit" className="rounded-xl border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">
+                          <button type="submit" className="rounded-xl border border-white/10 bg-white/[0.05] px-3 py-2 text-sm font-medium text-slate-100 transition hover:bg-white/[0.08]">
                             重設首次密碼
                           </button>
                         </form>
@@ -192,29 +192,29 @@ export default async function SystemSettingsPage({ searchParams }: { searchParam
             </div>
           </section>
 
-          <section className="rounded-3xl border border-slate-200 bg-white p-5">
-            <h2 className="text-lg font-semibold text-slate-900">新增使用者</h2>
-            <p className="mt-2 text-sm text-slate-500">管理者建立帳號後，系統會產生一組初始密碼，對方首次登入後必須自行修改。</p>
-            <div className="mt-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-xs leading-6 text-slate-500">
+          <section className="pf-card-soft p-5">
+            <h2 className="text-lg font-semibold text-slate-100">新增使用者</h2>
+            <p className="mt-2 text-sm text-slate-400">管理者建立帳號後，系統會產生一組初始密碼，對方首次登入後必須自行修改。</p>
+            <div className="mt-3 rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-xs leading-6 text-slate-400">
               Owner 保護規則：Owner 不可被停用、不可被降權；一般 Admin 不能改動 Owner 的核心權限。
             </div>
             <form action={createUserAction} className="mt-5 space-y-4">
               <div>
-                <label className="mb-2 block text-sm font-medium text-slate-700">姓名</label>
-                <input name="name" required className="w-full rounded-2xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-slate-900" />
+                <label className="mb-2 block text-sm font-medium text-slate-300">姓名</label>
+                <input name="name" required className="pf-input" />
               </div>
               <div>
-                <label className="mb-2 block text-sm font-medium text-slate-700">Email</label>
-                <input name="email" type="email" required className="w-full rounded-2xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-slate-900" />
+                <label className="mb-2 block text-sm font-medium text-slate-300">Email</label>
+                <input name="email" type="email" required className="pf-input" />
               </div>
               <div>
-                <label className="mb-2 block text-sm font-medium text-slate-700">角色</label>
-                <select name="role" defaultValue="member" className="w-full rounded-2xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-slate-900">
+                <label className="mb-2 block text-sm font-medium text-slate-300">角色</label>
+                <select name="role" defaultValue="member" className="pf-input">
                   <option value="member">Member</option>
                   <option value="admin">Admin</option>
                 </select>
               </div>
-              <button type="submit" className="inline-flex w-full items-center justify-center rounded-2xl bg-slate-950 px-5 py-3.5 text-sm font-semibold text-white transition hover:bg-slate-800">
+              <button type="submit" className="pf-btn-primary w-full px-5 py-3.5">
                 建立使用者
               </button>
             </form>

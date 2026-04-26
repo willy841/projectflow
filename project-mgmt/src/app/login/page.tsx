@@ -31,16 +31,16 @@ export default async function LoginPage({ searchParams }: { searchParams?: Promi
   const next = typeof params.next === 'string' ? params.next : '/';
 
   return (
-    <main className="min-h-screen bg-[#f4f7fb] px-4 py-10 text-slate-900">
+    <main className="pf-auth-page">
       <div className="mx-auto flex min-h-[80vh] max-w-md items-center">
-        <section className="w-full rounded-[32px] bg-white p-8 shadow-sm ring-1 ring-slate-200">
+        <section className="pf-card w-full p-8">
           <div className="mb-8">
-            <h1 className="text-3xl font-semibold tracking-tight text-slate-900">登入 projectflow</h1>
-            <p className="mt-3 text-sm text-slate-500">未來所有人進入系統前，都必須先完成登入。</p>
+            <h1 className="text-3xl font-semibold tracking-tight text-slate-50">登入 projectflow</h1>
+            <p className="mt-3 text-sm text-slate-400">未來所有人進入系統前，都必須先完成登入。</p>
           </div>
 
           {error ? (
-            <div className="mb-5 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+            <div className="mb-5 rounded-2xl border border-rose-400/20 bg-rose-400/10 px-4 py-3 text-sm text-rose-200">
               {error === 'inactive' ? '此帳號目前已被停用。' : '帳號或密碼錯誤。'}
             </div>
           ) : null}
@@ -48,14 +48,14 @@ export default async function LoginPage({ searchParams }: { searchParams?: Promi
           <form action={loginAction} className="space-y-4">
             <input type="hidden" name="next" value={next} />
             <div>
-              <label htmlFor="login-email" className="mb-2 block text-sm font-medium text-slate-700">Email</label>
-              <input id="login-email" name="email" type="email" required className="w-full rounded-2xl border border-slate-300 px-4 py-3 text-sm outline-none ring-0 transition focus:border-slate-900" />
+              <label htmlFor="login-email" className="mb-2 block text-sm font-medium text-slate-300">Email</label>
+              <input id="login-email" name="email" type="email" required className="pf-input" />
             </div>
             <div>
-              <label htmlFor="login-password" className="mb-2 block text-sm font-medium text-slate-700">密碼</label>
-              <input id="login-password" name="password" type="password" required className="w-full rounded-2xl border border-slate-300 px-4 py-3 text-sm outline-none ring-0 transition focus:border-slate-900" />
+              <label htmlFor="login-password" className="mb-2 block text-sm font-medium text-slate-300">密碼</label>
+              <input id="login-password" name="password" type="password" required className="pf-input" />
             </div>
-            <button type="submit" className="inline-flex w-full items-center justify-center rounded-2xl bg-slate-950 px-5 py-3.5 text-sm font-semibold text-white transition hover:bg-slate-800">
+            <button type="submit" className="pf-btn-primary w-full py-3.5">
               登入
             </button>
           </form>
