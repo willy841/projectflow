@@ -105,23 +105,9 @@ export function ProjectsPageClient({ initialProjects }: { initialProjects: Proje
     <>
       <header className="p-1">
         <div className="flex flex-col gap-5 2xl:flex-row 2xl:items-center 2xl:justify-between">
-          <div className="flex items-center gap-3">
-            <h2 className="text-3xl font-semibold tracking-tight text-slate-50">專案列表</h2>
-          </div>
-
-          <div className="flex flex-wrap gap-3">
-            <Link href="/projects/new" className={workspacePrimaryButtonClass}>
-              + 新增專案
-            </Link>
-          </div>
-        </div>
-      </header>
-
-      <section className="p-1">
-        <div className="mb-5 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
           <div className="min-w-0">
             <div className="flex min-h-11 flex-wrap items-center gap-3">
-              <h3 className="text-xl font-semibold leading-none text-slate-100">全部專案</h3>
+              <h2 className="text-3xl font-semibold tracking-tight text-slate-50">專案列表</h2>
               <p className="text-sm leading-none text-slate-400">
                 目前顯示 <span className="font-semibold text-slate-100">{visibleProjects.length}</span> / {projects.length} 個專案
               </p>
@@ -130,7 +116,8 @@ export function ProjectsPageClient({ initialProjects }: { initialProjects: Proje
               </p>
             </div>
           </div>
-          <div className="flex w-full flex-col items-end gap-2 sm:flex-row sm:items-center xl:w-auto">
+
+          <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-center 2xl:w-auto">
             <input
               value={searchKeyword}
               onChange={(event) => {
@@ -140,8 +127,14 @@ export function ProjectsPageClient({ initialProjects }: { initialProjects: Proje
               placeholder="搜尋專案 / 客戶 / 地點"
               className="h-11 w-full min-w-0 rounded-2xl border border-white/10 bg-slate-900/45 px-4 text-sm text-slate-100 outline-none transition placeholder:text-slate-400 focus:border-sky-300/30 sm:w-80 xl:w-72"
             />
+            <Link href="/projects/new" className={workspacePrimaryButtonClass}>
+              + 新增專案
+            </Link>
           </div>
         </div>
+      </header>
+
+      <section className="p-1">
 
         <div className="mb-5 flex flex-wrap gap-2">
           {PROJECT_STATUS_FILTERS.map((filter) => {
