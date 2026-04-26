@@ -5,7 +5,31 @@
 
 ---
 
-## 0. 2026-04-24 起的強制續接規則（最新）
+## 0. 2026-04-26 起的最新補充（Phase 1 技術收尾 / 正式站前主線）
+
+若續接重點是以下任一項：
+- Phase 1 技術性收尾完成度
+- runtime / env / acceptance-deploy separation 收尾
+- closeout retained read 的 snapshot-only 收斂結果
+- clean-start 正式站前提下的資料治理紀律
+- 正式站前還剩哪些真正技術尾巴
+
+則不可只停在 `MD155` / `MD156` / `MD157`，而必須額外納入以下新入口鏈：
+
+1. `MD164-projectflow-acceptance-data-governance-and-pre-production-read-order-index-2026-04-26.md`
+2. `project-mgmt/docs/projectflow-phase1-technical-tail-closure-summary-2026-04-26.md`
+3. `MD163-projectflow-current-maturity-and-next-step-management-summary-2026-04-26.md`
+4. `MD161-projectflow-technical-stability-tail-audit-and-next-actions-draft-2026-04-26.md`
+5. `MD162-projectflow-pre-production-migration-technical-risk-list-v1-2026-04-26.md`
+
+補充規則：
+- 若問題是「這一輪技術收尾到底做到哪？」→ 先看 `projectflow-phase1-technical-tail-closure-summary-2026-04-26.md`
+- 若問題是「closeout retained snapshot-only 現在已經做到什麼程度？」→ 再看：
+  - `projectflow-closeout-retained-snapshot-fallback-strategy-2026-04-26.md`
+  - `projectflow-pre-production-retained-snapshot-decision-memo-2026-04-26.md`
+- 若問題是「正式站不帶舊資料後，剩下的技術治理姿勢是什麼？」→ 以 `MD162` + `MD163` 為準
+
+## 1. 2026-04-24 起的強制續接規則（最新）
 
 **若要續接現在的 `projectflow` 主線，閱讀順序必須先以最新主線文件為主，不可再從早期 MD 直接起手。**
 
@@ -40,7 +64,7 @@
 
 ---
 
-## 1. 2026-04-24 最新補充（當前驗收站主線必對齊）
+## 2. 2026-04-24 最新補充（當前驗收站主線必對齊）
 
 - 已新增：`MD156-projectflow-project-document-routing-and-dispatch-trade-linkage-rules-2026-04-24.md`
 - 本文件的重要性在於正式校正三條目前仍容易被舊 handoff 誤導的規則：
@@ -58,7 +82,7 @@
 
 ---
 
-## 2. 2026-04-20 最新最高優先執行目的（目前主線）
+## 3. 2026-04-20 最新最高優先執行目的（目前主線）
 
 目前 `projectflow` 的最主要執行目的，已更新為：
 1. **先以 GitHub 驗收測試站作為現階段唯一主線**
@@ -81,7 +105,7 @@
 
 ---
 
-## 3. 目前有效的高階判讀
+## 4. 目前有效的高階判讀
 
 ### 3.1 先看最新主線，不要先看早期 spec
 之後若有任何新 session / 新 agent / 新 handoff：
@@ -102,7 +126,7 @@
 
 ---
 
-## 4. 與近代 closure 的關係
+## 5. 與近代 closure 的關係
 
 ### 4.1 `MD134`
 - 仍是 `project detail / dispatch / UI cleanup` 的重要 closure
@@ -129,7 +153,7 @@
 
 ---
 
-## 5. 對後續 agent 的明確要求
+## 6. 對後續 agent 的明確要求
 
 之後續接 `projectflow` 時，禁止以下做法：
 
@@ -143,6 +167,6 @@
 
 ---
 
-## 6. 一句話總結
+## 7. 一句話總結
 
 > **`projectflow` 目前的續接入口，已正式升級為：`MD-MASTER` → `MD155` → `MD156`；`MD21` / `MD22` 等早期文件已降級為歷史回查材料，不可再當作新 session 的主要入口。**
