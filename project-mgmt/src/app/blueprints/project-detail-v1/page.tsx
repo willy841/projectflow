@@ -1,10 +1,10 @@
 export default function ProjectDetailBlueprintV1Page() {
   const summaryItems = [
-    { label: '活動日期', value: '2026-05-12', icon: '◷' },
-    { label: '活動地點', value: '松山文創園區', icon: '⌘' },
-    { label: '進場時間', value: '08:30', icon: '◴' },
-    { label: '專案預算', value: 'NT$ 1,280,000', icon: '◈' },
-    { label: '目前成本', value: 'NT$ 742,500', icon: '◉' },
+    { label: '活動日期', value: '2026-05-12', icon: '🗓', iconTone: 'blue' },
+    { label: '活動地點', value: '松山文創園區', icon: '📍', iconTone: 'blue' },
+    { label: '進場時間', value: '08:30', icon: '🕒', iconTone: 'violet' },
+    { label: '專案預算', value: 'NT$ 1,280,000', icon: '💵', iconTone: 'emerald' },
+    { label: '目前成本', value: 'NT$ 742,500', icon: '💰', iconTone: 'amber' },
   ];
 
   const infoItems = [
@@ -122,7 +122,17 @@ export default function ProjectDetailBlueprintV1Page() {
                     <p className="text-xs font-medium uppercase tracking-wider text-slate-500">{item.label}</p>
                     <p className="mt-3 text-[1.15rem] font-semibold tracking-tight text-slate-100">{item.value}</p>
                   </div>
-                  <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.05] text-base text-slate-200 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]">
+                  <span
+                    className={`inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border text-base shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] ${
+                      item.iconTone === 'emerald'
+                        ? 'border-emerald-300/16 bg-emerald-400/10 text-emerald-200'
+                        : item.iconTone === 'amber'
+                          ? 'border-amber-300/16 bg-amber-400/10 text-amber-200'
+                          : item.iconTone === 'violet'
+                            ? 'border-violet-300/16 bg-violet-400/10 text-violet-200'
+                            : 'border-sky-300/16 bg-sky-400/10 text-sky-200'
+                    }`}
+                  >
                     {item.icon}
                   </span>
                 </div>
