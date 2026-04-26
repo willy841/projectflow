@@ -140,4 +140,6 @@ Current conclusion:
 - closeout detail no longer rebuilds live summary totals when snapshot is missing
 - closeout detail no longer live-fills retained arrays when snapshot row exists but arrays are empty
 - formal acceptance v2 remained green after this stronger convergence step
+- in a clean-start official environment, new data should be expected to obey retained snapshot rules strictly
+- if future official closeout data is missing retained snapshot, that should be treated as a bug-class / governance-failure state, not as normal compatibility variance
 - closeout retained read can now be treated as a validated snapshot-first / snapshot-owned retained path for the current phase

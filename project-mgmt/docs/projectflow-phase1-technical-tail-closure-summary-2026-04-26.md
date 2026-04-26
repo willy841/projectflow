@@ -87,11 +87,13 @@ Not fully done:
 - the remaining question is narrower:
   - for future official data, what should happen if a closed project is somehow missing retained snapshot?
   - who verifies snapshot-write discipline from day one?
+  - whether missing retained snapshot for new official data should be treated as a bug-class state
 
 Interpretation:
 - this is no longer primarily a code feasibility issue
 - and it is no longer mainly a legacy-data issue under the current deployment assumption
 - it is now mostly a forward-looking official-data discipline question
+- in a clean-start official environment, tolerance for new-data rule violations should be treated as governance weakness, and likely as bug-class behavior
 
 ### 2.3 Compatibility semantic cleanup outside this phase
 Not fully done:
@@ -176,4 +178,4 @@ If desired, open a narrow follow-up scope only for:
 
 ## 6. One-line conclusion
 
-> Projectflow Phase 1 technical-tail work can now be treated as a high-completion stable stop point: the major runtime/env clarification work is done, the closeout retained read snapshot-only convergence has already been validated in code, and the remaining work is mostly pre-production posture rather than unresolved technical instability.
+> Projectflow Phase 1 technical-tail work can now be treated as a high-completion stable stop point: the major runtime/env clarification work is done, the closeout retained read snapshot-only convergence has already been validated in code, and in a clean-start official environment the remaining work is mostly forward official-data discipline rather than unresolved technical instability.

@@ -110,15 +110,14 @@ Who verifies that official closeout writes are producing retained snapshot rows 
 
 ## 5. Practical execution rule
 
-Until the above questions are answered:
-- keep fallback
+For the current clean-start official-environment assumption:
+- do not treat legacy compatibility as the default posture
 - do not market fallback as formal truth
-- do not remove fallback in the same scope as runtime/env cleanup
+- for new official data, missing retained snapshot should be treated as a bug-class / governance-failure state, not as normal tolerated variance
 
-If the above questions are answered with confidence:
-- open a separate scope for snapshot-only convergence
-- validate with formal acceptance
-- then review pre-production rollout readiness
+If future deployment assumptions change:
+- reopen the question of legacy compatibility or migration posture explicitly
+- then review whether any additional safety-net behavior is justified
 
 ---
 
