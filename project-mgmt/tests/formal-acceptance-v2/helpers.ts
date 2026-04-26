@@ -313,9 +313,9 @@ export async function syncAllReconciliationGroups(request: APIRequestContext) {
   const response = await request.post(`/api/financial-projects/${PROJECT_ID}/reconciliation-groups/sync`, {
     data: {
       groups: [
-        { sourceType: '設計', vendorId: VENDOR_ID, vendorName: VENDOR_NAME, reconciliationStatus: '已對帳' },
-        { sourceType: '備品', vendorId: VENDOR_ID, vendorName: VENDOR_NAME, reconciliationStatus: '已對帳' },
-        { sourceType: '廠商', vendorId: VENDOR_ID, vendorName: VENDOR_NAME, reconciliationStatus: '已對帳' },
+        { sourceType: '設計', vendorId: VENDOR_ID, vendorName: VENDOR_NAME, reconciliationStatus: '已對帳', amountTotal: 12000, itemCount: 1 },
+        { sourceType: '備品', vendorId: VENDOR_ID, vendorName: VENDOR_NAME, reconciliationStatus: '已對帳', amountTotal: 11000, itemCount: 1 },
+        { sourceType: '廠商', vendorId: VENDOR_ID, vendorName: VENDOR_NAME, reconciliationStatus: '已對帳', amountTotal: 20210, itemCount: 1 },
       ],
     },
   });
@@ -328,6 +328,21 @@ export async function syncManualCosts(request: APIRequestContext, items: ManualC
   });
   expect(response.ok()).toBeTruthy();
   return response;
+}
+
+export async function resetVendorPaymentBaseline() {
+  const client = new Client({ connectionString: getDatabaseUrl() });
+  await client.connect();
+  try {
+    await client.query(
+      `delete from project_vendor_payment_records
+       where project_id = $1
+         and (vendor_id = $2 or (vendor_id is null and vendor_name = $3))`,
+      [PROJECT_ID, VENDOR_ID, VENDOR_NAME],
+    );
+  } finally {
+    await client.end();
+  }
 }
 
 export async function createVendorPayment(
