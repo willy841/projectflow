@@ -32,11 +32,12 @@ File:
 Behavior:
 - if retained snapshot exists for the project, read retained snapshot totals as primary truth
 - if retained snapshot is missing, do not rebuild live retained summary totals
-- however, if snapshot row exists but `costItems` / `reconciliationGroups` are empty, current implementation still fills those arrays from live-derived retained item composition
+- if snapshot row exists but retained arrays are empty, do not live-fill `costItems` / `reconciliationGroups`
 
 Meaning:
 - missing-snapshot live summary fallback has been removed
-- but detail path still retains a narrower compatibility fill for empty retained arrays inside an existing snapshot row
+- detail-level empty-array compatibility fill has also been removed
+- retained detail read is now aligned more purely to snapshot-owned retained content
 
 ---
 
@@ -134,9 +135,9 @@ If they are answered with strong migration confidence, snapshot-only can become 
 
 Current conclusion:
 - retained snapshot is already the formal retained truth model
-- a first code-level snapshot-only convergence step has now been validated
+- closeout retained read has now completed a stronger snapshot-only code-level validation step
 - closeout list no longer uses live fallback
 - closeout detail no longer rebuilds live summary totals when snapshot is missing
-- one residual compatibility fill still remains in detail path:
-  - when snapshot row exists but retained arrays are empty, costItems / reconciliationGroups may still be filled from live-derived retained composition
-- final decision on removing that residual fill belongs to the next explicit retained-read cleanup scope
+- closeout detail no longer live-fills retained arrays when snapshot row exists but arrays are empty
+- formal acceptance v2 remained green after this stronger convergence step
+- closeout retained read can now be treated as a validated snapshot-first / snapshot-owned retained path for the current phase

@@ -70,22 +70,20 @@ Tradeoffs:
 
 ## 3. Current recommendation
 
-Current recommendation has now split into two layers:
+Current recommendation has now advanced to this position:
 
-### Layer 1 — already validated
-- a first snapshot-only convergence step has already been validated in code
+### Already validated
+- snapshot-only convergence is no longer just theoretical
 - closeout list no longer falls back to live retained aggregation
 - closeout detail no longer rebuilds live retained summary totals when snapshot is missing
-- formal acceptance v2 remained green after this change
+- closeout detail no longer live-fills retained arrays when snapshot row exists but arrays are empty
+- formal acceptance v2 remained green after this stronger convergence step
 
-### Layer 2 — still pending explicit decision
-- one residual compatibility fill still remains in closeout detail
-- if snapshot row exists but retained arrays are empty, costItems / reconciliationGroups may still be filled from live-derived retained composition
-
-Meaning:
-1. snapshot-only convergence is no longer just theoretical
-2. but retained-detail path is not yet fully pure snapshot-only
-3. the next decision is whether to remove that residual compatibility fill in a separate retained-read cleanup step
+### What this means
+1. closeout retained read has already crossed the main technical validation threshold
+2. for the current test-data-only environment, snapshot-owned retained read can be treated as the working validated direction
+3. the remaining decision is no longer whether the read path can technically survive stronger snapshot-only convergence — it already did
+4. the remaining decision is about pre-production posture, not immediate technical feasibility
 
 ---
 
@@ -126,8 +124,8 @@ If the above questions are answered with confidence:
 
 ## 6. Final recommendation
 
-For now:
-- **keep fallback**
+For the current state:
 - **treat snapshot as the official retained truth**
-- **treat fallback as transition-only compatibility fuse**
-- **defer snapshot-only enforcement to a separate, explicitly approved scope**
+- **recognize that closeout retained read has already passed a stronger snapshot-only validation step**
+- **for the current test-data-only environment, keeping old compatibility fallback is no longer the primary recommendation**
+- **the next decision is whether pre-production still wants any safety-net posture for legacy coverage, not whether the code path itself can handle stronger snapshot-only behavior**
