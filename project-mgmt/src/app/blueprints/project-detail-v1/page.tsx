@@ -128,7 +128,7 @@ export default function ProjectDetailBlueprintV1Page() {
           </section>
 
           <section className="grid gap-6 2xl:grid-cols-[minmax(0,1.08fr)_minmax(360px,0.92fr)]">
-            <article className="rounded-[30px] border border-sky-300/14 bg-[linear-gradient(180deg,rgba(18,30,50,0.72),rgba(13,22,39,0.52))] p-6 shadow-[0_34px_90px_-38px_rgba(0,0,0,0.68),0_0_34px_rgba(96,165,250,0.08),inset_0_1px_0_rgba(255,255,255,0.07),inset_0_-22px_44px_-28px_rgba(7,13,25,0.98)] backdrop-blur-[28px]">
+            <article className="p-1">
               <div className="mb-5 flex min-h-11 items-center">
                 <div className="min-w-0">
                   <h3 className="text-xl font-semibold leading-none text-white">專案基本資訊</h3>
@@ -145,7 +145,7 @@ export default function ProjectDetailBlueprintV1Page() {
               </div>
             </article>
 
-            <article className="rounded-[30px] border border-sky-300/14 bg-[linear-gradient(180deg,rgba(18,30,50,0.72),rgba(13,22,39,0.52))] p-6 shadow-[0_34px_90px_-38px_rgba(0,0,0,0.68),0_0_34px_rgba(96,165,250,0.08),inset_0_1px_0_rgba(255,255,255,0.07),inset_0_-22px_44px_-28px_rgba(7,13,25,0.98)] backdrop-blur-[28px]">
+            <article className="p-1">
               <div className="mb-4 flex min-h-11 flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div className="min-w-0">
                   <h3 className="text-xl font-semibold leading-none text-white">需求溝通</h3>
@@ -167,11 +167,11 @@ export default function ProjectDetailBlueprintV1Page() {
           </section>
 
           <section className="space-y-5 p-1">
-            <div className="mb-1">
+            <div className="mb-4">
               <h3 className="text-xl font-semibold text-white">專案執行項目</h3>
             </div>
 
-            <div className="grid gap-4 lg:grid-cols-2">
+            <div className="grid gap-6 lg:grid-cols-2">
               <div className="rounded-[26px] border border-white/10 bg-[linear-gradient(180deg,rgba(40,53,79,0.56),rgba(16,25,40,0.42))] p-5 shadow-[0_24px_50px_-30px_rgba(0,0,0,0.52),inset_0_1px_0_rgba(255,255,255,0.05),inset_0_-16px_28px_-20px_rgba(10,18,32,0.88)] backdrop-blur-2xl">
                 <div className="mb-3 text-sm font-semibold text-slate-200">主項目 / 子項目層次</div>
                 <div className="space-y-3">
