@@ -58,10 +58,10 @@ export function ProjectForm() {
   }
 
   return (
-    <div>
-      <form onSubmit={handleSubmit} className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+    <div className="p-1">
+      <form onSubmit={handleSubmit} className="pf-card p-6 md:p-7">
         <div className="mb-6">
-          <h2 className="mt-1 text-2xl font-semibold tracking-tight">新增專案表單</h2>
+          <h2 className="mt-1 text-2xl font-semibold tracking-tight text-slate-50">新增專案表單</h2>
         </div>
 
         <div className="grid gap-4 md:grid-cols-2">
@@ -79,35 +79,35 @@ export function ProjectForm() {
             ["budget", "預估預算", "例如：NT$ 500,000"],
           ].map(([key, label, placeholder]) => (
             <label key={key} className={`flex flex-col gap-2 ${key === "note" ? "md:col-span-2" : ""}`}>
-              <span className="text-sm font-medium text-slate-700">{label}</span>
+              <span className="text-sm font-medium text-slate-300">{label}</span>
               <input
                 type={key === "eventDate" ? "date" : "text"}
                 value={form[key as keyof typeof defaultForm]}
                 onChange={(event) => updateField(key as keyof typeof defaultForm, event.target.value)}
                 placeholder={placeholder}
-                className="h-12 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none ring-0 transition focus:border-slate-400"
+                className="pf-input h-12"
               />
             </label>
           ))}
 
           <label className="md:col-span-2 flex flex-col gap-2">
-            <span className="text-sm font-medium text-slate-700">專案備註</span>
+            <span className="text-sm font-medium text-slate-300">專案備註</span>
             <textarea
               value={form.note}
               onChange={(event) => updateField("note", event.target.value)}
               placeholder="記錄需求背景、特殊備註、後續提醒事項"
-              className="min-h-32 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-slate-400"
+              className="pf-input min-h-32 px-4 py-3"
             />
           </label>
         </div>
 
-        {submitError ? <p className="mt-4 text-sm text-rose-600">{submitError}</p> : null}
+        {submitError ? <p className="mt-4 text-sm text-rose-300">{submitError}</p> : null}
 
         <div className="mt-6 flex flex-wrap gap-3">
-          <button type="submit" disabled={isSubmitting} className="rounded-2xl bg-slate-950 px-5 py-3 text-sm font-medium text-white disabled:opacity-50">
+          <button type="submit" disabled={isSubmitting} className="pf-btn-primary px-5 py-3 disabled:opacity-50">
             {isSubmitting ? "建立中..." : "儲存專案"}
           </button>
-          <button type="button" className="rounded-2xl border border-slate-300 bg-white px-5 py-3 text-sm font-medium text-slate-700">
+          <button type="button" className="pf-btn-secondary px-5 py-3 text-slate-200">
             清空表單
           </button>
         </div>

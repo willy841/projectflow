@@ -105,9 +105,9 @@ export default async function DesignTasksPage({
        className="shell-none p-1">
         {!activeProject ? (
           projects.length ? (
-            <div className="overflow-x-auto rounded-2xl border border-white/10 bg-[linear-gradient(180deg,rgba(39,52,77,0.62),rgba(17,26,42,0.46))] shadow-[0_24px_46px_-28px_rgba(0,0,0,0.54),0_0_16px_rgba(96,165,250,0.05),inset_0_1px_0_rgba(255,255,255,0.05),inset_0_-16px_24px_-18px_rgba(10,18,32,0.86)] backdrop-blur-2xl">
-              <table className="min-w-[980px] divide-y divide-white/10 text-left text-sm xl:min-w-full">
-                <thead className="bg-white/[0.04] text-slate-400">
+            <div className="pf-table-shell rounded-[28px]">
+              <table className="pf-table min-w-[980px] xl:min-w-full">
+                <thead>
                   <tr>
                     <th className="px-4 py-3 font-medium">專案名稱</th>
                     <th className="px-4 py-3 font-medium">任務數量</th>
@@ -115,7 +115,7 @@ export default async function DesignTasksPage({
                     <th className="px-4 py-3 font-medium text-right">操作</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-white/10 bg-transparent">
+                <tbody className="bg-transparent">
                   {projects.map((project) => (
                     <tr key={project.projectId} className="align-middle">
                       <td className="px-4 py-4 font-medium text-slate-100">{project.projectName}</td>
@@ -132,9 +132,9 @@ export default async function DesignTasksPage({
           ) : <WorkspaceEmptyState title="目前尚無可查看的專案" description="待這條工作臺有正式任務後，會從這裡進入單專案工作臺。" />
         ) : (
           projectTasks.length ? (
-            <div className="overflow-x-auto rounded-2xl border border-white/10 bg-[linear-gradient(180deg,rgba(39,52,77,0.62),rgba(17,26,42,0.46))] shadow-[0_24px_46px_-28px_rgba(0,0,0,0.54),0_0_16px_rgba(96,165,250,0.05),inset_0_1px_0_rgba(255,255,255,0.05),inset_0_-16px_24px_-18px_rgba(10,18,32,0.86)] backdrop-blur-2xl">
-              <table className="min-w-[1180px] divide-y divide-white/10 text-left text-sm xl:min-w-full">
-                <thead className="bg-white/[0.04] text-slate-400">
+            <div className="pf-table-shell rounded-[28px]">
+              <table className="pf-table min-w-[1180px] xl:min-w-full">
+                <thead>
                   <tr>
                     <th className="px-4 py-3 font-medium">任務標題</th>
                     <th className="px-4 py-3 font-medium">尺寸</th>
