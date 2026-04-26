@@ -1,10 +1,10 @@
 export default function ProjectDetailBlueprintV1Page() {
   const summaryItems = [
-    { label: '活動日期', value: '2026-05-12', icon: '🗓', iconTone: 'blue' },
-    { label: '活動地點', value: '松山文創園區', icon: '📍', iconTone: 'blue' },
-    { label: '進場時間', value: '08:30', icon: '🕒', iconTone: 'violet' },
-    { label: '專案預算', value: 'NT$ 1,280,000', icon: '💵', iconTone: 'emerald' },
-    { label: '目前成本', value: 'NT$ 742,500', icon: '💰', iconTone: 'amber' },
+    { label: '活動日期', value: '2026-05-12', icon: '▦', iconTone: 'blue' },
+    { label: '活動地點', value: '松山文創園區', icon: '⌖', iconTone: 'blue' },
+    { label: '進場時間', value: '08:30', icon: '◴', iconTone: 'violet' },
+    { label: '專案預算', value: 'NT$ 1,280,000', icon: '◫', iconTone: 'emerald' },
+    { label: '目前成本', value: 'NT$ 742,500', icon: '◩', iconTone: 'amber' },
   ];
 
   const infoItems = [
