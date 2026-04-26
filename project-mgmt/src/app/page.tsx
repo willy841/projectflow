@@ -11,8 +11,8 @@ export default async function Home() {
 
   return (
     <AppShellAuth activePath="/">
-      <header className="relative overflow-hidden p-1 text-white lg:p-1">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(59,130,246,0.28),transparent_30%),radial-gradient(circle_at_bottom_left,rgba(14,165,233,0.18),transparent_35%)]" />
+      <header className="relative overflow-hidden text-white">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(59,130,246,0.18),transparent_28%),radial-gradient(circle_at_bottom_left,rgba(14,165,233,0.12),transparent_32%)]" />
         <div className="relative flex flex-col gap-8 2xl:flex-row 2xl:items-center 2xl:justify-between">
           <div className="max-w-4xl">
             <div className="flex flex-wrap items-center gap-3">
