@@ -239,22 +239,22 @@ function SavedSummary({
   actions: Pick<FormActions, "onEdit" | "onDelete">;
 }) {
   return (
-    <div className="mt-4 rounded-[24px] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.06),rgba(255,255,255,0.03))] p-4 shadow-[var(--shadow-soft)]">
+    <div className="mt-4 rounded-2xl border border-slate-200 bg-white p-4">
       <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
-            <p className="text-sm font-semibold text-white">{title}</p>
-            <span className="inline-flex items-center justify-center rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1 text-xs font-medium text-emerald-200 ring-1 ring-emerald-400/10">
+            <p className="text-sm font-semibold text-slate-900">{title}</p>
+            <span className="inline-flex items-center justify-center rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700 ring-1 ring-emerald-200">
               已建立
             </span>
           </div>
-          {subtitle ? <p className="mt-1 text-sm text-slate-400">{subtitle}</p> : null}
+          {subtitle ? <p className="mt-1 text-sm text-slate-500">{subtitle}</p> : null}
           {summary.length ? (
             <div className="mt-3 flex flex-wrap gap-2">
               {summary.map((item) => (
                 <span
                   key={item}
-                  className="inline-flex items-center rounded-full bg-white/8 px-3 py-1 text-xs font-medium text-slate-200"
+                  className="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700"
                 >
                   {item}
                 </span>
@@ -267,7 +267,7 @@ function SavedSummary({
             <button
               type="button"
               onClick={actions.onEdit}
-              className="inline-flex items-center justify-center rounded-xl border border-white/12 bg-white/6 px-3 py-2 text-xs font-semibold text-white transition hover:bg-white/10"
+              className="inline-flex items-center justify-center rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-50"
             >
               編輯
             </button>
@@ -288,11 +288,11 @@ function SavedSummary({
         {fields.map((field) => (
           <div
             key={`${field.label}-${field.value}`}
-            className="rounded-[20px] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.05),rgba(255,255,255,0.03))] px-4 py-3"
+            className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3"
           >
-            <p className="text-xs font-medium text-slate-400">{field.label}</p>
+            <p className="text-xs font-medium text-slate-500">{field.label}</p>
             <p
-              className={`mt-2 break-words text-sm font-medium ${field.value === "未填寫" || field.value === "未指定" ? "text-slate-400" : "text-white"}`}
+              className={`mt-2 break-words text-sm font-medium ${field.value === "未填寫" || field.value === "未指定" ? "text-slate-500" : "text-slate-900"}`}
             >
               {field.value}
             </p>
@@ -301,20 +301,20 @@ function SavedSummary({
       </div>
 
       {collapsedFields?.length ? (
-        <div className="mt-4 rounded-[22px] border border-dashed border-white/12 bg-white/5 p-4">
-          <p className="text-xs font-semibold tracking-wide text-slate-400">
+        <div className="mt-4 rounded-2xl border border-dashed border-slate-300 bg-white p-4">
+          <p className="text-xs font-semibold tracking-wide text-slate-500">
             折疊資訊
           </p>
           <div className="mt-3 grid gap-3 md:grid-cols-2">
             {collapsedFields.map((field) => (
               <div
                 key={`${field.label}-${field.value}-collapsed`}
-                className="rounded-[20px] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.05),rgba(255,255,255,0.03))] px-4 py-3"
+                className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3"
               >
-                <p className="text-xs font-medium text-slate-400">
+                <p className="text-xs font-medium text-slate-500">
                   {field.label}
                 </p>
-                <p className="mt-2 break-words text-sm font-medium text-white">
+                <p className="mt-2 break-words text-sm font-medium text-slate-900">
                   {field.value}
                 </p>
               </div>
@@ -342,13 +342,13 @@ function DesignAssignmentForm({
   actions: FormActions;
 }) {
   return (
-    <div className="mt-4 rounded-[30px] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.07),rgba(255,255,255,0.03))] p-5 shadow-[var(--shadow-soft)] sm:p-6">
+    <div className="mt-4 rounded-3xl border border-slate-200 bg-slate-50 p-5 sm:p-6">
       <div className="flex flex-wrap items-center gap-2">
-        <p className="text-sm font-semibold text-white">設計交辦</p>
-        <span className="inline-flex items-center justify-center rounded-full border border-sky-400/20 bg-sky-400/10 px-3 py-1 text-xs font-medium text-sky-200 ring-1 ring-sky-400/10">
+        <p className="text-sm font-semibold text-slate-900">設計交辦</p>
+        <span className="inline-flex items-center justify-center rounded-full bg-sky-50 px-3 py-1 text-xs font-medium text-sky-700 ring-1 ring-sky-200">
           設計
         </span>
-        <span className="text-sm text-slate-300">來源項目：{title}</span>
+        <span className="text-sm text-slate-600">來源項目：{title}</span>
       </div>
 
       {saved && !isEditing ? (

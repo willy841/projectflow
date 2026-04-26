@@ -194,10 +194,10 @@ export function ProjectDetailShell({ project, entryContext }: { project: Project
 
   return (
     <>
-      <header className="rounded-[34px] border border-white/10 bg-[linear-gradient(180deg,rgba(18,30,50,0.94),rgba(12,20,35,0.92))] p-6 shadow-[var(--shadow-elevated)] backdrop-blur-xl xl:p-7">
+      <header className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200 xl:p-6">
         <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
           <div className="min-w-0 flex-1">
-            <h2 className="text-[2rem] font-semibold tracking-[-0.03em] text-white sm:text-[2.15rem]">{projectView.name}</h2>
+            <h2 className="text-3xl font-semibold tracking-tight text-slate-900">{projectView.name}</h2>
           </div>
 
           <div className="flex flex-wrap items-center gap-2 xl:justify-end">
@@ -207,13 +207,13 @@ export function ProjectDetailShell({ project, entryContext }: { project: Project
               location={projectView.location}
               loadInTime={projectView.loadInTime}
             />
-            <Link href="/projects" className="inline-flex h-11 items-center justify-center rounded-2xl border border-white/12 bg-white/6 px-4 text-sm font-semibold text-white shadow-[var(--shadow-soft)] transition hover:border-white/18 hover:bg-white/10">
+            <Link href="/projects" className="inline-flex h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-800 shadow-sm transition hover:border-slate-400 hover:bg-slate-50">
               返回列表
             </Link>
             <button
               type="button"
               onClick={() => setIsEditingProject((prev) => !prev)}
-              className="inline-flex h-11 items-center justify-center rounded-2xl border border-white/12 bg-white/6 px-4 text-sm font-semibold text-white shadow-[var(--shadow-soft)] transition hover:border-white/18 hover:bg-white/10"
+              className="inline-flex h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-800 shadow-sm transition hover:border-slate-400 hover:bg-slate-50"
             >
               {isEditingProject ? "收合編輯專案" : "編輯專案"}
             </button>
@@ -222,10 +222,10 @@ export function ProjectDetailShell({ project, entryContext }: { project: Project
       </header>
 
       {isEditingProject ? (
-        <section className="rounded-[30px] border border-white/10 bg-[linear-gradient(180deg,rgba(12,20,35,0.95),rgba(14,24,41,0.9))] p-6 shadow-[var(--shadow-elevated)] backdrop-blur-xl">
+        <section className="rounded-3xl border border-slate-200 bg-slate-50/80 p-6 shadow-sm ring-1 ring-slate-200">
           <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <h3 className="text-xl font-semibold text-white">編輯專案</h3>
+              <h3 className="text-xl font-semibold text-slate-900">編輯專案</h3>
             </div>
           </div>
 
@@ -248,17 +248,17 @@ export function ProjectDetailShell({ project, entryContext }: { project: Project
               const isReadonly = ["owner", "budget", "cost"].includes(key);
               return (
                 <label key={key} className="flex flex-col gap-2">
-                  <span className="text-sm font-medium text-slate-300">{label}</span>
+                  <span className="text-sm font-medium text-slate-700">{label}</span>
                   <input
                     type={type}
                     value={projectForm[key as keyof typeof projectForm]}
                     onChange={(event) => updateField(key as keyof typeof projectForm, event.target.value)}
                     placeholder={placeholder}
                     readOnly={isReadonly}
-                    className={`h-11 rounded-2xl border px-4 text-sm shadow-[var(--shadow-soft)] outline-none transition ${
+                    className={`h-11 rounded-2xl border px-4 text-sm outline-none transition ${
                       isReadonly
-                        ? "border-white/6 bg-white/5 text-slate-500"
-                        : "border-white/12 bg-white/6 text-white focus:border-[var(--accent)]"
+                        ? "border-slate-100 bg-slate-100 text-slate-500"
+                        : "border-slate-200 bg-white focus:border-slate-400"
                     }`}
                   />
                 </label>
@@ -266,24 +266,24 @@ export function ProjectDetailShell({ project, entryContext }: { project: Project
             })}
 
             <label className="flex flex-col gap-2 md:col-span-2 xl:col-span-3">
-              <span className="text-sm font-medium text-slate-300">專案備註</span>
+              <span className="text-sm font-medium text-slate-700">專案備註</span>
               <textarea
                 value={projectForm.note}
                 onChange={(event) => updateField("note", event.target.value)}
                 placeholder="目前為前端顯示欄位，正式 DB 欄位尚未納入"
                 readOnly
-                className="min-h-28 rounded-2xl border border-white/6 bg-white/5 px-4 py-3 text-sm text-slate-500 shadow-[var(--shadow-soft)] outline-none"
+                className="min-h-28 rounded-2xl border border-slate-100 bg-slate-100 px-4 py-3 text-sm text-slate-500 outline-none"
               />
             </label>
           </div>
 
           <div className="mt-5 flex flex-wrap gap-2">
-            {saveMessage ? <p className="w-full text-sm text-slate-300">{saveMessage}</p> : null}
+            {saveMessage ? <p className="w-full text-sm text-slate-700">{saveMessage}</p> : null}
             <button
               type="button"
               onClick={saveProject}
               disabled={isSavingProject}
-              className="inline-flex items-center justify-center rounded-2xl border border-[rgba(47,109,244,0.8)] bg-[linear-gradient(180deg,#4f8cff,#2f6df4)] px-4 py-2.5 text-sm font-semibold text-white shadow-[var(--shadow-soft)] transition hover:brightness-105 disabled:opacity-50"
+              className="inline-flex items-center justify-center rounded-2xl border border-slate-900 bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800 disabled:opacity-50"
             >
               {isSavingProject ? "儲存中..." : "儲存客戶資料與活動資訊"}
             </button>
@@ -293,7 +293,7 @@ export function ProjectDetailShell({ project, entryContext }: { project: Project
                 setProjectForm(buildProjectForm(projectView));
                 setSaveMessage("");
               }}
-              className="inline-flex items-center justify-center rounded-2xl border border-white/12 bg-white/6 px-4 py-2.5 text-sm font-semibold text-white shadow-[var(--shadow-soft)] transition hover:border-white/18 hover:bg-white/10"
+              className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 transition hover:bg-slate-50"
             >
               還原原始內容
             </button>
@@ -301,7 +301,7 @@ export function ProjectDetailShell({ project, entryContext }: { project: Project
         </section>
       ) : null}
 
-      <section className="grid gap-5 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-5">
+      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-5">
         {[
           { label: "活動日期", value: projectView.eventDate },
           { label: "活動地點", value: projectView.location },
@@ -309,22 +309,22 @@ export function ProjectDetailShell({ project, entryContext }: { project: Project
           { label: "專案預算", value: projectView.budget },
           { label: "目前成本", value: projectView.cost },
         ].map((item) => (
-          <article key={item.label} className="rounded-[32px] border border-white/10 bg-[linear-gradient(180deg,rgba(20,32,55,0.9),rgba(14,24,41,0.82))] p-6 shadow-[var(--shadow-card)] backdrop-blur-xl">
-            <p className="text-[0.74rem] font-medium uppercase tracking-[0.16em] text-slate-400/90">{item.label}</p>
-            <p className="mt-3 text-[2rem] font-semibold tracking-[-0.035em] text-white">{item.value}</p>
+          <article key={item.label} className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
+            <p className="text-sm text-slate-500">{item.label}</p>
+            <p className="mt-3 text-2xl font-semibold tracking-tight">{item.value}</p>
           </article>
         ))}
       </section>
 
       <section className="grid gap-6 2xl:grid-cols-[minmax(0,1.08fr)_minmax(340px,0.92fr)]">
-        <article className="rounded-[34px] border border-white/10 bg-[linear-gradient(180deg,rgba(16,27,47,0.96),rgba(11,19,34,0.9))] p-7 shadow-[var(--shadow-elevated)] backdrop-blur-xl">
+        <article className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
           <div className="mb-4 min-h-11 flex items-center">
             <div className="min-w-0">
-              <h3 className="text-xl font-semibold leading-none text-white">專案基本資訊</h3>
+              <h3 className="text-xl font-semibold leading-none">專案基本資訊</h3>
             </div>
           </div>
 
-          <div className="grid gap-5 md:grid-cols-2">
+          <div className="grid gap-4 md:grid-cols-2">
             {[
               ["客戶名稱", projectView.client],
               ["活動類型", projectView.eventType],
@@ -333,9 +333,9 @@ export function ProjectDetailShell({ project, entryContext }: { project: Project
               ["Email", projectView.contactEmail],
               ["LINE", projectView.contactLine],
             ].map(([label, value]) => (
-              <div key={label} className="rounded-[24px] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.07),rgba(255,255,255,0.03))] px-5 py-4 shadow-[var(--shadow-soft)]">
-                <p className="text-sm text-slate-400">{label}</p>
-                <p className="mt-2 font-medium text-white">{value}</p>
+              <div key={label} className="rounded-2xl bg-slate-50 px-4 py-4">
+                <p className="text-sm text-slate-500">{label}</p>
+                <p className="mt-2 font-medium text-slate-900">{value}</p>
               </div>
             ))}
           </div>

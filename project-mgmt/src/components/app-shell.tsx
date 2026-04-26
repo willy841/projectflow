@@ -23,11 +23,11 @@ export function AppShell({
   activePath?: string;
 }) {
   return (
-    <main className="min-h-screen bg-transparent text-slate-900">
-      <div className="mx-auto flex min-h-screen w-full max-w-[1660px] gap-7 px-4 py-6 lg:px-6 xl:px-8">
-        <aside className="hidden w-60 shrink-0 rounded-[34px] border border-white/10 bg-[linear-gradient(180deg,rgba(10,18,34,0.95),rgba(12,21,39,0.84))] p-6 text-white shadow-[0_28px_70px_-30px_rgba(2,6,23,0.96)] backdrop-blur-xl lg:block xl:w-64">
-          <div className="mb-8 flex min-h-10 items-center justify-center text-center">
-            <h1 className="text-2xl font-semibold tracking-tight text-white/96">任務版</h1>
+    <main className="min-h-screen bg-[#f4f7fb] text-slate-900">
+      <div className="mx-auto flex min-h-screen w-full max-w-[1600px] gap-5 px-4 py-6 lg:px-6 xl:px-8">
+        <aside className="hidden w-56 shrink-0 rounded-3xl bg-slate-950 p-6 text-white lg:block xl:w-60">
+          <div className="mb-6 flex min-h-10 items-center justify-center text-center">
+            <h1 className="text-2xl font-semibold">任務版</h1>
           </div>
 
           <nav className="space-y-2 text-sm">
@@ -36,7 +36,7 @@ export function AppShell({
 
               if (item.href === "#") {
                 return (
-                  <div key={item.label} className="rounded-2xl border border-transparent px-4 py-3 text-slate-300 transition-colors hover:border-white/6 hover:bg-white/5">
+                  <div key={item.label} className="rounded-2xl px-4 py-3 text-slate-300 hover:bg-white/6">
                     {item.label}
                   </div>
                 );
@@ -46,21 +46,18 @@ export function AppShell({
                 <Link
                   key={item.label}
                   href={item.href}
-                  className={`relative block rounded-[20px] border px-4 py-3 transition-all ${
-                    isActive
-                      ? "border-white/14 bg-[linear-gradient(180deg,rgba(94,162,255,0.16),rgba(255,255,255,0.08))] text-white shadow-[0_18px_44px_-30px_rgba(94,162,255,0.45),inset_0_1px_0_rgba(255,255,255,0.1)]"
-                      : "border-transparent text-slate-300 hover:border-white/8 hover:bg-white/6"
+                  className={`block rounded-2xl px-4 py-3 ${
+                    isActive ? "bg-white/12 text-white" : "text-slate-300 hover:bg-white/6"
                   }`}
                 >
-                  {isActive ? <span className="absolute inset-y-3 left-0 w-1 rounded-r-full bg-[var(--accent)] shadow-[0_0_16px_rgba(94,162,255,0.95)]" /> : null}
-                  <span className="pl-2">{item.label}</span>
+                  {item.label}
                 </Link>
               );
             })}
           </nav>
         </aside>
 
-        <section className="flex-1 space-y-6 rounded-[32px] border border-white/9 bg-[linear-gradient(180deg,rgba(255,255,255,0.08),rgba(255,255,255,0.03))] p-3 shadow-[0_34px_80px_-40px_rgba(2,6,23,0.95)] backdrop-blur-[10px] sm:p-4 lg:p-5">{children}</section>
+        <section className="flex-1 space-y-6">{children}</section>
       </div>
     </main>
   );
