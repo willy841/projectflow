@@ -561,13 +561,13 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
                 onClick={() => setOpenCategory(category)}
                 className="text-left"
               >
-                <div className={`flex h-[66px] items-center justify-between gap-3 rounded-[24px] px-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.05),0_12px_24px_-18px_rgba(0,0,0,0.34)] ${
+                <div className={`flex h-[66px] items-center justify-between gap-3 rounded-[24px] px-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.12),inset_0_10px_18px_-14px_rgba(255,255,255,0.08),0_10px_18px_-16px_rgba(0,0,0,0.26)] ${
                   category === "design"
-                    ? "bg-[linear-gradient(180deg,rgba(18,92,143,0.95),rgba(10,56,92,0.96))]"
+                    ? "bg-[linear-gradient(180deg,rgba(37,126,186,0.98),rgba(16,82,132,0.96)_48%,rgba(10,56,92,0.94))]"
                     : category === "procurement"
-                      ? "bg-[linear-gradient(180deg,rgba(122,91,34,0.95),rgba(88,61,20,0.96))]"
-                      : "bg-[linear-gradient(180deg,rgba(88,53,132,0.95),rgba(58,31,96,0.96))]"
-                } ${isActive ? `ring-1 ${meta.ring} shadow-[0_18px_40px_-24px_rgba(15,23,42,0.34),inset_0_1px_0_rgba(255,255,255,0.05)]` : "opacity-95"}`}>
+                      ? "bg-[linear-gradient(180deg,rgba(150,114,44,0.98),rgba(117,83,28,0.96)_48%,rgba(88,61,20,0.94))]"
+                      : "bg-[linear-gradient(180deg,rgba(113,72,165,0.98),rgba(79,45,126,0.96)_48%,rgba(58,31,96,0.94))]"
+                } ${isActive ? `ring-1 ${meta.ring} shadow-[0_16px_30px_-20px_rgba(15,23,42,0.24),inset_0_1px_0_rgba(255,255,255,0.12)]` : "opacity-95"}`}>
                   <div className="flex min-h-full flex-1 items-center justify-center text-center">
                     <div className="flex flex-col items-center justify-center gap-2">
                       <p className={`text-lg font-semibold ${meta.accent}`}>{meta.title}</p>
