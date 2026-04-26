@@ -136,7 +136,7 @@ export default function ProjectDetailBlueprintV1Page() {
             <article className="p-1">
               <div className="mb-5 flex min-h-11 items-center">
                 <div className="min-w-0">
-                  <h3 className="text-xl font-semibold leading-none text-white">專案基本資訊</h3>
+                  <h3 className="text-xl font-semibold leading-none text-white">• 專案基本資訊</h3>
                 </div>
               </div>
 
@@ -153,7 +153,7 @@ export default function ProjectDetailBlueprintV1Page() {
             <article className="p-1">
               <div className="mb-4 flex min-h-11 flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div className="min-w-0">
-                  <h3 className="text-xl font-semibold leading-none text-white">需求溝通</h3>
+                  <h3 className="text-xl font-semibold leading-none text-white">• 需求溝通</h3>
                 </div>
                 <button className="inline-flex h-11 shrink-0 items-center justify-center whitespace-nowrap rounded-2xl border border-white/10 bg-slate-900/40 px-4 text-sm font-semibold text-slate-100 shadow-[0_18px_40px_-28px_rgba(0,0,0,0.42),inset_0_1px_0_rgba(255,255,255,0.03)] backdrop-blur-xl transition hover:bg-slate-900/60 hover:shadow-[0_0_18px_rgba(96,165,250,0.12)]">
                   + 新增紀錄
@@ -173,7 +173,7 @@ export default function ProjectDetailBlueprintV1Page() {
 
           <section className="space-y-5 p-1">
             <div className="mb-4">
-              <h3 className="text-xl font-semibold text-white">專案執行項目</h3>
+              <h3 className="text-xl font-semibold text-white">• 專案執行項目</h3>
             </div>
 
             <div className="grid gap-6 lg:grid-cols-2">
@@ -237,7 +237,7 @@ export default function ProjectDetailBlueprintV1Page() {
 
           <section className="space-y-5 p-1">
             <div>
-              <h3 className="text-xl font-semibold text-white">專案分類檢視</h3>
+              <h3 className="text-xl font-semibold text-white">• 專案分類檢視</h3>
             </div>
 
             <div className="grid gap-3 lg:grid-cols-3">
