@@ -36,9 +36,12 @@ export function ProjectTaskSummaryList({
           <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
             <div className="min-w-0 flex-1">
               <div className="flex flex-wrap items-center gap-2">
-                <span className="inline-flex items-center justify-center rounded-full bg-slate-900 px-3 py-1 text-xs font-semibold text-white">
+                <span className="inline-flex min-w-[36px] items-center justify-center rounded-full bg-slate-900 px-3 py-1.5 text-sm font-semibold leading-none text-white">
                   #{itemIndex + 1}
                 </span>
+                <h5 className="text-base font-semibold text-slate-100">
+                  {item.title}
+                </h5>
                 <span
                   className={`inline-flex items-center justify-center rounded-full px-3 py-1 text-xs font-medium ${item.statusClass}`}
                 >
@@ -54,12 +57,6 @@ export function ProjectTaskSummaryList({
                     {item.extraSummary}
                   </span>
                 ) : null}
-              </div>
-
-              <div className="mt-3 min-w-0">
-                <h5 className="text-base font-semibold text-slate-100">
-                  {item.title}
-                </h5>
               </div>
             </div>
 

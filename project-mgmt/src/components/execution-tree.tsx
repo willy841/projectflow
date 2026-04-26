@@ -799,7 +799,7 @@ function AssignmentMenu({
   const buttonClass =
     size === "child"
       ? "inline-flex h-9 w-[54px] items-center justify-center rounded-xl border border-white/10 bg-slate-900/40 px-3 text-xs font-semibold text-slate-200 shadow-[0_16px_34px_-24px_rgba(0,0,0,0.38),inset_0_1px_0_rgba(255,255,255,0.03)] backdrop-blur-xl transition hover:bg-slate-900/60"
-      : "inline-flex h-11 w-[72px] items-center justify-center rounded-2xl border border-slate-300 bg-white px-3 text-sm font-semibold text-slate-800 transition hover:bg-slate-50";
+      : "inline-flex h-11 w-[72px] items-center justify-center rounded-2xl border border-white/10 bg-slate-900/40 px-3 text-sm font-semibold text-slate-200 shadow-[0_16px_34px_-24px_rgba(0,0,0,0.38),inset_0_1px_0_rgba(255,255,255,0.03)] backdrop-blur-xl transition hover:bg-slate-900/60";
 
   return (
     <div className="relative">
