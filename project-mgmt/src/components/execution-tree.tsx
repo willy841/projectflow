@@ -440,7 +440,7 @@ function DesignAssignmentForm({
               type="button"
               onClick={actions.onSave}
               disabled={actions.isSaving}
-              className="inline-flex items-center justify-center rounded-2xl border border-slate-900 bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-300"
+              className="inline-flex items-center justify-center rounded-2xl border border-white/10 bg-slate-900/50 px-4 py-2.5 text-sm font-semibold text-slate-100 shadow-[0_22px_46px_-28px_rgba(0,0,0,0.45),inset_0_1px_0_rgba(255,255,255,0.04)] backdrop-blur-xl transition hover:bg-slate-900/70 hover:shadow-[0_0_24px_rgba(96,165,250,0.16)] disabled:cursor-not-allowed disabled:bg-slate-300"
             >
               {actions.saveLabel ?? "儲存設計交辦"}
             </button>
@@ -798,7 +798,7 @@ function AssignmentMenu({
 }) {
   const buttonClass =
     size === "child"
-      ? "inline-flex h-9 w-[54px] items-center justify-center rounded-xl border border-slate-300 bg-white px-3 text-xs font-semibold text-slate-700 transition hover:bg-slate-100"
+      ? "inline-flex h-9 w-[54px] items-center justify-center rounded-xl border border-white/10 bg-slate-900/40 px-3 text-xs font-semibold text-slate-200 shadow-[0_16px_34px_-24px_rgba(0,0,0,0.38),inset_0_1px_0_rgba(255,255,255,0.03)] backdrop-blur-xl transition hover:bg-slate-900/60"
       : "inline-flex h-11 w-[72px] items-center justify-center rounded-2xl border border-slate-300 bg-white px-3 text-sm font-semibold text-slate-800 transition hover:bg-slate-50";
 
   return (
@@ -1956,13 +1956,13 @@ export function ExecutionTree({
               value={mainItemDraft}
               onChange={(event) => setMainItemDraft(event.target.value)}
               placeholder="輸入主項目名稱，例如：入口主背板"
-              className="h-11 flex-1 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400"
+              className="h-11 flex-1 rounded-2xl border border-white/10 bg-slate-900/45 px-4 text-sm text-slate-100 outline-none transition focus:border-sky-300/30"
             />
             <div className="flex gap-2">
               <button
                 type="button"
                 onClick={addMainItem}
-                className="inline-flex items-center justify-center rounded-2xl border border-slate-900 bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800"
+                className="inline-flex items-center justify-center rounded-2xl border border-white/10 bg-slate-900/50 px-4 py-2.5 text-sm font-semibold text-slate-100 shadow-[0_22px_46px_-28px_rgba(0,0,0,0.45),inset_0_1px_0_rgba(255,255,255,0.04)] backdrop-blur-xl transition hover:bg-slate-900/70 hover:shadow-[0_0_24px_rgba(96,165,250,0.16)]"
               >
                 建立
               </button>
@@ -2091,13 +2091,13 @@ export function ExecutionTree({
                         onChange={(event) =>
                           setEditingValue(event.target.value)
                         }
-                        className="h-11 flex-1 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400"
+                        className="h-11 flex-1 rounded-2xl border border-white/10 bg-slate-900/45 px-4 text-sm text-slate-100 outline-none transition focus:border-sky-300/30"
                       />
                       <div className="flex gap-2">
                         <button
                           type="button"
                           onClick={() => saveEditingMain(item.id)}
-                          className="inline-flex items-center justify-center rounded-2xl border border-slate-900 bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800"
+                          className="inline-flex items-center justify-center rounded-2xl border border-white/10 bg-slate-900/50 px-4 py-2.5 text-sm font-semibold text-slate-100 shadow-[0_22px_46px_-28px_rgba(0,0,0,0.45),inset_0_1px_0_rgba(255,255,255,0.04)] backdrop-blur-xl transition hover:bg-slate-900/70 hover:shadow-[0_0_24px_rgba(96,165,250,0.16)]"
                         >
                           儲存
                         </button>
@@ -2168,14 +2168,14 @@ export function ExecutionTree({
                 <button
                   type="button"
                   onClick={() => startEditingMain(item.id, item.title)}
-                  className="inline-flex h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-800 transition hover:bg-slate-50"
+                  className="inline-flex h-11 items-center justify-center rounded-2xl border border-white/10 bg-slate-900/40 px-4 text-sm font-semibold text-slate-200 shadow-[0_16px_34px_-24px_rgba(0,0,0,0.38),inset_0_1px_0_rgba(255,255,255,0.03)] backdrop-blur-xl transition hover:bg-slate-900/60"
                 >
                   編輯
                 </button>
                 <button
                   type="button"
                   onClick={() => removeMain(item.id)}
-                  className="inline-flex h-11 items-center justify-center rounded-2xl border border-rose-200 bg-white px-4 text-sm font-semibold text-rose-600 transition hover:bg-rose-50"
+                  className="inline-flex h-11 items-center justify-center rounded-2xl border border-white/10 bg-slate-900/40 px-4 text-sm font-semibold text-slate-200 shadow-[0_16px_34px_-24px_rgba(0,0,0,0.38),inset_0_1px_0_rgba(255,255,255,0.03)] backdrop-blur-xl transition hover:bg-slate-900/60"
                 >
                   刪除
                 </button>
@@ -2210,13 +2210,13 @@ export function ExecutionTree({
                                   onChange={(event) =>
                                     setEditingValue(event.target.value)
                                   }
-                                  className="h-11 flex-1 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400"
+                                  className="h-11 flex-1 rounded-2xl border border-white/10 bg-slate-900/45 px-4 text-sm text-slate-100 outline-none transition focus:border-sky-300/30"
                                 />
                                 <div className="flex gap-2">
                                   <button
                                     type="button"
                                     onClick={() => saveEditingChild(child.id)}
-                                    className="inline-flex items-center justify-center rounded-2xl border border-slate-900 bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800"
+                                    className="inline-flex items-center justify-center rounded-2xl border border-white/10 bg-slate-900/50 px-4 py-2.5 text-sm font-semibold text-slate-100 shadow-[0_22px_46px_-28px_rgba(0,0,0,0.45),inset_0_1px_0_rgba(255,255,255,0.04)] backdrop-blur-xl transition hover:bg-slate-900/70 hover:shadow-[0_0_24px_rgba(96,165,250,0.16)]"
                                   >
                                     儲存
                                   </button>
@@ -2307,14 +2307,14 @@ export function ExecutionTree({
                               onClick={() =>
                                 startEditingChild(child.id, child.title)
                               }
-                              className="inline-flex h-9 w-[54px] items-center justify-center rounded-xl border border-slate-300 bg-white px-3 text-xs font-semibold text-slate-700 transition hover:bg-slate-100"
+                              className="inline-flex h-9 w-[54px] items-center justify-center rounded-xl border border-white/10 bg-slate-900/40 px-3 text-xs font-semibold text-slate-200 shadow-[0_16px_34px_-24px_rgba(0,0,0,0.38),inset_0_1px_0_rgba(255,255,255,0.03)] backdrop-blur-xl transition hover:bg-slate-900/60"
                             >
                               編輯
                             </button>
                             <button
                               type="button"
                               onClick={() => removeChild(item.id, child.id)}
-                              className="inline-flex h-9 w-[54px] items-center justify-center rounded-xl border border-rose-200 bg-white px-3 text-xs font-semibold text-rose-600 transition hover:bg-rose-50"
+                              className="inline-flex h-9 w-[54px] items-center justify-center rounded-xl border border-white/10 bg-slate-900/40 px-3 text-xs font-semibold text-slate-200 shadow-[0_16px_34px_-24px_rgba(0,0,0,0.38),inset_0_1px_0_rgba(255,255,255,0.03)] backdrop-blur-xl transition hover:bg-slate-900/60"
                             >
                               刪除
                             </button>
@@ -2323,8 +2323,8 @@ export function ExecutionTree({
                       </div>
                     );
                   })}
-                  <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-200/70 p-4">
-                    <p className="text-sm font-medium text-slate-700">
+                  <div className="rounded-2xl border border-white/10 bg-[linear-gradient(180deg,rgba(39,52,77,0.52),rgba(17,26,42,0.36))] p-4 shadow-[0_20px_40px_-26px_rgba(0,0,0,0.42),inset_0_1px_0_rgba(255,255,255,0.04)] backdrop-blur-xl">
+                    <p className="text-sm font-medium text-slate-200">
                       + 新增次項目
                     </p>
                     <div className="mt-3 flex flex-col gap-3 sm:flex-row">
@@ -2334,12 +2334,12 @@ export function ExecutionTree({
                           updateDraft(item.id, event.target.value)
                         }
                         placeholder="輸入次項目名稱，例如：主背板燈箱版型"
-                        className="h-11 flex-1 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400"
+                        className="h-11 flex-1 rounded-2xl border border-white/10 bg-slate-900/45 px-4 text-sm text-slate-100 outline-none transition focus:border-sky-300/30"
                       />
                       <button
                         type="button"
                         onClick={() => addChild(item.id)}
-                        className="inline-flex items-center justify-center rounded-2xl border border-slate-900 bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800"
+                        className="inline-flex items-center justify-center rounded-2xl border border-white/10 bg-slate-900/50 px-4 py-2.5 text-sm font-semibold text-slate-100 shadow-[0_22px_46px_-28px_rgba(0,0,0,0.45),inset_0_1px_0_rgba(255,255,255,0.04)] backdrop-blur-xl transition hover:bg-slate-900/70 hover:shadow-[0_0_24px_rgba(96,165,250,0.16)]"
                       >
                         新增
                       </button>

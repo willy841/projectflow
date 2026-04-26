@@ -559,10 +559,10 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
                 key={category}
                 type="button"
                 onClick={() => setOpenCategory(category)}
-                className={`rounded-[26px] px-1 py-1 text-left shadow-[0_18px_40px_-24px_rgba(0,0,0,0.42)] ${
+                className={`rounded-[28px] text-left ${
                   isActive
-                    ? 'bg-[linear-gradient(180deg,rgba(59,130,246,0.18),rgba(15,23,42,0.02))]'
-                    : 'bg-transparent'
+                    ? "bg-[linear-gradient(180deg,rgba(38,99,235,0.18),rgba(15,23,42,0.04))] shadow-[0_18px_44px_-26px_rgba(37,99,235,0.28)]"
+                    : "bg-transparent"
                 }`}
               >
                 <div className={`flex min-h-[84px] items-center justify-between gap-3 rounded-[22px] bg-[linear-gradient(180deg,rgba(15,23,42,0.64),rgba(9,15,28,0.46))] px-5 shadow-[0_20px_44px_-28px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.05)] ${isActive ? `ring-1 ${meta.ring} shadow-[0_20px_48px_-32px_rgba(59,130,246,0.36),inset_0_1px_0_rgba(255,255,255,0.05)]` : ''}`}>
