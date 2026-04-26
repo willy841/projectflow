@@ -169,7 +169,7 @@ function VendorMatchField({
 
   return (
     <label className="relative flex flex-col gap-2 md:col-span-2 xl:col-span-1">
-      <span className="text-sm font-medium text-slate-700">{label}</span>
+      <span className="text-sm font-medium text-slate-200">{label}</span>
       <div className="relative">
         <input
           value={value}
@@ -179,12 +179,12 @@ function VendorMatchField({
           }}
           onFocus={() => setIsOpen(true)}
           placeholder="搜尋並選取既有廠商資料"
-          className="h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 pr-10 text-sm outline-none transition focus:border-slate-400"
+          className="h-11 w-full rounded-2xl border border-white/10 bg-slate-900/55 px-4 pr-10 text-sm outline-none transition focus:border-slate-400"
         />
         <button
           type="button"
           onClick={() => setIsOpen((prev) => !prev)}
-          className="absolute inset-y-0 right-3 inline-flex items-center text-slate-400 transition hover:text-slate-700"
+          className="absolute inset-y-0 right-3 inline-flex items-center text-slate-400 transition hover:text-slate-200"
           aria-label="切換廠商搜尋清單"
         >
           <span className={`inline-block transition-transform ${isOpen ? 'rotate-180' : ''}`}>⌄</span>
@@ -196,7 +196,7 @@ function VendorMatchField({
         </div>
       ) : null}
       {isOpen ? (
-        <div className="absolute left-0 right-0 top-full z-20 mt-2 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl">
+        <div className="absolute left-0 right-0 top-full z-20 mt-2 overflow-hidden rounded-2xl border border-white/10 bg-slate-900/55 shadow-xl">
           <div className="max-h-64 overflow-y-auto p-2">
             {matchedVendors.length ? (
               matchedVendors.map((vendor) => (
@@ -207,14 +207,14 @@ function VendorMatchField({
                     onChange(vendor.name);
                     setIsOpen(false);
                   }}
-                  className="flex w-full items-center justify-between rounded-xl px-3 py-2.5 text-left text-sm text-slate-700 transition hover:bg-slate-50"
+                  className="flex w-full items-center justify-between rounded-xl px-3 py-2.5 text-left text-sm text-slate-200 transition hover:bg-white/6"
                 >
                   <span className="font-medium text-slate-100">{vendor.name}</span>
                   <span className="text-xs text-slate-400">選取</span>
                 </button>
               ))
             ) : (
-              <div className="px-3 py-3 text-sm text-slate-500">查無相符廠商</div>
+              <div className="px-3 py-3 text-sm text-slate-400">查無相符廠商</div>
             )}
           </div>
         </div>
@@ -248,13 +248,13 @@ function SavedSummary({
               已建立
             </span>
           </div>
-          {subtitle ? <p className="mt-1 text-sm text-slate-500">{subtitle}</p> : null}
+          {subtitle ? <p className="mt-1 text-sm text-slate-400">{subtitle}</p> : null}
           {summary.length ? (
             <div className="mt-3 flex flex-wrap gap-2">
               {summary.map((item) => (
                 <span
                   key={item}
-                  className="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700"
+                  className="inline-flex items-center rounded-full bg-white/8 px-3 py-1 text-xs font-medium text-slate-200"
                 >
                   {item}
                 </span>
@@ -267,7 +267,7 @@ function SavedSummary({
             <button
               type="button"
               onClick={actions.onEdit}
-              className="inline-flex items-center justify-center rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-50"
+              className="inline-flex items-center justify-center rounded-xl border border-white/10 bg-slate-900/40 px-3 py-2 text-xs font-semibold text-slate-200 shadow-[0_16px_34px_-24px_rgba(0,0,0,0.38),inset_0_1px_0_rgba(255,255,255,0.03)] backdrop-blur-xl transition hover:bg-slate-900/60"
             >
               編輯
             </button>
@@ -276,7 +276,7 @@ function SavedSummary({
             <button
               type="button"
               onClick={actions.onDelete}
-              className="inline-flex items-center justify-center rounded-xl border border-rose-200 bg-white px-3 py-2 text-xs font-semibold text-rose-600 transition hover:bg-rose-50"
+              className="inline-flex items-center justify-center rounded-xl border border-rose-400/20 bg-slate-900/40 px-3 py-2 text-xs font-semibold text-rose-300 shadow-[0_16px_34px_-24px_rgba(0,0,0,0.38),inset_0_1px_0_rgba(255,255,255,0.03)] backdrop-blur-xl transition hover:bg-rose-950/30"
             >
               刪除
             </button>
@@ -290,9 +290,9 @@ function SavedSummary({
             key={`${field.label}-${field.value}`}
             className="rounded-2xl border border-white/10 bg-[linear-gradient(180deg,rgba(40,53,79,0.64),rgba(17,27,44,0.46))] px-4 py-3 shadow-[0_20px_40px_-26px_rgba(0,0,0,0.46),inset_0_1px_0_rgba(255,255,255,0.05)] backdrop-blur-2xl"
           >
-            <p className="text-xs font-medium text-slate-500">{field.label}</p>
+            <p className="text-xs font-medium text-slate-400">{field.label}</p>
             <p
-              className={`mt-2 break-words text-sm font-medium ${field.value === "未填寫" || field.value === "未指定" ? "text-slate-500" : "text-slate-900"}`}
+              className={`mt-2 break-words text-sm font-medium ${field.value === "未填寫" || field.value === "未指定" ? "text-slate-500" : "text-slate-100"}`}
             >
               {field.value}
             </p>
@@ -344,11 +344,11 @@ function DesignAssignmentForm({
   return (
     <div className="mt-4 rounded-3xl border border-white/10 bg-[linear-gradient(180deg,rgba(18,30,50,0.72),rgba(13,22,39,0.52))] p-5 shadow-[0_34px_90px_-38px_rgba(0,0,0,0.68),0_0_34px_rgba(96,165,250,0.08),inset_0_1px_0_rgba(255,255,255,0.07),inset_0_-22px_44px_-28px_rgba(7,13,25,0.98)] backdrop-blur-[28px] sm:p-6">
       <div className="flex flex-wrap items-center gap-2">
-        <p className="text-sm font-semibold text-slate-900">設計交辦</p>
+        <p className="text-sm font-semibold text-slate-100">設計交辦</p>
         <span className="inline-flex items-center justify-center rounded-full bg-sky-50 px-3 py-1 text-xs font-medium text-sky-700 ring-1 ring-sky-200">
           設計
         </span>
-        <span className="text-sm text-slate-600">來源項目：{title}</span>
+        <span className="text-sm text-slate-400">來源項目：{title}</span>
       </div>
 
       {saved && !isEditing ? (
@@ -375,21 +375,21 @@ function DesignAssignmentForm({
         <>
           <div className="mt-4 grid gap-4 md:grid-cols-2">
             <label className="flex flex-col gap-2">
-              <span className="text-sm font-medium text-slate-700">負責人</span>
+              <span className="text-sm font-medium text-slate-200">負責人</span>
               <input
                 value={draft.assignee}
                 onChange={(e) => onChange("assignee", e.target.value)}
                 placeholder="例如：Aster"
-                className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400"
+                className="h-11 rounded-2xl border border-white/10 bg-slate-900/55 px-4 text-sm outline-none transition focus:border-slate-400"
               />
             </label>
             <label className="flex flex-col gap-2">
-              <span className="text-sm font-medium text-slate-700">尺寸</span>
+              <span className="text-sm font-medium text-slate-200">尺寸</span>
               <input
                 value={draft.size}
                 onChange={(e) => onChange("size", e.target.value)}
                 placeholder="例如：W240 x H300 cm"
-                className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400"
+                className="h-11 rounded-2xl border border-white/10 bg-slate-900/55 px-4 text-sm outline-none transition focus:border-slate-400"
               />
             </label>
             <label className="flex flex-col gap-2">
@@ -400,16 +400,16 @@ function DesignAssignmentForm({
                 value={draft.material}
                 onChange={(e) => onChange("material", e.target.value)}
                 placeholder="例如：珍珠板＋輸出＋木作結構"
-                className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400"
+                className="h-11 rounded-2xl border border-white/10 bg-slate-900/55 px-4 text-sm outline-none transition focus:border-slate-400"
               />
             </label>
             <label className="flex flex-col gap-2">
-              <span className="text-sm font-medium text-slate-700">數量</span>
+              <span className="text-sm font-medium text-slate-200">數量</span>
               <input
                 value={draft.quantity}
                 onChange={(e) => onChange("quantity", e.target.value)}
                 placeholder="例如：1 式"
-                className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400"
+                className="h-11 rounded-2xl border border-white/10 bg-slate-900/55 px-4 text-sm outline-none transition focus:border-slate-400"
               />
             </label>
             <label className="flex flex-col gap-2 md:col-span-2">
@@ -420,7 +420,7 @@ function DesignAssignmentForm({
                 value={draft.referenceUrl}
                 onChange={(e) => onChange("referenceUrl", e.target.value)}
                 placeholder="https://..."
-                className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400"
+                className="h-11 rounded-2xl border border-white/10 bg-slate-900/55 px-4 text-sm outline-none transition focus:border-slate-400"
               />
             </label>
             <label className="flex flex-col gap-2 md:col-span-2">
@@ -431,7 +431,7 @@ function DesignAssignmentForm({
                 value={draft.requirement}
                 onChange={(e) => onChange("requirement", e.target.value)}
                 placeholder="補充設計需求、排版重點與執行說明"
-                className="min-h-28 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-slate-400"
+                className="min-h-28 rounded-2xl border border-white/10 bg-slate-900/55 px-4 py-3 text-sm outline-none transition focus:border-slate-400"
               />
             </label>
           </div>
@@ -448,7 +448,7 @@ function DesignAssignmentForm({
               type="button"
               onClick={actions.onCancel}
               disabled={actions.isSaving}
-              className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
+              className="inline-flex items-center justify-center rounded-2xl border border-white/10 bg-slate-900/40 px-4 py-2.5 text-sm font-semibold text-slate-200 shadow-[0_16px_34px_-24px_rgba(0,0,0,0.38),inset_0_1px_0_rgba(255,255,255,0.03)] backdrop-blur-xl transition hover:bg-slate-900/60 disabled:cursor-not-allowed disabled:opacity-60"
             >
               取消
             </button>
@@ -477,11 +477,11 @@ function ProcurementAssignmentForm({
   return (
     <div className="mt-4 rounded-3xl border border-white/10 bg-[linear-gradient(180deg,rgba(18,30,50,0.72),rgba(13,22,39,0.52))] p-5 shadow-[0_34px_90px_-38px_rgba(0,0,0,0.68),0_0_34px_rgba(96,165,250,0.08),inset_0_1px_0_rgba(255,255,255,0.07),inset_0_-22px_44px_-28px_rgba(7,13,25,0.98)] backdrop-blur-[28px] sm:p-6">
       <div className="flex flex-wrap items-center gap-2">
-        <p className="text-sm font-semibold text-slate-900">備品交辦</p>
+        <p className="text-sm font-semibold text-slate-100">備品交辦</p>
         <span className="inline-flex items-center justify-center rounded-full bg-amber-50 px-3 py-1 text-xs font-medium text-amber-700 ring-1 ring-amber-200">
           備品
         </span>
-        <span className="text-sm text-slate-600">來源項目：{title}</span>
+        <span className="text-sm text-slate-400">來源項目：{title}</span>
       </div>
 
       {saved && !isEditing ? (
@@ -509,48 +509,48 @@ function ProcurementAssignmentForm({
         <>
           <div className="mt-4 grid gap-4 md:grid-cols-2">
             <label className="flex flex-col gap-2">
-              <span className="text-sm font-medium text-slate-700">負責人</span>
+              <span className="text-sm font-medium text-slate-200">負責人</span>
               <input
                 value={draft.assignee}
                 onChange={(e) => onChange("assignee", e.target.value)}
                 placeholder="例如：Mina"
-                className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400"
+                className="h-11 rounded-2xl border border-white/10 bg-slate-900/55 px-4 text-sm outline-none transition focus:border-slate-400"
               />
             </label>
             <label className="flex flex-col gap-2">
-              <span className="text-sm font-medium text-slate-700">項目</span>
+              <span className="text-sm font-medium text-slate-200">項目</span>
               <input
                 value={draft.item}
                 onChange={(e) => onChange("item", e.target.value)}
                 placeholder="例如：壓克力桌牌"
-                className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400"
+                className="h-11 rounded-2xl border border-white/10 bg-slate-900/55 px-4 text-sm outline-none transition focus:border-slate-400"
               />
             </label>
             <label className="flex flex-col gap-2">
-              <span className="text-sm font-medium text-slate-700">數量</span>
+              <span className="text-sm font-medium text-slate-200">數量</span>
               <input
                 value={draft.quantity}
                 onChange={(e) => onChange("quantity", e.target.value)}
                 placeholder="例如：3"
-                className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400"
+                className="h-11 rounded-2xl border border-white/10 bg-slate-900/55 px-4 text-sm outline-none transition focus:border-slate-400"
               />
             </label>
             <label className="flex flex-col gap-2">
-              <span className="text-sm font-medium text-slate-700">尺寸</span>
+              <span className="text-sm font-medium text-slate-200">尺寸</span>
               <input
                 value={draft.size}
                 onChange={(e) => onChange("size", e.target.value)}
                 placeholder="例如：A4 直式"
-                className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400"
+                className="h-11 rounded-2xl border border-white/10 bg-slate-900/55 px-4 text-sm outline-none transition focus:border-slate-400"
               />
             </label>
             <label className="flex flex-col gap-2">
-              <span className="text-sm font-medium text-slate-700">材質</span>
+              <span className="text-sm font-medium text-slate-200">材質</span>
               <input
                 value={draft.material}
                 onChange={(e) => onChange("material", e.target.value)}
                 placeholder="例如：透明壓克力"
-                className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400"
+                className="h-11 rounded-2xl border border-white/10 bg-slate-900/55 px-4 text-sm outline-none transition focus:border-slate-400"
               />
             </label>
             <label className="flex flex-col gap-2 md:col-span-2">
@@ -561,7 +561,7 @@ function ProcurementAssignmentForm({
                 value={draft.styleUrl}
                 onChange={(e) => onChange("styleUrl", e.target.value)}
                 placeholder="https://..."
-                className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400"
+                className="h-11 rounded-2xl border border-white/10 bg-slate-900/55 px-4 text-sm outline-none transition focus:border-slate-400"
               />
             </label>
             <label className="flex flex-col gap-2 md:col-span-2">
@@ -572,7 +572,7 @@ function ProcurementAssignmentForm({
                 value={draft.requirement}
                 onChange={(e) => onChange("requirement", e.target.value)}
                 placeholder="補充備品需求、採購條件與使用情境"
-                className="min-h-28 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-slate-400"
+                className="min-h-28 rounded-2xl border border-white/10 bg-slate-900/55 px-4 py-3 text-sm outline-none transition focus:border-slate-400"
               />
             </label>
           </div>
@@ -589,7 +589,7 @@ function ProcurementAssignmentForm({
               type="button"
               onClick={actions.onCancel}
               disabled={actions.isSaving}
-              className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
+              className="inline-flex items-center justify-center rounded-2xl border border-white/10 bg-slate-900/40 px-4 py-2.5 text-sm font-semibold text-slate-200 shadow-[0_16px_34px_-24px_rgba(0,0,0,0.38),inset_0_1px_0_rgba(255,255,255,0.03)] backdrop-blur-xl transition hover:bg-slate-900/60 disabled:cursor-not-allowed disabled:opacity-60"
             >
               取消
             </button>
@@ -628,11 +628,11 @@ function VendorAssignmentForm({
   return (
     <div className="mt-4 rounded-3xl border border-white/10 bg-[linear-gradient(180deg,rgba(18,30,50,0.72),rgba(13,22,39,0.52))] p-5 shadow-[0_34px_90px_-38px_rgba(0,0,0,0.68),0_0_34px_rgba(96,165,250,0.08),inset_0_1px_0_rgba(255,255,255,0.07),inset_0_-22px_44px_-28px_rgba(7,13,25,0.98)] backdrop-blur-[28px] sm:p-6">
       <div className="flex flex-wrap items-center gap-2">
-        <p className="text-sm font-semibold text-slate-900">廠商交辦</p>
+        <p className="text-sm font-semibold text-slate-100">廠商交辦</p>
         <span className="inline-flex items-center justify-center rounded-full bg-violet-50 px-3 py-1 text-xs font-medium text-violet-700 ring-1 ring-violet-200">
           廠商
         </span>
-        <span className="text-sm text-slate-600">來源項目：{title}</span>
+        <span className="text-sm text-slate-400">來源項目：{title}</span>
       </div>
 
       {saved && !isEditing ? (
@@ -663,12 +663,12 @@ function VendorAssignmentForm({
         <>
           <div className="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             <label className="flex flex-col gap-2">
-              <span className="text-sm font-medium text-slate-700">負責人</span>
+              <span className="text-sm font-medium text-slate-200">負責人</span>
               <input
                 value={draft.assignee}
                 onChange={(e) => onChange("assignee", e.target.value)}
                 placeholder="例如：Dora"
-                className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400"
+                className="h-11 rounded-2xl border border-white/10 bg-slate-900/55 px-4 text-sm outline-none transition focus:border-slate-400"
               />
             </label>
             <label className="flex flex-col gap-2">
@@ -681,7 +681,7 @@ function VendorAssignmentForm({
                   onChange("category", e.target.value);
                   onChange("vendorName", "");
                 }}
-                className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400"
+                className="h-11 rounded-2xl border border-white/10 bg-slate-900/55 px-4 text-sm outline-none transition focus:border-slate-400"
               >
                 <option value="">請選擇工種</option>
                 {tradeOptions.map((trade) => (
@@ -690,12 +690,12 @@ function VendorAssignmentForm({
               </select>
             </label>
             <label className="flex flex-col gap-2">
-              <span className="text-sm font-medium text-slate-700">項目</span>
+              <span className="text-sm font-medium text-slate-200">項目</span>
               <input
                 value={draft.title}
                 onChange={(e) => onChange("title", e.target.value)}
                 placeholder="例如：接待區背牆木作施作"
-                className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400"
+                className="h-11 rounded-2xl border border-white/10 bg-slate-900/55 px-4 text-sm outline-none transition focus:border-slate-400"
               />
             </label>
             <VendorMatchField
@@ -712,7 +712,7 @@ function VendorAssignmentForm({
                 value={draft.amount}
                 onChange={(e) => onChange("amount", e.target.value)}
                 placeholder="例如：NT$ 120,000"
-                className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400"
+                className="h-11 rounded-2xl border border-white/10 bg-slate-900/55 px-4 text-sm outline-none transition focus:border-slate-400"
               />
             </label>
             <label className="flex flex-col gap-2 md:col-span-2 xl:col-span-1">
@@ -723,7 +723,7 @@ function VendorAssignmentForm({
                 value={draft.specification}
                 onChange={(e) => onChange("specification", e.target.value)}
                 placeholder="例如：木作包柱＋烤漆面"
-                className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400"
+                className="h-11 rounded-2xl border border-white/10 bg-slate-900/55 px-4 text-sm outline-none transition focus:border-slate-400"
               />
             </label>
             <label className="flex flex-col gap-2 md:col-span-2 xl:col-span-2">
@@ -734,7 +734,7 @@ function VendorAssignmentForm({
                 value={draft.referenceUrl}
                 onChange={(e) => onChange("referenceUrl", e.target.value)}
                 placeholder="https://..."
-                className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400"
+                className="h-11 rounded-2xl border border-white/10 bg-slate-900/55 px-4 text-sm outline-none transition focus:border-slate-400"
               />
             </label>
             <label className="flex flex-col gap-2 md:col-span-2 xl:col-span-2">
@@ -745,7 +745,7 @@ function VendorAssignmentForm({
                 value={draft.requirement}
                 onChange={(e) => onChange("requirement", e.target.value)}
                 placeholder="例如：需確認尺寸、結構與施工方式，回覆可執行作法"
-                className="min-h-28 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-slate-400"
+                className="min-h-28 rounded-2xl border border-white/10 bg-slate-900/55 px-4 py-3 text-sm outline-none transition focus:border-slate-400"
               />
             </label>
           </div>
@@ -762,7 +762,7 @@ function VendorAssignmentForm({
               type="button"
               onClick={actions.onCancel}
               disabled={actions.isSaving}
-              className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
+              className="inline-flex items-center justify-center rounded-2xl border border-white/10 bg-slate-900/40 px-4 py-2.5 text-sm font-semibold text-slate-200 shadow-[0_16px_34px_-24px_rgba(0,0,0,0.38),inset_0_1px_0_rgba(255,255,255,0.03)] backdrop-blur-xl transition hover:bg-slate-900/60 disabled:cursor-not-allowed disabled:opacity-60"
             >
               取消
             </button>
@@ -811,7 +811,7 @@ function AssignmentMenu({
         交辦
       </button>
       {isActive ? (
-        <div className="absolute right-0 z-10 mt-2 w-32 rounded-3xl border border-slate-200 bg-white p-2 shadow-xl ring-1 ring-slate-100">
+        <div className="absolute right-0 z-10 mt-2 w-32 rounded-3xl border border-white/10 bg-slate-900/55 p-2 shadow-xl ring-1 ring-slate-100">
           <div className="flex flex-col gap-1">
             <button
               type="button"
@@ -941,24 +941,24 @@ function AssignmentDrawer({
 
   const flowMeta =
     activeDrawer.flowType === "design"
-      ? { label: "設計交辦", accent: "text-slate-700", badge: "bg-slate-100 text-slate-700 ring-slate-200" }
+      ? { label: "設計交辦", accent: "text-slate-100", badge: "bg-sky-400/12 text-sky-200 ring-sky-300/20" }
       : activeDrawer.flowType === "procurement"
-        ? { label: "備品交辦", accent: "text-amber-700", badge: "bg-amber-50 text-amber-700 ring-amber-200" }
-        : { label: "廠商交辦", accent: "text-violet-700", badge: "bg-violet-50 text-violet-700 ring-violet-200" };
+        ? { label: "備品交辦", accent: "text-slate-100", badge: "bg-amber-400/12 text-amber-200 ring-amber-300/20" }
+        : { label: "廠商交辦", accent: "text-slate-100", badge: "bg-violet-400/12 text-violet-200 ring-violet-300/20" };
 
   return (
     <>
       <div
-        className="fixed inset-0 z-40 bg-slate-900/30 backdrop-blur-[1px]"
+        className="fixed inset-0 z-40 bg-slate-950/60 backdrop-blur-[2px]"
         onClick={onClose}
         aria-hidden="true"
       />
-      <aside className="fixed inset-y-0 right-0 z-50 flex w-full max-w-[720px] flex-col border-l border-slate-200 bg-white shadow-2xl">
+      <aside className="fixed inset-y-0 right-0 z-50 flex w-full max-w-[720px] flex-col border-l border-white/10 bg-[linear-gradient(180deg,rgba(18,30,50,0.92),rgba(10,18,31,0.94))] shadow-[0_30px_80px_-28px_rgba(0,0,0,0.72)] backdrop-blur-2xl">
         <div className="flex justify-end px-6 py-5">
           <button
             type="button"
             onClick={onClose}
-            className="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-slate-300 bg-white text-lg text-slate-600 transition hover:bg-slate-50 hover:text-slate-900"
+            className="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-white/10 bg-slate-900/40 text-lg text-slate-200 shadow-[0_16px_34px_-24px_rgba(0,0,0,0.38),inset_0_1px_0_rgba(255,255,255,0.03)] backdrop-blur-xl transition hover:bg-slate-900/60 hover:text-white"
             aria-label="關閉交辦抽屜"
           >
             ×
@@ -967,7 +967,7 @@ function AssignmentDrawer({
 
         <div className="flex-1 overflow-y-auto px-6 pb-6">
           {errorMessage ? (
-            <div className="mb-4 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+            <div className="mb-4 rounded-2xl border border-rose-400/20 bg-rose-400/10 px-4 py-3 text-sm text-rose-200">
               {errorMessage}
             </div>
           ) : null}
