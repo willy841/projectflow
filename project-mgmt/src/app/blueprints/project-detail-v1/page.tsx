@@ -66,10 +66,7 @@ export default function ProjectDetailBlueprintV1Page() {
             ))}
           </nav>
 
-          <div className="mt-auto rounded-2xl bg-white/[0.04] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
-            <p className="text-sm font-semibold text-white/92">Blueprint mock</p>
-            <p className="mt-2 text-xs leading-6 text-slate-400">這是純視覺示意頁，不接正式資料、不代表最終像素稿，只用來校正層次、材質與節奏方向。</p>
-          </div>
+          <div className="mt-auto rounded-2xl bg-white/[0.04] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]" />
         </aside>
 
         <section className="flex-1">
@@ -78,11 +75,7 @@ export default function ProjectDetailBlueprintV1Page() {
               <header className="rounded-[32px] bg-[linear-gradient(180deg,rgba(18,29,46,0.9),rgba(16,25,40,0.84))] p-5 shadow-[0_28px_72px_-42px_rgba(0,0,0,0.76),inset_0_1px_0_rgba(255,255,255,0.05)] xl:p-6">
                 <div className="flex flex-col gap-5 xl:flex-row xl:items-center xl:justify-between">
                   <div className="min-w-0 flex-1">
-                    <div className="mb-3 inline-flex items-center rounded-full bg-sky-400/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-sky-200/88 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]">
-                      Project detail blueprint
-                    </div>
                     <h2 className="text-3xl font-semibold tracking-tight text-white xl:text-[2rem]">春季品牌快閃活動</h2>
-                    <p className="mt-3 max-w-3xl text-sm leading-7 text-slate-400">示意重點：去掉過多外框，改用材質、明暗與節奏建立高級感，讓這頁先成為高質感 SaaS benchmark，而不是單純 dark mode。</p>
                   </div>
 
                   <div className="flex flex-wrap items-center gap-2 xl:justify-end">
@@ -165,9 +158,7 @@ export default function ProjectDetailBlueprintV1Page() {
                   <div className="mb-4 flex items-center justify-between gap-3">
                     <div>
                       <h3 className="text-xl font-semibold text-white">專案執行項目</h3>
-                      <p className="mt-2 text-sm text-slate-400">這塊示意為整頁最重要的 command workspace，正式實作時不改流程，只重做視覺分層。</p>
                     </div>
-                    <div className="rounded-full bg-sky-400/10 px-3 py-1 text-xs font-semibold text-sky-200 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]">Primary work surface</div>
                   </div>
 
                   <div className="grid gap-3 lg:grid-cols-2">
@@ -177,7 +168,7 @@ export default function ProjectDetailBlueprintV1Page() {
                         {['主視覺輸出與材質確認', '入口背板與燈箱製作', '收銀台與動線配置'].map((item, index) => (
                           <div key={item} className={`rounded-[20px] px-4 py-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.02)] ${index === 0 ? 'bg-sky-400/[0.08]' : 'bg-white/[0.025]'}`}>
                             <div className="text-sm font-semibold text-white">{item}</div>
-                            <div className="mt-2 text-xs leading-6 text-slate-400">示意：這裡應用主列 / 次列 / 狀態與操作群的節奏，而不是改任何行為。</div>
+                            <div className="mt-2 text-xs leading-6 text-slate-400">待補充執行說明。</div>
                           </div>
                         ))}
                       </div>
@@ -192,7 +183,7 @@ export default function ProjectDetailBlueprintV1Page() {
                           </div>
                         ))}
                         <div className="rounded-[18px] bg-[linear-gradient(180deg,rgba(87,145,255,0.16),rgba(39,79,170,0.06))] px-4 py-3 text-sm text-sky-100 shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]">
-                          active / focus 狀態只示意為藍色能量，不代表新增互動。
+                          儲存客戶資料與活動資訊
                         </div>
                       </div>
                     </div>
@@ -203,9 +194,7 @@ export default function ProjectDetailBlueprintV1Page() {
                   <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <div>
                       <h3 className="text-xl font-semibold text-white">專案分類檢視</h3>
-                      <p className="mt-2 text-sm text-slate-400">這塊示意三種 category 卡應該是 mode selector，不是普通白卡。</p>
                     </div>
-                    <div className="rounded-full bg-white/[0.04] px-3 py-1 text-xs font-medium text-slate-300 shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]">Secondary command zone</div>
                   </div>
 
                   <div className="grid gap-3 lg:grid-cols-3">
@@ -218,8 +207,7 @@ export default function ProjectDetailBlueprintV1Page() {
                             : 'bg-[linear-gradient(180deg,rgba(255,255,255,0.028),rgba(255,255,255,0.016))]'
                         }`}
                       >
-                        <div className={`mb-4 h-16 rounded-2xl bg-gradient-to-br ${item.accent}`} />
-                        <div className="flex items-center justify-between gap-3">
+                        <div className={`mb-4 flex h-16 items-center justify-between rounded-2xl bg-gradient-to-br px-4 ${item.accent}`}>
                           <p className="text-lg font-semibold text-white">{item.title}</p>
                           <span className={`inline-flex min-w-[38px] items-center justify-center rounded-full px-3 py-1 text-xs font-semibold ${item.active ? 'bg-sky-400/18 text-sky-100' : 'bg-white/8 text-slate-300'}`}>
                             {item.count}
@@ -233,7 +221,7 @@ export default function ProjectDetailBlueprintV1Page() {
                     <div className="mb-4 flex items-center justify-between gap-3 pb-4">
                       <div>
                         <h4 className="text-lg font-semibold text-white">專案設計</h4>
-                        <p className="mt-2 text-sm text-slate-400">共 4 筆 — 這個 panel 應該是 category 明確擁有的內容區，而不是普通列表盒。</p>
+                        <p className="mt-2 text-sm text-slate-400">共 4 筆</p>
                       </div>
                       <div className="rounded-full bg-emerald-400/10 px-3 py-1 text-xs font-semibold text-emerald-200 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">已儲存，正在重新整理任務資料。</div>
                     </div>
@@ -244,7 +232,7 @@ export default function ProjectDetailBlueprintV1Page() {
                           <div className="flex items-center justify-between gap-3">
                             <div>
                               <p className="font-semibold text-slate-100">{item}</p>
-                              <p className="mt-2 text-sm text-slate-400">示意：row 需要更穩的密度節奏與 ownership，而不是只換底色。</p>
+                              <p className="mt-2 text-sm text-slate-400">已建立</p>
                             </div>
                             <div className="rounded-full bg-white/[0.05] px-3 py-1 text-xs font-semibold text-slate-300 shadow-[inset_0_1px_0_rgba(255,255,255,0.02)]">前往任務詳情</div>
                           </div>
