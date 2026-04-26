@@ -34,7 +34,7 @@ export default async function ProjectDetailPage({
   }
 
   return (
-    <AppShellAuth activePath="/projects">
+    <AppShellAuth activePath="/projects" contentSurfaceClassName="rounded-[34px] border border-white/6 bg-transparent p-0 shadow-none backdrop-blur-none">
       <ProjectDetailShell
         project={project}
         entryContext={{

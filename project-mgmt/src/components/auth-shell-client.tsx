@@ -19,11 +19,13 @@ export function AuthShellClient({
   activePath = '/',
   navItems,
   user,
+  contentSurfaceClassName,
 }: {
   children: ReactNode;
   activePath?: string;
   navItems: AuthShellNavItem[];
   user: AuthShellUser | null;
+  contentSurfaceClassName?: string;
 }) {
   return (
     <main className="min-h-screen bg-[#f4f7fb] text-slate-900">
@@ -66,7 +68,7 @@ export function AuthShellClient({
           ) : null}
         </aside>
 
-        <section className="flex-1 space-y-4">
+        <section className={`flex-1 space-y-4 ${contentSurfaceClassName ?? ''}`}>
           {children}
         </section>
       </div>
