@@ -91,7 +91,7 @@ export default function ProjectDetailBlueprintV1Page() {
         </aside>
 
         <section className="flex-1 space-y-6">
-          <header className="rounded-[32px] border border-white/10 bg-[linear-gradient(180deg,rgba(15,23,42,0.62),rgba(15,23,42,0.42))] p-5 shadow-[0_28px_80px_-40px_rgba(0,0,0,0.58),0_0_32px_rgba(96,165,250,0.06),inset_0_1px_0_rgba(255,255,255,0.05)] backdrop-blur-2xl xl:p-6">
+          <header className="p-1 xl:p-1">
             <div className="flex flex-col gap-5 xl:flex-row xl:items-center xl:justify-between">
               <div className="min-w-0 flex-1">
                 <h2 className="text-3xl font-semibold tracking-tight text-slate-50 xl:text-[2rem]">春季品牌快閃活動</h2>
@@ -115,10 +115,10 @@ export default function ProjectDetailBlueprintV1Page() {
             {summaryItems.map((item, index) => (
               <article
                 key={item.label}
-                className={`rounded-[28px] p-5 shadow-[0_24px_52px_-32px_rgba(0,0,0,0.46),inset_0_1px_0_rgba(255,255,255,0.06),inset_0_-12px_30px_-20px_rgba(15,23,42,0.9)] ${
+                className={`rounded-[30px] p-5 shadow-[0_30px_70px_-30px_rgba(0,0,0,0.62),0_0_20px_rgba(96,165,250,0.04),inset_0_1px_0_rgba(255,255,255,0.08),inset_0_-24px_36px_-24px_rgba(2,6,23,0.96)] ${
                   index === 0
-                    ? 'border border-sky-300/14 bg-[linear-gradient(180deg,rgba(15,23,42,0.56),rgba(15,23,42,0.4))] backdrop-blur-xl'
-                    : 'border border-white/10 bg-[linear-gradient(180deg,rgba(15,23,42,0.5),rgba(15,23,42,0.34))] backdrop-blur-xl'
+                    ? 'border border-sky-300/16 bg-[linear-gradient(180deg,rgba(29,78,216,0.34),rgba(15,23,42,0.46))] backdrop-blur-2xl'
+                    : 'border border-white/10 bg-[linear-gradient(180deg,rgba(30,41,59,0.62),rgba(15,23,42,0.42))] backdrop-blur-2xl'
                 }`}
               >
                 <p className="text-xs font-medium uppercase tracking-wider text-slate-500">{item.label}</p>
