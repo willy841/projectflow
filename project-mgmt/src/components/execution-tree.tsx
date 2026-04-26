@@ -2076,7 +2076,7 @@ export function ExecutionTree({
                 <button
                   type="button"
                   onClick={() => toggleItem(item.id)}
-                  className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-slate-300 bg-white text-sm font-semibold text-slate-600 transition hover:border-slate-400 hover:bg-slate-50 hover:text-slate-900"
+                  className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-slate-900/40 text-sm font-semibold text-slate-200 shadow-[0_16px_34px_-24px_rgba(0,0,0,0.38),inset_0_1px_0_rgba(255,255,255,0.03)] backdrop-blur-xl transition hover:bg-slate-900/60 hover:text-white"
                   aria-label={isOpen ? "收合主項目" : "展開主項目"}
                 >
                   <span className={`inline-block transition-transform duration-200 ${isOpen ? "rotate-90" : "rotate-0"}`}>
@@ -2116,7 +2116,7 @@ export function ExecutionTree({
                         <span className="inline-flex items-center justify-center rounded-full bg-slate-900 px-3 py-1 text-xs font-semibold text-white">
                           #{itemIndex + 1}
                         </span>
-                        <span className="inline-flex items-center justify-center rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600 ring-1 ring-slate-200">
+                        <span className="inline-flex items-center justify-center rounded-full bg-white/8 px-3 py-1 text-xs font-semibold text-slate-200 ring-1 ring-white/10">
                           主項目
                         </span>
                       </div>
@@ -2124,7 +2124,7 @@ export function ExecutionTree({
                         <h4 className="text-lg font-semibold text-slate-100">
                           {item.title}
                         </h4>
-                        <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-1.5 py-0.5 text-[11px] font-medium text-slate-500 ring-1 ring-slate-200">
+                        <span className="inline-flex items-center gap-1 rounded-full bg-white/8 px-1.5 py-0.5 text-[11px] font-medium text-slate-300 ring-1 ring-white/10">
                           <span aria-hidden="true">≡</span>
                           <span>{item.children?.length ?? 0}</span>
                         </span>
