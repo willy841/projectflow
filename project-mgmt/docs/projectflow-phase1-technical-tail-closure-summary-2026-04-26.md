@@ -83,15 +83,15 @@ Interpretation:
 
 ### 2.2 Pre-production posture for retained snapshot governance
 Not fully done:
-- if future official environments contain legacy or mixed-history states, missing-snapshot posture is still a governance decision
-- possible questions remain around:
-  - legacy coverage
-  - backfill posture
-  - missing-snapshot failure mode
+- if the future official environment starts clean and does not carry forward old closeout data, then legacy coverage / backfill is no longer a mainline concern
+- the remaining question is narrower:
+  - for future official data, what should happen if a closed project is somehow missing retained snapshot?
+  - who verifies snapshot-write discipline from day one?
 
 Interpretation:
 - this is no longer primarily a code feasibility issue
-- it is a pre-production posture / migration-readiness issue
+- and it is no longer mainly a legacy-data issue under the current deployment assumption
+- it is now mostly a forward-looking official-data discipline question
 
 ### 2.3 Compatibility semantic cleanup outside this phase
 Not fully done:
@@ -142,13 +142,14 @@ Meaning:
 ## 4. Final assessment
 
 Current assessment:
-- Phase 1 technical-tail work has reached high completion
-- a reasonable practical estimate is roughly **85% to 90% complete**
+- Phase 1 technical-tail work has reached very high completion
+- a reasonable practical estimate is now roughly **90% to 95% complete**
 - the phase can now be treated as a **high-completion stable stop point**
 
 More precise management interpretation:
 - the biggest technical-tail strategy line has already been validated in code
-- remaining work is narrower, lower-risk, and more about pre-production posture than about technical uncertainty
+- because the official environment is expected to start clean, legacy/backfill posture has dropped in importance
+- remaining work is now even narrower, lower-risk, and more about forward official-data discipline than about technical uncertainty
 
 ---
 

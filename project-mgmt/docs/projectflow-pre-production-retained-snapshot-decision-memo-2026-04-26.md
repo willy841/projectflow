@@ -91,20 +91,20 @@ Current recommendation has now advanced to this position:
 
 Before switching to snapshot-only, answer these explicitly:
 
-### Q1 — Legacy coverage
-Are there any legitimate closed projects without retained snapshot rows?
+### Q1 — Official environment starts clean?
+If the official deployment starts without carrying forward any old closed-project data, then legacy coverage is not a primary blocker for this phase.
 
 ### Q2 — Migration posture
-Will we backfill retained snapshot rows for legacy closeouts before pre-production enforcement?
+If no old closeout data will be carried into the official environment, then backfill posture can be downgraded from a mainline concern.
 
 ### Q3 — Failure mode
-If a closed project is missing retained snapshot, what should happen?
+For future official data, if a closed project is missing retained snapshot, what should happen?
 - explicit domain error
 - migration-required signal
 - empty closed-project retained state
 
 ### Q4 — Operational readiness
-Who verifies that closed-project retained-row coverage is complete before switching enforcement?
+Who verifies that official closeout writes are producing retained snapshot rows correctly from day one?
 
 ---
 
@@ -127,5 +127,5 @@ If the above questions are answered with confidence:
 For the current state:
 - **treat snapshot as the official retained truth**
 - **recognize that closeout retained read has already passed a stronger snapshot-only validation step**
-- **for the current test-data-only environment, keeping old compatibility fallback is no longer the primary recommendation**
-- **the next decision is whether pre-production still wants any safety-net posture for legacy coverage, not whether the code path itself can handle stronger snapshot-only behavior**
+- **if the official environment starts clean and does not carry forward old closeout data, legacy coverage / backfill is no longer a primary Phase 1 concern**
+- **the next decision is mainly about future official-data discipline, not whether the current code path can handle stronger snapshot-only behavior**
