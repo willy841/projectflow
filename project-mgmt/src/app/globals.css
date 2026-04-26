@@ -1,31 +1,33 @@
 @import "tailwindcss";
 
 :root {
-  --background: #08111f;
-  --foreground: #e5eefb;
-  --surface-app: #08111f;
-  --surface-page: #0f1a2b;
-  --surface-card: rgba(255, 255, 255, 0.94);
-  --surface-card-muted: rgba(248, 250, 252, 0.88);
-  --surface-topbar: rgba(8, 17, 31, 0.72);
+  --background: #030816;
+  --foreground: #e8f1ff;
+  --surface-app: #030816;
+  --surface-page: rgba(10, 18, 34, 0.82);
+  --surface-card: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(246, 250, 255, 0.96));
+  --surface-card-muted: linear-gradient(180deg, rgba(242, 247, 255, 0.9), rgba(236, 242, 251, 0.86));
+  --surface-card-dark: linear-gradient(180deg, rgba(15, 23, 42, 0.94), rgba(15, 23, 42, 0.84));
+  --surface-topbar: rgba(6, 12, 23, 0.78);
   --border-soft: rgba(148, 163, 184, 0.18);
-  --border-strong: rgba(148, 163, 184, 0.28);
-  --text-primary: #0f172a;
-  --text-secondary: #475569;
-  --text-muted: #64748b;
-  --accent: #4f8cff;
-  --accent-soft: rgba(79, 140, 255, 0.14);
-  --accent-strong: #2f6df4;
+  --border-strong: rgba(148, 163, 184, 0.3);
+  --text-primary: #081225;
+  --text-secondary: #40526e;
+  --text-muted: #71859f;
+  --accent: #5ea2ff;
+  --accent-soft: rgba(94, 162, 255, 0.18);
+  --accent-strong: #3478f6;
+  --accent-glow: rgba(94, 162, 255, 0.22);
   --success-bg: rgba(34, 197, 94, 0.14);
   --success-text: #166534;
   --warning-bg: rgba(245, 158, 11, 0.16);
   --warning-text: #92400e;
   --danger-bg: rgba(239, 68, 68, 0.14);
   --danger-text: #991b1b;
-  --shadow-soft: 0 18px 40px -24px rgba(15, 23, 42, 0.38);
-  --shadow-card: 0 22px 48px -28px rgba(15, 23, 42, 0.42);
-  --shadow-elevated: 0 28px 60px -32px rgba(15, 23, 42, 0.46);
-  --radius-card: 1.5rem;
+  --shadow-soft: 0 20px 48px -28px rgba(2, 6, 23, 0.42);
+  --shadow-card: 0 26px 64px -34px rgba(2, 6, 23, 0.5);
+  --shadow-elevated: 0 34px 74px -38px rgba(2, 6, 23, 0.58);
+  --radius-card: 1.6rem;
   --radius-control: 1rem;
 }
 
@@ -47,9 +49,10 @@ html {
 body {
   margin: 0;
   background:
-    radial-gradient(circle at top left, rgba(79, 140, 255, 0.18), transparent 26%),
-    radial-gradient(circle at top right, rgba(56, 189, 248, 0.12), transparent 24%),
-    linear-gradient(180deg, #08111f 0%, #0b1423 24%, #101a2b 100%);
+    radial-gradient(circle at 12% 4%, rgba(94, 162, 255, 0.24), transparent 24%),
+    radial-gradient(circle at 88% 8%, rgba(67, 127, 255, 0.18), transparent 22%),
+    radial-gradient(circle at 50% 100%, rgba(26, 66, 144, 0.16), transparent 24%),
+    linear-gradient(180deg, #030816 0%, #07111f 26%, #0b1627 58%, #0e1a2d 100%);
   color: var(--foreground);
   font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
 }

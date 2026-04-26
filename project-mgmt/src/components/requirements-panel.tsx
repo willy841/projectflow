@@ -122,7 +122,7 @@ export function RequirementsPanel({
   const isEditing = editingIndex !== null;
 
   return (
-    <article className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+    <article className="rounded-[32px] border border-white/70 bg-[var(--surface-card)] p-6 shadow-[var(--shadow-elevated)]">
       <div className="mb-4 flex min-h-11 flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="min-w-0">
           <h3 className="text-xl font-semibold leading-none">需求溝通</h3>
@@ -134,20 +134,20 @@ export function RequirementsPanel({
             setEditingIndex(null);
             resetForm();
           }}
-          className="inline-flex h-11 shrink-0 items-center justify-center whitespace-nowrap rounded-2xl border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-800 shadow-sm transition hover:border-slate-400 hover:bg-slate-50"
+          className="inline-flex h-11 shrink-0 items-center justify-center whitespace-nowrap rounded-2xl border border-[rgba(47,109,244,0.28)] bg-[linear-gradient(180deg,rgba(94,162,255,0.12),rgba(255,255,255,0.94))] px-4 text-sm font-semibold text-slate-800 shadow-[var(--shadow-soft)] transition hover:border-[rgba(47,109,244,0.42)] hover:bg-[linear-gradient(180deg,rgba(94,162,255,0.16),rgba(255,255,255,0.98))]"
         >
           + 新增紀錄
         </button>
       </div>
 
       {(showCreate || isEditing) ? (
-        <div className="mb-4 rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-4">
+        <div className="mb-4 rounded-[24px] border border-dashed border-slate-300/85 bg-[linear-gradient(180deg,rgba(244,248,255,0.95),rgba(237,243,253,0.9))] p-4 shadow-[var(--shadow-soft)]">
           <div className="space-y-3 text-left">
             <textarea
               value={formTitle}
               onChange={(event) => setFormTitle(event.target.value)}
               placeholder="輸入需求溝通內容，例如：入口主背板需搭配春季主題色與產品燈箱"
-              className="min-h-48 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm leading-7 outline-none transition focus:border-slate-400"
+              className="min-h-48 w-full rounded-2xl border border-slate-200/90 bg-white/96 px-4 py-3 text-sm leading-7 shadow-[var(--shadow-soft)] outline-none transition focus:border-[var(--accent-strong)]"
             />
             <p className="text-left text-xs text-slate-500">儲存時會自動記錄當下日期與時間</p>
           </div>
@@ -156,14 +156,14 @@ export function RequirementsPanel({
             <button
               type="button"
               onClick={isEditing ? handleSaveEdit : handleCreate}
-              className="inline-flex items-center justify-center rounded-2xl border border-slate-900 bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800"
+              className="inline-flex items-center justify-center rounded-2xl border border-[rgba(47,109,244,0.8)] bg-[linear-gradient(180deg,#5ea2ff,#3478f6)] px-4 py-2.5 text-sm font-semibold text-white shadow-[var(--shadow-soft)] transition hover:brightness-105"
             >
               {isEditing ? "儲存修改" : "建立紀錄"}
             </button>
             <button
               type="button"
               onClick={cancelEditing}
-              className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 shadow-sm transition hover:border-slate-400 hover:bg-slate-50"
+              className="inline-flex items-center justify-center rounded-2xl border border-slate-200/90 bg-white/95 px-4 py-2.5 text-sm font-semibold text-slate-800 shadow-[var(--shadow-soft)] transition hover:border-slate-300 hover:bg-slate-50/95"
             >
               取消
             </button>
@@ -173,7 +173,7 @@ export function RequirementsPanel({
 
       <div className="space-y-3">
         {items.map((item, index) => (
-          <div key={`${item.title}-${index}`} className="rounded-2xl border border-slate-200 px-4 py-4">
+          <div key={`${item.title}-${index}`} className="rounded-[22px] border border-slate-200/85 bg-[linear-gradient(180deg,rgba(255,255,255,0.98),rgba(244,248,255,0.9))] px-4 py-4 shadow-[var(--shadow-soft)]">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div className="min-w-0 text-left">
                 <p className="text-xs font-medium text-slate-500">{item.date}</p>

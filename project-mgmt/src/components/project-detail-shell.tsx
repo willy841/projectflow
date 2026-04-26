@@ -194,10 +194,10 @@ export function ProjectDetailShell({ project, entryContext }: { project: Project
 
   return (
     <>
-      <header className="rounded-[30px] border border-white/70 bg-[var(--surface-card)] p-5 shadow-[var(--shadow-card)] xl:p-6">
+      <header className="rounded-[32px] border border-white/70 bg-[var(--surface-card)] p-5 shadow-[var(--shadow-elevated)] xl:p-6">
         <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
           <div className="min-w-0 flex-1">
-            <h2 className="text-3xl font-semibold tracking-tight text-slate-900">{projectView.name}</h2>
+            <h2 className="text-[2rem] font-semibold tracking-[-0.03em] text-slate-950 sm:text-[2.15rem]">{projectView.name}</h2>
           </div>
 
           <div className="flex flex-wrap items-center gap-2 xl:justify-end">
@@ -222,7 +222,7 @@ export function ProjectDetailShell({ project, entryContext }: { project: Project
       </header>
 
       {isEditingProject ? (
-        <section className="rounded-[28px] border border-white/65 bg-[rgba(248,250,252,0.92)] p-6 shadow-[var(--shadow-card)] backdrop-blur-sm">
+        <section className="rounded-[30px] border border-white/65 bg-[linear-gradient(180deg,rgba(248,250,252,0.95),rgba(239,245,255,0.9))] p-6 shadow-[var(--shadow-elevated)] backdrop-blur-sm">
           <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <h3 className="text-xl font-semibold text-slate-900">編輯專案</h3>
@@ -309,15 +309,15 @@ export function ProjectDetailShell({ project, entryContext }: { project: Project
           { label: "專案預算", value: projectView.budget },
           { label: "目前成本", value: projectView.cost },
         ].map((item) => (
-          <article key={item.label} className="rounded-[28px] border border-white/70 bg-[var(--surface-card)] p-5 shadow-[var(--shadow-card)]">
-            <p className="text-sm text-slate-500">{item.label}</p>
-            <p className="mt-3 text-2xl font-semibold tracking-tight">{item.value}</p>
+          <article key={item.label} className="rounded-[30px] border border-white/70 bg-[linear-gradient(180deg,rgba(255,255,255,0.98),rgba(244,248,255,0.94))] p-5 shadow-[var(--shadow-elevated)]">
+            <p className="text-[0.82rem] font-medium uppercase tracking-[0.08em] text-slate-500/95">{item.label}</p>
+            <p className="mt-3 text-[1.95rem] font-semibold tracking-[-0.03em] text-slate-950">{item.value}</p>
           </article>
         ))}
       </section>
 
       <section className="grid gap-6 2xl:grid-cols-[minmax(0,1.08fr)_minmax(340px,0.92fr)]">
-        <article className="rounded-[30px] border border-white/70 bg-[var(--surface-card)] p-6 shadow-[var(--shadow-card)]">
+        <article className="rounded-[32px] border border-white/70 bg-[var(--surface-card)] p-6 shadow-[var(--shadow-elevated)]">
           <div className="mb-4 min-h-11 flex items-center">
             <div className="min-w-0">
               <h3 className="text-xl font-semibold leading-none">專案基本資訊</h3>
@@ -333,7 +333,7 @@ export function ProjectDetailShell({ project, entryContext }: { project: Project
               ["Email", projectView.contactEmail],
               ["LINE", projectView.contactLine],
             ].map(([label, value]) => (
-              <div key={label} className="rounded-2xl border border-slate-200/70 bg-slate-50/85 px-4 py-4 shadow-[var(--shadow-soft)]">
+              <div key={label} className="rounded-[22px] border border-slate-200/70 bg-[linear-gradient(180deg,rgba(245,248,253,0.96),rgba(240,245,252,0.88))] px-4 py-4 shadow-[var(--shadow-soft)]">
                 <p className="text-sm text-slate-500">{label}</p>
                 <p className="mt-2 font-medium text-slate-900">{value}</p>
               </div>
