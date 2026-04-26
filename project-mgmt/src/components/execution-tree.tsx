@@ -209,7 +209,7 @@ function VendorMatchField({
                   }}
                   className="flex w-full items-center justify-between rounded-xl px-3 py-2.5 text-left text-sm text-slate-700 transition hover:bg-slate-50"
                 >
-                  <span className="font-medium text-slate-900">{vendor.name}</span>
+                  <span className="font-medium text-slate-100">{vendor.name}</span>
                   <span className="text-xs text-slate-400">選取</span>
                 </button>
               ))
@@ -314,7 +314,7 @@ function SavedSummary({
                 <p className="text-xs font-medium text-slate-500">
                   {field.label}
                 </p>
-                <p className="mt-2 break-words text-sm font-medium text-slate-900">
+                <p className="mt-2 break-words text-sm font-medium text-slate-100">
                   {field.value}
                 </p>
               </div>
@@ -1832,9 +1832,7 @@ export function ExecutionTree({
                 event.currentTarget.value = "";
               }}
             />
-          </div>
-        </div>
-        {excelImportError ? (
+      {excelImportError ? (
           <div className="mt-4" data-testid="execution-item-import-inline-error">
             <WorkspaceStatusNotice tone="error">{excelImportError}</WorkspaceStatusNotice>
           </div>
@@ -1862,7 +1860,7 @@ export function ExecutionTree({
         {excelPreview ? (
           <div className="mt-4 rounded-3xl border border-white/10 bg-[linear-gradient(180deg,rgba(18,30,50,0.72),rgba(13,22,39,0.52))] p-4 shadow-[0_34px_90px_-38px_rgba(0,0,0,0.68),0_0_34px_rgba(96,165,250,0.08),inset_0_1px_0_rgba(255,255,255,0.07),inset_0_-22px_44px_-28px_rgba(7,13,25,0.98)] backdrop-blur-[28px]">
             <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
-              <h4 className="text-lg font-semibold text-slate-900">預覽</h4>
+              <h4 className="text-lg font-semibold text-slate-100">預覽</h4>
               <div className="flex flex-wrap gap-2">
                 <button
                   type="button"
@@ -1905,13 +1903,13 @@ export function ExecutionTree({
               {excelPreview.mainItems.map((mainItem) => (
                 <div key={mainItem.id} className="rounded-2xl border border-white/10 bg-[linear-gradient(180deg,rgba(39,52,77,0.62),rgba(17,26,42,0.46))] p-5 shadow-[0_24px_46px_-28px_rgba(0,0,0,0.54),0_0_16px_rgba(96,165,250,0.05),inset_0_1px_0_rgba(255,255,255,0.05),inset_0_-16px_24px_-18px_rgba(10,18,32,0.86)] backdrop-blur-2xl">
                   <div className="flex flex-wrap items-center gap-2">
-                    <p className="text-sm font-semibold text-slate-900">{mainItem.title}</p>
+                    <p className="text-sm font-semibold text-slate-100">{mainItem.title}</p>
                   </div>
                   <div className="mt-3 space-y-2">
                     {mainItem.children.map((child) => (
                       <div key={child.id} className="rounded-2xl border border-white/10 bg-[linear-gradient(180deg,rgba(40,53,79,0.58),rgba(16,25,40,0.42))] px-4 py-3.5 text-sm text-slate-300 shadow-[0_18px_36px_-24px_rgba(0,0,0,0.42),inset_0_1px_0_rgba(255,255,255,0.04)] backdrop-blur-xl">
                         <div className="flex flex-wrap items-center gap-2">
-                          <span className="font-medium text-slate-900">{child.title}</span>
+                          <span className="font-medium text-slate-100">{child.title}</span>
                         </div>
                         <div className="mt-2 flex flex-wrap gap-3 text-xs text-slate-500">
                           {child.quantity ? <span>數量：{child.quantity}</span> : null}
@@ -2099,7 +2097,7 @@ export function ExecutionTree({
                         </span>
                       </div>
                       <div className="mt-2.5 flex flex-wrap items-center gap-2">
-                        <h4 className="text-lg font-semibold text-slate-900">
+                        <h4 className="text-lg font-semibold text-slate-100">
                           {item.title}
                         </h4>
                         <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-1.5 py-0.5 text-[11px] font-medium text-slate-500 ring-1 ring-slate-200">
@@ -2245,7 +2243,7 @@ export function ExecutionTree({
                                   ) : null}
                                 </div>
                                 <div className="mt-2.5 flex flex-wrap items-center gap-2">
-                                  <h5 className="font-medium text-slate-900">
+                                  <h5 className="font-medium text-slate-100">
                                     {child.title}
                                   </h5>
                                 </div>

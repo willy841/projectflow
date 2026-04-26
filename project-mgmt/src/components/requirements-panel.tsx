@@ -177,7 +177,7 @@ export function RequirementsPanel({
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div className="min-w-0 text-left">
                 <p className="text-xs font-medium text-slate-500">{item.date}</p>
-                <h4 className="mt-2 font-semibold text-slate-100">{item.title}</h4>
+                <h4 className="mt-2 text-[13px] font-semibold leading-6 text-slate-100">{item.title}</h4>
               </div>
               <div className="flex flex-wrap gap-2 self-start">
                 <button
