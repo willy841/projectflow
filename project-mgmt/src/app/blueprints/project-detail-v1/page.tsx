@@ -1,10 +1,10 @@
 export default function ProjectDetailBlueprintV1Page() {
   const summaryItems = [
-    { label: '活動日期', value: '2026-05-12' },
-    { label: '活動地點', value: '松山文創園區' },
-    { label: '進場時間', value: '08:30' },
-    { label: '專案預算', value: 'NT$ 1,280,000' },
-    { label: '目前成本', value: 'NT$ 742,500' },
+    { label: '活動日期', value: '2026-05-12', icon: '◷' },
+    { label: '活動地點', value: '松山文創園區', icon: '⌘' },
+    { label: '進場時間', value: '08:30', icon: '◴' },
+    { label: '專案預算', value: 'NT$ 1,280,000', icon: '◈' },
+    { label: '目前成本', value: 'NT$ 742,500', icon: '◉' },
   ];
 
   const infoItems = [
@@ -117,8 +117,15 @@ export default function ProjectDetailBlueprintV1Page() {
                 key={item.label}
                 className="rounded-[30px] border border-white/10 bg-[linear-gradient(180deg,rgba(36,48,72,0.76),rgba(14,22,39,0.52))] p-5 shadow-[0_34px_84px_-30px_rgba(0,0,0,0.72),0_10px_18px_-12px_rgba(15,23,42,0.5),inset_0_1px_0_rgba(255,255,255,0.1),inset_0_18px_28px_-20px_rgba(255,255,255,0.05),inset_0_-28px_44px_-24px_rgba(2,6,23,0.98)] backdrop-blur-[28px]"
               >
-                <p className="text-xs font-medium uppercase tracking-wider text-slate-500">{item.label}</p>
-                <p className="mt-3 text-[1.15rem] font-semibold tracking-tight text-slate-100">{item.value}</p>
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs font-medium uppercase tracking-wider text-slate-500">{item.label}</p>
+                    <p className="mt-3 text-[1.15rem] font-semibold tracking-tight text-slate-100">{item.value}</p>
+                  </div>
+                  <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.05] text-base text-slate-200 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]">
+                    {item.icon}
+                  </span>
+                </div>
               </article>
             ))}
           </section>
