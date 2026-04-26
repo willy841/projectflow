@@ -2113,7 +2113,7 @@ export function ExecutionTree({
                   ) : (
                     <>
                       <div className="flex flex-wrap items-center gap-2">
-                        <span className="inline-flex items-center justify-center rounded-full bg-slate-900 px-3 py-1 text-xs font-semibold text-white">
+                        <span className="inline-flex min-w-[36px] items-center justify-center rounded-full bg-slate-900 px-3 py-1.5 text-sm font-semibold leading-none text-white">
                           #{itemIndex + 1}
                         </span>
                         <h4 className="text-lg font-semibold text-slate-100">
@@ -2226,9 +2226,12 @@ export function ExecutionTree({
                             ) : (
                               <>
                                 <div className="flex flex-wrap items-center gap-2">
-                                  <span className="inline-flex items-center justify-center rounded-full bg-slate-900 px-3 py-1 text-xs font-semibold text-white">
+                                  <span className="inline-flex min-w-[52px] items-center justify-center rounded-full bg-slate-900 px-3 py-1.5 text-sm font-semibold leading-none text-white">
                                     #{itemIndex + 1}-{childIndex + 1}
                                   </span>
+                                  <h5 className="font-medium text-slate-100">
+                                    {child.title}
+                                  </h5>
                                   {child.status !== "待交辦" ? (
                                     <span
                                       className={`inline-flex items-center justify-center whitespace-nowrap rounded-full px-3 py-1 text-xs font-medium ring-1 ${getStatusClass(child.status)}`}
@@ -2256,11 +2259,6 @@ export function ExecutionTree({
                                       尚未建立交辦
                                     </span>
                                   ) : null}
-                                </div>
-                                <div className="mt-2.5 flex flex-wrap items-center gap-2">
-                                  <h5 className="font-medium text-slate-100">
-                                    {child.title}
-                                  </h5>
                                 </div>
                                 {child.note ? (
                                   <p className="mt-2 text-sm text-slate-500">
