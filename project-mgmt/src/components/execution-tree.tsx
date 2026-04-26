@@ -2116,17 +2116,11 @@ export function ExecutionTree({
                         <span className="inline-flex items-center justify-center rounded-full bg-slate-900 px-3 py-1 text-xs font-semibold text-white">
                           #{itemIndex + 1}
                         </span>
-                        <span className="inline-flex items-center justify-center rounded-full bg-white/8 px-3 py-1 text-xs font-semibold text-slate-200 ring-1 ring-white/10">
-                          主項目
-                        </span>
-                      </div>
-                      <div className="mt-2.5 flex flex-wrap items-center gap-2">
                         <h4 className="text-lg font-semibold text-slate-100">
                           {item.title}
                         </h4>
-                        <span className="inline-flex items-center gap-1 rounded-full bg-white/8 px-1.5 py-0.5 text-[11px] font-medium text-slate-300 ring-1 ring-white/10">
-                          <span aria-hidden="true">≡</span>
-                          <span>{item.children?.length ?? 0}</span>
+                        <span className="inline-flex min-w-[24px] items-center justify-center rounded-full bg-white/10 px-2 py-0.5 text-[11px] font-semibold text-slate-100 ring-1 ring-white/10">
+                          {item.children?.length ?? 0}
                         </span>
                         {savedDesignAssignments[item.id] ? (
                           <span className="inline-flex items-center justify-center rounded-full bg-sky-50 px-3 py-1 text-xs font-medium text-sky-700 ring-1 ring-sky-200">
@@ -2234,9 +2228,6 @@ export function ExecutionTree({
                                 <div className="flex flex-wrap items-center gap-2">
                                   <span className="inline-flex items-center justify-center rounded-full bg-slate-900 px-3 py-1 text-xs font-semibold text-white">
                                     #{itemIndex + 1}-{childIndex + 1}
-                                  </span>
-                                  <span className="inline-flex items-center justify-center rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700 ring-1 ring-slate-200">
-                                    次項目
                                   </span>
                                   {child.status !== "待交辦" ? (
                                     <span
