@@ -166,7 +166,7 @@ export default function ProjectDetailBlueprintV1Page() {
             </article>
           </section>
 
-          <section className="space-y-5 rounded-[32px] border border-sky-300/14 bg-[linear-gradient(180deg,rgba(18,30,50,0.7),rgba(13,22,39,0.48))] p-6 shadow-[0_34px_88px_-38px_rgba(0,0,0,0.66),0_0_32px_rgba(96,165,250,0.08),inset_0_1px_0_rgba(255,255,255,0.06),inset_0_-20px_42px_-26px_rgba(7,13,25,0.96)] backdrop-blur-[28px]">
+          <section className="space-y-5 p-1">
             <div className="mb-1">
               <h3 className="text-xl font-semibold text-white">專案執行項目</h3>
             </div>
@@ -230,7 +230,7 @@ export default function ProjectDetailBlueprintV1Page() {
             </div>
           </section>
 
-          <section className="space-y-5 rounded-[32px] border border-sky-300/14 bg-[linear-gradient(180deg,rgba(18,30,50,0.7),rgba(13,22,39,0.48))] p-6 shadow-[0_34px_88px_-38px_rgba(0,0,0,0.66),0_0_32px_rgba(96,165,250,0.08),inset_0_1px_0_rgba(255,255,255,0.06),inset_0_-20px_42px_-26px_rgba(7,13,25,0.96)] backdrop-blur-[28px]">
+          <section className="space-y-5 p-1">
             <div>
               <h3 className="text-xl font-semibold text-white">專案分類檢視</h3>
             </div>
