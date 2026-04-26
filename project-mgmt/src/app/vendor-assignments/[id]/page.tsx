@@ -37,8 +37,8 @@ export default async function VendorAssignmentTaskPage({ params }: { params: Pro
         meta={group.projectName}
         actions={
           <>
-            <Link href={`/vendor-assignments?project=${encodeURIComponent(group.projectId)}`} className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-700">返回任務列表</Link>
-            <Link href={`/vendor-packages/${packageId}`} className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-700">查看文件</Link>
+            <Link href={`/vendor-assignments?project=${encodeURIComponent(group.projectId)}`} className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-white/10 bg-slate-900/50 px-4 py-2.5 text-sm font-medium text-slate-100 shadow-[0_22px_46px_-28px_rgba(0,0,0,0.45),inset_0_1px_0_rgba(255,255,255,0.04)] backdrop-blur-xl transition hover:bg-slate-900/70 hover:text-white">返回任務列表</Link>
+            <Link href={`/vendor-packages/${packageId}`} className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-white/10 bg-[linear-gradient(135deg,rgba(30,41,59,0.92),rgba(37,99,235,0.6))] px-4 py-2.5 text-sm font-medium text-slate-50 shadow-[0_24px_48px_-26px_rgba(37,99,235,0.55),inset_0_1px_0_rgba(255,255,255,0.1)] backdrop-blur-xl transition hover:brightness-110">查看文件</Link>
             <VendorGroupConfirmClient projectId={group.projectId} vendorId={group.vendorId} packageId={packageId} />
           </>
         }

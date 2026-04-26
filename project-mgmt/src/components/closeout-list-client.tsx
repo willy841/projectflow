@@ -40,13 +40,13 @@ export function CloseoutListClient({ initialProjects }: { initialProjects: Close
 
   return (
     <>
-      <header className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200 xl:p-7">
+      <header className="p-1">
         <div className="flex items-center justify-between gap-3">
-          <h2 className="text-3xl font-semibold tracking-tight text-slate-900">結案紀錄</h2>
+          <h2 className="text-3xl font-semibold tracking-tight text-slate-50">結案紀錄</h2>
         </div>
       </header>
 
-      <section className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+      <section className="rounded-3xl border border-white/10 bg-[linear-gradient(180deg,rgba(18,30,50,0.72),rgba(13,22,39,0.52))] p-6 shadow-[0_34px_90px_-38px_rgba(0,0,0,0.68),0_0_34px_rgba(96,165,250,0.08),inset_0_1px_0_rgba(255,255,255,0.07),inset_0_-22px_44px_-28px_rgba(7,13,25,0.98)] backdrop-blur-[28px]">
         <div className="mb-5 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
           <div className="flex flex-1 flex-col gap-3 sm:flex-row">
             <input
@@ -56,7 +56,7 @@ export function CloseoutListClient({ initialProjects }: { initialProjects: Close
                 setPage(1);
               }}
               placeholder="搜尋活動標題 / 客戶名稱"
-              className="h-11 w-full rounded-2xl border border-slate-200 px-4 text-sm outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-200 sm:max-w-sm"
+              className="h-11 w-full rounded-2xl border border-white/10 bg-slate-950/40 px-4 text-sm text-slate-100 outline-none transition placeholder:text-slate-500 focus:border-sky-400/40 focus:ring-2 focus:ring-sky-400/20 sm:max-w-sm"
             />
             <select
               value={selectedYear}
@@ -64,7 +64,7 @@ export function CloseoutListClient({ initialProjects }: { initialProjects: Close
                 setSelectedYear(event.target.value);
                 setPage(1);
               }}
-              className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400"
+              className="h-11 rounded-2xl border border-white/10 bg-slate-950/40 px-4 text-sm text-slate-100 outline-none transition focus:border-sky-400/40 focus:ring-2 focus:ring-sky-400/20"
             >
               <option value="all">全部年份</option>
               {yearOptions.map((year) => (
@@ -74,7 +74,7 @@ export function CloseoutListClient({ initialProjects }: { initialProjects: Close
             <button
               type="button"
               onClick={() => setDateSortOrder((current) => (current === "desc" ? "asc" : "desc"))}
-              className="inline-flex h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+              className="inline-flex h-11 items-center justify-center rounded-2xl border border-white/10 bg-slate-900/50 px-4 text-sm font-semibold text-slate-100 shadow-[0_22px_46px_-28px_rgba(0,0,0,0.45),inset_0_1px_0_rgba(255,255,255,0.04)] backdrop-blur-xl transition hover:bg-slate-900/70"
             >
               {dateSortOrder === "desc" ? "日期排序：最新" : "日期排序：最舊"}
             </button>
@@ -82,9 +82,9 @@ export function CloseoutListClient({ initialProjects }: { initialProjects: Close
         </div>
 
         {pagedProjects.length ? (
-          <div className="overflow-x-auto rounded-2xl border border-slate-200">
-            <table className="min-w-full divide-y divide-slate-200 text-left text-sm">
-              <thead className="bg-slate-50 text-slate-500">
+          <div className="overflow-x-auto rounded-2xl border border-white/10 bg-[linear-gradient(180deg,rgba(39,52,77,0.62),rgba(17,26,42,0.46))] shadow-[0_24px_46px_-28px_rgba(0,0,0,0.54),0_0_16px_rgba(96,165,250,0.05),inset_0_1px_0_rgba(255,255,255,0.05),inset_0_-16px_24px_-18px_rgba(10,18,32,0.86)] backdrop-blur-2xl">
+            <table className="min-w-full divide-y divide-white/10 text-left text-sm">
+              <thead className="bg-white/[0.04] text-slate-400">
                 <tr>
                   <th className="px-4 py-3 font-medium">客戶名稱</th>
                   <th className="px-4 py-3 font-medium">專案名稱</th>
@@ -95,19 +95,19 @@ export function CloseoutListClient({ initialProjects }: { initialProjects: Close
                   <th className="px-4 py-3 font-medium">操作</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100 bg-white">
+              <tbody className="divide-y divide-white/10 bg-transparent">
                 {pagedProjects.map((project) => (
                   <tr key={project.id}>
-                    <td className="px-4 py-4 text-slate-700">{project.clientName}</td>
-                    <td className="px-4 py-4 font-medium text-slate-900">{project.projectName}</td>
-                    <td className="px-4 py-4 text-slate-700">{project.eventDate}</td>
-                    <td className="px-4 py-4 text-slate-700">{formatCurrency(project.quotationTotal)}</td>
-                    <td className="px-4 py-4 text-slate-700">{formatCurrency(project.projectCostTotal)}</td>
-                    <td className="px-4 py-4 font-semibold text-slate-900">{formatCurrency(project.grossProfit)}</td>
+                    <td className="px-4 py-4 text-slate-300">{project.clientName}</td>
+                    <td className="px-4 py-4 font-medium text-slate-100">{project.projectName}</td>
+                    <td className="px-4 py-4 text-slate-300">{project.eventDate}</td>
+                    <td className="px-4 py-4 text-slate-300">{formatCurrency(project.quotationTotal)}</td>
+                    <td className="px-4 py-4 text-slate-300">{formatCurrency(project.projectCostTotal)}</td>
+                    <td className="px-4 py-4 font-semibold text-slate-100">{formatCurrency(project.grossProfit)}</td>
                     <td className="px-4 py-4">
                       <Link
                         href={`/closeouts/${project.id}`}
-                        className="inline-flex min-h-10 items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-800 transition hover:border-slate-400 hover:bg-slate-50"
+                        className="inline-flex min-h-10 items-center justify-center rounded-2xl border border-white/10 bg-slate-900/50 px-4 py-2 text-sm font-semibold text-slate-100 shadow-[0_20px_42px_-28px_rgba(0,0,0,0.45),inset_0_1px_0_rgba(255,255,255,0.04)] backdrop-blur-xl transition hover:bg-slate-900/70"
                       >
                         查看
                       </Link>
@@ -144,13 +144,13 @@ export function CloseoutListClient({ initialProjects }: { initialProjects: Close
         )}
 
         <div className="mt-6 flex items-center justify-between gap-3">
-          <p className="text-sm text-slate-500">第 {currentPage} / {totalPages} 頁</p>
+          <p className="text-sm text-slate-400">第 {currentPage} / {totalPages} 頁</p>
           <div className="flex gap-2">
             <button
               type="button"
               onClick={() => setPage((current) => Math.max(1, current - 1))}
               disabled={currentPage === 1}
-              className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+              className="inline-flex items-center justify-center rounded-2xl border border-white/10 bg-slate-900/50 px-4 py-2 text-sm font-semibold text-slate-100 shadow-[0_20px_42px_-28px_rgba(0,0,0,0.45),inset_0_1px_0_rgba(255,255,255,0.04)] backdrop-blur-xl transition hover:bg-slate-900/70 disabled:cursor-not-allowed disabled:opacity-50"
             >
               上一頁
             </button>
@@ -158,7 +158,7 @@ export function CloseoutListClient({ initialProjects }: { initialProjects: Close
               type="button"
               onClick={() => setPage((current) => Math.min(totalPages, current + 1))}
               disabled={currentPage === totalPages}
-              className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+              className="inline-flex items-center justify-center rounded-2xl border border-white/10 bg-slate-900/50 px-4 py-2 text-sm font-semibold text-slate-100 shadow-[0_20px_42px_-28px_rgba(0,0,0,0.45),inset_0_1px_0_rgba(255,255,255,0.04)] backdrop-blur-xl transition hover:bg-slate-900/70 disabled:cursor-not-allowed disabled:opacity-50"
             >
               下一頁
             </button>

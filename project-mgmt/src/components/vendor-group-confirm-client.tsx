@@ -47,11 +47,11 @@ export function VendorGroupConfirmClient({
         type="button"
         onClick={handleConfirmGroup}
         disabled={confirming}
-        className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-60"
+        className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-emerald-300/20 bg-[linear-gradient(135deg,rgba(5,150,105,0.88),rgba(6,95,70,0.92))] px-4 py-2.5 text-sm font-semibold text-white shadow-[0_24px_48px_-24px_rgba(5,150,105,0.5),inset_0_1px_0_rgba(255,255,255,0.12)] backdrop-blur-xl transition hover:brightness-110 disabled:opacity-60"
       >
         {confirming ? "確認中..." : "全部確認"}
       </button>
-      {message ? <p className="text-xs leading-5 text-slate-500 xl:max-w-sm">{message}</p> : null}
+      {message ? <p className="text-xs leading-5 text-slate-400 xl:max-w-sm">{message}</p> : null}
     </div>
   );
 }
