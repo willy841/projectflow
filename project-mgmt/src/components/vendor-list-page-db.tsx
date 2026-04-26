@@ -143,7 +143,7 @@ export function VendorListPageDb({ vendors, tradeOptions: initialTradeOptions }:
 
   return (
     <>
-      <header className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200 xl:p-7">
+      <header className="xl:p-7">
         <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
           <div className="min-w-0 xl:pt-2">
             <div className="flex flex-wrap items-center gap-3">
@@ -154,14 +154,14 @@ export function VendorListPageDb({ vendors, tradeOptions: initialTradeOptions }:
                   setIsCreateVendorOpen(true);
                   setCreateVendorError(null);
                 }}
-                className="inline-flex items-center justify-center rounded-2xl border border-slate-900 bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800"
+                className="pf-btn-create px-4 py-2.5"
               >
                 新增廠商
               </button>
               <button
                 type="button"
                 onClick={() => setIsTradeManagerOpen((current) => !current)}
-                className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:border-slate-400 hover:bg-slate-50"
+                className="pf-btn-secondary px-4 py-2.5"
               >
                 {isTradeManagerOpen ? '收合工種管理' : '管理工種'}
               </button>
@@ -169,24 +169,24 @@ export function VendorListPageDb({ vendors, tradeOptions: initialTradeOptions }:
           </div>
 
           <div className="sm:min-w-[260px] xl:self-stretch">
-            <div className="rounded-3xl border border-amber-200 bg-amber-50 px-5 py-4 text-sm text-amber-900 xl:flex xl:h-full xl:min-h-[104px] xl:flex-col xl:justify-center">
-              <p className="font-semibold">未付款總額</p>
-              <p className="mt-2 text-2xl font-semibold">{formatCurrency(totalOutstanding)}</p>
+            <div className="pf-panel-soft px-5 py-4 text-sm text-slate-200 xl:flex xl:h-full xl:min-h-[104px] xl:flex-col xl:justify-center">
+              <p className="font-semibold text-slate-300">未付款總額</p>
+              <p className="mt-2 text-2xl font-semibold text-slate-100">{formatCurrency(totalOutstanding)}</p>
             </div>
           </div>
         </div>
 
-        <div className="mt-5 rounded-3xl border border-slate-200 bg-slate-50/80 p-3.5">
+        <div className="pf-panel-soft mt-5 p-3.5">
           <div className="flex flex-col gap-3 xl:flex-row xl:flex-wrap xl:items-center xl:justify-between">
             <label className="block min-w-0 flex-1 xl:min-w-[280px]">
-              <div className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-2.5 shadow-sm transition focus-within:border-slate-400">
-                <span className="text-sm text-slate-400">⌕</span>
+              <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-slate-950/45 px-4 py-2.5 transition focus-within:border-sky-400/45">
+                <span className="text-sm text-slate-500">⌕</span>
                 <input
                   type="search"
                   value={keyword}
                   onChange={(event) => setKeyword(event.target.value)}
                   placeholder="搜尋廠商名稱或工種"
-                  className="w-full bg-transparent text-sm text-slate-900 outline-none placeholder:text-slate-400"
+                  className="w-full bg-transparent text-sm text-slate-100 outline-none placeholder:text-slate-500"
                 />
               </div>
             </label>
@@ -200,7 +200,7 @@ export function VendorListPageDb({ vendors, tradeOptions: initialTradeOptions }:
                     setKeyword('');
                     setActiveTrade(null);
                   }}
-                  className="inline-flex items-center justify-center rounded-full border border-slate-200 bg-white px-3 py-1.5 font-medium text-slate-600 transition hover:border-slate-300 hover:text-slate-900"
+                  className="inline-flex items-center justify-center rounded-full border border-white/10 bg-white/[0.05] px-3 py-1.5 font-medium text-slate-300 transition hover:bg-white/[0.08] hover:text-white"
                 >
                   清除
                 </button>
@@ -208,12 +208,12 @@ export function VendorListPageDb({ vendors, tradeOptions: initialTradeOptions }:
             </div>
           </div>
 
-          <div className="mt-3 rounded-2xl border border-slate-200 bg-white px-4 py-3.5">
+          <div className="mt-3 rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3.5 backdrop-blur-xl">
             <div className="mt-2 flex min-w-0 flex-wrap items-center gap-2">
               <button
                 type="button"
                 onClick={() => setActiveTrade(null)}
-                className={`rounded-full px-3 py-1.5 text-xs font-medium ring-1 transition ${activeTrade === null ? 'bg-slate-900 text-white ring-slate-900' : 'bg-white text-slate-700 ring-slate-200 hover:bg-slate-50'}`}
+                className={`pf-pill ${activeTrade === null ? 'pf-pill-active' : 'pf-pill-muted'}`}
               >
                 全部工種
               </button>
@@ -224,7 +224,7 @@ export function VendorListPageDb({ vendors, tradeOptions: initialTradeOptions }:
                     key={trade}
                     type="button"
                     onClick={() => setActiveTrade(active ? null : trade)}
-                    className={`rounded-full px-3 py-1.5 text-xs font-medium ring-1 transition ${active ? 'bg-sky-600 text-white ring-sky-600' : 'bg-white text-slate-700 ring-slate-200 hover:bg-slate-50'}`}
+                    className={`pf-pill ${active ? 'bg-sky-600 text-white ring-1 ring-sky-500/70' : 'pf-pill-muted'}`}
                   >
                     {trade}
                   </button>
@@ -234,7 +234,7 @@ export function VendorListPageDb({ vendors, tradeOptions: initialTradeOptions }:
           </div>
 
           {isTradeManagerOpen ? (
-            <div className="mt-3 rounded-2xl border border-sky-200 bg-sky-50/60 p-4 ring-1 ring-sky-100">
+            <div className="mt-3 rounded-2xl border border-white/10 bg-[linear-gradient(180deg,rgba(39,52,77,0.62),rgba(17,26,42,0.46))] p-4 shadow-[0_24px_46px_-28px_rgba(0,0,0,0.54),0_0_16px_rgba(96,165,250,0.05),inset_0_1px_0_rgba(255,255,255,0.05),inset_0_-16px_24px_-18px_rgba(10,18,32,0.86)] backdrop-blur-2xl">
               <div className="flex flex-col gap-3 lg:flex-row lg:items-end">
                 <label className="block flex-1">
                   <span className="mb-1.5 block text-sm font-semibold text-slate-700">新增工種</span>
@@ -242,14 +242,14 @@ export function VendorListPageDb({ vendors, tradeOptions: initialTradeOptions }:
                     value={newTradeName}
                     onChange={(event) => setNewTradeName(event.target.value)}
                     placeholder="例如：輸出 / 木作 / 施工"
-                    className="h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400"
+                    className="pf-input h-11"
                   />
                 </label>
                 <button
                   type="button"
                   onClick={handleCreateTrade}
                   disabled={tradeSaving}
-                  className="inline-flex h-11 items-center justify-center rounded-2xl border border-slate-900 bg-slate-900 px-4 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:opacity-60"
+                  className="pf-btn-create h-11 px-4 disabled:opacity-60"
                 >
                   {tradeSaving ? '新增中…' : '新增工種'}
                 </button>
@@ -262,16 +262,16 @@ export function VendorListPageDb({ vendors, tradeOptions: initialTradeOptions }:
                   const usageCount = tradeUsageCountMap.get(trade) ?? 0;
                   const deletingTrade = deletingTradeName === trade;
                   return (
-                    <div key={trade} className="inline-flex items-center overflow-hidden rounded-full ring-1 ring-slate-200">
-                      <span className="bg-white px-3 py-2 text-xs font-medium text-slate-700">
+                    <div key={trade} className="inline-flex items-center overflow-hidden rounded-full ring-1 ring-white/10">
+                      <span className="bg-white/[0.05] px-3 py-2 text-xs font-medium text-slate-200">
                         {trade}
-                        <span className="ml-2 text-slate-400">{usageCount} 間</span>
+                        <span className="ml-2 text-slate-500">{usageCount} 間</span>
                       </span>
                       <button
                         type="button"
                         onClick={() => handleDeleteTrade(trade)}
                         disabled={usageCount > 0 || deletingTrade}
-                        className="border-l border-slate-200 bg-white px-2.5 py-2 text-xs font-semibold text-rose-600 transition hover:bg-rose-50 disabled:cursor-not-allowed disabled:text-slate-300"
+                        className="border-l border-white/10 bg-white/[0.05] px-2.5 py-2 text-xs font-semibold text-rose-300 transition hover:bg-rose-950/30 disabled:cursor-not-allowed disabled:text-slate-500"
                         aria-label={`刪除工種 ${trade}`}
                       >
                         {deletingTrade ? '…' : '×'}
@@ -288,15 +288,15 @@ export function VendorListPageDb({ vendors, tradeOptions: initialTradeOptions }:
       {filteredVendorCards.length ? (
         <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {filteredVendorCards.map((vendor) => (
-            <div key={vendor.id} className="group rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200 transition hover:-translate-y-0.5 hover:shadow-md">
+            <div key={vendor.id} className="group pf-card p-6 transition hover:-translate-y-0.5 hover:shadow-[0_0_28px_rgba(96,165,250,0.12)]">
               <div className="flex items-center justify-between gap-4">
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-center gap-2">
-                    <Link href={`/vendors/${vendor.id}`} className="text-2xl font-semibold tracking-tight text-slate-900 underline-offset-4 transition hover:text-slate-700 hover:underline">
+                    <Link href={`/vendors/${vendor.id}`} className="text-2xl font-semibold tracking-tight text-slate-100 underline-offset-4 transition hover:text-white hover:underline">
                       {vendor.name}
                     </Link>
                     {(vendor.tradeLabels?.length ? vendor.tradeLabels : [vendor.tradeLabel || vendor.category || '—']).map((trade) => (
-                      <span key={`${vendor.id}-${trade}`} className="inline-flex rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700 ring-1 ring-slate-200">
+                      <span key={`${vendor.id}-${trade}`} className="inline-flex rounded-full bg-white/[0.06] px-3 py-1 text-xs font-medium text-slate-200 ring-1 ring-white/10">
                         {trade}
                       </span>
                     ))}
@@ -305,15 +305,15 @@ export function VendorListPageDb({ vendors, tradeOptions: initialTradeOptions }:
                 <button
                   type="button"
                   onClick={() => setDeletingVendorId(vendor.id)}
-                  className="inline-flex rounded-full bg-rose-50 px-3 py-1 text-xs font-medium text-rose-700 ring-1 ring-rose-200 transition hover:bg-rose-100"
+                  className="inline-flex rounded-full bg-rose-950/30 px-3 py-1 text-xs font-medium text-rose-200 ring-1 ring-rose-400/20 transition hover:bg-rose-950/45"
                 >
                   刪除廠商
                 </button>
               </div>
 
-              <div className="mt-8 rounded-2xl border border-amber-200 bg-amber-50/70 px-4 py-4">
-                <p className="text-sm text-amber-800">未付款總額</p>
-                <p className="mt-2 text-3xl font-semibold tracking-tight text-slate-900">{formatCurrency(vendor.outstandingTotal)}</p>
+              <div className="mt-8 rounded-2xl border border-white/10 bg-white/[0.05] px-4 py-4 backdrop-blur-xl">
+                <p className="text-sm text-slate-400">未付款總額</p>
+                <p className="mt-2 text-3xl font-semibold tracking-tight text-slate-100">{formatCurrency(vendor.outstandingTotal)}</p>
               </div>
             </div>
           ))}
@@ -352,27 +352,27 @@ export function VendorListPageDb({ vendors, tradeOptions: initialTradeOptions }:
 
       {isCreateVendorOpen ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/35 px-4">
-          <div className="w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl ring-1 ring-slate-200">
-            <h3 className="mt-4 text-xl font-semibold text-slate-900">建立新廠商</h3>
+          <div className="pf-card w-full max-w-md p-6">
+            <h3 className="mt-4 text-xl font-semibold text-slate-100">建立新廠商</h3>
 
             <div className="mt-5 space-y-4">
               <label className="block">
-                <span className="mb-1.5 block text-sm font-semibold text-slate-700">廠商名稱</span>
+                <span className="mb-1.5 block text-sm font-semibold text-slate-300">廠商名稱</span>
                 <input
                   type="text"
                   value={newVendorName}
                   onChange={(event) => setNewVendorName(event.target.value)}
                   placeholder="輸入廠商名稱"
-                  className="h-11 w-full rounded-2xl border border-slate-200 px-4 text-sm outline-none transition focus:border-slate-400"
+                  className="pf-input h-11"
                 />
               </label>
 
               <label className="block">
-                <span className="mb-1.5 block text-sm font-semibold text-slate-700">工種（可選）</span>
+                <span className="mb-1.5 block text-sm font-semibold text-slate-300">工種（可選）</span>
                 <select
                   value={newVendorTrade}
                   onChange={(event) => setNewVendorTrade(event.target.value)}
-                  className="h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400"
+                  className="pf-select h-11 w-full"
                 >
                   <option value="">不指定</option>
                   {tradeOptions.map((trade) => (
@@ -382,7 +382,7 @@ export function VendorListPageDb({ vendors, tradeOptions: initialTradeOptions }:
               </label>
 
               {createVendorError ? (
-                <div className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+                <div className="rounded-2xl border border-rose-400/20 bg-rose-950/20 px-4 py-3 text-sm text-rose-200">
                   {createVendorError}
                 </div>
               ) : null}
@@ -395,7 +395,7 @@ export function VendorListPageDb({ vendors, tradeOptions: initialTradeOptions }:
                   setIsCreateVendorOpen(false);
                   setCreateVendorError(null);
                 }}
-                className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+                className="pf-btn-secondary px-4 py-2.5"
               >
                 取消
               </button>
@@ -403,7 +403,7 @@ export function VendorListPageDb({ vendors, tradeOptions: initialTradeOptions }:
                 type="button"
                 onClick={handleCreateVendor}
                 disabled={creatingVendor}
-                className="inline-flex items-center justify-center rounded-2xl border border-slate-900 bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:opacity-60"
+                className="pf-btn-create px-4 py-2.5 disabled:opacity-60"
               >
                 {creatingVendor ? '建立中…' : '建立廠商'}
               </button>
@@ -414,16 +414,16 @@ export function VendorListPageDb({ vendors, tradeOptions: initialTradeOptions }:
 
       {deletingVendor ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/35 px-4">
-          <div className="w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl ring-1 ring-slate-200">
-            <h3 className="mt-4 text-xl font-semibold text-slate-900">確認刪除這個廠商？</h3>
-            <div className="mt-4 rounded-2xl border border-rose-100 bg-rose-50/70 px-4 py-3 text-sm text-slate-700">
-              目前準備刪除：<span className="font-semibold text-slate-900">{deletingVendor.name}</span>
+          <div className="pf-card w-full max-w-md p-6">
+            <h3 className="mt-4 text-xl font-semibold text-slate-100">確認刪除這個廠商？</h3>
+            <div className="mt-4 rounded-2xl border border-rose-400/20 bg-rose-950/20 px-4 py-3 text-sm text-slate-200">
+              目前準備刪除：<span className="font-semibold text-slate-100">{deletingVendor.name}</span>
             </div>
             <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
               <button
                 type="button"
                 onClick={() => setDeletingVendorId(null)}
-                className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+                className="pf-btn-secondary px-4 py-2.5"
               >
                 取消
               </button>
@@ -431,7 +431,7 @@ export function VendorListPageDb({ vendors, tradeOptions: initialTradeOptions }:
                 type="button"
                 onClick={handleDeleteVendor}
                 disabled={deleting}
-                className="inline-flex items-center justify-center rounded-2xl border border-rose-200 bg-rose-50 px-4 py-2.5 text-sm font-semibold text-rose-700 transition hover:border-rose-300 hover:bg-rose-100 disabled:opacity-60"
+                className="pf-btn-danger px-4 py-2.5 disabled:opacity-60"
               >
                 {deleting ? '刪除中…' : '確認刪除廠商'}
               </button>
