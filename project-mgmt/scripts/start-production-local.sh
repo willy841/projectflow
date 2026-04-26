@@ -8,5 +8,6 @@ cd "$PROJECT_ROOT"
   exit 1
 }
 cp .env.production-local .env.local
-printf '%s\n' '[projectflow] environment=production-local (.env.production-local -> .env.local)'
+unset NODE_ENV
+printf '%s\n' '[projectflow] environment=production-local (.env.production-local -> .env.local, NODE_ENV cleared for next dev)'
 exec npm run dev
