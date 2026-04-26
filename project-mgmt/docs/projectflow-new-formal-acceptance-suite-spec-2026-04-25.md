@@ -299,7 +299,10 @@ This file is the formal replacement for the current scattered `design-confirm-ov
 - non-eligible project cannot close out
 - eligible project can close out
 - closeout retained view shows correct collections / package/document/financial artifacts
+- closeout list/detail read retained snapshot truth rather than live-mutating truth
 - reopen returns project to active without losing historical retained records
+- reopen does not delete the retained snapshot; it only restores active/live truth for active views
+- no multi-version closeout archive is required for the approved model
 
 ---
 

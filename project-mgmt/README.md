@@ -20,6 +20,16 @@
 - TypeScript
 - Tailwind CSS 4
 
+## 目前正式規則文件
+
+- `docs/projectflow-closeout-retained-snapshot-rules-2026-04-26.md`
+  - closeout / reopen 的正式 retained snapshot 語意
+  - closeout 寫 retained snapshot
+  - closeout list / detail 讀 retained snapshot
+  - reopen 不刪 retained snapshot
+  - reopen 恢復 active / live truth
+  - 不做 multi-version closeout archive
+
 ## 目前已完成
 
 - 管理系統首頁 Dashboard

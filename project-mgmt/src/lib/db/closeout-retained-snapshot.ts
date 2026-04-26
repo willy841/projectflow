@@ -1,4 +1,4 @@
-import type { CostLineItem, QuoteCostProject, QuoteImportRecord } from '@/components/quote-cost-data';
+import type { CostLineItem, QuoteImportRecord } from '@/components/quote-cost-data';
 import type { QuoteCostProjectWithGroups } from '@/lib/db/financial-flow-adapter';
 import { createPhase1DbClient } from '@/lib/db/phase1-client';
 
@@ -26,22 +26,32 @@ type CloseoutSnapshotRow = {
   capturedAt: string;
 };
 
+const CLOSEOUT_SNAPSHOT_SCHEMA_SQL = `
+  create table if not exists financial_closeout_snapshots (
+    project_id uuid primary key references projects(id) on delete cascade,
+    quotation_total numeric(12,2) not null default 0,
+    project_cost_total numeric(12,2) not null default 0,
+    gross_profit numeric(12,2) not null default 0,
+    quotation_imported boolean not null default false,
+    quotation_import jsonb null,
+    cost_items jsonb not null default '[]'::jsonb,
+    reconciliation_groups jsonb not null default '[]'::jsonb,
+    captured_at timestamptz not null default now(),
+    updated_at timestamptz not null default now()
+  );
+
+  create index if not exists idx_financial_closeout_snapshots_captured_at
+    on financial_closeout_snapshots (captured_at desc);
+`;
+
+/**
+ * Official schema path: db/migrations/20260426_financial_closeout_snapshots.sql
+ * Runtime ensure is kept only as a compatibility safeguard for environments that
+ * have not applied the formal migration yet.
+ */
 export async function ensureCloseoutSnapshotTable() {
   const db = createPhase1DbClient();
-  await db.query(`
-    create table if not exists financial_closeout_snapshots (
-      project_id uuid primary key references projects(id) on delete cascade,
-      quotation_total numeric(12,2) not null default 0,
-      project_cost_total numeric(12,2) not null default 0,
-      gross_profit numeric(12,2) not null default 0,
-      quotation_imported boolean not null default false,
-      quotation_import jsonb null,
-      cost_items jsonb not null default '[]'::jsonb,
-      reconciliation_groups jsonb not null default '[]'::jsonb,
-      captured_at timestamptz not null default now(),
-      updated_at timestamptz not null default now()
-    )
-  `);
+  await db.query(CLOSEOUT_SNAPSHOT_SCHEMA_SQL);
 }
 
 export async function saveCloseoutRetainedSnapshot(project: QuoteCostProjectWithGroups) {
