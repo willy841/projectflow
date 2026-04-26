@@ -1832,6 +1832,8 @@ export function ExecutionTree({
                 event.currentTarget.value = "";
               }}
             />
+          </div>
+        </div>
       {excelImportError ? (
           <div className="mt-4" data-testid="execution-item-import-inline-error">
             <WorkspaceStatusNotice tone="error">{excelImportError}</WorkspaceStatusNotice>
