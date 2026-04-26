@@ -811,7 +811,7 @@ function AssignmentMenu({
         交辦
       </button>
       {isActive ? (
-        <div className="absolute right-0 z-10 mt-2 w-32 rounded-3xl border border-white/10 bg-slate-900/55 p-2 shadow-xl ring-1 ring-slate-100">
+        <div className="absolute right-0 z-10 mt-2 w-32 rounded-3xl border border-white/10 bg-slate-950 p-2 shadow-[0_24px_46px_-28px_rgba(0,0,0,0.54)] ring-1 ring-white/10">
           <div className="flex flex-col gap-1">
             <button
               type="button"
