@@ -1038,6 +1038,8 @@ export function ExecutionTree({
   onVendorAssignmentsChange,
   onAssignmentSaved,
   heading = "新增主項目",
+  showHeader = true,
+  headerActions,
   initialDesignAssignments = {},
   initialProcurementAssignments = {},
   initialVendorAssignments = {},
@@ -1046,6 +1048,8 @@ export function ExecutionTree({
 }: {
   items: ProjectExecutionItem[];
   projectId?: string;
+  showHeader?: boolean;
+  headerActions?: React.ReactNode;
   onDesignAssignmentsChange?: (
     payload: Array<{
       targetId: string;
@@ -1801,25 +1805,32 @@ export function ExecutionTree({
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-        <div>
-          <h3 className="text-xl font-semibold text-white">{heading}</h3>
-        </div>
-        <div className="flex flex-wrap gap-2">
-            <button
-              type="button"
-              onClick={() => setShowMainItemCreator((prev) => !prev)}
-              className="inline-flex h-11 shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-slate-900/40 px-4 text-sm font-semibold text-slate-200 shadow-[0_18px_40px_-28px_rgba(0,0,0,0.42),inset_0_1px_0_rgba(255,255,255,0.03)] backdrop-blur-xl transition hover:bg-slate-900/60"
-            >
-              + 新增主項目
-            </button>
-            <button
-              type="button"
-              onClick={() => fileInputRef.current?.click()}
-              className="inline-flex h-11 shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-slate-900/50 px-4 text-sm font-semibold text-slate-100 shadow-[0_22px_46px_-28px_rgba(0,0,0,0.45),inset_0_1px_0_rgba(255,255,255,0.04)] backdrop-blur-xl transition hover:bg-slate-900/70 hover:shadow-[0_0_24px_rgba(96,165,250,0.16)]"
-            >
-              匯入 .xlsx
-            </button>
+      {showHeader ? (
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+          <div>
+            <h3 className="text-xl font-semibold text-white">{heading}</h3>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {headerActions ?? (
+              <>
+                <button
+                  id="project-execution-inline-create-trigger"
+                  type="button"
+                  onClick={() => setShowMainItemCreator((prev) => !prev)}
+                  className="inline-flex h-11 shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-slate-900/40 px-4 text-sm font-semibold text-slate-200 shadow-[0_18px_40px_-28px_rgba(0,0,0,0.42),inset_0_1px_0_rgba(255,255,255,0.03)] backdrop-blur-xl transition hover:bg-slate-900/60"
+                >
+                  + 新增主項目
+                </button>
+                <button
+                  id="project-execution-inline-import-trigger"
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="inline-flex h-11 shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-slate-900/50 px-4 text-sm font-semibold text-slate-100 shadow-[0_22px_46px_-28px_rgba(0,0,0,0.45),inset_0_1px_0_rgba(255,255,255,0.04)] backdrop-blur-xl transition hover:bg-slate-900/70 hover:shadow-[0_0_24px_rgba(96,165,250,0.16)]"
+                >
+                  匯入 .xlsx
+                </button>
+              </>
+            )}
             <input
               ref={fileInputRef}
               type="file"
@@ -1833,6 +1844,19 @@ export function ExecutionTree({
             />
           </div>
         </div>
+      ) : (
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+          className="hidden"
+          onChange={(event) => {
+            const file = event.target.files?.[0];
+            if (file) void handleImport(file);
+            event.currentTarget.value = "";
+          }}
+        />
+      )}
       {excelImportError ? (
           <div className="mt-4" data-testid="execution-item-import-inline-error">
             <WorkspaceStatusNotice tone="error">{excelImportError}</WorkspaceStatusNotice>

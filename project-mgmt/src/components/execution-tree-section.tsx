@@ -486,11 +486,35 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
   return (
     <>
       <section id="project-execution-section" className="p-1">
-        <div className="mb-4">
+        <div className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
           <h3 className="text-xl font-semibold text-white">• 專案執行項目</h3>
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={() => {
+                const trigger = document.getElementById("project-execution-inline-create-trigger") as HTMLButtonElement | null;
+                trigger?.click();
+              }}
+              className="inline-flex h-11 shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-slate-900/40 px-4 text-sm font-semibold text-slate-200 shadow-[0_18px_40px_-28px_rgba(0,0,0,0.42),inset_0_1px_0_rgba(255,255,255,0.03)] backdrop-blur-xl transition hover:bg-slate-900/60"
+            >
+              + 新增主項目
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                const trigger = document.getElementById("project-execution-inline-import-trigger") as HTMLButtonElement | null;
+                trigger?.click();
+              }}
+              className="inline-flex h-11 shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-slate-900/50 px-4 text-sm font-semibold text-slate-100 shadow-[0_22px_46px_-28px_rgba(0,0,0,0.45),inset_0_1px_0_rgba(255,255,255,0.04)] backdrop-blur-xl transition hover:bg-slate-900/70 hover:shadow-[0_0_24px_rgba(96,165,250,0.16)]"
+            >
+              匯入 .xlsx
+            </button>
+          </div>
         </div>
         <ExecutionTree
           heading="專案執行項目"
+          showHeader={false}
+          headerActions={null}
           items={project.executionItems}
           projectId={project.id}
           onDesignAssignmentsChange={setDesignAssignments}
