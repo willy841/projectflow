@@ -485,7 +485,7 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
 
   return (
     <>
-      <section id="project-execution-section" className="rounded-[34px] border border-white/10 bg-[linear-gradient(180deg,rgba(16,27,47,0.96),rgba(11,19,34,0.9))] p-7 shadow-[var(--shadow-elevated)] backdrop-blur-xl">
+      <section id="project-execution-section" className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
         <ExecutionTree
           heading="專案執行項目"
           items={project.executionItems}
@@ -518,9 +518,9 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
         />
       </section>
 
-      <section className="rounded-[34px] border border-white/10 bg-[linear-gradient(180deg,rgba(16,27,47,0.96),rgba(11,19,34,0.9))] p-7 shadow-[var(--shadow-elevated)] backdrop-blur-xl">
+      <section className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
         <div className="mb-5">
-          <h3 className="text-xl font-semibold text-white">專案分類檢視</h3>
+          <h3 className="text-xl font-semibold">專案分類檢視</h3>
         </div>
 
         <div className="grid gap-3 lg:grid-cols-3">
@@ -532,15 +532,15 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
                 key={category}
                 type="button"
                 onClick={() => setOpenCategory(category)}
-                className={`rounded-[30px] border p-6 text-left shadow-[var(--shadow-card)] transition ${isActive ? `${meta.ring} border-[var(--accent)] bg-[linear-gradient(180deg,rgba(94,162,255,0.22),rgba(255,255,255,0.05))] ring-2 shadow-[0_26px_58px_-34px_rgba(94,162,255,0.5)]` : "border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.07),rgba(255,255,255,0.03))] hover:border-white/16 hover:bg-white/8"}`}
+                className={`rounded-3xl border bg-white p-5 text-left shadow-sm transition ${isActive ? `${meta.ring} border-transparent ring-2 shadow-md` : "border-slate-200 hover:border-slate-300 hover:bg-slate-50/60"}`}
               >
                 <div className="flex min-h-[84px] items-center justify-between gap-3">
                   <div className="flex min-h-full flex-1 items-center justify-center text-center">
                     <div className="flex flex-col items-center justify-center gap-2">
-                      <p className={`text-lg font-semibold ${isActive ? "text-white" : meta.accent}`}>{meta.title}</p>
+                      <p className={`text-lg font-semibold ${meta.accent}`}>{meta.title}</p>
                     </div>
                   </div>
-                  <span className={`inline-flex min-w-[36px] items-center justify-center rounded-full px-3 py-1 text-xs font-semibold ${isActive ? "bg-white text-slate-950" : "bg-white/10 text-slate-200"}`}>
+                  <span className={`inline-flex min-w-[36px] items-center justify-center rounded-full px-3 py-1 text-xs font-semibold ${isActive ? "bg-slate-900 text-white" : "bg-slate-100 text-slate-700"}`}>
                     {meta.count}
                   </span>
                 </div>
@@ -549,18 +549,18 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
           })}
         </div>
 
-        <div className="mt-7 rounded-[32px] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.07),rgba(255,255,255,0.03))] p-6 shadow-[var(--shadow-card)]">
+        <div className="mt-6 rounded-3xl border border-slate-300 bg-slate-100 p-5 shadow-inner">
           <div className="mb-4 flex flex-col gap-3 border-b border-slate-200 pb-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <div className="flex flex-wrap items-center gap-3">
-                <h4 className="text-lg font-semibold text-white">{categoryMeta[openCategory].title}</h4>
-                <span className="text-sm font-medium text-slate-400">共 {currentList.length} 筆</span>
+                <h4 className="text-lg font-semibold text-slate-900">{categoryMeta[openCategory].title}</h4>
+                <span className="text-sm font-medium text-slate-500">共 {currentList.length} 筆</span>
               </div>
             </div>
           </div>
 
           {saveFeedback && saveFeedback.category === openCategory ? (
-            <div className="mb-4 rounded-2xl border border-emerald-400/20 bg-emerald-400/10 px-4 py-3 text-sm text-emerald-200">
+            <div className="mb-4 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
               {saveFeedback.message}
             </div>
           ) : null}

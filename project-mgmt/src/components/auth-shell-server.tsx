@@ -17,15 +17,7 @@ const navItems: (AuthShellNavItem & { adminOnly?: boolean })[] = [
   { label: '系統設定', href: '/system-settings', adminOnly: true },
 ];
 
-export async function AuthShellServer({
-  children,
-  activePath = '/',
-  contentSurfaceClassName,
-}: {
-  children: ReactNode;
-  activePath?: string;
-  contentSurfaceClassName?: string;
-}) {
+export async function AuthShellServer({ children, activePath = '/' }: { children: ReactNode; activePath?: string }) {
   const startedAt = performance.now();
   const user = await getCurrentUser();
   const filteredNavItems = navItems.filter((item) => {
@@ -42,7 +34,6 @@ export async function AuthShellServer({
       activePath={activePath}
       navItems={filteredNavItems}
       user={user ? { name: user.name, email: user.email, role: user.role } : null}
-      contentSurfaceClassName={contentSurfaceClassName}
     >
       {children}
     </AuthShellClient>

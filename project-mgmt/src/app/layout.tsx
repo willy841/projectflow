@@ -29,7 +29,7 @@ export default function RootLayout({
       lang="zh-Hant"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-[var(--surface-app)] text-[var(--foreground)]"><VendorStoreProvider>{children}</VendorStoreProvider></body>
+      <body className="min-h-full flex flex-col bg-white"><VendorStoreProvider>{children}</VendorStoreProvider></body>
     </html>
   );
 }
