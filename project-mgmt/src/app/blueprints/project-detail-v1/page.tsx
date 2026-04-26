@@ -115,11 +115,7 @@ export default function ProjectDetailBlueprintV1Page() {
             {summaryItems.map((item, index) => (
               <article
                 key={item.label}
-                className={`rounded-[30px] p-5 shadow-[0_30px_70px_-30px_rgba(0,0,0,0.62),0_0_20px_rgba(96,165,250,0.04),inset_0_1px_0_rgba(255,255,255,0.08),inset_0_-24px_36px_-24px_rgba(2,6,23,0.96)] ${
-                  index === 0
-                    ? 'border border-sky-300/16 bg-[linear-gradient(180deg,rgba(29,78,216,0.34),rgba(15,23,42,0.46))] backdrop-blur-2xl'
-                    : 'border border-white/10 bg-[linear-gradient(180deg,rgba(30,41,59,0.62),rgba(15,23,42,0.42))] backdrop-blur-2xl'
-                }`}
+                className="rounded-[30px] border border-white/10 bg-[linear-gradient(180deg,rgba(36,48,72,0.76),rgba(14,22,39,0.52))] p-5 shadow-[0_34px_84px_-30px_rgba(0,0,0,0.72),0_10px_18px_-12px_rgba(15,23,42,0.5),inset_0_1px_0_rgba(255,255,255,0.1),inset_0_18px_28px_-20px_rgba(255,255,255,0.05),inset_0_-28px_44px_-24px_rgba(2,6,23,0.98)] backdrop-blur-[28px]"
               >
                 <p className="text-xs font-medium uppercase tracking-wider text-slate-500">{item.label}</p>
                 <p className="mt-3 text-[1.15rem] font-semibold tracking-tight text-slate-100">{item.value}</p>
