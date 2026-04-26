@@ -151,7 +151,7 @@ export async function getVendorFinancialSummary({ vendorId, vendorName }: { vend
         reconciledGroupCount: reconciledGroups.length,
         unreconciledGroupCount: unreconciledCount,
       };
-    }).filter((record) => record.reconciledGroups.length > 0);
+    }).filter((record) => !record.hasUnreconciledGroups && record.reconciledGroups.length > 0);
 
     const totalMs = performance.now() - startedAt;
     console.log('[vendor-financial-summary]', JSON.stringify({

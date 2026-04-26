@@ -23,7 +23,7 @@ export type ReconciliationGroupView = {
   vendorName: string;
   amountTotal: number;
   itemCount: number;
-  reconciliationStatus: '未對帳' | '已對帳';
+  reconciliationStatus: string;
   items?: ReconciliationGroupItemView[];
 };
 

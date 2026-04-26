@@ -31,9 +31,13 @@ import {
 
 type DetailMode = "active" | "closed";
 
+function isGroupReconciled(status: string) {
+  return status === '已對帳';
+}
+
 function normalizeGroupStatus(groups: ReconciliationGroupView[]): '未開始' | '待確認' | '已完成' {
   if (!groups.length) return '未開始';
-  const reconciledCount = groups.filter((group) => group.reconciliationStatus === '已對帳').length;
+  const reconciledCount = groups.filter((group) => isGroupReconciled(group.reconciliationStatus)).length;
   if (reconciledCount === 0) return '未開始';
   if (reconciledCount === groups.length) return '已完成';
   return '待確認';
@@ -321,7 +325,9 @@ export function QuoteCostDetailClient({ project, mode = "active", presenter = ge
     router.refresh();
   }
 
-  const canCloseProject = state.quotationImported && outstandingTotal === 0 && derivedReconciliationStatus === "已完成";
+  const hasReconciliationGroups = reconciliationGroups.length > 0;
+  const allReconciliationGroupsComplete = hasReconciliationGroups && reconciliationGroups.every((group) => isGroupReconciled(group.reconciliationStatus));
+  const canCloseProject = state.quotationImported && outstandingTotal === 0 && allReconciliationGroupsComplete;
   const canReopenProject = isClosedView && closeoutWriteState !== 'submitting';
 
   async function handleCloseProject() {
@@ -518,10 +524,10 @@ export function QuoteCostDetailClient({ project, mode = "active", presenter = ge
                         <button
                           type="button"
                           onClick={() => handleConfirmGroup(group.key)}
-                          disabled={group.reconciliationStatus === '已對帳' || reconciliationSyncingKey === group.key}
+                          disabled={isGroupReconciled(group.reconciliationStatus) || reconciliationSyncingKey === group.key}
                           className="inline-flex items-center justify-center rounded-2xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:bg-slate-300"
                         >
-                          {group.reconciliationStatus === '已對帳'
+                          {isGroupReconciled(group.reconciliationStatus)
                             ? '已對帳'
                             : reconciliationSyncingKey === group.key
                               ? '對帳中...'

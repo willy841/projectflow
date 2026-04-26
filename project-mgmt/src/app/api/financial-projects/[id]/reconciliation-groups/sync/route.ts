@@ -9,7 +9,7 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
         sourceType?: string;
         vendorId?: string | null;
         vendorName?: string;
-        reconciliationStatus?: '未對帳' | '已對帳';
+        reconciliationStatus?: '未對帳' | '待確認' | '已對帳';
         amountTotal?: number;
         itemCount?: number;
       }>;
@@ -19,6 +19,8 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     const db = createPhase1DbClient();
     await db.query(`alter table financial_reconciliation_groups add column if not exists amount_total numeric null`);
     await db.query(`alter table financial_reconciliation_groups add column if not exists item_count integer null`);
+    await db.query(`alter table financial_reconciliation_groups drop constraint if exists chk_financial_reconciliation_groups_status`);
+    await db.query(`alter table financial_reconciliation_groups add constraint chk_financial_reconciliation_groups_status check (reconciliation_status in ('未對帳', '待確認', '已對帳'))`);
     await db.query('begin');
 
     try {

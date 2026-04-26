@@ -547,8 +547,8 @@ export function VendorDetailShell({ vendorId }: Props) {
                         <div className="rounded-2xl bg-white p-4 ring-1 ring-slate-200">
                           <p className="text-sm font-semibold text-slate-900">成本明細</p>
                           <div className="mt-3 space-y-3">
-                            {record.costBreakdown.map((item) => (
-                              <div key={`${record.id}-${item.label}`} className="flex items-center justify-between gap-3 text-sm">
+                            {record.costBreakdown.map((item, index) => (
+                              <div key={`${record.id}-cost-${index}-${item.label}-${item.amount}`} className="flex items-center justify-between gap-3 text-sm">
                                 <span className="text-slate-600">{item.label}</span>
                                 <span className="font-medium text-slate-900">{item.amount}</span>
                               </div>
@@ -558,8 +558,8 @@ export function VendorDetailShell({ vendorId }: Props) {
                         <div className="rounded-2xl bg-white p-4 ring-1 ring-slate-200">
                           <p className="text-sm font-semibold text-slate-900">發包內容明細</p>
                           <ul className="mt-3 space-y-2 text-sm text-slate-600">
-                            {record.sourceItemDetails.map((item) => (
-                              <li key={`${record.id}-${item}`} className="rounded-2xl bg-slate-50 px-3 py-2">• {item}</li>
+                            {record.sourceItemDetails.map((item, index) => (
+                              <li key={`${record.id}-source-${index}-${item}`} className="rounded-2xl bg-slate-50 px-3 py-2">• {item}</li>
                             ))}
                           </ul>
                         </div>

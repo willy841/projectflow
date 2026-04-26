@@ -527,7 +527,7 @@ export type FinancialReconciliationGroup = {
   amountTotal: number;
   itemCount: number;
   items: CostLineItem[];
-  reconciliationStatus: '未對帳' | '已對帳';
+  reconciliationStatus: string;
 };
 
 export type QuoteCostProjectWithGroups = QuoteCostProject & {
@@ -579,7 +579,7 @@ async function attachReconciliationGroups(project: QuoteCostProject): Promise<Qu
     sourceType: '設計' | '備品' | '廠商';
     vendorId: string | null;
     vendorName: string;
-    reconciliationStatus: '未對帳' | '已對帳';
+    reconciliationStatus: string;
   }>(
     `
       select
