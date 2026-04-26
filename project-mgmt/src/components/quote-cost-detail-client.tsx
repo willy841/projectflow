@@ -439,7 +439,7 @@ export function QuoteCostDetailClient({ project, mode = "active", presenter = ge
               <button
                 type="button"
                 onClick={handleAddManualCost}
-                className="inline-flex items-center justify-center rounded-2xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800"
+                className="pf-btn-create px-4 py-2.5"
               >
                 + 新增人工成本
               </button>
@@ -448,13 +448,13 @@ export function QuoteCostDetailClient({ project, mode = "active", presenter = ge
               <button
                 type="button"
                 disabled
-                className="inline-flex items-center justify-center rounded-2xl bg-slate-300 px-4 py-2.5 text-sm font-semibold text-white"
+                className="inline-flex items-center justify-center rounded-2xl border border-white/10 bg-white/10 px-4 py-2.5 text-sm font-semibold text-slate-300"
               >
                 尚無可對帳群組
               </button>
             ) : null}
             {isClosedView && (
-              <span className="inline-flex items-center rounded-2xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700">
+              <span className="inline-flex items-center rounded-2xl border border-white/10 bg-white/[0.05] px-4 py-2 text-sm font-semibold text-slate-200">
                 {presenter.costSectionLockedLabel}
               </span>
             )}
@@ -469,12 +469,12 @@ export function QuoteCostDetailClient({ project, mode = "active", presenter = ge
                 key={item.label}
                 type="button"
                 onClick={() => setActiveArchiveSource(item.label)}
-                className={`rounded-3xl border bg-white p-4 text-left transition ${isActiveArchiveSource ? "border-slate-900 ring-2 ring-slate-900/10" : "border-slate-200 hover:border-slate-300"}`}
+                className={`rounded-3xl border bg-[linear-gradient(180deg,rgba(20,31,51,0.82),rgba(10,18,33,0.72))] p-4 text-left shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] transition ${isActiveArchiveSource ? "border-sky-400/35 ring-2 ring-sky-400/20" : "border-white/10 hover:border-white/20"}`}
               >
                 <div className="flex items-center justify-between gap-4">
                   <span className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ring-1 ${item.badgeClass}`}>{item.label}</span>
-                  <span className="text-lg font-semibold text-slate-900">{formatCurrency(item.originalTotal)}</span>
-                  <span className="text-sm font-semibold text-slate-600">{item.count} 筆</span>
+                  <span className="text-lg font-semibold text-slate-100">{formatCurrency(item.originalTotal)}</span>
+                  <span className="text-sm font-semibold text-slate-400">{item.count} 筆</span>
                 </div>
               </button>
             );
@@ -483,49 +483,49 @@ export function QuoteCostDetailClient({ project, mode = "active", presenter = ge
           <button
             type="button"
             onClick={() => setActiveArchiveSource("人工")}
-            className={`rounded-3xl border bg-white p-4 text-left transition ${activeArchiveSource === "人工" ? "border-slate-900 ring-2 ring-slate-900/10" : "border-slate-200 hover:border-slate-300"}`}
+            className={`rounded-3xl border bg-[linear-gradient(180deg,rgba(20,31,51,0.82),rgba(10,18,33,0.72))] p-4 text-left shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] transition ${activeArchiveSource === "人工" ? "border-sky-400/35 ring-2 ring-sky-400/20" : "border-white/10 hover:border-white/20"}`}
           >
             <div className="flex items-center justify-between gap-4">
-              <span className="inline-flex rounded-full px-3 py-1 text-xs font-semibold ring-1 bg-slate-100 text-slate-700 ring-slate-200">人工</span>
-              <span className="text-lg font-semibold text-slate-900">{formatCurrency(additionalManualCostTotal)}</span>
-              <span className="text-sm font-semibold text-slate-600">{manualItems.length} 筆</span>
+              <span className="inline-flex rounded-full px-3 py-1 text-xs font-semibold ring-1 bg-white/[0.07] text-slate-200 ring-white/10">人工</span>
+              <span className="text-lg font-semibold text-slate-100">{formatCurrency(additionalManualCostTotal)}</span>
+              <span className="text-sm font-semibold text-slate-400">{manualItems.length} 筆</span>
             </div>
           </button>
         </div>
 
         {visibleReconciliationGroups.length ? (
-          <div className="mt-6 rounded-3xl border border-slate-200 bg-slate-50 p-5">
+          <div className="mt-6 rounded-3xl border border-white/10 bg-white/[0.04] p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]">
             <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
               <div>
-                <h4 className="text-lg font-semibold text-slate-900">對帳群組</h4>
+                <h4 className="text-lg font-semibold text-slate-50">對帳群組</h4>
               </div>
-              <div className="rounded-2xl bg-white px-4 py-3 text-sm text-slate-600 ring-1 ring-slate-200">
+              <div className="rounded-2xl border border-white/10 bg-white/[0.05] px-4 py-3 text-sm text-slate-300">
                 共 {visibleReconciliationGroups.length} 組
               </div>
             </div>
             <div className="mt-4 space-y-3">
               {visibleReconciliationGroups.map((group) => (
-                <div key={group.key} className="rounded-2xl border border-slate-200 bg-white p-4">
+                <div key={group.key} className="rounded-2xl border border-white/10 bg-[linear-gradient(180deg,rgba(20,31,51,0.8),rgba(10,18,33,0.72))] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]">
                   <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
                     <div className="min-w-0 flex-1">
                       <div className="flex flex-wrap items-center gap-2">
-                        <span className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ring-1 ${group.sourceType === '設計' ? 'bg-sky-50 text-sky-700 ring-sky-200' : group.sourceType === '備品' ? 'bg-amber-50 text-amber-700 ring-amber-200' : 'bg-violet-50 text-violet-700 ring-violet-200'}`}>{group.sourceType}</span>
-                        <span className="inline-flex rounded-full bg-white px-3 py-1 text-xs font-semibold text-slate-700 ring-1 ring-slate-200">{group.vendorName}</span>
-                        <span className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ring-1 ${group.reconciliationStatus === '已對帳' ? 'bg-emerald-50 text-emerald-700 ring-emerald-200' : 'bg-rose-50 text-rose-700 ring-rose-200'}`}>{group.reconciliationStatus}</span>
-                        <span className="text-xs font-medium text-slate-500">{group.itemCount} 筆資料來源</span>
+                        <span className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ring-1 ${group.sourceType === '設計' ? 'bg-sky-400/14 text-sky-200 ring-sky-300/20' : group.sourceType === '備品' ? 'bg-amber-400/14 text-amber-200 ring-amber-300/20' : 'bg-violet-400/14 text-violet-200 ring-violet-300/20'}`}>{group.sourceType}</span>
+                        <span className="inline-flex rounded-full border border-white/10 bg-white/[0.05] px-3 py-1 text-xs font-semibold text-slate-200 ring-1 ring-white/10">{group.vendorName}</span>
+                        <span className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ring-1 ${group.reconciliationStatus === '已對帳' ? 'bg-emerald-400/14 text-emerald-200 ring-emerald-300/20' : 'bg-rose-400/14 text-rose-200 ring-rose-300/20'}`}>{group.reconciliationStatus}</span>
+                        <span className="text-xs font-medium text-slate-400">{group.itemCount} 筆資料來源</span>
                       </div>
                     </div>
                     <div className="flex flex-wrap items-center gap-3 xl:justify-end">
                       <div className="flex items-center gap-2 text-sm">
-                        <span className="text-slate-500">群組總額</span>
-                        <span className="text-lg font-semibold tracking-tight text-slate-900">{formatCurrency(group.amountTotal)}</span>
+                        <span className="text-slate-400">群組總額</span>
+                        <span className="text-lg font-semibold tracking-tight text-slate-100">{formatCurrency(group.amountTotal)}</span>
                       </div>
                       {presenter.canConfirmReconciliationGroup ? (
                         <button
                           type="button"
                           onClick={() => handleConfirmGroup(group.key)}
                           disabled={isGroupReconciled(group.reconciliationStatus) || reconciliationSyncingKey === group.key}
-                          className="inline-flex items-center justify-center rounded-2xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:bg-slate-300"
+                          className="inline-flex items-center justify-center rounded-2xl border border-emerald-300/20 bg-emerald-500/18 px-4 py-2 text-sm font-semibold text-emerald-100 transition hover:bg-emerald-500/24 disabled:cursor-not-allowed disabled:border-white/10 disabled:bg-white/10 disabled:text-slate-400"
                         >
                           {isGroupReconciled(group.reconciliationStatus)
                             ? '已對帳'
@@ -537,9 +537,9 @@ export function QuoteCostDetailClient({ project, mode = "active", presenter = ge
                     </div>
                   </div>
 
-                  <div className="mt-3 overflow-x-auto rounded-2xl border border-slate-200">
-                    <table className="min-w-full divide-y divide-slate-200 text-left text-sm">
-                      <thead className="bg-slate-50 text-slate-500">
+                  <div className="pf-table-shell mt-3">
+                    <table className="pf-table">
+                      <thead>
                         <tr>
                           <th className="px-4 py-3 font-medium">來源項目</th>
                           <th className="px-4 py-3 font-medium">來源摘要</th>
@@ -547,17 +547,17 @@ export function QuoteCostDetailClient({ project, mode = "active", presenter = ge
                           <th className="px-4 py-3 font-medium">金額</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-slate-100 bg-white">
+                      <tbody>
                         {(group.items ?? []).length ? (group.items ?? []).map((item) => (
                           <tr key={item.id}>
-                            <td className="px-4 py-3 font-medium text-slate-900">{item.itemName}</td>
-                            <td className="px-4 py-3 text-slate-600">{item.sourceRef || '-'}</td>
-                            <td className="px-4 py-3 text-slate-600">{item.vendorName || '未指定廠商'}</td>
-                            <td className="px-4 py-3 font-semibold text-slate-900">{formatCurrency(item.adjustedAmount)}</td>
+                            <td className="font-medium text-slate-100">{item.itemName}</td>
+                            <td className="text-slate-300">{item.sourceRef || '-'}</td>
+                            <td className="text-slate-300">{item.vendorName || '未指定廠商'}</td>
+                            <td className="font-semibold text-slate-100">{formatCurrency(item.adjustedAmount)}</td>
                           </tr>
                         )) : (
                           <tr>
-                            <td colSpan={4} className="px-4 py-4 text-sm text-slate-500">目前沒有可顯示的對帳明細。</td>
+                            <td colSpan={4} className="px-4 py-4 text-sm text-slate-400">目前沒有可顯示的對帳明細。</td>
                           </tr>
                         )}
                       </tbody>
@@ -569,16 +569,16 @@ export function QuoteCostDetailClient({ project, mode = "active", presenter = ge
           </div>
         ) : null}
 
-        <div className="mt-6 rounded-3xl border border-slate-200 bg-white p-5">
+        <div className="mt-6 rounded-3xl border border-white/10 bg-white/[0.03] p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
           <div className="mb-5 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-            <h4 className="text-lg font-semibold text-slate-900">項目明細</h4>
+            <h4 className="text-lg font-semibold text-slate-50">項目明細</h4>
             <div className="flex flex-wrap items-center justify-end gap-2">
               {presenter.canPersistManualCosts && activeArchiveSource === "人工" ? (
                 <button
                   type="button"
                   onClick={handleSaveManualCosts}
                   disabled={!hasUnsavedManualChanges || isManualSyncing}
-                  className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 transition hover:border-slate-400 hover:bg-slate-50 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
+                  className="pf-btn-secondary px-4 py-2.5 disabled:bg-white/10 disabled:text-slate-500"
                 >
                   {isManualSyncing ? "儲存中..." : "儲存人工新增費用"}
                 </button>
@@ -588,7 +588,7 @@ export function QuoteCostDetailClient({ project, mode = "active", presenter = ge
                   type="button"
                   onClick={handleCloseProject}
                   disabled={!canCloseProject || closeoutWriteState === 'submitting'}
-                  className="inline-flex items-center justify-center rounded-2xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-300"
+                  className="pf-btn-primary px-4 py-2.5 disabled:border-white/10 disabled:bg-white/10 disabled:text-slate-500"
                 >
                   {closeoutWriteState === 'submitting' ? '結案中...' : '確認結案'}
                 </button>
@@ -598,7 +598,7 @@ export function QuoteCostDetailClient({ project, mode = "active", presenter = ge
                   type="button"
                   onClick={handleReopenProject}
                   disabled={!canReopenProject}
-                  className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 transition hover:border-slate-400 hover:bg-slate-50 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
+                  className="pf-btn-secondary min-h-11 px-4 py-2.5 disabled:bg-white/10 disabled:text-slate-500"
                 >
                   {closeoutWriteState === 'submitting' ? '處理中...' : '取消結案'}
                 </button>
@@ -606,7 +606,7 @@ export function QuoteCostDetailClient({ project, mode = "active", presenter = ge
             </div>
           </div>
           {presenter.canPersistManualCosts && activeArchiveSource === "人工" ? (
-            <div className={`mb-4 text-xs ${manualSyncError ? "text-rose-600" : manualSyncSuccess ? "text-emerald-600" : hasUnsavedManualChanges ? "text-amber-600" : "text-slate-400"}`}>
+            <div className={`mb-4 text-xs ${manualSyncError ? "text-rose-300" : manualSyncSuccess ? "text-emerald-300" : hasUnsavedManualChanges ? "text-amber-300" : "text-slate-400"}`}>
               {manualSyncError
                 ?? manualSyncSuccess
                 ?? (isManualSyncing
@@ -617,7 +617,7 @@ export function QuoteCostDetailClient({ project, mode = "active", presenter = ge
             </div>
           ) : null}
           {presenter.canCloseProject && closeoutError ? (
-            <div className="mb-4 text-xs text-rose-600">{closeoutError}</div>
+            <div className="mb-4 text-xs text-rose-300">{closeoutError}</div>
           ) : null}
           <ArchiveContentPanel source={activeArchiveSource} costItems={state.costItems} manualItems={manualItems} isClosedView={isClosedView} onManualItemChange={handleManualItemChange} />
         </div>
@@ -638,17 +638,17 @@ export function QuoteCostDetailClient({ project, mode = "active", presenter = ge
         />
       ) : null}
       {collectionForm ? (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/35 px-4">
-          <div className="w-full max-w-xl rounded-3xl bg-white p-6 shadow-2xl ring-1 ring-slate-200">
-            <h3 className="text-xl font-semibold text-slate-900">新增收款</h3>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 px-4 backdrop-blur-sm">
+          <div className="w-full max-w-xl rounded-[32px] border border-white/10 bg-[linear-gradient(180deg,rgba(18,30,50,0.9),rgba(10,18,33,0.84))] p-6 shadow-[0_40px_120px_-46px_rgba(0,0,0,0.9),inset_0_1px_0_rgba(255,255,255,0.08)]">
+            <h3 className="text-xl font-semibold text-slate-50">新增收款</h3>
             <div className="mt-5 space-y-4">
-              <Field label="收款日期"><input value={collectionForm.collectedOn} onChange={(event) => setCollectionForm((current) => current ? { ...current, collectedOn: event.target.value } : current)} className="h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400" /></Field>
-              <Field label="收款金額"><input value={collectionForm.amount} onChange={(event) => setCollectionForm((current) => current ? { ...current, amount: event.target.value } : current)} inputMode="numeric" className="h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400" /></Field>
-              <Field label="備註"><input value={collectionForm.note} onChange={(event) => setCollectionForm((current) => current ? { ...current, note: event.target.value } : current)} className="h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400" /></Field>
+              <Field label="收款日期"><input value={collectionForm.collectedOn} onChange={(event) => setCollectionForm((current) => current ? { ...current, collectedOn: event.target.value } : current)} className="pf-input h-11" /></Field>
+              <Field label="收款金額"><input value={collectionForm.amount} onChange={(event) => setCollectionForm((current) => current ? { ...current, amount: event.target.value } : current)} inputMode="numeric" className="pf-input h-11" /></Field>
+              <Field label="備註"><input value={collectionForm.note} onChange={(event) => setCollectionForm((current) => current ? { ...current, note: event.target.value } : current)} className="pf-input h-11" /></Field>
             </div>
             <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-              <button type="button" onClick={() => setCollectionForm(null)} className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">取消</button>
-              <button type="button" onClick={handleAddCollectionRecord} className="inline-flex items-center justify-center rounded-2xl border border-slate-900 bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800">建立收款</button>
+              <button type="button" onClick={() => setCollectionForm(null)} className="pf-btn-secondary px-4 py-2.5">取消</button>
+              <button type="button" onClick={handleAddCollectionRecord} className="pf-btn-primary px-4 py-2.5">建立收款</button>
             </div>
           </div>
         </div>
@@ -659,7 +659,7 @@ export function QuoteCostDetailClient({ project, mode = "active", presenter = ge
 }
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
-  return <div><p className="mb-1.5 text-sm font-semibold text-slate-700">{label}</p>{children}</div>;
+  return <div><p className="mb-1.5 text-sm font-semibold text-slate-300">{label}</p>{children}</div>;
 }
 
 function ArchiveContentPanel({
@@ -712,23 +712,23 @@ function ManualArchiveTable({
   onManualItemChange: (itemId: string, field: "itemName" | "sourceRef" | "adjustedAmount", value: string) => void;
 }) {
   if (manualItems.length === 0) {
-    return <div className="rounded-2xl border border-dashed border-slate-300 p-5 text-sm text-slate-500">目前尚未新增人工成本。</div>;
+    return <div className="rounded-2xl border border-dashed border-white/10 bg-white/[0.03] p-5 text-sm text-slate-400">目前尚未新增人工成本。</div>;
   }
 
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-4">
-      <h5 className="text-base font-semibold text-slate-900">人工最終留存內容</h5>
+    <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
+      <h5 className="text-base font-semibold text-slate-50">人工最終留存內容</h5>
       <div className="mt-4 space-y-3">
         {manualItems.map((item) => (
-          <div key={item.id} className={`rounded-2xl border p-4 ${isClosedView ? "border-slate-200 bg-slate-50/80" : "border-slate-200 bg-slate-50/50"}`}>
+          <div key={item.id} className={`rounded-2xl border p-4 ${isClosedView ? "border-white/10 bg-white/[0.05]" : "border-white/10 bg-white/[0.04]"}`}>
             <div className="grid gap-4 xl:grid-cols-[1.6fr_1fr]">
               <div>
-                <label className="text-xs font-medium text-slate-500">項目</label>
-                <input value={item.itemName} onChange={(event) => onManualItemChange(item.id, "itemName", event.target.value)} readOnly={isClosedView} className="mt-2 h-11 w-full rounded-2xl border border-slate-200 px-3 text-sm outline-none focus:border-slate-400 read-only:bg-slate-50 read-only:text-slate-600" />
+                <label className="text-xs font-medium text-slate-400">項目</label>
+                <input value={item.itemName} onChange={(event) => onManualItemChange(item.id, "itemName", event.target.value)} readOnly={isClosedView} className="pf-input mt-2 h-11 px-3 read-only:bg-white/[0.03] read-only:text-slate-400" />
               </div>
               <div>
-                <label className="text-xs font-medium text-slate-500">金額</label>
-                <input type="number" value={item.adjustedAmount} onChange={(event) => onManualItemChange(item.id, "adjustedAmount", event.target.value)} readOnly={isClosedView} className="mt-2 h-11 w-full rounded-2xl border border-slate-200 px-3 text-sm outline-none focus:border-slate-400 read-only:bg-slate-50 read-only:text-slate-600" />
+                <label className="text-xs font-medium text-slate-400">金額</label>
+                <input type="number" value={item.adjustedAmount} onChange={(event) => onManualItemChange(item.id, "adjustedAmount", event.target.value)} readOnly={isClosedView} className="pf-input mt-2 h-11 px-3 read-only:bg-white/[0.03] read-only:text-slate-400" />
               </div>
             </div>
           </div>
@@ -740,23 +740,23 @@ function ManualArchiveTable({
 
 function ArchiveTable({ title, headers, rows, compact = false, emptyText = '目前沒有內容。' }: { title: string; headers: string[]; rows: string[][]; compact?: boolean; emptyText?: string }) {
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-4">
-      {title ? <h5 className="text-base font-semibold text-slate-900">{title}</h5> : null}
+    <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
+      {title ? <h5 className="text-base font-semibold text-slate-50">{title}</h5> : null}
       {rows.length ? (
-        <div className={`${title ? 'mt-4 ' : ''}overflow-x-auto rounded-2xl border border-slate-200`}>
-          <table className="min-w-full divide-y divide-slate-200 text-left text-sm">
-            <thead className="bg-slate-50 text-slate-500">
+        <div className={`${title ? 'mt-4 ' : ''}pf-table-shell`}>
+          <table className="pf-table">
+            <thead>
               <tr>
                 {headers.map((header) => (
                   <th key={header} className="px-4 py-3 font-medium whitespace-nowrap">{header}</th>
                 ))}
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 bg-white">
+            <tbody>
               {rows.map((row, rowIndex) => (
                 <tr key={`${title}-${rowIndex}`}>
                   {row.map((cell, cellIndex) => (
-                    <td key={`${cell}-${cellIndex}`} className={`px-4 ${compact ? "py-3" : "py-4"} ${cellIndex === 0 ? "font-semibold text-slate-900" : "text-slate-600"}`}>
+                    <td key={`${cell}-${cellIndex}`} className={`${compact ? "py-3" : "py-4"} ${cellIndex === 0 ? "font-semibold text-slate-100" : "text-slate-300"}`}>
                       {cell}
                     </td>
                   ))}
@@ -766,7 +766,7 @@ function ArchiveTable({ title, headers, rows, compact = false, emptyText = '目�
           </table>
         </div>
       ) : (
-        <div className="mt-4 rounded-2xl border border-dashed border-slate-300 p-5 text-sm text-slate-500">{emptyText}</div>
+        <div className="mt-4 rounded-2xl border border-dashed border-white/10 bg-white/[0.03] p-5 text-sm text-slate-400">{emptyText}</div>
       )}
     </div>
   );
@@ -775,8 +775,8 @@ function ArchiveTable({ title, headers, rows, compact = false, emptyText = '目�
 function SummaryCard({ title, value, mode, highlight = false }: { title: string; value: string; mode: DetailMode; highlight?: boolean }) {
   const isClosedView = mode === "closed";
   return (
-    <article className={`rounded-[28px] border p-5 shadow-sm ${isClosedView ? "border-slate-200 bg-white text-slate-900" : highlight ? "border-slate-900 bg-slate-900 text-white" : "border-slate-200 bg-white text-slate-900"}`}>
-      <p className={`text-sm ${isClosedView ? "text-slate-500" : highlight ? "text-slate-300" : "text-slate-500"}`}>{title}</p>
+    <article className={`rounded-[32px] border p-5 shadow-[0_34px_84px_-30px_rgba(0,0,0,0.72),0_10px_18px_-12px_rgba(15,23,42,0.5),inset_0_1px_0_rgba(255,255,255,0.1),inset_0_18px_28px_-20px_rgba(255,255,255,0.05),inset_0_-28px_44px_-24px_rgba(2,6,23,0.98)] backdrop-blur-[28px] ${isClosedView ? "border-white/10 bg-[linear-gradient(180deg,rgba(20,31,51,0.74),rgba(10,18,33,0.68))] text-slate-100" : highlight ? "border-sky-400/24 bg-[linear-gradient(180deg,rgba(8,47,73,0.9),rgba(15,23,42,0.92))] text-white" : "border-white/10 bg-[linear-gradient(180deg,rgba(18,30,50,0.76),rgba(10,18,33,0.66))] text-slate-100"}`}>
+      <p className={`text-sm ${isClosedView ? "text-slate-400" : highlight ? "text-slate-300" : "text-slate-400"}`}>{title}</p>
       <p className="mt-3 text-3xl font-semibold tracking-tight">{value}</p>
     </article>
   );

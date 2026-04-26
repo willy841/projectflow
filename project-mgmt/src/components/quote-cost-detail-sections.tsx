@@ -57,24 +57,24 @@ export function QuoteCostHeader({
   const isClosedView = presenter.archived;
 
   return (
-    <header className={`overflow-hidden rounded-[28px] border p-6 shadow-sm xl:p-7 ${isClosedView ? 'border-slate-200 bg-linear-to-br from-slate-50 to-white' : 'border-slate-200 bg-linear-to-br from-slate-900 via-slate-800 to-slate-900 text-white'}`}>
+    <header className={`overflow-hidden rounded-[32px] border p-6 shadow-[0_34px_90px_-38px_rgba(0,0,0,0.68),0_0_34px_rgba(96,165,250,0.08),inset_0_1px_0_rgba(255,255,255,0.07),inset_0_-22px_44px_-28px_rgba(7,13,25,0.98)] backdrop-blur-[28px] xl:p-7 ${isClosedView ? 'border-white/10 bg-[linear-gradient(180deg,rgba(20,31,51,0.82),rgba(10,18,33,0.72))] text-slate-100' : 'border-white/10 bg-[linear-gradient(180deg,rgba(18,30,50,0.82),rgba(10,18,33,0.74))] text-white'}`}>
       <div className="flex flex-col gap-5 xl:flex-row xl:items-center xl:justify-between">
         <div className="min-w-0 flex-1 xl:self-center">
-          <h2 className={`text-3xl font-semibold tracking-tight ${isClosedView ? 'text-slate-900' : 'text-white'}`}>{projectName}</h2>
-          <div className={`mt-4 grid gap-3 sm:grid-cols-1 xl:max-w-[320px] ${isClosedView ? 'text-slate-600' : 'text-slate-200'}`}>
+          <h2 className={`text-3xl font-semibold tracking-tight ${isClosedView ? 'text-slate-50' : 'text-white'}`}>{projectName}</h2>
+          <div className={`mt-4 grid gap-3 sm:grid-cols-1 xl:max-w-[320px] ${isClosedView ? 'text-slate-300' : 'text-slate-200'}`}>
             <OverviewRow label="活動日期" value={eventDate} archived={isClosedView} />
           </div>
         </div>
-        <div className={`grid gap-3 rounded-3xl border p-4 text-sm sm:min-w-[300px] ${isClosedView ? 'border-slate-200 bg-slate-50 text-slate-600' : 'border-white/10 bg-white/6 text-slate-200'}`}>
+        <div className={`grid gap-3 rounded-3xl border p-4 text-sm shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] sm:min-w-[300px] ${isClosedView ? 'border-white/10 bg-white/[0.05] text-slate-300' : 'border-white/10 bg-white/[0.06] text-slate-200'}`}>
           <div>
-            <p className={`text-base font-semibold ${isClosedView ? 'text-slate-900' : 'text-white'}`}>{presenter.shellTitle}</p>
+            <p className={`text-base font-semibold ${isClosedView ? 'text-slate-50' : 'text-white'}`}>{presenter.shellTitle}</p>
           </div>
           <div className="grid grid-cols-2 gap-3 text-xs">
             <QuickPanel value={reconciliationStatus} label="對帳狀態" archived={isClosedView} />
             <QuickPanel value={closeStatus} label="結案狀態" archived={isClosedView} />
           </div>
           {presenter.archived ? (
-            <Link href={presenter.listHref} className={`inline-flex items-center justify-center rounded-2xl px-4 py-2.5 text-sm font-semibold transition ${isClosedView ? 'border border-slate-300 bg-white text-slate-800 hover:border-slate-400 hover:bg-slate-50' : 'bg-white text-slate-900 hover:bg-slate-100'}`}>
+            <Link href={presenter.listHref} className={`inline-flex items-center justify-center rounded-2xl px-4 py-2.5 text-sm font-semibold transition ${isClosedView ? 'border border-white/10 bg-white/[0.06] text-slate-100 hover:bg-white/[0.1]' : 'border border-white/10 bg-white/[0.08] text-white hover:bg-white/[0.12]'}`}>
               返回{presenter.listLabel}
             </Link>
           ) : null}
@@ -98,18 +98,18 @@ export function CollectionSection({
   onDelete?: (id: string) => void;
 }) {
   return (
-    <section className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-sm">
+    <section className="rounded-[32px] border border-white/10 bg-[linear-gradient(180deg,rgba(18,30,50,0.76),rgba(10,18,33,0.66))] p-6 shadow-[0_34px_84px_-30px_rgba(0,0,0,0.72),0_10px_18px_-12px_rgba(15,23,42,0.5),inset_0_1px_0_rgba(255,255,255,0.1),inset_0_18px_28px_-20px_rgba(255,255,255,0.05),inset_0_-28px_44px_-24px_rgba(2,6,23,0.98)] backdrop-blur-[28px]">
       <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
         <SimpleSectionTitle title={presenter.collectionTitle} />
         {presenter.canCreateCollectionRecord ? (
-          <button type="button" onClick={onCreate} className="inline-flex items-center justify-center rounded-2xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800">
+          <button type="button" onClick={onCreate} className="pf-btn-primary px-4 py-2.5">
             {presenter.collectionPrimaryActionLabel}
           </button>
         ) : null}
       </div>
-      <div className="mt-5 overflow-x-auto rounded-2xl border border-slate-200">
-        <table className="min-w-full divide-y divide-slate-200 text-left text-sm">
-          <thead className="bg-slate-50 text-slate-500">
+      <div className="pf-table-shell mt-5">
+        <table className="pf-table">
+          <thead>
             <tr>
               <th className="px-4 py-3 font-medium">收款日期</th>
               <th className="px-4 py-3 font-medium">收款金額</th>
@@ -117,15 +117,15 @@ export function CollectionSection({
               <th className="px-4 py-3 font-medium">刪除</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-100 bg-white">
+          <tbody>
             {collectionRecords.map((record) => (
               <tr key={record.id}>
-                <td className="px-4 py-3 text-slate-700">{record.collectedOn || eventDate}</td>
-                <td className="px-4 py-3 font-semibold text-slate-900">{formatCurrency(record.amount)}</td>
-                <td className="px-4 py-3 text-slate-600">{record.note || '-'}</td>
-                <td className="px-4 py-3">
+                <td className="text-slate-300">{record.collectedOn || eventDate}</td>
+                <td className="font-semibold text-slate-100">{formatCurrency(record.amount)}</td>
+                <td className="text-slate-300">{record.note || '-'}</td>
+                <td>
                   {presenter.canDeleteCollectionRecord ? (
-                    <button type="button" onClick={() => onDelete?.(record.id)} className="inline-flex items-center justify-center rounded-2xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm font-semibold text-rose-700 transition hover:bg-rose-100">
+                    <button type="button" onClick={() => onDelete?.(record.id)} className="pf-btn-danger px-3 py-2 text-sm">
                       刪除
                     </button>
                   ) : null}
@@ -156,14 +156,14 @@ export function ActiveOnlyFinancialSections({
 }) {
   return (
     <section className="grid gap-4 xl:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] xl:items-start">
-      <section className="rounded-[28px] border border-slate-200 bg-white p-5 shadow-sm">
+      <section className="rounded-[32px] border border-white/10 bg-[linear-gradient(180deg,rgba(18,30,50,0.76),rgba(10,18,33,0.66))] p-5 shadow-[0_34px_84px_-30px_rgba(0,0,0,0.72),0_10px_18px_-12px_rgba(15,23,42,0.5),inset_0_1px_0_rgba(255,255,255,0.1),inset_0_18px_28px_-20px_rgba(255,255,255,0.05),inset_0_-28px_44px_-24px_rgba(2,6,23,0.98)] backdrop-blur-[28px]">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
           <SimpleSectionTitle title="對外報價單" />
           <div className="flex flex-wrap gap-2">
             <button
               type="button"
               onClick={onImportExcel}
-              className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 transition hover:border-slate-400 hover:bg-slate-50"
+              className="pf-btn-secondary min-h-11 px-4 py-2.5"
             >
               匯入 Excel
             </button>
@@ -171,7 +171,7 @@ export function ActiveOnlyFinancialSections({
               type="button"
               onClick={onOpenQuoteDetail}
               disabled={!quotationItems.length && !quoteImportRecord}
-              className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-900 bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:border-slate-300 disabled:bg-slate-300"
+              className="pf-btn-primary min-h-11 px-4 py-2.5 disabled:border-white/10 disabled:bg-white/10"
             >
               查看明細
             </button>
@@ -180,26 +180,26 @@ export function ActiveOnlyFinancialSections({
 
         <div className="mt-4 flex flex-wrap items-center gap-2">
           {quoteImportRecord ? (
-            <span className="inline-flex items-center rounded-2xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700">已承接正式報價版本</span>
+            <span className="inline-flex items-center rounded-2xl border border-emerald-300/20 bg-emerald-400/12 px-4 py-2 text-sm font-semibold text-emerald-200">已承接正式報價版本</span>
           ) : (
-            <span className="inline-flex items-center rounded-2xl border border-amber-200 bg-amber-50 px-4 py-2 text-sm font-semibold text-amber-700">尚無正式報價資料</span>
+            <span className="inline-flex items-center rounded-2xl border border-amber-300/20 bg-amber-400/12 px-4 py-2 text-sm font-semibold text-amber-200">尚無正式報價資料</span>
           )}
-          <span className="inline-flex items-center rounded-2xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700">共 {quotationItems.length} 筆</span>
+          <span className="inline-flex items-center rounded-2xl border border-white/10 bg-white/[0.05] px-4 py-2 text-sm font-semibold text-slate-200">共 {quotationItems.length} 筆</span>
         </div>
 
-        <div className="mt-4 rounded-3xl border border-slate-900 bg-slate-900 px-5 py-4 text-white shadow-sm">
+        <div className="mt-4 rounded-3xl border border-white/10 bg-[linear-gradient(180deg,rgba(8,47,73,0.88),rgba(15,23,42,0.92))] px-5 py-4 text-white shadow-[0_24px_48px_-28px_rgba(14,165,233,0.35),inset_0_1px_0_rgba(255,255,255,0.08)]">
           <p className="text-sm text-slate-300">報價總金額</p>
           <p className="mt-2 text-3xl font-semibold tracking-tight">{formatCurrency(quotationTotal)}</p>
         </div>
       </section>
 
-      <section className="rounded-[28px] border border-slate-200 bg-white p-5 shadow-sm">
+      <section className="rounded-[32px] border border-white/10 bg-[linear-gradient(180deg,rgba(18,30,50,0.76),rgba(10,18,33,0.66))] p-5 shadow-[0_34px_84px_-30px_rgba(0,0,0,0.72),0_10px_18px_-12px_rgba(15,23,42,0.5),inset_0_1px_0_rgba(255,255,255,0.1),inset_0_18px_28px_-20px_rgba(255,255,255,0.05),inset_0_-28px_44px_-24px_rgba(2,6,23,0.98)] backdrop-blur-[28px]">
         <div className="flex items-center justify-between gap-3">
           <SimpleSectionTitle title="廠商對帳摘要" />
         </div>
-        <div className="mt-4 overflow-x-auto rounded-2xl border border-slate-200">
-          <table className="min-w-full divide-y divide-slate-200 text-left text-sm">
-            <thead className="bg-slate-50 text-slate-500">
+        <div className="pf-table-shell mt-4">
+          <table className="pf-table">
+            <thead>
               <tr>
                 <th className="px-4 py-3 font-medium">廠商</th>
                 <th className="px-4 py-3 font-medium">已對帳</th>
@@ -207,13 +207,13 @@ export function ActiveOnlyFinancialSections({
                 <th className="px-4 py-3 font-medium">目前應付總額</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 bg-white">
+            <tbody>
               {vendorPaymentRecords.map((record) => (
                 <tr key={record.vendorName}>
-                  <td className="px-4 py-3 font-medium text-slate-900">{record.vendorName}</td>
-                  <td className="px-4 py-3 text-slate-700">{record.reconciledCount} 筆</td>
-                  <td className="px-4 py-3 text-slate-700">{record.unreconciledCount} 筆</td>
-                  <td className="px-4 py-3 font-semibold text-slate-900">{formatCurrency(record.payableAmount)}</td>
+                  <td className="font-medium text-slate-100">{record.vendorName}</td>
+                  <td className="text-slate-300">{record.reconciledCount} 筆</td>
+                  <td className="text-slate-300">{record.unreconciledCount} 筆</td>
+                  <td className="font-semibold text-slate-100">{formatCurrency(record.payableAmount)}</td>
                 </tr>
               ))}
             </tbody>
@@ -232,7 +232,7 @@ export function CostManagementSection({
   children: ReactNode;
 }) {
   return (
-    <section className={`rounded-[28px] border p-6 shadow-sm ${archived ? 'border-slate-200 bg-slate-50/70' : 'border-slate-200 bg-white'}`}>
+    <section className={`rounded-[32px] border p-6 shadow-[0_34px_84px_-30px_rgba(0,0,0,0.72),0_10px_18px_-12px_rgba(15,23,42,0.5),inset_0_1px_0_rgba(255,255,255,0.1),inset_0_18px_28px_-20px_rgba(255,255,255,0.05),inset_0_-28px_44px_-24px_rgba(2,6,23,0.98)] backdrop-blur-[28px] ${archived ? 'border-white/10 bg-[linear-gradient(180deg,rgba(20,31,51,0.74),rgba(10,18,33,0.68))]' : 'border-white/10 bg-[linear-gradient(180deg,rgba(18,30,50,0.76),rgba(10,18,33,0.66))]'}`}>
       {children}
     </section>
   );
@@ -241,10 +241,10 @@ export function CostManagementSection({
 export function getCostSourceSummary(costItems: CostLineItem[], projectId: string) {
   const sourceOrder: CostSourceType[] = ['設計', '備品', '廠商'];
   const sourceTone: Record<CostSourceType, string> = {
-    設計: 'bg-blue-50 text-blue-700 ring-blue-200',
-    備品: 'bg-amber-50 text-amber-700 ring-amber-200',
-    廠商: 'bg-violet-50 text-violet-700 ring-violet-200',
-    人工: 'bg-slate-100 text-slate-700 ring-slate-200',
+    設計: 'bg-sky-400/14 text-sky-200 ring-sky-300/20',
+    備品: 'bg-amber-400/14 text-amber-200 ring-amber-300/20',
+    廠商: 'bg-violet-400/14 text-violet-200 ring-violet-300/20',
+    人工: 'bg-white/[0.07] text-slate-200 ring-white/10',
   };
   const sourceHref: Record<Exclude<CostSourceType, '人工'>, string> = {
     設計: `/design-tasks?project=${encodeURIComponent(projectId)}`,
@@ -272,24 +272,24 @@ export function getCostSourceSummary(costItems: CostLineItem[], projectId: strin
 
 export function QuickPanel({ value, label, archived }: { value: string; label: string; archived: boolean }) {
   return (
-    <div className={`rounded-2xl border px-3 py-2 ${archived ? 'border-slate-200 bg-white text-slate-500' : 'border-white/8 bg-black/10 text-slate-300'}`}>
+    <div className={`rounded-2xl border px-3 py-2 ${archived ? 'border-white/10 bg-white/[0.05] text-slate-400' : 'border-white/10 bg-black/10 text-slate-300'}`}>
       <p>{label}</p>
-      <p className={`mt-1 font-semibold ${archived ? 'text-slate-900' : 'text-white'}`}>{value}</p>
+      <p className={`mt-1 font-semibold ${archived ? 'text-slate-100' : 'text-white'}`}>{value}</p>
     </div>
   );
 }
 
 export function OverviewRow({ label, value, archived = false }: { label: string; value: string; archived?: boolean }) {
   return (
-    <div className={`rounded-2xl p-4 ring-1 ${archived ? 'bg-white ring-slate-200' : 'bg-slate-50 ring-slate-200'}`}>
-      <p className="text-xs font-medium text-slate-500">{label}</p>
-      <p className="mt-2 text-sm font-semibold leading-6 text-slate-900">{value}</p>
+    <div className={`rounded-2xl p-4 ring-1 ${archived ? 'bg-white/[0.05] ring-white/10' : 'bg-white/[0.04] ring-white/10'}`}>
+      <p className="text-xs font-medium text-slate-400">{label}</p>
+      <p className="mt-2 text-sm font-semibold leading-6 text-slate-100">{value}</p>
     </div>
   );
 }
 
 export function SimpleSectionTitle({ title }: { title: string }) {
-  return <h3 className="text-xl font-semibold text-slate-900">{title}</h3>;
+  return <h3 className="text-xl font-semibold text-slate-50">{title}</h3>;
 }
 
 export function QuoteDetailModal({
@@ -302,31 +302,31 @@ export function QuoteDetailModal({
   onClose: () => void;
 }) {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/40 px-4 py-6">
-      <div className="flex max-h-[90vh] w-full max-w-6xl flex-col overflow-hidden rounded-3xl bg-white shadow-2xl ring-1 ring-slate-200">
-        <div className="flex flex-col gap-3 border-b border-slate-200 px-6 py-5 lg:flex-row lg:items-start lg:justify-between">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 px-4 py-6 backdrop-blur-sm">
+      <div className="flex max-h-[90vh] w-full max-w-6xl flex-col overflow-hidden rounded-[32px] border border-white/10 bg-[linear-gradient(180deg,rgba(18,30,50,0.9),rgba(10,18,33,0.84))] shadow-[0_40px_120px_-46px_rgba(0,0,0,0.9),inset_0_1px_0_rgba(255,255,255,0.08)]">
+        <div className="flex flex-col gap-3 border-b border-white/10 px-6 py-5 lg:flex-row lg:items-start lg:justify-between">
           <div className="min-w-0">
-            <h3 className="text-xl font-semibold text-slate-900">對外報價單明細</h3>
-            <p className="mt-1 text-sm text-slate-500">
+            <h3 className="text-xl font-semibold text-slate-50">對外報價單明細</h3>
+            <p className="mt-1 text-sm text-slate-400">
               {quoteImportRecord ? `目前版本：${quoteImportRecord.fileName} · 匯入時間 ${quoteImportRecord.importedAt}` : '目前尚未承接正式報價版本。'}
             </p>
             {typeof quoteImportRecord?.totalAmount === 'number' ? (
-              <p className="mt-2 text-sm font-semibold text-slate-900">總金額 {formatCurrency(quoteImportRecord.totalAmount)}</p>
+              <p className="mt-2 text-sm font-semibold text-slate-100">總金額 {formatCurrency(quoteImportRecord.totalAmount)}</p>
             ) : null}
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 transition hover:border-slate-400 hover:bg-slate-50"
+            className="pf-btn-secondary min-h-11 px-4 py-2.5"
           >
             關閉
           </button>
         </div>
 
         <div className="flex-1 overflow-auto px-6 py-5">
-          <div className="overflow-x-auto rounded-2xl border border-slate-200">
-            <table className="min-w-[1080px] divide-y divide-slate-200 text-left text-sm xl:min-w-full">
-              <thead className="bg-slate-50 text-slate-500">
+          <div className="pf-table-shell">
+            <table className="pf-table min-w-[1080px] xl:min-w-full">
+              <thead>
                 <tr>
                   <th className="px-4 py-3 font-medium">商品名稱</th>
                   <th className="px-4 py-3 font-medium">單價</th>
@@ -336,19 +336,19 @@ export function QuoteDetailModal({
                   <th className="px-4 py-3 font-medium min-w-[320px]">備註</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100 bg-white">
+              <tbody>
                 {items.length ? items.map((item) => (
-                  <tr key={item.id} className="align-top hover:bg-slate-50/80">
-                    <td className="px-4 py-4 font-medium text-slate-900">{item.itemName}</td>
-                    <td className="px-4 py-4 text-slate-600 whitespace-nowrap">{formatCurrency(item.unitPrice)}</td>
-                    <td className="px-4 py-4 text-slate-600 whitespace-nowrap">{item.quantity}</td>
-                    <td className="px-4 py-4 text-slate-600 whitespace-nowrap">{item.unit || '-'}</td>
-                    <td className="px-4 py-4 font-semibold text-slate-900 whitespace-nowrap">{formatCurrency(item.amount)}</td>
-                    <td className="px-4 py-4 text-sm leading-6 text-slate-600 whitespace-pre-wrap break-words">{item.remark || '-'}</td>
+                  <tr key={item.id} className="align-top">
+                    <td className="font-medium text-slate-100">{item.itemName}</td>
+                    <td className="whitespace-nowrap text-slate-300">{formatCurrency(item.unitPrice)}</td>
+                    <td className="whitespace-nowrap text-slate-300">{item.quantity}</td>
+                    <td className="whitespace-nowrap text-slate-300">{item.unit || '-'}</td>
+                    <td className="whitespace-nowrap font-semibold text-slate-100">{formatCurrency(item.amount)}</td>
+                    <td className="whitespace-pre-wrap break-words text-sm leading-6 text-slate-300">{item.remark || '-'}</td>
                   </tr>
                 )) : (
                   <tr>
-                    <td colSpan={6} className="px-4 py-6 text-center text-sm text-slate-500">目前沒有可顯示的報價明細。</td>
+                    <td colSpan={6} className="px-4 py-6 text-center text-sm text-slate-400">目前沒有可顯示的報價明細。</td>
                   </tr>
                 )}
               </tbody>
