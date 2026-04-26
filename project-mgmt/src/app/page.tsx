@@ -46,7 +46,7 @@ export default async function Home() {
             <div>
               <h3 className="text-xl font-semibold text-slate-100">近期專案</h3>
             </div>
-            <Link href="/projects" className="inline-flex items-center justify-center rounded-xl px-3 py-2 text-sm font-semibold !text-slate-200 transition hover:bg-white/6">
+            <Link href="/projects" className="inline-flex items-center justify-center rounded-xl border border-white/10 bg-slate-900/40 px-3 py-2 text-sm font-semibold !text-slate-200 shadow-[0_16px_34px_-24px_rgba(0,0,0,0.38),inset_0_1px_0_rgba(255,255,255,0.03)] backdrop-blur-xl transition hover:bg-slate-900/60">
               查看全部
             </Link>
           </div>

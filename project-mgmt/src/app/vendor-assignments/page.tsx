@@ -101,11 +101,11 @@ export default async function VendorAssignmentsPage({
       <WorkspaceHeader
         title="廠商發包板"
         badge={<span className="inline-flex items-center rounded-full bg-white/8 px-2.5 py-0.5 text-xs font-medium text-slate-200 ring-1 ring-white/10">共 {activeProject ? vendorGroups.length : projects.length} {activeProject ? "組廠商" : "個專案"}</span>}
-        meta={null}
+        meta={activeProject ? activeProject.projectName : null}
       />
 
       <WorkspaceSection
-        title={activeProject ? activeProject.projectName : ""}
+        title={undefined}
         meta={null}
         actions={
           activeProject ? (

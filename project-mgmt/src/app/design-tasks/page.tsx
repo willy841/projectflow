@@ -86,11 +86,11 @@ export default async function DesignTasksPage({
       <WorkspaceHeader
         title="設計任務板"
         badge={<span className="inline-flex items-center rounded-full bg-white/8 px-2.5 py-0.5 text-xs font-medium text-slate-200 ring-1 ring-white/10">共 {activeProject ? projectTasks.length : projects.length} {activeProject ? "筆任務" : "個專案"}</span>}
-        meta={null}
+        meta={activeProject ? `${activeProject.projectName}｜${activeProject.eventDate}` : null}
       />
 
       <WorkspaceSection
-        title={activeProject ? `${activeProject.projectName}｜${activeProject.eventDate}` : ""}
+        title={undefined}
         meta={null}
         actions={
           activeProject ? (
