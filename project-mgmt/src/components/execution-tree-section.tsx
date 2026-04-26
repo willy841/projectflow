@@ -300,22 +300,22 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
     design: {
       title: "專案設計",
       count: designSummaryList.length,
-      accent: "text-blue-700",
-      ring: "ring-blue-200",
+      accent: "text-sky-100",
+      ring: "ring-sky-300/30",
       sectionHint: "",
     },
     procurement: {
       title: "專案備品",
       count: procurementSummaryList.length,
-      accent: "text-amber-700",
-      ring: "ring-amber-200",
+      accent: "text-slate-100",
+      ring: "ring-white/10",
       sectionHint: "",
     },
     vendor: {
       title: "專案廠商",
       count: vendorSummaryList.length,
-      accent: "text-violet-700",
-      ring: "ring-violet-200",
+      accent: "text-slate-100",
+      ring: "ring-white/10",
       sectionHint: "",
     },
   };
@@ -485,7 +485,7 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
 
   return (
     <>
-      <section id="project-execution-section" className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+      <section id="project-execution-section" className="p-1">
         <ExecutionTree
           heading="專案執行項目"
           items={project.executionItems}
@@ -518,9 +518,9 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
         />
       </section>
 
-      <section className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+      <section className="p-1">
         <div className="mb-5">
-          <h3 className="text-xl font-semibold">專案分類檢視</h3>
+          <h3 className="text-xl font-semibold text-white">專案分類檢視</h3>
         </div>
 
         <div className="grid gap-3 lg:grid-cols-3">
@@ -532,15 +532,19 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
                 key={category}
                 type="button"
                 onClick={() => setOpenCategory(category)}
-                className={`rounded-3xl border bg-white p-5 text-left shadow-sm transition ${isActive ? `${meta.ring} border-transparent ring-2 shadow-md` : "border-slate-200 hover:border-slate-300 hover:bg-slate-50/60"}`}
+                className={`rounded-[26px] px-1 py-1 text-left shadow-[0_18px_40px_-24px_rgba(0,0,0,0.42)] ${
+                  isActive
+                    ? 'bg-[linear-gradient(180deg,rgba(59,130,246,0.18),rgba(15,23,42,0.02))]'
+                    : 'bg-transparent'
+                }`}
               >
-                <div className="flex min-h-[84px] items-center justify-between gap-3">
+                <div className={`flex min-h-[84px] items-center justify-between gap-3 rounded-[22px] bg-[linear-gradient(180deg,rgba(15,23,42,0.5),rgba(15,23,42,0.34))] px-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.05),0_14px_28px_-20px_rgba(0,0,0,0.34)] ${isActive ? `ring-1 ${meta.ring}` : ''}`}>
                   <div className="flex min-h-full flex-1 items-center justify-center text-center">
                     <div className="flex flex-col items-center justify-center gap-2">
                       <p className={`text-lg font-semibold ${meta.accent}`}>{meta.title}</p>
                     </div>
                   </div>
-                  <span className={`inline-flex min-w-[36px] items-center justify-center rounded-full px-3 py-1 text-xs font-semibold ${isActive ? "bg-slate-900 text-white" : "bg-slate-100 text-slate-700"}`}>
+                  <span className={`inline-flex min-w-[36px] items-center justify-center rounded-full px-3 py-1 text-xs font-semibold ${isActive ? 'bg-sky-400/18 text-sky-100' : 'bg-white/8 text-slate-300'}`}>
                     {meta.count}
                   </span>
                 </div>
@@ -549,18 +553,18 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
           })}
         </div>
 
-        <div className="mt-6 rounded-3xl border border-slate-300 bg-slate-100 p-5 shadow-inner">
-          <div className="mb-4 flex flex-col gap-3 border-b border-slate-200 pb-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="mt-5 rounded-[26px] border border-white/10 bg-[linear-gradient(180deg,rgba(40,53,79,0.52),rgba(16,25,40,0.4))] p-5 shadow-[0_24px_50px_-30px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.05),inset_0_-18px_30px_-22px_rgba(10,18,32,0.9)] backdrop-blur-2xl">
+          <div className="mb-4 flex flex-col gap-3 pb-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <div className="flex flex-wrap items-center gap-3">
-                <h4 className="text-lg font-semibold text-slate-900">{categoryMeta[openCategory].title}</h4>
-                <span className="text-sm font-medium text-slate-500">共 {currentList.length} 筆</span>
+                <h4 className="text-lg font-semibold text-white">{categoryMeta[openCategory].title}</h4>
+                <span className="text-sm font-medium text-slate-400">共 {currentList.length} 筆</span>
               </div>
             </div>
           </div>
 
           {saveFeedback && saveFeedback.category === openCategory ? (
-            <div className="mb-4 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
+            <div className="mb-4 rounded-2xl border border-emerald-400/20 bg-emerald-400/10 px-4 py-3 text-sm text-emerald-200">
               {saveFeedback.message}
             </div>
           ) : null}
