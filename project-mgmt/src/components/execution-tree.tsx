@@ -1810,7 +1810,7 @@ export function ExecutionTree({
             <button
               type="button"
               onClick={() => setShowMainItemCreator((prev) => !prev)}
-              className="inline-flex h-11 shrink-0 items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-800 shadow-sm transition hover:border-slate-400 hover:bg-slate-50"
+              className="inline-flex h-11 shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-slate-900/40 px-4 text-sm font-semibold text-slate-200 shadow-[0_18px_40px_-28px_rgba(0,0,0,0.42),inset_0_1px_0_rgba(255,255,255,0.03)] backdrop-blur-xl transition hover:bg-slate-900/60"
             >
               + 新增主項目
             </button>
@@ -1846,7 +1846,7 @@ export function ExecutionTree({
             <p className="mt-2 text-sm text-slate-600">以下是目前實際讀到的前 20 列內容，方便直接對照 A 欄 / B 欄是否如預期。</p>
             <div className="mt-3 space-y-2 text-xs text-slate-700">
               {excelDebugRows.map((row, index) => (
-                <div key={`debug-row-${index}`} className="rounded-2xl bg-white px-3 py-2 ring-1 ring-amber-100">
+                <div key={`debug-row-${index}`} className="rounded-2xl border border-white/10 bg-[linear-gradient(180deg,rgba(39,52,77,0.62),rgba(17,26,42,0.46))] px-3 py-2 ring-1 ring-amber-300/20 text-slate-300 backdrop-blur-xl">
                   <span className="font-semibold text-slate-900">Row {index + 1}</span>
                   <span className="ml-2">A={row[0] || ""}</span>
                   <span className="ml-2">B={row[1] || ""}</span>
@@ -1874,7 +1874,7 @@ export function ExecutionTree({
                 <button
                   type="button"
                   onClick={() => setExcelPreview(null)}
-                  className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 transition hover:bg-slate-50"
+                  className="inline-flex items-center justify-center rounded-2xl border border-white/10 bg-slate-900/40 px-4 py-2.5 text-sm font-semibold text-slate-200 shadow-[0_16px_34px_-24px_rgba(0,0,0,0.38),inset_0_1px_0_rgba(255,255,255,0.03)] backdrop-blur-xl transition hover:bg-slate-900/60"
                 >
                   取消預覽
                 </button>
@@ -1893,7 +1893,7 @@ export function ExecutionTree({
               </div>
               <div className="mt-3 space-y-2">
                 {excelPreview.rows.slice(0, 20).map((row) => (
-                  <div key={`parsed-${row.rowNumber}`} className="rounded-xl bg-slate-50 px-3 py-2">
+                  <div key={`parsed-${row.rowNumber}`} className="rounded-xl border border-white/10 bg-[linear-gradient(180deg,rgba(40,53,79,0.58),rgba(16,25,40,0.42))] px-3 py-2 text-slate-300 backdrop-blur-xl">
                     Row {row.rowNumber} ｜ type={row.type} ｜ name={row.name || ""}
                     {row.reason ? <span> ｜ reason={row.reason}</span> : null}
                   </div>
@@ -1903,13 +1903,13 @@ export function ExecutionTree({
 
             <div className="mt-4 space-y-3">
               {excelPreview.mainItems.map((mainItem) => (
-                <div key={mainItem.id} className="rounded-2xl border border-slate-200 bg-white p-5">
+                <div key={mainItem.id} className="rounded-2xl border border-white/10 bg-[linear-gradient(180deg,rgba(39,52,77,0.62),rgba(17,26,42,0.46))] p-5 shadow-[0_24px_46px_-28px_rgba(0,0,0,0.54),0_0_16px_rgba(96,165,250,0.05),inset_0_1px_0_rgba(255,255,255,0.05),inset_0_-16px_24px_-18px_rgba(10,18,32,0.86)] backdrop-blur-2xl">
                   <div className="flex flex-wrap items-center gap-2">
                     <p className="text-sm font-semibold text-slate-900">{mainItem.title}</p>
                   </div>
                   <div className="mt-3 space-y-2">
                     {mainItem.children.map((child) => (
-                      <div key={child.id} className="rounded-2xl bg-slate-50 px-4 py-3.5 text-sm text-slate-700">
+                      <div key={child.id} className="rounded-2xl border border-white/10 bg-[linear-gradient(180deg,rgba(40,53,79,0.58),rgba(16,25,40,0.42))] px-4 py-3.5 text-sm text-slate-300 shadow-[0_18px_36px_-24px_rgba(0,0,0,0.42),inset_0_1px_0_rgba(255,255,255,0.04)] backdrop-blur-xl">
                         <div className="flex flex-wrap items-center gap-2">
                           <span className="font-medium text-slate-900">{child.title}</span>
                         </div>
@@ -1949,7 +1949,7 @@ export function ExecutionTree({
                   setShowMainItemCreator(false);
                   setMainItemDraft("");
                 }}
-                className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 shadow-sm transition hover:border-slate-400 hover:bg-slate-50"
+                className="inline-flex items-center justify-center rounded-2xl border border-white/10 bg-slate-900/40 px-4 py-2.5 text-sm font-semibold text-slate-200 shadow-[0_16px_34px_-24px_rgba(0,0,0,0.38),inset_0_1px_0_rgba(255,255,255,0.03)] backdrop-blur-xl transition hover:bg-slate-900/60"
               >
                 取消
               </button>
@@ -2047,7 +2047,7 @@ export function ExecutionTree({
           <div
             key={item.id}
             data-execution-item-id={item.id}
-            className="rounded-3xl border border-slate-300 bg-white p-5 shadow-sm transition hover:border-slate-400"
+            className="rounded-3xl border border-white/10 bg-[linear-gradient(180deg,rgba(39,52,77,0.62),rgba(17,26,42,0.46))] p-5 shadow-[0_24px_46px_-28px_rgba(0,0,0,0.54),0_0_16px_rgba(96,165,250,0.05),inset_0_1px_0_rgba(255,255,255,0.05),inset_0_-16px_24px_-18px_rgba(10,18,32,0.86)] backdrop-blur-2xl transition hover:shadow-[0_0_20px_rgba(96,165,250,0.1)]"
           >
             <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
               <div className="flex min-w-0 flex-1 items-center gap-4">
@@ -2082,7 +2082,7 @@ export function ExecutionTree({
                         <button
                           type="button"
                           onClick={cancelEditing}
-                          className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 shadow-sm transition hover:border-slate-400 hover:bg-slate-50"
+                          className="inline-flex items-center justify-center rounded-2xl border border-white/10 bg-slate-900/40 px-4 py-2.5 text-sm font-semibold text-slate-200 shadow-[0_16px_34px_-24px_rgba(0,0,0,0.38),inset_0_1px_0_rgba(255,255,255,0.03)] backdrop-blur-xl transition hover:bg-slate-900/60"
                         >
                           取消
                         </button>
@@ -2201,7 +2201,7 @@ export function ExecutionTree({
                                   <button
                                     type="button"
                                     onClick={cancelEditing}
-                                    className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 shadow-sm transition hover:border-slate-400 hover:bg-slate-50"
+                                    className="inline-flex items-center justify-center rounded-2xl border border-white/10 bg-slate-900/40 px-4 py-2.5 text-sm font-semibold text-slate-200 shadow-[0_16px_34px_-24px_rgba(0,0,0,0.38),inset_0_1px_0_rgba(255,255,255,0.03)] backdrop-blur-xl transition hover:bg-slate-900/60"
                                   >
                                     取消
                                   </button>
