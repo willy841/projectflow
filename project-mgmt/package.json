@@ -17,6 +17,7 @@
     "test:formal-acceptance:primary": "npm run test:formal-acceptance:v2",
     "test:formal-acceptance:v2": "playwright test tests/formal-acceptance-v2/00-baseline-and-project-lifecycle.spec.ts tests/formal-acceptance-v2/01-project-detail-dispatch-and-family-routing.spec.ts tests/formal-acceptance-v2/02-design-project-document-mainline.spec.ts tests/formal-acceptance-v2/03-procurement-project-document-mainline.spec.ts tests/formal-acceptance-v2/04-vendor-package-mainline.spec.ts tests/formal-acceptance-v2/05-quote-cost-mainline.spec.ts tests/formal-acceptance-v2/06-closeout-retained-readback.spec.ts tests/formal-acceptance-v2/07-vendor-unpaid-history-and-payment-reversal.spec.ts tests/formal-acceptance-v2/08-closeout-list-and-manual-cost-freeze.spec.ts tests/formal-acceptance-v2/09-cross-flow-formal-mainline-smoke.spec.ts",
     "test:formal-acceptance:legacy": "playwright test tests/formal-acceptance-requirements-crud.spec.ts tests/formal-acceptance-execution-item-excel-import.spec.ts tests/formal-acceptance-execution-item-excel-upload-ui.spec.ts",
+    "test:legacy:stale-vendor-ui-contract": "echo 'Do not use stale vendor UI-contract tests as formal blocker. See tests/legacy/stale-vendor-ui-contract/README.md' && exit 1",
     "test:auth-smoke": "playwright test tests/auth-smoke.spec.ts",
     "test:auth-role-flow": "playwright test tests/auth-role-flow.spec.ts",
     "db:phase1:check": "bash db/scripts/check-phase1-sql.sh",
