@@ -27,6 +27,9 @@ The following are locked and must not be changed during this visual-polish phase
 3. **All functional behavior 不可更動**
 4. **Approved information structure should remain as-is unless explicitly approved later**
 5. **For already accepted Projectflow UI, do not alter structure just to make it prettier**
+6. **No function-layer change is allowed**
+7. **All visual-polish changes must remain fully reversible back to the current stable version**
+8. **No behavior drift is allowed after polish**
 
 Practical meaning:
 - do not rename labels
@@ -34,6 +37,8 @@ Practical meaning:
 - do not introduce new buttons unless separately approved
 - do not remove existing controls
 - do not redesign page-level interaction models
+- do not modify API behavior, DB behavior, domain logic, submission logic, routing logic, or state-transition logic
+- do not mix visual polish with bug-fix or feature work in the same change batch
 
 ---
 
@@ -244,10 +249,19 @@ A visual-polish change is acceptable only if all are true:
 5. readability is equal or better
 6. visual quality is clearly improved
 7. no regression is introduced into accepted mainline pages
+8. the change is cleanly reversible back to the current stable baseline
+9. the change introduces zero function-layer drift
 
 ---
 
 ## 11. Recommended execution workflow
+
+### Step 0 — preserve stable rollback baseline
+Before any polish batch starts:
+- treat the current version as the stable rollback baseline
+- ensure all subsequent polish work is layered on top of this baseline
+- keep each polish batch independently revertible
+- never bury many unrelated visual changes inside one opaque commit
 
 ### Step 1 — define the visual foundation
 First implement:
@@ -275,6 +289,13 @@ Only after the benchmark pages are stable:
 - list pages
 - vendor pages
 - document views
+
+### Step 5 — enforce visual-only batching
+For every batch:
+- isolate visual polish from feature work
+- isolate visual polish from bug-fix work where possible
+- verify no interaction drift
+- verify rollback remains clean
 
 ---
 
