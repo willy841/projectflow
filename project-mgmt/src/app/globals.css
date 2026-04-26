@@ -77,15 +77,15 @@ input,
 select,
 textarea {
   border-radius: var(--radius-control);
-  border: 1px solid rgba(148, 163, 184, 0.24);
-  background: rgba(255, 255, 255, 0.92);
-  color: var(--text-primary);
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  background: rgba(14, 23, 39, 0.88);
+  color: #f5f9ff;
   transition: border-color 160ms ease, box-shadow 160ms ease, background-color 160ms ease;
 }
 
 input::placeholder,
 textarea::placeholder {
-  color: #94a3b8;
+  color: #7f93b0;
 }
 
 input:focus,
@@ -107,12 +107,12 @@ table {
 }
 
 th {
-  color: #475569;
+  color: #90a4c2;
   font-weight: 600;
 }
 
 td {
-  color: #0f172a;
+  color: #edf4ff;
 }
 
 button[class*="bg-slate-900"],

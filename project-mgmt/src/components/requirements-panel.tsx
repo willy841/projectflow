@@ -122,10 +122,10 @@ export function RequirementsPanel({
   const isEditing = editingIndex !== null;
 
   return (
-    <article className="rounded-[32px] border border-white/70 bg-[var(--surface-card)] p-6 shadow-[var(--shadow-elevated)]">
+    <article className="rounded-[32px] border border-white/10 bg-[linear-gradient(180deg,rgba(11,19,34,0.96),rgba(15,25,44,0.88))] p-6 shadow-[var(--shadow-elevated)] backdrop-blur-xl">
       <div className="mb-4 flex min-h-11 flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="min-w-0">
-          <h3 className="text-xl font-semibold leading-none">需求溝通</h3>
+          <h3 className="text-xl font-semibold leading-none text-white">需求溝通</h3>
         </div>
         <button
           type="button"
@@ -134,14 +134,14 @@ export function RequirementsPanel({
             setEditingIndex(null);
             resetForm();
           }}
-          className="inline-flex h-11 shrink-0 items-center justify-center whitespace-nowrap rounded-2xl border border-[rgba(47,109,244,0.28)] bg-[linear-gradient(180deg,rgba(94,162,255,0.12),rgba(255,255,255,0.94))] px-4 text-sm font-semibold text-slate-800 shadow-[var(--shadow-soft)] transition hover:border-[rgba(47,109,244,0.42)] hover:bg-[linear-gradient(180deg,rgba(94,162,255,0.16),rgba(255,255,255,0.98))]"
+          className="inline-flex h-11 shrink-0 items-center justify-center whitespace-nowrap rounded-2xl border border-white/12 bg-white/6 px-4 text-sm font-semibold text-white shadow-[var(--shadow-soft)] transition hover:border-[var(--accent)] hover:bg-white/10"
         >
           + 新增紀錄
         </button>
       </div>
 
       {(showCreate || isEditing) ? (
-        <div className="mb-4 rounded-[24px] border border-dashed border-slate-300/85 bg-[linear-gradient(180deg,rgba(244,248,255,0.95),rgba(237,243,253,0.9))] p-4 shadow-[var(--shadow-soft)]">
+        <div className="mb-4 rounded-[24px] border border-dashed border-white/12 bg-[linear-gradient(180deg,rgba(255,255,255,0.05),rgba(255,255,255,0.03))] p-4 shadow-[var(--shadow-soft)]">
           <div className="space-y-3 text-left">
             <textarea
               value={formTitle}
@@ -149,7 +149,7 @@ export function RequirementsPanel({
               placeholder="輸入需求溝通內容，例如：入口主背板需搭配春季主題色與產品燈箱"
               className="min-h-48 w-full rounded-2xl border border-slate-200/90 bg-white/96 px-4 py-3 text-sm leading-7 shadow-[var(--shadow-soft)] outline-none transition focus:border-[var(--accent-strong)]"
             />
-            <p className="text-left text-xs text-slate-500">儲存時會自動記錄當下日期與時間</p>
+            <p className="text-left text-xs text-slate-400">儲存時會自動記錄當下日期與時間</p>
           </div>
 
           <div className="mt-3 flex flex-wrap gap-2">
@@ -163,7 +163,7 @@ export function RequirementsPanel({
             <button
               type="button"
               onClick={cancelEditing}
-              className="inline-flex items-center justify-center rounded-2xl border border-slate-200/90 bg-white/95 px-4 py-2.5 text-sm font-semibold text-slate-800 shadow-[var(--shadow-soft)] transition hover:border-slate-300 hover:bg-slate-50/95"
+              className="inline-flex items-center justify-center rounded-2xl border border-white/12 bg-white/6 px-4 py-2.5 text-sm font-semibold text-white shadow-[var(--shadow-soft)] transition hover:border-white/18 hover:bg-white/10"
             >
               取消
             </button>
@@ -173,24 +173,24 @@ export function RequirementsPanel({
 
       <div className="space-y-3">
         {items.map((item, index) => (
-          <div key={`${item.title}-${index}`} className="rounded-[22px] border border-slate-200/85 bg-[linear-gradient(180deg,rgba(255,255,255,0.98),rgba(244,248,255,0.9))] px-4 py-4 shadow-[var(--shadow-soft)]">
+          <div key={`${item.title}-${index}`} className="rounded-[22px] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.06),rgba(255,255,255,0.03))] px-4 py-4 shadow-[var(--shadow-soft)]">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div className="min-w-0 text-left">
-                <p className="text-xs font-medium text-slate-500">{item.date}</p>
-                <h4 className="mt-2 font-semibold text-slate-900">{item.title}</h4>
+                <p className="text-xs font-medium text-slate-400">{item.date}</p>
+                <h4 className="mt-2 font-semibold text-white">{item.title}</h4>
               </div>
               <div className="flex flex-wrap gap-2 self-start">
                 <button
                   type="button"
                   onClick={() => handleEdit(index)}
-                  className="inline-flex items-center justify-center rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-100"
+                  className="inline-flex items-center justify-center rounded-xl border border-white/12 bg-white/6 px-3 py-2 text-xs font-semibold text-slate-100 transition hover:bg-white/10"
                 >
                   編輯
                 </button>
                 <button
                   type="button"
                   onClick={() => handleDelete(index)}
-                  className="inline-flex items-center justify-center rounded-xl border border-rose-200 bg-white px-3 py-2 text-xs font-semibold text-rose-600 transition hover:bg-rose-50"
+                  className="inline-flex items-center justify-center rounded-xl border border-rose-400/20 bg-rose-400/8 px-3 py-2 text-xs font-semibold text-rose-200 transition hover:bg-rose-400/14"
                 >
                   刪除
                 </button>
