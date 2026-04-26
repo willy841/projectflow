@@ -22,23 +22,34 @@ export default function ProjectDetailBlueprintV1Page() {
     '拍照區需與品牌主視覺一致，但不能搶主商品展示焦點。',
   ];
 
+  const navItems = [
+    { icon: '⌂', label: '首頁總覽' },
+    { icon: '◫', label: '專案管理' },
+    { icon: '⟲', label: '設計任務版' },
+    { icon: '▣', label: '採購備品板' },
+    { icon: '⌘', label: '廠商發包板' },
+    { icon: '◌', label: '廠商資料' },
+    { icon: '◍', label: '報價成本' },
+    { icon: '☷', label: '結案紀錄' },
+  ];
+
   const executionCols = [
     {
       title: '專案設計',
       count: 4,
-      accent: 'from-sky-400/28 to-blue-500/6',
+      accent: 'from-sky-400/34 via-cyan-300/20 to-blue-500/10',
       active: true,
     },
     {
       title: '專案備品',
       count: 3,
-      accent: 'from-amber-300/20 to-orange-400/5',
+      accent: 'from-amber-300/18 via-amber-200/10 to-orange-400/4',
       active: false,
     },
     {
       title: '專案廠商',
       count: 5,
-      accent: 'from-violet-400/20 to-fuchsia-500/5',
+      accent: 'from-violet-400/18 via-fuchsia-300/10 to-fuchsia-500/4',
       active: false,
     },
   ];
@@ -59,16 +70,19 @@ export default function ProjectDetailBlueprintV1Page() {
           </div>
 
           <nav className="space-y-2 text-sm">
-            {['首頁總覽', '專案管理', '設計任務版', '採購備品板', '廠商發包板', '廠商資料', '報價成本', '結案紀錄'].map((item, index) => (
+            {navItems.map((item, index) => (
               <div
-                key={item}
-                className={`rounded-2xl px-4 py-3 transition ${
+                key={item.label}
+                className={`group flex items-center gap-3 rounded-2xl px-4 py-3 transition ${
                   index === 1
                     ? 'bg-[linear-gradient(180deg,rgba(75,132,220,0.24),rgba(34,53,92,0.12))] text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_0_28px_rgba(59,130,246,0.18)]'
                     : 'text-slate-300/88 hover:bg-white/6 hover:shadow-[0_0_22px_rgba(96,165,250,0.08)]'
                 }`}
               >
-                {item}
+                <span className={`inline-flex h-8 w-8 items-center justify-center rounded-xl ${index === 1 ? 'bg-white/12 text-sky-100' : 'bg-white/6 text-slate-300 group-hover:text-sky-100'}`}>
+                  {item.icon}
+                </span>
+                <span>{item.label}</span>
               </div>
             ))}
           </nav>
@@ -77,20 +91,20 @@ export default function ProjectDetailBlueprintV1Page() {
         </aside>
 
         <section className="flex-1 space-y-6">
-          <header className="rounded-[32px] border border-white/10 bg-[linear-gradient(180deg,rgba(15,23,42,0.62),rgba(15,23,42,0.42))] p-5 shadow-2xl shadow-black/40 backdrop-blur-2xl xl:p-6">
+          <header className="rounded-[32px] border border-white/10 bg-[linear-gradient(180deg,rgba(15,23,42,0.62),rgba(15,23,42,0.42))] p-5 shadow-[0_28px_80px_-40px_rgba(0,0,0,0.58),0_0_32px_rgba(96,165,250,0.06),inset_0_1px_0_rgba(255,255,255,0.05)] backdrop-blur-2xl xl:p-6">
             <div className="flex flex-col gap-5 xl:flex-row xl:items-center xl:justify-between">
               <div className="min-w-0 flex-1">
                 <h2 className="text-3xl font-semibold tracking-tight text-slate-50 xl:text-[2rem]">春季品牌快閃活動</h2>
               </div>
 
               <div className="flex flex-wrap items-center gap-2 xl:justify-end">
-                <button className="inline-flex h-11 items-center justify-center rounded-2xl border border-white/10 bg-slate-900/50 px-4 text-sm font-semibold text-slate-100 shadow-2xl shadow-black/20 backdrop-blur-xl transition hover:bg-slate-900/70 hover:shadow-[0_0_24px_rgba(96,165,250,0.16)]">
+                <button className="inline-flex h-11 items-center justify-center rounded-2xl border border-white/10 bg-slate-900/50 px-4 text-sm font-semibold text-slate-100 shadow-[0_22px_46px_-28px_rgba(0,0,0,0.45),inset_0_1px_0_rgba(255,255,255,0.04)] backdrop-blur-xl transition hover:bg-slate-900/70 hover:shadow-[0_0_24px_rgba(96,165,250,0.16)]">
                   複製活動資訊
                 </button>
-                <button className="inline-flex h-11 items-center justify-center rounded-2xl border border-white/10 bg-slate-900/40 px-4 text-sm font-semibold text-slate-200 shadow-2xl shadow-black/15 backdrop-blur-xl transition hover:bg-slate-900/60 hover:shadow-[0_0_20px_rgba(96,165,250,0.12)]">
+                <button className="inline-flex h-11 items-center justify-center rounded-2xl border border-white/10 bg-slate-900/40 px-4 text-sm font-semibold text-slate-200 shadow-[0_18px_40px_-28px_rgba(0,0,0,0.42),inset_0_1px_0_rgba(255,255,255,0.03)] backdrop-blur-xl transition hover:bg-slate-900/60 hover:shadow-[0_0_20px_rgba(96,165,250,0.12)]">
                   返回列表
                 </button>
-                <button className="inline-flex h-11 items-center justify-center rounded-2xl border border-white/10 bg-[linear-gradient(180deg,rgba(59,130,246,0.42),rgba(37,99,235,0.24))] px-4 text-sm font-semibold text-white shadow-2xl shadow-blue-950/40 backdrop-blur-xl transition hover:brightness-105 hover:shadow-[0_0_28px_rgba(96,165,250,0.24)]">
+                <button className="inline-flex h-11 items-center justify-center rounded-2xl border border-white/10 bg-[linear-gradient(180deg,rgba(59,130,246,0.42),rgba(37,99,235,0.24))] px-4 text-sm font-semibold text-white shadow-[0_24px_48px_-26px_rgba(30,64,175,0.7),0_0_26px_rgba(96,165,250,0.16),inset_0_1px_0_rgba(255,255,255,0.1)] backdrop-blur-xl transition hover:brightness-105 hover:shadow-[0_0_28px_rgba(96,165,250,0.24)]">
                   編輯專案
                 </button>
               </div>
@@ -101,10 +115,10 @@ export default function ProjectDetailBlueprintV1Page() {
             {summaryItems.map((item, index) => (
               <article
                 key={item.label}
-                className={`rounded-[28px] p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] ${
+                className={`rounded-[28px] p-5 shadow-[0_24px_52px_-32px_rgba(0,0,0,0.46),inset_0_1px_0_rgba(255,255,255,0.06),inset_0_-12px_30px_-20px_rgba(15,23,42,0.9)] ${
                   index === 0
-                    ? 'border border-white/10 bg-slate-900/50 shadow-2xl shadow-black/35 backdrop-blur-xl'
-                    : 'border border-white/10 bg-slate-900/40 shadow-2xl shadow-black/25 backdrop-blur-xl'
+                    ? 'border border-sky-300/14 bg-[linear-gradient(180deg,rgba(15,23,42,0.56),rgba(15,23,42,0.4))] backdrop-blur-xl'
+                    : 'border border-white/10 bg-[linear-gradient(180deg,rgba(15,23,42,0.5),rgba(15,23,42,0.34))] backdrop-blur-xl'
                 }`}
               >
                 <p className="text-xs font-medium uppercase tracking-wider text-slate-500">{item.label}</p>
@@ -114,7 +128,7 @@ export default function ProjectDetailBlueprintV1Page() {
           </section>
 
           <section className="grid gap-6 2xl:grid-cols-[minmax(0,1.08fr)_minmax(360px,0.92fr)]">
-            <article className="rounded-[30px] border border-white/10 bg-slate-900/50 p-6 shadow-2xl shadow-black/30 backdrop-blur-2xl">
+            <article className="rounded-[30px] border border-sky-300/14 bg-[linear-gradient(180deg,rgba(15,23,42,0.56),rgba(15,23,42,0.38))] p-6 shadow-[0_28px_72px_-36px_rgba(0,0,0,0.56),0_0_30px_rgba(96,165,250,0.07),inset_0_1px_0_rgba(255,255,255,0.05),inset_0_-14px_32px_-22px_rgba(15,23,42,0.95)] backdrop-blur-2xl">
               <div className="mb-5 flex min-h-11 items-center">
                 <div className="min-w-0">
                   <h3 className="text-xl font-semibold leading-none text-white">專案基本資訊</h3>
@@ -123,7 +137,7 @@ export default function ProjectDetailBlueprintV1Page() {
 
               <div className="grid gap-4 md:grid-cols-2">
                 {infoItems.map(([label, value]) => (
-                  <div key={label} className="rounded-[24px] border border-white/10 bg-slate-900/40 px-4 py-4 shadow-2xl shadow-black/15 backdrop-blur-xl">
+                  <div key={label} className="rounded-[24px] border border-white/10 bg-[linear-gradient(180deg,rgba(30,41,59,0.52),rgba(15,23,42,0.4))] px-4 py-4 shadow-[0_18px_36px_-24px_rgba(0,0,0,0.42),inset_0_1px_0_rgba(255,255,255,0.05)] backdrop-blur-xl">
                     <p className="text-xs font-medium tracking-[0.06em] text-slate-400">{label}</p>
                     <p className="mt-2 font-medium text-slate-100">{value}</p>
                   </div>
@@ -131,19 +145,19 @@ export default function ProjectDetailBlueprintV1Page() {
               </div>
             </article>
 
-            <article className="rounded-[30px] border border-white/10 bg-slate-900/50 p-6 shadow-2xl shadow-black/30 backdrop-blur-2xl">
+            <article className="rounded-[30px] border border-sky-300/14 bg-[linear-gradient(180deg,rgba(15,23,42,0.56),rgba(15,23,42,0.38))] p-6 shadow-[0_28px_72px_-36px_rgba(0,0,0,0.56),0_0_30px_rgba(96,165,250,0.07),inset_0_1px_0_rgba(255,255,255,0.05),inset_0_-14px_32px_-22px_rgba(15,23,42,0.95)] backdrop-blur-2xl">
               <div className="mb-4 flex min-h-11 flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div className="min-w-0">
                   <h3 className="text-xl font-semibold leading-none text-white">需求溝通</h3>
                 </div>
-                <button className="inline-flex h-11 shrink-0 items-center justify-center whitespace-nowrap rounded-2xl bg-white/[0.04] px-4 text-sm font-semibold text-slate-100 transition hover:bg-white/[0.08]">
+                <button className="inline-flex h-11 shrink-0 items-center justify-center whitespace-nowrap rounded-2xl border border-white/10 bg-slate-900/40 px-4 text-sm font-semibold text-slate-100 shadow-[0_18px_40px_-28px_rgba(0,0,0,0.42),inset_0_1px_0_rgba(255,255,255,0.03)] backdrop-blur-xl transition hover:bg-slate-900/60 hover:shadow-[0_0_18px_rgba(96,165,250,0.12)]">
                   + 新增紀錄
                 </button>
               </div>
 
               <div className="space-y-3">
                 {requirementItems.map((item, index) => (
-                  <div key={index} className="rounded-[22px] border border-white/10 bg-slate-900/40 px-4 py-4 shadow-2xl shadow-black/15 backdrop-blur-xl hover:shadow-[0_0_24px_rgba(96,165,250,0.12)] transition-shadow">
+                  <div key={index} className="rounded-[22px] border border-white/10 bg-[linear-gradient(180deg,rgba(30,41,59,0.48),rgba(15,23,42,0.38))] px-4 py-4 shadow-[0_18px_38px_-24px_rgba(0,0,0,0.42),inset_0_1px_0_rgba(255,255,255,0.04)] backdrop-blur-xl hover:shadow-[0_0_24px_rgba(96,165,250,0.12)] transition-shadow">
                     <p className="text-xs font-medium text-slate-500">2026-04-26 19:10</p>
                     <p className="mt-2 text-sm leading-7 text-slate-100">{item}</p>
                   </div>
@@ -152,8 +166,8 @@ export default function ProjectDetailBlueprintV1Page() {
             </article>
           </section>
 
-          <section className="space-y-6 rounded-[32px] bg-[linear-gradient(180deg,rgba(15,23,36,0.88),rgba(11,18,30,0.8))] p-6 shadow-[0_30px_70px_-42px_rgba(0,0,0,0.8),inset_0_1px_0_rgba(255,255,255,0.03)]">
-            <div className="rounded-[28px] border border-white/10 bg-slate-900/45 p-5 shadow-2xl shadow-black/25 backdrop-blur-xl">
+          <section className="space-y-6 rounded-[32px] border border-sky-300/14 bg-[linear-gradient(180deg,rgba(15,23,42,0.54),rgba(15,23,42,0.36))] p-6 shadow-[0_30px_76px_-36px_rgba(0,0,0,0.58),0_0_34px_rgba(96,165,250,0.08),inset_0_1px_0_rgba(255,255,255,0.05),inset_0_-14px_34px_-22px_rgba(15,23,42,0.95)] backdrop-blur-2xl">
+            <div className="rounded-[28px] border border-white/10 bg-[linear-gradient(180deg,rgba(15,23,42,0.5),rgba(15,23,42,0.34))] p-5 shadow-[0_22px_54px_-30px_rgba(0,0,0,0.46),inset_0_1px_0_rgba(255,255,255,0.04)] backdrop-blur-xl">
               <div className="mb-4 flex items-center justify-between gap-3">
                 <div>
                   <h3 className="text-xl font-semibold text-white">專案執行項目</h3>
@@ -161,11 +175,11 @@ export default function ProjectDetailBlueprintV1Page() {
               </div>
 
               <div className="grid gap-3 lg:grid-cols-2">
-                <div className="rounded-[24px] border border-white/10 bg-slate-950/45 p-4 shadow-2xl shadow-black/20 backdrop-blur-xl">
+                <div className="rounded-[24px] border border-white/10 bg-[linear-gradient(180deg,rgba(15,23,42,0.46),rgba(15,23,42,0.3))] p-4 shadow-[0_18px_42px_-26px_rgba(0,0,0,0.44),inset_0_1px_0_rgba(255,255,255,0.04)] backdrop-blur-xl">
                   <div className="mb-3 text-sm font-semibold text-slate-200">主項目 / 子項目層次</div>
                   <div className="space-y-3">
                     {['主視覺輸出與材質確認', '入口背板與燈箱製作', '收銀台與動線配置'].map((item, index) => (
-                      <div key={item} className={`rounded-[20px] px-4 py-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.02)] ${index === 0 ? 'bg-sky-400/[0.08]' : 'bg-white/[0.025]'}`}>
+                      <div key={item} className={`rounded-[20px] border border-white/10 px-4 py-4 shadow-[0_16px_34px_-24px_rgba(0,0,0,0.38),inset_0_1px_0_rgba(255,255,255,0.03)] backdrop-blur-xl transition-shadow hover:shadow-[0_0_22px_rgba(96,165,250,0.1)] ${index === 0 ? 'bg-sky-400/[0.08]' : 'bg-slate-900/35'}`}>
                         <div className="text-sm font-semibold text-white">{item}</div>
                         <div className="mt-2 text-xs leading-6 text-slate-400">待補充執行說明。</div>
                       </div>
@@ -173,7 +187,7 @@ export default function ProjectDetailBlueprintV1Page() {
                   </div>
                 </div>
 
-                <div className="rounded-[24px] border border-white/10 bg-slate-950/45 p-4 shadow-2xl shadow-black/20 backdrop-blur-xl">
+                <div className="rounded-[24px] border border-white/10 bg-[linear-gradient(180deg,rgba(15,23,42,0.46),rgba(15,23,42,0.3))] p-4 shadow-[0_18px_42px_-26px_rgba(0,0,0,0.44),inset_0_1px_0_rgba(255,255,255,0.04)] backdrop-blur-xl">
                   <div className="mb-4 flex flex-wrap items-center gap-2">
                     <p className="text-sm font-semibold text-slate-100">設計交辦</p>
                     <span className="inline-flex items-center justify-center rounded-full bg-sky-400/14 px-3 py-1 text-xs font-medium text-sky-100 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
@@ -186,7 +200,7 @@ export default function ProjectDetailBlueprintV1Page() {
                     {designFormFields.map(([label, placeholder]) => (
                       <label key={label} className="flex flex-col gap-2">
                         <span className="text-sm font-medium text-slate-300">{label}</span>
-                        <div className="flex h-11 items-center rounded-2xl border border-white/10 bg-slate-900/45 px-4 text-sm text-slate-500 shadow-2xl shadow-black/10 backdrop-blur-xl">
+                        <div className="flex h-11 items-center rounded-2xl border border-white/10 bg-[linear-gradient(180deg,rgba(30,41,59,0.46),rgba(15,23,42,0.34))] px-4 text-sm text-slate-500 shadow-[0_16px_32px_-22px_rgba(0,0,0,0.36),inset_0_1px_0_rgba(255,255,255,0.03)] backdrop-blur-xl">
                           {placeholder}
                         </div>
                       </label>
@@ -194,24 +208,24 @@ export default function ProjectDetailBlueprintV1Page() {
 
                     <label className="flex flex-col gap-2 md:col-span-2">
                       <span className="text-sm font-medium text-slate-300">參考連結</span>
-                      <div className="flex h-11 items-center rounded-2xl border border-white/10 bg-slate-900/45 px-4 text-sm text-slate-500 shadow-2xl shadow-black/10 backdrop-blur-xl">
+                      <div className="flex h-11 items-center rounded-2xl border border-white/10 bg-[linear-gradient(180deg,rgba(30,41,59,0.46),rgba(15,23,42,0.34))] px-4 text-sm text-slate-500 shadow-[0_16px_32px_-22px_rgba(0,0,0,0.36),inset_0_1px_0_rgba(255,255,255,0.03)] backdrop-blur-xl">
                         例如：https://...
                       </div>
                     </label>
 
                     <label className="flex flex-col gap-2 md:col-span-2">
                       <span className="text-sm font-medium text-slate-300">需求說明</span>
-                      <div className="min-h-28 rounded-2xl border border-white/10 bg-slate-900/45 px-4 py-3 text-sm leading-7 text-slate-400 shadow-2xl shadow-black/10 backdrop-blur-xl">
+                      <div className="min-h-28 rounded-2xl border border-white/10 bg-[linear-gradient(180deg,rgba(30,41,59,0.46),rgba(15,23,42,0.34))] px-4 py-3 text-sm leading-7 text-slate-400 shadow-[0_16px_32px_-22px_rgba(0,0,0,0.36),inset_0_1px_0_rgba(255,255,255,0.03)] backdrop-blur-xl">
                         請描述此設計項目的尺寸、材質與現場需求
                       </div>
                     </label>
                   </div>
 
                   <div className="mt-4 flex flex-wrap gap-2">
-                    <button className="inline-flex items-center justify-center rounded-2xl border border-white/10 bg-[linear-gradient(180deg,rgba(59,130,246,0.42),rgba(37,99,235,0.24))] px-4 py-2.5 text-sm font-semibold text-white shadow-2xl shadow-blue-950/40 backdrop-blur-xl hover:shadow-[0_0_26px_rgba(96,165,250,0.24)] transition-shadow">
+                    <button className="inline-flex items-center justify-center rounded-2xl border border-white/10 bg-[linear-gradient(180deg,rgba(59,130,246,0.42),rgba(37,99,235,0.24))] px-4 py-2.5 text-sm font-semibold text-white shadow-[0_22px_44px_-22px_rgba(30,64,175,0.72),0_0_24px_rgba(96,165,250,0.16),inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur-xl hover:shadow-[0_0_26px_rgba(96,165,250,0.24)] transition-shadow">
                       儲存設計交辦
                     </button>
-                    <button className="inline-flex items-center justify-center rounded-2xl border border-white/10 bg-slate-900/40 px-4 py-2.5 text-sm font-semibold text-slate-200 shadow-2xl shadow-black/15 backdrop-blur-xl hover:shadow-[0_0_18px_rgba(96,165,250,0.1)] transition-shadow">
+                    <button className="inline-flex items-center justify-center rounded-2xl border border-white/10 bg-slate-900/40 px-4 py-2.5 text-sm font-semibold text-slate-200 shadow-[0_16px_34px_-24px_rgba(0,0,0,0.38),inset_0_1px_0_rgba(255,255,255,0.03)] backdrop-blur-xl hover:shadow-[0_0_18px_rgba(96,165,250,0.1)] transition-shadow">
                       取消
                     </button>
                   </div>
@@ -219,7 +233,7 @@ export default function ProjectDetailBlueprintV1Page() {
               </div>
             </div>
 
-            <div className="rounded-[28px] border border-white/10 bg-slate-900/45 p-5 shadow-2xl shadow-black/25 backdrop-blur-xl">
+            <div className="rounded-[28px] border border-white/10 bg-[linear-gradient(180deg,rgba(15,23,42,0.5),rgba(15,23,42,0.34))] p-5 shadow-[0_22px_54px_-30px_rgba(0,0,0,0.46),inset_0_1px_0_rgba(255,255,255,0.04)] backdrop-blur-xl">
               <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                   <h3 className="text-xl font-semibold text-white">專案分類檢視</h3>
@@ -230,13 +244,13 @@ export default function ProjectDetailBlueprintV1Page() {
                 {executionCols.map((item) => (
                   <div
                     key={item.title}
-                    className={`rounded-[26px] p-5 text-left shadow-[inset_0_1px_0_rgba(255,255,255,0.03)] ${
+                    className={`rounded-[26px] px-1 py-1 text-left shadow-[0_18px_40px_-24px_rgba(0,0,0,0.42)] ${
                       item.active
-                        ? 'bg-[linear-gradient(180deg,rgba(21,35,56,0.9),rgba(16,26,42,0.84))] shadow-[0_20px_48px_-32px_rgba(59,130,246,0.36),inset_0_1px_0_rgba(255,255,255,0.04)]'
-                        : 'bg-[linear-gradient(180deg,rgba(255,255,255,0.028),rgba(255,255,255,0.016))]'
+                        ? 'bg-[linear-gradient(180deg,rgba(59,130,246,0.18),rgba(15,23,42,0.02))]'
+                        : 'bg-transparent'
                     }`}
                   >
-                    <div className={`mb-4 flex h-16 items-center justify-between rounded-2xl bg-gradient-to-br px-4 ${item.accent}`}>
+                    <div className={`flex h-16 items-center justify-between rounded-[22px] bg-gradient-to-br px-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.05),0_14px_28px_-20px_rgba(0,0,0,0.34)] ${item.accent}`}>
                       <p className="text-lg font-semibold text-white">{item.title}</p>
                       <span className={`inline-flex min-w-[38px] items-center justify-center rounded-full px-3 py-1 text-xs font-semibold ${item.active ? 'bg-sky-400/18 text-sky-100' : 'bg-white/8 text-slate-300'}`}>
                         {item.count}
@@ -246,7 +260,7 @@ export default function ProjectDetailBlueprintV1Page() {
                 ))}
               </div>
 
-              <div className="mt-5 rounded-[26px] bg-[linear-gradient(180deg,rgba(9,15,24,0.8),rgba(12,18,28,0.72))] p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.025)]">
+              <div className="mt-5 rounded-[26px] border border-white/10 bg-[linear-gradient(180deg,rgba(15,23,42,0.44),rgba(15,23,42,0.3))] p-5 shadow-[0_20px_46px_-26px_rgba(0,0,0,0.42),inset_0_1px_0_rgba(255,255,255,0.03)] backdrop-blur-xl">
                 <div className="mb-4 flex items-center justify-between gap-3 pb-4">
                   <div>
                     <h4 className="text-lg font-semibold text-white">專案設計</h4>
@@ -257,7 +271,7 @@ export default function ProjectDetailBlueprintV1Page() {
 
                 <div className="space-y-3">
                   {['主視覺看板與輸出稿', '入口背板施工圖', '收銀台主視覺與動線圖', '拍照區裝置與導視確認'].map((item) => (
-                    <div key={item} className="rounded-[22px] bg-white/[0.028] px-4 py-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.02)]">
+                    <div key={item} className="rounded-[22px] border border-white/10 bg-[linear-gradient(180deg,rgba(30,41,59,0.42),rgba(15,23,42,0.3))] px-4 py-4 shadow-[0_16px_34px_-24px_rgba(0,0,0,0.36),inset_0_1px_0_rgba(255,255,255,0.03)] backdrop-blur-xl hover:shadow-[0_0_22px_rgba(96,165,250,0.12)] transition-shadow">
                       <div className="flex items-center justify-between gap-3">
                         <div>
                           <p className="font-semibold text-slate-100">{item}</p>
