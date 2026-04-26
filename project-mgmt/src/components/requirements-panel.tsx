@@ -122,7 +122,7 @@ export function RequirementsPanel({
   const isEditing = editingIndex !== null;
 
   return (
-    <article className="rounded-[32px] border border-white/10 bg-[linear-gradient(180deg,rgba(11,19,34,0.96),rgba(15,25,44,0.88))] p-6 shadow-[var(--shadow-elevated)] backdrop-blur-xl">
+    <article className="rounded-[34px] border border-white/10 bg-[linear-gradient(180deg,rgba(16,27,47,0.96),rgba(11,19,34,0.9))] p-7 shadow-[var(--shadow-elevated)] backdrop-blur-xl">
       <div className="mb-4 flex min-h-11 flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="min-w-0">
           <h3 className="text-xl font-semibold leading-none text-white">需求溝通</h3>
@@ -141,7 +141,7 @@ export function RequirementsPanel({
       </div>
 
       {(showCreate || isEditing) ? (
-        <div className="mb-4 rounded-[24px] border border-dashed border-white/12 bg-[linear-gradient(180deg,rgba(255,255,255,0.05),rgba(255,255,255,0.03))] p-4 shadow-[var(--shadow-soft)]">
+        <div className="mb-5 rounded-[26px] border border-dashed border-white/12 bg-[linear-gradient(180deg,rgba(255,255,255,0.07),rgba(255,255,255,0.03))] p-5 shadow-[var(--shadow-soft)]">
           <div className="space-y-3 text-left">
             <textarea
               value={formTitle}
@@ -173,7 +173,7 @@ export function RequirementsPanel({
 
       <div className="space-y-3">
         {items.map((item, index) => (
-          <div key={`${item.title}-${index}`} className="rounded-[22px] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.06),rgba(255,255,255,0.03))] px-4 py-4 shadow-[var(--shadow-soft)]">
+          <div key={`${item.title}-${index}`} className="rounded-[24px] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.08),rgba(255,255,255,0.03))] px-5 py-4 shadow-[var(--shadow-soft)]">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div className="min-w-0 text-left">
                 <p className="text-xs font-medium text-slate-400">{item.date}</p>

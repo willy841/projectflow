@@ -194,7 +194,7 @@ export function ProjectDetailShell({ project, entryContext }: { project: Project
 
   return (
     <>
-      <header className="rounded-[32px] border border-white/10 bg-[var(--surface-card-dark)] p-5 shadow-[var(--shadow-elevated)] backdrop-blur-xl xl:p-6">
+      <header className="rounded-[34px] border border-white/10 bg-[linear-gradient(180deg,rgba(18,30,50,0.94),rgba(12,20,35,0.92))] p-6 shadow-[var(--shadow-elevated)] backdrop-blur-xl xl:p-7">
         <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
           <div className="min-w-0 flex-1">
             <h2 className="text-[2rem] font-semibold tracking-[-0.03em] text-white sm:text-[2.15rem]">{projectView.name}</h2>
@@ -301,7 +301,7 @@ export function ProjectDetailShell({ project, entryContext }: { project: Project
         </section>
       ) : null}
 
-      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-5">
+      <section className="grid gap-5 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-5">
         {[
           { label: "活動日期", value: projectView.eventDate },
           { label: "活動地點", value: projectView.location },
@@ -309,22 +309,22 @@ export function ProjectDetailShell({ project, entryContext }: { project: Project
           { label: "專案預算", value: projectView.budget },
           { label: "目前成本", value: projectView.cost },
         ].map((item) => (
-          <article key={item.label} className="rounded-[30px] border border-white/10 bg-[linear-gradient(180deg,rgba(12,20,36,0.94),rgba(16,28,47,0.86))] p-5 shadow-[var(--shadow-elevated)] backdrop-blur-xl">
-            <p className="text-[0.82rem] font-medium uppercase tracking-[0.08em] text-slate-400/95">{item.label}</p>
-            <p className="mt-3 text-[1.95rem] font-semibold tracking-[-0.03em] text-white">{item.value}</p>
+          <article key={item.label} className="rounded-[32px] border border-white/10 bg-[linear-gradient(180deg,rgba(20,32,55,0.9),rgba(14,24,41,0.82))] p-6 shadow-[var(--shadow-card)] backdrop-blur-xl">
+            <p className="text-[0.74rem] font-medium uppercase tracking-[0.16em] text-slate-400/90">{item.label}</p>
+            <p className="mt-3 text-[2rem] font-semibold tracking-[-0.035em] text-white">{item.value}</p>
           </article>
         ))}
       </section>
 
       <section className="grid gap-6 2xl:grid-cols-[minmax(0,1.08fr)_minmax(340px,0.92fr)]">
-        <article className="rounded-[32px] border border-white/10 bg-[linear-gradient(180deg,rgba(11,19,34,0.96),rgba(15,25,44,0.88))] p-6 shadow-[var(--shadow-elevated)] backdrop-blur-xl">
+        <article className="rounded-[34px] border border-white/10 bg-[linear-gradient(180deg,rgba(16,27,47,0.96),rgba(11,19,34,0.9))] p-7 shadow-[var(--shadow-elevated)] backdrop-blur-xl">
           <div className="mb-4 min-h-11 flex items-center">
             <div className="min-w-0">
               <h3 className="text-xl font-semibold leading-none text-white">專案基本資訊</h3>
             </div>
           </div>
 
-          <div className="grid gap-4 md:grid-cols-2">
+          <div className="grid gap-5 md:grid-cols-2">
             {[
               ["客戶名稱", projectView.client],
               ["活動類型", projectView.eventType],
@@ -333,7 +333,7 @@ export function ProjectDetailShell({ project, entryContext }: { project: Project
               ["Email", projectView.contactEmail],
               ["LINE", projectView.contactLine],
             ].map(([label, value]) => (
-              <div key={label} className="rounded-[22px] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.05),rgba(255,255,255,0.03))] px-4 py-4 shadow-[var(--shadow-soft)]">
+              <div key={label} className="rounded-[24px] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.07),rgba(255,255,255,0.03))] px-5 py-4 shadow-[var(--shadow-soft)]">
                 <p className="text-sm text-slate-400">{label}</p>
                 <p className="mt-2 font-medium text-white">{value}</p>
               </div>

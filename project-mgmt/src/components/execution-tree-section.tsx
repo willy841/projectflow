@@ -485,7 +485,7 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
 
   return (
     <>
-      <section id="project-execution-section" className="rounded-[32px] border border-white/10 bg-[linear-gradient(180deg,rgba(11,19,34,0.96),rgba(15,25,44,0.88))] p-6 shadow-[var(--shadow-elevated)] backdrop-blur-xl">
+      <section id="project-execution-section" className="rounded-[34px] border border-white/10 bg-[linear-gradient(180deg,rgba(16,27,47,0.96),rgba(11,19,34,0.9))] p-7 shadow-[var(--shadow-elevated)] backdrop-blur-xl">
         <ExecutionTree
           heading="專案執行項目"
           items={project.executionItems}
@@ -518,7 +518,7 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
         />
       </section>
 
-      <section className="rounded-[32px] border border-white/10 bg-[linear-gradient(180deg,rgba(11,19,34,0.96),rgba(15,25,44,0.88))] p-6 shadow-[var(--shadow-elevated)] backdrop-blur-xl">
+      <section className="rounded-[34px] border border-white/10 bg-[linear-gradient(180deg,rgba(16,27,47,0.96),rgba(11,19,34,0.9))] p-7 shadow-[var(--shadow-elevated)] backdrop-blur-xl">
         <div className="mb-5">
           <h3 className="text-xl font-semibold text-white">專案分類檢視</h3>
         </div>
@@ -532,7 +532,7 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
                 key={category}
                 type="button"
                 onClick={() => setOpenCategory(category)}
-                className={`rounded-[28px] border p-5 text-left shadow-[var(--shadow-soft)] transition ${isActive ? `${meta.ring} border-[var(--accent)] bg-[linear-gradient(180deg,rgba(94,162,255,0.16),rgba(255,255,255,0.05))] ring-2 shadow-[0_22px_54px_-34px_rgba(94,162,255,0.45)]` : "border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.05),rgba(255,255,255,0.03))] hover:border-white/16 hover:bg-white/7"}`}
+                className={`rounded-[30px] border p-6 text-left shadow-[var(--shadow-card)] transition ${isActive ? `${meta.ring} border-[var(--accent)] bg-[linear-gradient(180deg,rgba(94,162,255,0.22),rgba(255,255,255,0.05))] ring-2 shadow-[0_26px_58px_-34px_rgba(94,162,255,0.5)]` : "border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.07),rgba(255,255,255,0.03))] hover:border-white/16 hover:bg-white/8"}`}
               >
                 <div className="flex min-h-[84px] items-center justify-between gap-3">
                   <div className="flex min-h-full flex-1 items-center justify-center text-center">
@@ -549,7 +549,7 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
           })}
         </div>
 
-        <div className="mt-6 rounded-[30px] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.05),rgba(255,255,255,0.03))] p-5 shadow-[var(--shadow-soft)]">
+        <div className="mt-7 rounded-[32px] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.07),rgba(255,255,255,0.03))] p-6 shadow-[var(--shadow-card)]">
           <div className="mb-4 flex flex-col gap-3 border-b border-slate-200 pb-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <div className="flex flex-wrap items-center gap-3">

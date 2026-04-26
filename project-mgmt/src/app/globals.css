@@ -4,10 +4,10 @@
   --background: #030816;
   --foreground: #e8f1ff;
   --surface-app: #030816;
-  --surface-page: rgba(10, 18, 34, 0.82);
-  --surface-card: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(246, 250, 255, 0.96));
-  --surface-card-muted: linear-gradient(180deg, rgba(242, 247, 255, 0.9), rgba(236, 242, 251, 0.86));
-  --surface-card-dark: linear-gradient(180deg, rgba(15, 23, 42, 0.94), rgba(15, 23, 42, 0.84));
+  --surface-page: rgba(9, 15, 28, 0.86);
+  --surface-card: linear-gradient(180deg, rgba(18, 28, 46, 0.92), rgba(15, 24, 40, 0.86));
+  --surface-card-muted: linear-gradient(180deg, rgba(24, 34, 54, 0.78), rgba(19, 28, 44, 0.72));
+  --surface-card-dark: linear-gradient(180deg, rgba(15, 23, 42, 0.96), rgba(13, 21, 36, 0.9));
   --surface-topbar: rgba(6, 12, 23, 0.78);
   --border-soft: rgba(148, 163, 184, 0.18);
   --border-strong: rgba(148, 163, 184, 0.3);
@@ -24,9 +24,9 @@
   --warning-text: #92400e;
   --danger-bg: rgba(239, 68, 68, 0.14);
   --danger-text: #991b1b;
-  --shadow-soft: 0 20px 48px -28px rgba(2, 6, 23, 0.42);
-  --shadow-card: 0 26px 64px -34px rgba(2, 6, 23, 0.5);
-  --shadow-elevated: 0 34px 74px -38px rgba(2, 6, 23, 0.58);
+  --shadow-soft: 0 20px 48px -28px rgba(2, 6, 23, 0.46), inset 0 1px 0 rgba(255,255,255,0.04);
+  --shadow-card: 0 26px 64px -34px rgba(2, 6, 23, 0.54), inset 0 1px 0 rgba(255,255,255,0.05);
+  --shadow-elevated: 0 34px 74px -38px rgba(2, 6, 23, 0.6), inset 0 1px 0 rgba(255,255,255,0.06), 0 0 0 1px rgba(94,162,255,0.03);
   --radius-card: 1.6rem;
   --radius-control: 1rem;
 }

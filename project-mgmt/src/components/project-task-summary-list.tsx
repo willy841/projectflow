@@ -31,7 +31,7 @@ export function ProjectTaskSummaryList({
       {items.map((item, itemIndex) => (
         <div
           key={item.id}
-          className="rounded-[24px] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.06),rgba(255,255,255,0.03))] p-4 shadow-[var(--shadow-soft)]"
+          className="rounded-[26px] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.08),rgba(255,255,255,0.03))] p-5 shadow-[var(--shadow-card)]"
         >
           <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
             <div className="min-w-0 flex-1">
