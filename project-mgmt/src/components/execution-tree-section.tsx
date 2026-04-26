@@ -559,19 +559,21 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
                 key={category}
                 type="button"
                 onClick={() => setOpenCategory(category)}
-                className={`rounded-[28px] text-left ${
-                  isActive
-                    ? "bg-[linear-gradient(180deg,rgba(38,99,235,0.18),rgba(15,23,42,0.04))] shadow-[0_18px_44px_-26px_rgba(37,99,235,0.28)]"
-                    : "bg-transparent"
-                }`}
+                className="text-left"
               >
-                <div className={`flex min-h-[84px] items-center justify-between gap-3 rounded-[22px] bg-[linear-gradient(180deg,rgba(15,23,42,0.64),rgba(9,15,28,0.46))] px-5 shadow-[0_20px_44px_-28px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.05)] ${isActive ? `ring-1 ${meta.ring} shadow-[0_20px_48px_-32px_rgba(59,130,246,0.36),inset_0_1px_0_rgba(255,255,255,0.05)]` : ''}`}>
+                <div className={`flex h-[66px] items-center justify-between gap-3 rounded-[24px] px-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.05),0_12px_24px_-18px_rgba(0,0,0,0.34)] ${
+                  category === "design"
+                    ? "bg-[linear-gradient(180deg,rgba(18,92,143,0.95),rgba(10,56,92,0.96))]"
+                    : category === "procurement"
+                      ? "bg-[linear-gradient(180deg,rgba(122,91,34,0.95),rgba(88,61,20,0.96))]"
+                      : "bg-[linear-gradient(180deg,rgba(88,53,132,0.95),rgba(58,31,96,0.96))]"
+                } ${isActive ? `ring-1 ${meta.ring} shadow-[0_18px_40px_-24px_rgba(15,23,42,0.34),inset_0_1px_0_rgba(255,255,255,0.05)]` : "opacity-95"}`}>
                   <div className="flex min-h-full flex-1 items-center justify-center text-center">
                     <div className="flex flex-col items-center justify-center gap-2">
                       <p className={`text-lg font-semibold ${meta.accent}`}>{meta.title}</p>
                     </div>
                   </div>
-                  <span className={`inline-flex min-w-[36px] items-center justify-center rounded-full px-3 py-1 text-xs font-semibold ${isActive ? 'bg-sky-400/18 text-sky-100' : 'bg-white/8 text-slate-300'}`}>
+                  <span className="inline-flex min-w-[36px] items-center justify-center rounded-full bg-white/12 px-3 py-1 text-xs font-semibold text-white/90">
                     {meta.count}
                   </span>
                 </div>
