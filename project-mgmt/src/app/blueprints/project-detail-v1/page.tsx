@@ -128,7 +128,7 @@ export default function ProjectDetailBlueprintV1Page() {
           </section>
 
           <section className="grid gap-6 2xl:grid-cols-[minmax(0,1.08fr)_minmax(360px,0.92fr)]">
-            <article className="rounded-[30px] border border-sky-300/14 bg-[linear-gradient(180deg,rgba(15,23,42,0.56),rgba(15,23,42,0.38))] p-6 shadow-[0_28px_72px_-36px_rgba(0,0,0,0.56),0_0_30px_rgba(96,165,250,0.07),inset_0_1px_0_rgba(255,255,255,0.05),inset_0_-14px_32px_-22px_rgba(15,23,42,0.95)] backdrop-blur-2xl">
+            <article className="rounded-[30px] border border-sky-300/14 bg-[linear-gradient(180deg,rgba(18,30,50,0.72),rgba(13,22,39,0.52))] p-6 shadow-[0_34px_90px_-38px_rgba(0,0,0,0.68),0_0_34px_rgba(96,165,250,0.08),inset_0_1px_0_rgba(255,255,255,0.07),inset_0_-22px_44px_-28px_rgba(7,13,25,0.98)] backdrop-blur-[28px]">
               <div className="mb-5 flex min-h-11 items-center">
                 <div className="min-w-0">
                   <h3 className="text-xl font-semibold leading-none text-white">專案基本資訊</h3>
@@ -137,7 +137,7 @@ export default function ProjectDetailBlueprintV1Page() {
 
               <div className="grid gap-4 md:grid-cols-2">
                 {infoItems.map(([label, value]) => (
-                  <div key={label} className="rounded-[24px] border border-white/10 bg-[linear-gradient(180deg,rgba(30,41,59,0.52),rgba(15,23,42,0.4))] px-4 py-4 shadow-[0_18px_36px_-24px_rgba(0,0,0,0.42),inset_0_1px_0_rgba(255,255,255,0.05)] backdrop-blur-xl">
+                  <div key={label} className="rounded-[24px] border border-white/10 bg-[linear-gradient(180deg,rgba(40,53,79,0.64),rgba(17,27,44,0.46))] px-4 py-4 shadow-[0_26px_52px_-30px_rgba(0,0,0,0.58),0_0_18px_rgba(96,165,250,0.05),inset_0_1px_0_rgba(255,255,255,0.06),inset_0_-18px_28px_-20px_rgba(10,18,32,0.88)] backdrop-blur-2xl">
                     <p className="text-xs font-medium tracking-[0.06em] text-slate-400">{label}</p>
                     <p className="mt-2 font-medium text-slate-100">{value}</p>
                   </div>
@@ -145,7 +145,7 @@ export default function ProjectDetailBlueprintV1Page() {
               </div>
             </article>
 
-            <article className="rounded-[30px] border border-sky-300/14 bg-[linear-gradient(180deg,rgba(15,23,42,0.56),rgba(15,23,42,0.38))] p-6 shadow-[0_28px_72px_-36px_rgba(0,0,0,0.56),0_0_30px_rgba(96,165,250,0.07),inset_0_1px_0_rgba(255,255,255,0.05),inset_0_-14px_32px_-22px_rgba(15,23,42,0.95)] backdrop-blur-2xl">
+            <article className="rounded-[30px] border border-sky-300/14 bg-[linear-gradient(180deg,rgba(18,30,50,0.72),rgba(13,22,39,0.52))] p-6 shadow-[0_34px_90px_-38px_rgba(0,0,0,0.68),0_0_34px_rgba(96,165,250,0.08),inset_0_1px_0_rgba(255,255,255,0.07),inset_0_-22px_44px_-28px_rgba(7,13,25,0.98)] backdrop-blur-[28px]">
               <div className="mb-4 flex min-h-11 flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div className="min-w-0">
                   <h3 className="text-xl font-semibold leading-none text-white">需求溝通</h3>
@@ -157,7 +157,7 @@ export default function ProjectDetailBlueprintV1Page() {
 
               <div className="space-y-3">
                 {requirementItems.map((item, index) => (
-                  <div key={index} className="rounded-[22px] border border-white/10 bg-[linear-gradient(180deg,rgba(30,41,59,0.48),rgba(15,23,42,0.38))] px-4 py-4 shadow-[0_18px_38px_-24px_rgba(0,0,0,0.42),inset_0_1px_0_rgba(255,255,255,0.04)] backdrop-blur-xl hover:shadow-[0_0_24px_rgba(96,165,250,0.12)] transition-shadow">
+                  <div key={index} className="rounded-[22px] border border-white/10 bg-[linear-gradient(180deg,rgba(39,52,77,0.62),rgba(17,26,42,0.46))] px-4 py-4 shadow-[0_24px_46px_-28px_rgba(0,0,0,0.54),0_0_16px_rgba(96,165,250,0.05),inset_0_1px_0_rgba(255,255,255,0.05),inset_0_-16px_24px_-18px_rgba(10,18,32,0.86)] backdrop-blur-2xl hover:shadow-[0_0_24px_rgba(96,165,250,0.12)] transition-shadow">
                     <p className="text-xs font-medium text-slate-500">2026-04-26 19:10</p>
                     <p className="mt-2 text-sm leading-7 text-slate-100">{item}</p>
                   </div>
@@ -166,122 +166,116 @@ export default function ProjectDetailBlueprintV1Page() {
             </article>
           </section>
 
-          <section className="space-y-6 rounded-[32px] border border-sky-300/14 bg-[linear-gradient(180deg,rgba(15,23,42,0.54),rgba(15,23,42,0.36))] p-6 shadow-[0_30px_76px_-36px_rgba(0,0,0,0.58),0_0_34px_rgba(96,165,250,0.08),inset_0_1px_0_rgba(255,255,255,0.05),inset_0_-14px_34px_-22px_rgba(15,23,42,0.95)] backdrop-blur-2xl">
-            <div className="rounded-[28px] border border-white/10 bg-[linear-gradient(180deg,rgba(15,23,42,0.5),rgba(15,23,42,0.34))] p-5 shadow-[0_22px_54px_-30px_rgba(0,0,0,0.46),inset_0_1px_0_rgba(255,255,255,0.04)] backdrop-blur-xl">
-              <div className="mb-4 flex items-center justify-between gap-3">
-                <div>
-                  <h3 className="text-xl font-semibold text-white">專案執行項目</h3>
-                </div>
-              </div>
-
-              <div className="grid gap-3 lg:grid-cols-2">
-                <div className="rounded-[24px] border border-white/10 bg-[linear-gradient(180deg,rgba(15,23,42,0.46),rgba(15,23,42,0.3))] p-4 shadow-[0_18px_42px_-26px_rgba(0,0,0,0.44),inset_0_1px_0_rgba(255,255,255,0.04)] backdrop-blur-xl">
-                  <div className="mb-3 text-sm font-semibold text-slate-200">主項目 / 子項目層次</div>
-                  <div className="space-y-3">
-                    {['主視覺輸出與材質確認', '入口背板與燈箱製作', '收銀台與動線配置'].map((item, index) => (
-                      <div key={item} className={`rounded-[20px] border border-white/10 px-4 py-4 shadow-[0_16px_34px_-24px_rgba(0,0,0,0.38),inset_0_1px_0_rgba(255,255,255,0.03)] backdrop-blur-xl transition-shadow hover:shadow-[0_0_22px_rgba(96,165,250,0.1)] ${index === 0 ? 'bg-sky-400/[0.08]' : 'bg-slate-900/35'}`}>
-                        <div className="text-sm font-semibold text-white">{item}</div>
-                        <div className="mt-2 text-xs leading-6 text-slate-400">待補充執行說明。</div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="rounded-[24px] border border-white/10 bg-[linear-gradient(180deg,rgba(15,23,42,0.46),rgba(15,23,42,0.3))] p-4 shadow-[0_18px_42px_-26px_rgba(0,0,0,0.44),inset_0_1px_0_rgba(255,255,255,0.04)] backdrop-blur-xl">
-                  <div className="mb-4 flex flex-wrap items-center gap-2">
-                    <p className="text-sm font-semibold text-slate-100">設計交辦</p>
-                    <span className="inline-flex items-center justify-center rounded-full bg-sky-400/14 px-3 py-1 text-xs font-medium text-sky-100 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
-                      設計
-                    </span>
-                    <span className="text-sm text-slate-400">來源項目：主視覺輸出與材質確認</span>
-                  </div>
-
-                  <div className="grid gap-4 md:grid-cols-2">
-                    {designFormFields.map(([label, placeholder]) => (
-                      <label key={label} className="flex flex-col gap-2">
-                        <span className="text-sm font-medium text-slate-300">{label}</span>
-                        <div className="flex h-11 items-center rounded-2xl border border-white/10 bg-[linear-gradient(180deg,rgba(30,41,59,0.46),rgba(15,23,42,0.34))] px-4 text-sm text-slate-500 shadow-[0_16px_32px_-22px_rgba(0,0,0,0.36),inset_0_1px_0_rgba(255,255,255,0.03)] backdrop-blur-xl">
-                          {placeholder}
-                        </div>
-                      </label>
-                    ))}
-
-                    <label className="flex flex-col gap-2 md:col-span-2">
-                      <span className="text-sm font-medium text-slate-300">參考連結</span>
-                      <div className="flex h-11 items-center rounded-2xl border border-white/10 bg-[linear-gradient(180deg,rgba(30,41,59,0.46),rgba(15,23,42,0.34))] px-4 text-sm text-slate-500 shadow-[0_16px_32px_-22px_rgba(0,0,0,0.36),inset_0_1px_0_rgba(255,255,255,0.03)] backdrop-blur-xl">
-                        例如：https://...
-                      </div>
-                    </label>
-
-                    <label className="flex flex-col gap-2 md:col-span-2">
-                      <span className="text-sm font-medium text-slate-300">需求說明</span>
-                      <div className="min-h-28 rounded-2xl border border-white/10 bg-[linear-gradient(180deg,rgba(30,41,59,0.46),rgba(15,23,42,0.34))] px-4 py-3 text-sm leading-7 text-slate-400 shadow-[0_16px_32px_-22px_rgba(0,0,0,0.36),inset_0_1px_0_rgba(255,255,255,0.03)] backdrop-blur-xl">
-                        請描述此設計項目的尺寸、材質與現場需求
-                      </div>
-                    </label>
-                  </div>
-
-                  <div className="mt-4 flex flex-wrap gap-2">
-                    <button className="inline-flex items-center justify-center rounded-2xl border border-white/10 bg-[linear-gradient(180deg,rgba(59,130,246,0.42),rgba(37,99,235,0.24))] px-4 py-2.5 text-sm font-semibold text-white shadow-[0_22px_44px_-22px_rgba(30,64,175,0.72),0_0_24px_rgba(96,165,250,0.16),inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur-xl hover:shadow-[0_0_26px_rgba(96,165,250,0.24)] transition-shadow">
-                      儲存設計交辦
-                    </button>
-                    <button className="inline-flex items-center justify-center rounded-2xl border border-white/10 bg-slate-900/40 px-4 py-2.5 text-sm font-semibold text-slate-200 shadow-[0_16px_34px_-24px_rgba(0,0,0,0.38),inset_0_1px_0_rgba(255,255,255,0.03)] backdrop-blur-xl hover:shadow-[0_0_18px_rgba(96,165,250,0.1)] transition-shadow">
-                      取消
-                    </button>
-                  </div>
-                </div>
-              </div>
+          <section className="space-y-5 rounded-[32px] border border-sky-300/14 bg-[linear-gradient(180deg,rgba(18,30,50,0.7),rgba(13,22,39,0.48))] p-6 shadow-[0_34px_88px_-38px_rgba(0,0,0,0.66),0_0_32px_rgba(96,165,250,0.08),inset_0_1px_0_rgba(255,255,255,0.06),inset_0_-20px_42px_-26px_rgba(7,13,25,0.96)] backdrop-blur-[28px]">
+            <div className="mb-1">
+              <h3 className="text-xl font-semibold text-white">專案執行項目</h3>
             </div>
 
-            <div className="rounded-[28px] border border-white/10 bg-[linear-gradient(180deg,rgba(15,23,42,0.5),rgba(15,23,42,0.34))] p-5 shadow-[0_22px_54px_-30px_rgba(0,0,0,0.46),inset_0_1px_0_rgba(255,255,255,0.04)] backdrop-blur-xl">
-              <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <div>
-                  <h3 className="text-xl font-semibold text-white">專案分類檢視</h3>
-                </div>
-              </div>
-
-              <div className="grid gap-3 lg:grid-cols-3">
-                {executionCols.map((item) => (
-                  <div
-                    key={item.title}
-                    className={`rounded-[26px] px-1 py-1 text-left shadow-[0_18px_40px_-24px_rgba(0,0,0,0.42)] ${
-                      item.active
-                        ? 'bg-[linear-gradient(180deg,rgba(59,130,246,0.18),rgba(15,23,42,0.02))]'
-                        : 'bg-transparent'
-                    }`}
-                  >
-                    <div className={`flex h-16 items-center justify-between rounded-[22px] bg-gradient-to-br px-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.05),0_14px_28px_-20px_rgba(0,0,0,0.34)] ${item.accent}`}>
-                      <p className="text-lg font-semibold text-white">{item.title}</p>
-                      <span className={`inline-flex min-w-[38px] items-center justify-center rounded-full px-3 py-1 text-xs font-semibold ${item.active ? 'bg-sky-400/18 text-sky-100' : 'bg-white/8 text-slate-300'}`}>
-                        {item.count}
-                      </span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              <div className="mt-5 rounded-[26px] border border-white/10 bg-[linear-gradient(180deg,rgba(15,23,42,0.44),rgba(15,23,42,0.3))] p-5 shadow-[0_20px_46px_-26px_rgba(0,0,0,0.42),inset_0_1px_0_rgba(255,255,255,0.03)] backdrop-blur-xl">
-                <div className="mb-4 flex items-center justify-between gap-3 pb-4">
-                  <div>
-                    <h4 className="text-lg font-semibold text-white">專案設計</h4>
-                    <p className="mt-2 text-sm text-slate-400">共 4 筆</p>
-                  </div>
-                  <div className="rounded-full bg-emerald-400/10 px-3 py-1 text-xs font-semibold text-emerald-200 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">已儲存，正在重新整理任務資料。</div>
-                </div>
-
+            <div className="grid gap-4 lg:grid-cols-2">
+              <div className="rounded-[26px] border border-white/10 bg-[linear-gradient(180deg,rgba(40,53,79,0.56),rgba(16,25,40,0.42))] p-5 shadow-[0_24px_50px_-30px_rgba(0,0,0,0.52),inset_0_1px_0_rgba(255,255,255,0.05),inset_0_-16px_28px_-20px_rgba(10,18,32,0.88)] backdrop-blur-2xl">
+                <div className="mb-3 text-sm font-semibold text-slate-200">主項目 / 子項目層次</div>
                 <div className="space-y-3">
-                  {['主視覺看板與輸出稿', '入口背板施工圖', '收銀台主視覺與動線圖', '拍照區裝置與導視確認'].map((item) => (
-                    <div key={item} className="rounded-[22px] border border-white/10 bg-[linear-gradient(180deg,rgba(30,41,59,0.42),rgba(15,23,42,0.3))] px-4 py-4 shadow-[0_16px_34px_-24px_rgba(0,0,0,0.36),inset_0_1px_0_rgba(255,255,255,0.03)] backdrop-blur-xl hover:shadow-[0_0_22px_rgba(96,165,250,0.12)] transition-shadow">
-                      <div className="flex items-center justify-between gap-3">
-                        <div>
-                          <p className="font-semibold text-slate-100">{item}</p>
-                          <p className="mt-2 text-sm text-slate-400">已建立</p>
-                        </div>
-                        <div className="rounded-full bg-white/[0.05] px-3 py-1 text-xs font-semibold text-slate-300 shadow-[inset_0_1px_0_rgba(255,255,255,0.02)]">前往任務詳情</div>
-                      </div>
+                  {['主視覺輸出與材質確認', '入口背板與燈箱製作', '收銀台與動線配置'].map((item, index) => (
+                    <div key={item} className={`rounded-[22px] border border-white/10 px-4 py-4 shadow-[0_16px_34px_-24px_rgba(0,0,0,0.38),inset_0_1px_0_rgba(255,255,255,0.03)] backdrop-blur-xl transition-shadow hover:shadow-[0_0_22px_rgba(96,165,250,0.1)] ${index === 0 ? 'bg-[linear-gradient(180deg,rgba(18,57,96,0.72),rgba(15,48,81,0.54))]' : 'bg-[linear-gradient(180deg,rgba(34,46,68,0.54),rgba(15,23,42,0.36))]'}`}>
+                      <div className="text-sm font-semibold text-white">{item}</div>
+                      <div className="mt-2 text-xs leading-6 text-slate-400">待補充執行說明。</div>
                     </div>
                   ))}
                 </div>
+              </div>
+
+              <div className="rounded-[26px] border border-white/10 bg-[linear-gradient(180deg,rgba(40,53,79,0.56),rgba(16,25,40,0.42))] p-5 shadow-[0_24px_50px_-30px_rgba(0,0,0,0.52),inset_0_1px_0_rgba(255,255,255,0.05),inset_0_-16px_28px_-20px_rgba(10,18,32,0.88)] backdrop-blur-2xl">
+                <div className="mb-4 flex flex-wrap items-center gap-2">
+                  <p className="text-sm font-semibold text-slate-100">設計交辦</p>
+                  <span className="inline-flex items-center justify-center rounded-full bg-sky-400/14 px-3 py-1 text-xs font-medium text-sky-100 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
+                    設計
+                  </span>
+                  <span className="text-sm text-slate-400">來源項目：主視覺輸出與材質確認</span>
+                </div>
+
+                <div className="grid gap-4 md:grid-cols-2">
+                  {designFormFields.map(([label, placeholder]) => (
+                    <label key={label} className="flex flex-col gap-2">
+                      <span className="text-sm font-medium text-slate-300">{label}</span>
+                      <div className="flex h-11 items-center rounded-2xl border border-white/10 bg-[linear-gradient(180deg,rgba(39,52,77,0.58),rgba(16,25,40,0.42))] px-4 text-sm text-slate-500 shadow-[0_18px_34px_-24px_rgba(0,0,0,0.42),inset_0_1px_0_rgba(255,255,255,0.04)] backdrop-blur-xl">
+                        {placeholder}
+                      </div>
+                    </label>
+                  ))}
+
+                  <label className="flex flex-col gap-2 md:col-span-2">
+                    <span className="text-sm font-medium text-slate-300">參考連結</span>
+                    <div className="flex h-11 items-center rounded-2xl border border-white/10 bg-[linear-gradient(180deg,rgba(39,52,77,0.58),rgba(16,25,40,0.42))] px-4 text-sm text-slate-500 shadow-[0_18px_34px_-24px_rgba(0,0,0,0.42),inset_0_1px_0_rgba(255,255,255,0.04)] backdrop-blur-xl">
+                      例如：https://...
+                    </div>
+                  </label>
+
+                  <label className="flex flex-col gap-2 md:col-span-2">
+                    <span className="text-sm font-medium text-slate-300">需求說明</span>
+                    <div className="min-h-28 rounded-2xl border border-white/10 bg-[linear-gradient(180deg,rgba(39,52,77,0.58),rgba(16,25,40,0.42))] px-4 py-3 text-sm leading-7 text-slate-400 shadow-[0_18px_34px_-24px_rgba(0,0,0,0.42),inset_0_1px_0_rgba(255,255,255,0.04)] backdrop-blur-xl">
+                      請描述此設計項目的尺寸、材質與現場需求
+                    </div>
+                  </label>
+                </div>
+
+                <div className="mt-4 flex flex-wrap gap-2">
+                  <button className="inline-flex items-center justify-center rounded-2xl border border-white/10 bg-[linear-gradient(180deg,rgba(59,130,246,0.42),rgba(37,99,235,0.24))] px-4 py-2.5 text-sm font-semibold text-white shadow-[0_22px_44px_-22px_rgba(30,64,175,0.72),0_0_24px_rgba(96,165,250,0.16),inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur-xl hover:shadow-[0_0_26px_rgba(96,165,250,0.24)] transition-shadow">
+                    儲存設計交辦
+                  </button>
+                  <button className="inline-flex items-center justify-center rounded-2xl border border-white/10 bg-slate-900/40 px-4 py-2.5 text-sm font-semibold text-slate-200 shadow-[0_16px_34px_-24px_rgba(0,0,0,0.38),inset_0_1px_0_rgba(255,255,255,0.03)] backdrop-blur-xl hover:shadow-[0_0_18px_rgba(96,165,250,0.1)] transition-shadow">
+                    取消
+                  </button>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section className="space-y-5 rounded-[32px] border border-sky-300/14 bg-[linear-gradient(180deg,rgba(18,30,50,0.7),rgba(13,22,39,0.48))] p-6 shadow-[0_34px_88px_-38px_rgba(0,0,0,0.66),0_0_32px_rgba(96,165,250,0.08),inset_0_1px_0_rgba(255,255,255,0.06),inset_0_-20px_42px_-26px_rgba(7,13,25,0.96)] backdrop-blur-[28px]">
+            <div>
+              <h3 className="text-xl font-semibold text-white">專案分類檢視</h3>
+            </div>
+
+            <div className="grid gap-3 lg:grid-cols-3">
+              {executionCols.map((item) => (
+                <div
+                  key={item.title}
+                  className={`rounded-[26px] px-1 py-1 text-left shadow-[0_18px_40px_-24px_rgba(0,0,0,0.42)] ${
+                    item.active
+                      ? 'bg-[linear-gradient(180deg,rgba(59,130,246,0.18),rgba(15,23,42,0.02))]'
+                      : 'bg-transparent'
+                  }`}
+                >
+                  <div className={`flex h-16 items-center justify-between rounded-[22px] bg-gradient-to-br px-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.05),0_14px_28px_-20px_rgba(0,0,0,0.34)] ${item.accent}`}>
+                    <p className="text-lg font-semibold text-white">{item.title}</p>
+                    <span className={`inline-flex min-w-[38px] items-center justify-center rounded-full px-3 py-1 text-xs font-semibold ${item.active ? 'bg-sky-400/18 text-sky-100' : 'bg-white/8 text-slate-300'}`}>
+                      {item.count}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="rounded-[26px] border border-white/10 bg-[linear-gradient(180deg,rgba(40,53,79,0.52),rgba(16,25,40,0.4))] p-5 shadow-[0_24px_50px_-30px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.05),inset_0_-18px_30px_-22px_rgba(10,18,32,0.9)] backdrop-blur-2xl">
+              <div className="mb-4 flex items-center justify-between gap-3 pb-4">
+                <div>
+                  <h4 className="text-lg font-semibold text-white">專案設計</h4>
+                  <p className="mt-2 text-sm text-slate-400">共 4 筆</p>
+                </div>
+                <div className="rounded-full bg-emerald-400/10 px-3 py-1 text-xs font-semibold text-emerald-200 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">已儲存，正在重新整理任務資料。</div>
+              </div>
+
+              <div className="space-y-3">
+                {['主視覺看板與輸出稿', '入口背板施工圖', '收銀台主視覺與動線圖', '拍照區裝置與導視確認'].map((item) => (
+                  <div key={item} className="rounded-[22px] border border-white/10 bg-[linear-gradient(180deg,rgba(39,52,77,0.54),rgba(16,25,40,0.38))] px-4 py-4 shadow-[0_18px_36px_-24px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.04)] backdrop-blur-xl hover:shadow-[0_0_22px_rgba(96,165,250,0.12)] transition-shadow">
+                    <div className="flex items-center justify-between gap-3">
+                      <div>
+                        <p className="font-semibold text-slate-100">{item}</p>
+                        <p className="mt-2 text-sm text-slate-400">已建立</p>
+                      </div>
+                      <div className="rounded-full bg-white/[0.05] px-3 py-1 text-xs font-semibold text-slate-300 shadow-[inset_0_1px_0_rgba(255,255,255,0.02)]">前往任務詳情</div>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           </section>
