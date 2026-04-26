@@ -28,9 +28,9 @@ export function AuthShellClient({
   contentSurfaceClassName?: string;
 }) {
   return (
-    <main className="min-h-screen bg-[#f4f7fb] text-slate-900">
-      <div className="mx-auto flex min-h-screen w-full max-w-[1600px] gap-5 px-4 py-6 lg:px-6 xl:px-8">
-        <aside className="hidden w-56 shrink-0 rounded-3xl bg-slate-950 p-6 text-white lg:flex lg:min-h-[calc(100vh-3rem)] lg:flex-col xl:w-60">
+    <main className="min-h-screen bg-transparent text-[var(--foreground)]">
+      <div className="mx-auto flex min-h-screen w-full max-w-[1660px] gap-6 px-4 py-6 lg:px-6 xl:px-8">
+        <aside className="hidden w-60 shrink-0 rounded-[34px] border border-white/10 bg-[linear-gradient(180deg,rgba(10,18,34,0.95),rgba(12,21,39,0.84))] p-6 text-white shadow-[0_28px_70px_-30px_rgba(2,6,23,0.96)] backdrop-blur-xl lg:flex lg:min-h-[calc(100vh-3rem)] lg:flex-col xl:w-64">
           <div className="mb-6 flex min-h-10 items-center justify-center text-center">
             <h1 className="text-2xl font-semibold">任務版</h1>
           </div>
@@ -42,7 +42,7 @@ export function AuthShellClient({
                 <Link
                   key={item.label}
                   href={item.href}
-                  className={`block rounded-2xl px-4 py-3 ${isActive ? 'bg-white/12 text-white' : 'text-slate-300 hover:bg-white/6'}`}
+                  className={`block rounded-[20px] px-4 py-3 transition-all ${isActive ? 'border border-white/14 bg-[linear-gradient(180deg,rgba(94,162,255,0.16),rgba(255,255,255,0.08))] text-white shadow-[0_18px_44px_-30px_rgba(94,162,255,0.45),inset_0_1px_0_rgba(255,255,255,0.1)]' : 'text-slate-300 hover:bg-white/6'}`}
                 >
                   {item.label}
                 </Link>
@@ -52,7 +52,7 @@ export function AuthShellClient({
 
           {user ? (
             <div className="mt-auto pt-6">
-              <div className="rounded-2xl border border-white/10 bg-white/6 p-4">
+              <div className="rounded-2xl border border-white/10 bg-white/6 p-4 shadow-[var(--shadow-soft)]">
                 <div className="min-w-0">
                   <div className="text-sm font-semibold text-white">{user.name}</div>
                   <div className="mt-1 text-xs text-slate-300 break-all">{user.email}</div>
