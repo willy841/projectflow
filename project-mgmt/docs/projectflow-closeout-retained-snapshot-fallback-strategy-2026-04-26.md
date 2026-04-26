@@ -19,26 +19,24 @@ File:
 
 Behavior:
 - if `financial_closeout_snapshots` has rows for closed projects, read snapshot totals directly
-- otherwise fallback to live-derived aggregation path
+- otherwise return empty list result for closed-project retained readback
 
 Meaning:
-- snapshot is first-class read source
-- fallback exists when retained rows are absent
+- list-level live fallback has been removed
+- retained snapshot is now required for closeout-list retained visibility
 
 ### Closeout detail read model
 File:
 - `src/lib/db/closeout-detail-read-model.ts`
 
 Behavior:
-- if retained snapshot exists for the project, read retained snapshot totals / cost items / reconciliation groups
-- otherwise fallback to live-retained rebuild from:
-  - latest confirmed task snapshots
-  - active manual costs
-  - active quotation import state
+- if retained snapshot exists for the project, read retained snapshot totals as primary truth
+- if retained snapshot is missing, do not rebuild live retained summary totals
+- however, if snapshot row exists but `costItems` / `reconciliationGroups` are empty, current implementation still fills those arrays from live-derived retained item composition
 
 Meaning:
-- retained snapshot is the primary truth when present
-- fallback exists to support environments or rows where retained snapshot has not yet been materialized
+- missing-snapshot live summary fallback has been removed
+- but detail path still retains a narrower compatibility fill for empty retained arrays inside an existing snapshot row
 
 ---
 
@@ -136,6 +134,9 @@ If they are answered with strong migration confidence, snapshot-only can become 
 
 Current conclusion:
 - retained snapshot is already the formal retained truth model
-- fallback should currently stay
-- fallback should be classified as transition-only compatibility protection
-- final decision on removal belongs to pre-production migration readiness review, not this phase
+- a first code-level snapshot-only convergence step has now been validated
+- closeout list no longer uses live fallback
+- closeout detail no longer rebuilds live summary totals when snapshot is missing
+- one residual compatibility fill still remains in detail path:
+  - when snapshot row exists but retained arrays are empty, costItems / reconciliationGroups may still be filled from live-derived retained composition
+- final decision on removing that residual fill belongs to the next explicit retained-read cleanup scope

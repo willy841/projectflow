@@ -70,15 +70,22 @@ Tradeoffs:
 
 ## 3. Current recommendation
 
-Current recommendation:
-- do **not** force snapshot-only yet in this technical-tail phase
-- keep fallback for now
-- treat fallback as temporary compatibility protection, not equal-status truth owner
+Current recommendation has now split into two layers:
 
-Reason:
-1. current product and governance rules are already converged
-2. current residual uncertainty is operational, not conceptual
-3. forcing snapshot-only too early would create migration sensitivity without immediate product-value gain
+### Layer 1 — already validated
+- a first snapshot-only convergence step has already been validated in code
+- closeout list no longer falls back to live retained aggregation
+- closeout detail no longer rebuilds live retained summary totals when snapshot is missing
+- formal acceptance v2 remained green after this change
+
+### Layer 2 — still pending explicit decision
+- one residual compatibility fill still remains in closeout detail
+- if snapshot row exists but retained arrays are empty, costItems / reconciliationGroups may still be filled from live-derived retained composition
+
+Meaning:
+1. snapshot-only convergence is no longer just theoretical
+2. but retained-detail path is not yet fully pure snapshot-only
+3. the next decision is whether to remove that residual compatibility fill in a separate retained-read cleanup step
 
 ---
 
