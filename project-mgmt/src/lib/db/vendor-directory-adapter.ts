@@ -392,11 +392,14 @@ export async function listDbVendorProjectRecordsByVendorId(
   });
   const filtered = mapped.filter((record) => {
     if (options?.recordId && record.id !== options.recordId) return false;
+
+    const isFullyPaidSemanticState = !record.hasUnreconciledGroups && (record.paidAmount ?? 0) >= record.adjustedCost;
+
     switch (options?.paymentScope) {
       case 'open':
-        return record.paymentStatus !== '已付款';
+        return !isFullyPaidSemanticState;
       case 'history':
-        return record.paymentStatus === '已付款';
+        return isFullyPaidSemanticState;
       default:
         return true;
     }

@@ -10,7 +10,7 @@ export type FinancialReconciliationGroup = {
   amountTotal: number;
   itemCount: number;
   items: CostLineItem[];
-  reconciliationStatus: '未對帳' | '已對帳';
+  reconciliationStatus: '未對帳' | '待確認' | '已對帳';
 };
 
 export type FinancialProjectWithGroups = QuoteCostProject & {
@@ -50,7 +50,7 @@ export async function getQuoteCostProjectsWithReconciliationGroups(): Promise<Fi
           amountTotal: item.adjustedAmount,
           itemCount: 1,
           items: [item],
-          reconciliationStatus: project.reconciliationStatus === '已完成' ? '已對帳' : '未對帳',
+          reconciliationStatus: project.reconciliationStatus === '已完成' ? '已對帳' : project.reconciliationStatus === '待確認' ? '待確認' : '未對帳',
         });
       });
 

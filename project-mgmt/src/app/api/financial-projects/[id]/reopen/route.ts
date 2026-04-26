@@ -7,6 +7,20 @@ export async function POST(_request: NextRequest, { params }: { params: Promise<
   const db = createPhase1DbClient();
 
   try {
+    const currentResult = await db.query<{ status: string | null }>(
+      `select status from projects where id = $1 limit 1`,
+      [id],
+    );
+
+    const currentStatus = currentResult.rows[0]?.status ?? null;
+    if (!currentResult.rows.length) {
+      return NextResponse.json({ ok: false, error: 'project-not-found' }, { status: 404 });
+    }
+
+    if (currentStatus !== '已結案' && currentStatus !== '結案') {
+      return NextResponse.json({ ok: false, error: 'reopen-not-allowed', currentStatus }, { status: 409 });
+    }
+
     await db.query(
       `
         update projects
