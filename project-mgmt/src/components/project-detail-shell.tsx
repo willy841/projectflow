@@ -194,7 +194,7 @@ export function ProjectDetailShell({ project, entryContext }: { project: Project
 
   return (
     <>
-      <header className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200 xl:p-6">
+      <header className="rounded-[30px] border border-white/70 bg-[var(--surface-card)] p-5 shadow-[var(--shadow-card)] xl:p-6">
         <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
           <div className="min-w-0 flex-1">
             <h2 className="text-3xl font-semibold tracking-tight text-slate-900">{projectView.name}</h2>
@@ -207,13 +207,13 @@ export function ProjectDetailShell({ project, entryContext }: { project: Project
               location={projectView.location}
               loadInTime={projectView.loadInTime}
             />
-            <Link href="/projects" className="inline-flex h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-800 shadow-sm transition hover:border-slate-400 hover:bg-slate-50">
+            <Link href="/projects" className="inline-flex h-11 items-center justify-center rounded-2xl border border-slate-200/90 bg-white/95 px-4 text-sm font-semibold text-slate-800 shadow-[var(--shadow-soft)] transition hover:border-slate-300 hover:bg-slate-50/95">
               返回列表
             </Link>
             <button
               type="button"
               onClick={() => setIsEditingProject((prev) => !prev)}
-              className="inline-flex h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-800 shadow-sm transition hover:border-slate-400 hover:bg-slate-50"
+              className="inline-flex h-11 items-center justify-center rounded-2xl border border-slate-200/90 bg-white/95 px-4 text-sm font-semibold text-slate-800 shadow-[var(--shadow-soft)] transition hover:border-slate-300 hover:bg-slate-50/95"
             >
               {isEditingProject ? "收合編輯專案" : "編輯專案"}
             </button>
@@ -222,7 +222,7 @@ export function ProjectDetailShell({ project, entryContext }: { project: Project
       </header>
 
       {isEditingProject ? (
-        <section className="rounded-3xl border border-slate-200 bg-slate-50/80 p-6 shadow-sm ring-1 ring-slate-200">
+        <section className="rounded-[28px] border border-white/65 bg-[rgba(248,250,252,0.92)] p-6 shadow-[var(--shadow-card)] backdrop-blur-sm">
           <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <h3 className="text-xl font-semibold text-slate-900">編輯專案</h3>
@@ -255,10 +255,10 @@ export function ProjectDetailShell({ project, entryContext }: { project: Project
                     onChange={(event) => updateField(key as keyof typeof projectForm, event.target.value)}
                     placeholder={placeholder}
                     readOnly={isReadonly}
-                    className={`h-11 rounded-2xl border px-4 text-sm outline-none transition ${
+                    className={`h-11 rounded-2xl border px-4 text-sm shadow-[var(--shadow-soft)] outline-none transition ${
                       isReadonly
                         ? "border-slate-100 bg-slate-100 text-slate-500"
-                        : "border-slate-200 bg-white focus:border-slate-400"
+                        : "border-slate-200/90 bg-white/95 focus:border-[var(--accent-strong)]"
                     }`}
                   />
                 </label>
@@ -272,7 +272,7 @@ export function ProjectDetailShell({ project, entryContext }: { project: Project
                 onChange={(event) => updateField("note", event.target.value)}
                 placeholder="目前為前端顯示欄位，正式 DB 欄位尚未納入"
                 readOnly
-                className="min-h-28 rounded-2xl border border-slate-100 bg-slate-100 px-4 py-3 text-sm text-slate-500 outline-none"
+                className="min-h-28 rounded-2xl border border-slate-100 bg-slate-100 px-4 py-3 text-sm text-slate-500 shadow-[var(--shadow-soft)] outline-none"
               />
             </label>
           </div>
@@ -283,7 +283,7 @@ export function ProjectDetailShell({ project, entryContext }: { project: Project
               type="button"
               onClick={saveProject}
               disabled={isSavingProject}
-              className="inline-flex items-center justify-center rounded-2xl border border-slate-900 bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800 disabled:opacity-50"
+              className="inline-flex items-center justify-center rounded-2xl border border-[rgba(47,109,244,0.8)] bg-[linear-gradient(180deg,#4f8cff,#2f6df4)] px-4 py-2.5 text-sm font-semibold text-white shadow-[var(--shadow-soft)] transition hover:brightness-105 disabled:opacity-50"
             >
               {isSavingProject ? "儲存中..." : "儲存客戶資料與活動資訊"}
             </button>
@@ -293,7 +293,7 @@ export function ProjectDetailShell({ project, entryContext }: { project: Project
                 setProjectForm(buildProjectForm(projectView));
                 setSaveMessage("");
               }}
-              className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 transition hover:bg-slate-50"
+              className="inline-flex items-center justify-center rounded-2xl border border-slate-200/90 bg-white/95 px-4 py-2.5 text-sm font-semibold text-slate-800 shadow-[var(--shadow-soft)] transition hover:border-slate-300 hover:bg-slate-50/95"
             >
               還原原始內容
             </button>
@@ -309,7 +309,7 @@ export function ProjectDetailShell({ project, entryContext }: { project: Project
           { label: "專案預算", value: projectView.budget },
           { label: "目前成本", value: projectView.cost },
         ].map((item) => (
-          <article key={item.label} className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
+          <article key={item.label} className="rounded-[28px] border border-white/70 bg-[var(--surface-card)] p-5 shadow-[var(--shadow-card)]">
             <p className="text-sm text-slate-500">{item.label}</p>
             <p className="mt-3 text-2xl font-semibold tracking-tight">{item.value}</p>
           </article>
@@ -317,7 +317,7 @@ export function ProjectDetailShell({ project, entryContext }: { project: Project
       </section>
 
       <section className="grid gap-6 2xl:grid-cols-[minmax(0,1.08fr)_minmax(340px,0.92fr)]">
-        <article className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+        <article className="rounded-[30px] border border-white/70 bg-[var(--surface-card)] p-6 shadow-[var(--shadow-card)]">
           <div className="mb-4 min-h-11 flex items-center">
             <div className="min-w-0">
               <h3 className="text-xl font-semibold leading-none">專案基本資訊</h3>
@@ -333,7 +333,7 @@ export function ProjectDetailShell({ project, entryContext }: { project: Project
               ["Email", projectView.contactEmail],
               ["LINE", projectView.contactLine],
             ].map(([label, value]) => (
-              <div key={label} className="rounded-2xl bg-slate-50 px-4 py-4">
+              <div key={label} className="rounded-2xl border border-slate-200/70 bg-slate-50/85 px-4 py-4 shadow-[var(--shadow-soft)]">
                 <p className="text-sm text-slate-500">{label}</p>
                 <p className="mt-2 font-medium text-slate-900">{value}</p>
               </div>

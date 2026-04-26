@@ -94,7 +94,7 @@ function VendorProfileEditor({
   }
 
   return (
-    <article className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+    <article className="rounded-[30px] border border-white/70 bg-[var(--surface-card)] p-6 shadow-[var(--shadow-card)]">
       <div className="mb-5">
         <h3 className="text-xl font-semibold text-slate-900">廠商資訊</h3>
       </div>
@@ -104,14 +104,14 @@ function VendorProfileEditor({
           <button
             type="button"
             onClick={() => setActiveTab("basic")}
-            className={`rounded-2xl px-4 py-2.5 text-sm font-medium ring-1 transition ${activeTab === "basic" ? "bg-slate-900 text-white ring-slate-900" : "bg-white text-slate-700 ring-slate-200 hover:bg-slate-50"}`}
+            className={`rounded-2xl px-4 py-2.5 text-sm font-medium shadow-[var(--shadow-soft)] ring-1 transition ${activeTab === "basic" ? "border-[rgba(47,109,244,0.8)] bg-[linear-gradient(180deg,#4f8cff,#2f6df4)] text-white ring-[rgba(47,109,244,0.78)]" : "bg-white/95 text-slate-700 ring-slate-200 hover:bg-slate-50"}`}
           >
             基本資料 / 匯款資訊
           </button>
           <button
             type="button"
             onClick={() => setActiveTab("labor")}
-            className={`rounded-2xl px-4 py-2.5 text-sm font-medium ring-1 transition ${activeTab === "labor" ? "bg-slate-900 text-white ring-slate-900" : "bg-white text-slate-700 ring-slate-200 hover:bg-slate-50"}`}
+            className={`rounded-2xl px-4 py-2.5 text-sm font-medium shadow-[var(--shadow-soft)] ring-1 transition ${activeTab === "labor" ? "border-[rgba(47,109,244,0.8)] bg-[linear-gradient(180deg,#4f8cff,#2f6df4)] text-white ring-[rgba(47,109,244,0.78)]" : "bg-white/95 text-slate-700 ring-slate-200 hover:bg-slate-50"}`}
           >
             勞報資訊
           </button>
@@ -121,7 +121,7 @@ function VendorProfileEditor({
           <button
             type="button"
             onClick={saveVendorProfile}
-            className="inline-flex items-center justify-center rounded-2xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800"
+            className="inline-flex items-center justify-center rounded-2xl border border-[rgba(47,109,244,0.8)] bg-[linear-gradient(180deg,#4f8cff,#2f6df4)] px-5 py-3 text-sm font-semibold text-white shadow-[var(--shadow-soft)] transition hover:brightness-105"
           >
             {activeTab === "basic" ? "儲存基本資料與匯款資訊" : "儲存勞報資訊"}
           </button>
@@ -142,7 +142,7 @@ function VendorProfileEditor({
           ].map((item) => (
             <label
               key={item.field}
-              className={`rounded-2xl bg-slate-50 p-4 ${item.fullWidth ? "md:col-span-2" : ""}`}
+              className={`rounded-2xl border border-slate-200/70 bg-slate-50/80 p-4 shadow-[var(--shadow-soft)] ${item.fullWidth ? "md:col-span-2" : ""}`}
             >
               <span className="text-sm text-slate-500">{item.label}</span>
               <input
@@ -150,7 +150,7 @@ function VendorProfileEditor({
                 value={editableForm[item.field as keyof VendorEditableForm]}
                 onChange={(event) => updateEditableField(item.field as keyof VendorEditableForm, event.target.value)}
                 placeholder={item.placeholder}
-                className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-slate-400"
+                className="mt-2 w-full rounded-2xl border border-slate-200/90 bg-white/95 px-4 py-3 text-sm text-slate-900 shadow-[var(--shadow-soft)] outline-none transition placeholder:text-slate-400 focus:border-[var(--accent-strong)]"
               />
             </label>
           ))}
@@ -166,7 +166,7 @@ function VendorProfileEditor({
           ].map((item) => (
             <label
               key={item.field}
-              className={`rounded-2xl bg-slate-50 p-4 ${item.fullWidth ? "md:col-span-2" : ""}`}
+              className={`rounded-2xl border border-slate-200/70 bg-slate-50/80 p-4 shadow-[var(--shadow-soft)] ${item.fullWidth ? "md:col-span-2" : ""}`}
             >
               <span className="text-sm text-slate-500">{item.label}</span>
               <input
@@ -174,7 +174,7 @@ function VendorProfileEditor({
                 value={editableForm[item.field as keyof VendorEditableForm]}
                 onChange={(event) => updateEditableField(item.field as keyof VendorEditableForm, event.target.value)}
                 placeholder={item.placeholder}
-                className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-slate-400"
+                className="mt-2 w-full rounded-2xl border border-slate-200/90 bg-white/95 px-4 py-3 text-sm text-slate-900 shadow-[var(--shadow-soft)] outline-none transition placeholder:text-slate-400 focus:border-[var(--accent-strong)]"
               />
             </label>
           ))}
@@ -299,12 +299,12 @@ export function VendorDetailShell({ vendorId }: Props) {
   return (
     <>
       <div className="space-y-6">
-        <header className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+        <header className="rounded-[30px] border border-white/70 bg-[var(--surface-card)] p-6 shadow-[var(--shadow-card)]">
           <div className="flex flex-col gap-5 xl:flex-row xl:items-center xl:justify-between">
             <div className="min-w-0 flex-1">
               <div className="flex flex-wrap items-center gap-3">
                 <h2 className="text-3xl font-semibold tracking-tight text-slate-900">{vendor.name}</h2>
-                <span className="inline-flex rounded-full bg-sky-50 px-3 py-1 text-xs font-medium text-sky-700 ring-1 ring-sky-200">
+                <span className="inline-flex rounded-full border border-sky-200/80 bg-sky-50/90 px-3 py-1 text-xs font-medium text-sky-700 shadow-[var(--shadow-soft)] ring-1 ring-sky-100/70">
                   {vendor.tradeLabel || vendor.category || "—"}
                 </span>
               </div>
@@ -313,14 +313,14 @@ export function VendorDetailShell({ vendorId }: Props) {
               <button
                 type="button"
                 onClick={() => setIsTradeEditorOpen((current) => !current)}
-                className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-800 shadow-sm transition hover:border-slate-400 hover:bg-slate-50"
+                className="inline-flex items-center justify-center rounded-2xl border border-slate-200/90 bg-white/95 px-5 py-3 text-sm font-semibold text-slate-800 shadow-[var(--shadow-soft)] transition hover:border-slate-300 hover:bg-slate-50/95"
               >
                 {isTradeEditorOpen ? "收合工種管理" : "管理工種"}
               </button>
               <button
                 type="button"
                 onClick={() => setIsDeleteDialogOpen(true)}
-                className="inline-flex items-center justify-center rounded-2xl border border-rose-200 bg-rose-50 px-5 py-3 text-sm font-semibold text-rose-700 shadow-sm transition hover:border-rose-300 hover:bg-rose-100"
+                className="inline-flex items-center justify-center rounded-2xl border border-rose-200/90 bg-rose-50/95 px-5 py-3 text-sm font-semibold text-rose-700 shadow-[var(--shadow-soft)] transition hover:border-rose-300 hover:bg-rose-100"
               >
                 刪除廠商
               </button>
@@ -370,12 +370,12 @@ export function VendorDetailShell({ vendorId }: Props) {
                   value={newTrade}
                   onChange={(event) => setNewTrade(event.target.value)}
                   placeholder="新增工種，例如：舞台"
-                  className="h-11 flex-1 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400"
+                  className="h-11 flex-1 rounded-2xl border border-slate-200/90 bg-white/95 px-4 text-sm shadow-[var(--shadow-soft)] outline-none transition focus:border-[var(--accent-strong)]"
                 />
                 <button
                   type="button"
                   onClick={createTrade}
-                  className="inline-flex items-center justify-center rounded-2xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800"
+                  className="inline-flex items-center justify-center rounded-2xl border border-[rgba(47,109,244,0.8)] bg-[linear-gradient(180deg,#4f8cff,#2f6df4)] px-4 py-2.5 text-sm font-semibold text-white shadow-[var(--shadow-soft)] transition hover:brightness-105"
                 >
                   新增工種
                 </button>
@@ -395,7 +395,7 @@ export function VendorDetailShell({ vendorId }: Props) {
             />
           </div>
 
-          <article className="rounded-3xl border border-amber-200 bg-amber-50/60 p-6 shadow-sm ring-1 ring-amber-100">
+          <article className="rounded-[30px] border border-amber-200/80 bg-amber-50/70 p-6 shadow-[var(--shadow-card)] ring-1 ring-amber-100/80">
             <div className="mb-5 flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
               <div>
                 <h3 className="text-xl font-semibold text-slate-900">未付款專案</h3>
@@ -408,7 +408,7 @@ export function VendorDetailShell({ vendorId }: Props) {
             {unpaidRecords.length ? (
               <div className="space-y-3">
                 {unpaidRecords.map((record) => (
-                  <label key={record.id} className="flex flex-col gap-3 rounded-2xl border border-amber-200 bg-white p-4 ring-1 ring-amber-100 sm:flex-row sm:items-center sm:justify-between">
+                  <label key={record.id} className="flex flex-col gap-3 rounded-2xl border border-amber-200/80 bg-white/96 p-4 shadow-[var(--shadow-soft)] ring-1 ring-amber-100/80 sm:flex-row sm:items-center sm:justify-between">
                     <div className="flex items-start gap-3">
                       <input
                         type="checkbox"
@@ -429,7 +429,7 @@ export function VendorDetailShell({ vendorId }: Props) {
                   </label>
                 ))}
 
-                <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-slate-900 px-4 py-4 text-white">
+                <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-white/10 bg-[linear-gradient(180deg,rgba(15,23,42,0.96),rgba(15,23,42,0.88))] px-4 py-4 text-white shadow-[var(--shadow-card)]">
                   <div>
                     <p className="mt-1 font-semibold">已勾選 {selectedCount} 個專案 × 廠商，合計 {formatCurrency(selectedTotal)}</p>
                   </div>
@@ -437,7 +437,7 @@ export function VendorDetailShell({ vendorId }: Props) {
                     type="button"
                     onClick={markSelectedAsPaid}
                     disabled={!selectedCount}
-                    className="inline-flex items-center justify-center rounded-2xl bg-white px-5 py-3 text-sm font-semibold text-slate-900 transition disabled:cursor-not-allowed disabled:bg-slate-300 disabled:text-slate-500"
+                    className="inline-flex items-center justify-center rounded-2xl border border-white/80 bg-white px-5 py-3 text-sm font-semibold text-slate-900 shadow-[var(--shadow-soft)] transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:bg-slate-300 disabled:text-slate-500"
                   >
                     標記為已付款
                   </button>
@@ -449,7 +449,7 @@ export function VendorDetailShell({ vendorId }: Props) {
           </article>
         </section>
 
-        <article className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+        <article className="rounded-[30px] border border-white/70 bg-[var(--surface-card)] p-6 shadow-[var(--shadow-card)]">
           <div className="mb-5 flex min-h-12 flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
             <div className="flex flex-wrap items-center gap-2">
               <h3 className="flex h-10 items-center text-xl font-semibold text-slate-900">往來紀錄</h3>
