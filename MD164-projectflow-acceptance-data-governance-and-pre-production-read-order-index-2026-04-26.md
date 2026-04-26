@@ -49,8 +49,11 @@
 4. **`project-mgmt/docs/projectflow-closeout-retained-snapshot-fallback-strategy-2026-04-26.md`**
 5. **`project-mgmt/docs/projectflow-pre-production-retained-snapshot-decision-memo-2026-04-26.md`**
 6. **`project-mgmt/docs/projectflow-phase1-technical-change-risk-grading-2026-04-26.md`**
+7. **`project-mgmt/docs/projectflow-fresh-project-validation-coverage-matrix-2026-04-26.md`**
+   - 新建立專案重驗覆蓋矩陣
+   - 明確區分：已在 fresh project 重驗、仍主要由既有 suite 覆蓋、尚未在 fresh project 窮舉重跑的範圍
 
-這六份共同構成目前 Phase 1 技術收尾 / 正式站前技術紀律主線的最新入口。
+這七份共同構成目前 Phase 1 技術收尾 / 正式站前技術紀律主線的最新入口。
 
 ### 第一層：先看整體管理總結
 1. **MD163 — `projectflow-current-maturity-and-next-step-management-summary-2026-04-26.md`**
@@ -235,10 +238,11 @@
 若問題是「技術尾巴 / runtime / 正式站前準備」：
 - 先讀 **MD161**
 - 再看 **MD162**
-- 若是要接 Phase 1 技術收尾完成度、snapshot-only 結論或 clean-start 正式站前提：
+- 若是要接 Phase 1 技術收尾完成度、snapshot-only 結論、fresh-project 重驗結果，或 clean-start 正式站前提：
   - 再讀 `project-mgmt/docs/projectflow-phase1-technical-tail-closure-summary-2026-04-26.md`
   - `project-mgmt/docs/projectflow-closeout-retained-snapshot-fallback-strategy-2026-04-26.md`
   - `project-mgmt/docs/projectflow-pre-production-retained-snapshot-decision-memo-2026-04-26.md`
+  - `project-mgmt/docs/projectflow-fresh-project-validation-coverage-matrix-2026-04-26.md`
 
 ### Rule E
 不要只看到單一文件就直接動 code。
