@@ -816,21 +816,21 @@ function AssignmentMenu({
             <button
               type="button"
               onClick={onDesign}
-              className="inline-flex w-full items-center justify-center rounded-2xl px-3 py-2.5 text-center text-sm font-semibold text-slate-700 transition hover:bg-slate-100 hover:text-slate-900"
+              className="inline-flex w-full items-center justify-center rounded-2xl px-3 py-2.5 text-center text-sm font-semibold text-slate-100 transition hover:bg-white/6 hover:text-white"
             >
               {hasDesign ? "編輯設計" : "設計"}
             </button>
             <button
               type="button"
               onClick={onProcurement}
-              className="inline-flex w-full items-center justify-center rounded-2xl px-3 py-2.5 text-center text-sm font-semibold text-slate-700 transition hover:bg-amber-50 hover:text-amber-700"
+              className="inline-flex w-full items-center justify-center rounded-2xl px-3 py-2.5 text-center text-sm font-semibold text-slate-100 transition hover:bg-white/6 hover:text-white"
             >
               {hasProcurement ? "編輯備品" : "備品"}
             </button>
             <button
               type="button"
               onClick={onVendor}
-              className="inline-flex w-full items-center justify-center rounded-2xl px-3 py-2.5 text-center text-sm font-semibold text-slate-700 transition hover:bg-violet-50 hover:text-violet-700"
+              className="inline-flex w-full items-center justify-center rounded-2xl px-3 py-2.5 text-center text-sm font-semibold text-slate-100 transition hover:bg-white/6 hover:text-white"
             >
               {hasVendor ? "編輯廠商" : "廠商"}
             </button>

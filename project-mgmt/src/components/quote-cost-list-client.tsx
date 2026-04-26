@@ -43,26 +43,26 @@ export function QuoteCostListClient({ mode = "active", initialProjects }: { mode
 
   return (
     <>
-      <header className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200 xl:p-7">
+      <header className="p-1">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
           <div className="flex items-center gap-3">
-            <h2 className="text-3xl font-semibold tracking-tight text-slate-900">報價成本</h2>
+            <h2 className="text-3xl font-semibold tracking-tight text-slate-50">報價成本</h2>
           </div>
 
           <input
             value={searchKeyword}
             onChange={(event) => setSearchKeyword(event.target.value)}
             placeholder="搜尋專案名稱 / 客戶"
-            className="h-11 w-full rounded-2xl border border-slate-200 px-4 text-sm outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-200 lg:max-w-sm"
+            className="h-11 w-full rounded-2xl border border-white/10 bg-slate-900/45 px-4 text-sm text-slate-100 outline-none transition placeholder:text-slate-400 focus:border-sky-300/30 lg:max-w-sm"
           />
         </div>
       </header>
 
-      <section className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+      <section className="rounded-3xl border border-white/10 bg-[linear-gradient(180deg,rgba(18,30,50,0.72),rgba(13,22,39,0.52))] p-6 shadow-[0_34px_90px_-38px_rgba(0,0,0,0.68),0_0_34px_rgba(96,165,250,0.08),inset_0_1px_0_rgba(255,255,255,0.07),inset_0_-22px_44px_-28px_rgba(7,13,25,0.98)] backdrop-blur-[28px]">
         {activeProjects.length ? (
-          <div className="overflow-x-auto rounded-2xl border border-slate-200">
-            <table className="min-w-full divide-y divide-slate-200 text-left text-sm">
-              <thead className="bg-slate-50 text-slate-500">
+          <div className="overflow-x-auto rounded-2xl border border-white/10 bg-[linear-gradient(180deg,rgba(39,52,77,0.62),rgba(17,26,42,0.46))] shadow-[0_24px_46px_-28px_rgba(0,0,0,0.54),0_0_16px_rgba(96,165,250,0.05),inset_0_1px_0_rgba(255,255,255,0.05),inset_0_-16px_24px_-18px_rgba(10,18,32,0.86)] backdrop-blur-2xl">
+            <table className="min-w-full divide-y divide-white/10 text-left text-sm">
+              <thead className="bg-white/[0.04] text-slate-400">
                 <tr>
                   <th className="px-4 py-3 font-medium">客戶名稱</th>
                   <th className="px-4 py-3 font-medium">專案名稱</th>
@@ -71,22 +71,19 @@ export function QuoteCostListClient({ mode = "active", initialProjects }: { mode
                   <th className="px-4 py-3 font-medium">操作</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100 bg-white">
+              <tbody className="divide-y divide-white/10 bg-transparent">
                 {activeProjects.map(({ project }) => (
                   <tr key={project.id}>
-                    <td className="px-4 py-4 text-slate-700">{project.clientName}</td>
-                    <td className="px-4 py-4 font-medium text-slate-900">{project.projectName}</td>
-                    <td className="px-4 py-4 text-slate-700">{project.eventDate}</td>
+                    <td className="px-4 py-4 text-slate-300">{project.clientName}</td>
+                    <td className="px-4 py-4 font-medium text-slate-100">{project.projectName}</td>
+                    <td className="px-4 py-4 text-slate-300">{project.eventDate}</td>
                     <td className="px-4 py-4">
-                      <span className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ring-1 ${project.quotationImported ? "bg-emerald-100 text-emerald-800 ring-emerald-300" : "bg-amber-100 text-amber-800 ring-amber-300"}`}>
+                      <span className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ring-1 ${project.quotationImported ? "bg-emerald-400/12 text-emerald-200 ring-emerald-300/20" : "bg-amber-400/12 text-amber-200 ring-amber-300/20"}`}>
                         {project.quotationImported ? "已上傳" : "未上傳"}
                       </span>
                     </td>
                     <td className="px-4 py-4">
-                      <Link
-                        href={`/quote-costs/${project.id}`}
-                        className="inline-flex min-h-10 items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-800 transition hover:border-slate-400 hover:bg-slate-50"
-                      >
+                      <Link href={`/quote-costs/${project.id}`} className={workspacePrimaryButtonClass}>
                         查看
                       </Link>
                     </td>
@@ -105,11 +102,7 @@ export function QuoteCostListClient({ mode = "active", initialProjects }: { mode
             }
             actions={
               hasKeyword ? (
-                <button
-                  type="button"
-                  onClick={() => setSearchKeyword("")}
-                  className={workspacePrimaryButtonClass}
-                >
+                <button type="button" onClick={() => setSearchKeyword("")} className={workspacePrimaryButtonClass}>
                   清除搜尋
                 </button>
               ) : (
