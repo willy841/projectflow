@@ -239,7 +239,7 @@ function SavedSummary({
   actions: Pick<FormActions, "onEdit" | "onDelete">;
 }) {
   return (
-    <div className="mt-4 rounded-2xl border border-slate-200 bg-white p-4">
+    <div className="mt-4 rounded-2xl border border-white/10 bg-[linear-gradient(180deg,rgba(39,52,77,0.62),rgba(17,26,42,0.46))] p-4 shadow-[0_24px_46px_-28px_rgba(0,0,0,0.54),0_0_16px_rgba(96,165,250,0.05),inset_0_1px_0_rgba(255,255,255,0.05),inset_0_-16px_24px_-18px_rgba(10,18,32,0.86)] backdrop-blur-2xl">
       <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
@@ -288,7 +288,7 @@ function SavedSummary({
         {fields.map((field) => (
           <div
             key={`${field.label}-${field.value}`}
-            className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3"
+            className="rounded-2xl border border-white/10 bg-[linear-gradient(180deg,rgba(40,53,79,0.64),rgba(17,27,44,0.46))] px-4 py-3 shadow-[0_20px_40px_-26px_rgba(0,0,0,0.46),inset_0_1px_0_rgba(255,255,255,0.05)] backdrop-blur-2xl"
           >
             <p className="text-xs font-medium text-slate-500">{field.label}</p>
             <p
@@ -301,7 +301,7 @@ function SavedSummary({
       </div>
 
       {collapsedFields?.length ? (
-        <div className="mt-4 rounded-2xl border border-dashed border-slate-300 bg-white p-4">
+        <div className="mt-4 rounded-2xl border border-white/10 bg-[linear-gradient(180deg,rgba(39,52,77,0.62),rgba(17,26,42,0.46))] p-4 shadow-[0_24px_46px_-28px_rgba(0,0,0,0.54),0_0_16px_rgba(96,165,250,0.05),inset_0_1px_0_rgba(255,255,255,0.05),inset_0_-16px_24px_-18px_rgba(10,18,32,0.86)] backdrop-blur-2xl">
           <p className="text-xs font-semibold tracking-wide text-slate-500">
             折疊資訊
           </p>
@@ -309,7 +309,7 @@ function SavedSummary({
             {collapsedFields.map((field) => (
               <div
                 key={`${field.label}-${field.value}-collapsed`}
-                className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3"
+                className="rounded-2xl border border-white/10 bg-[linear-gradient(180deg,rgba(40,53,79,0.64),rgba(17,27,44,0.46))] px-4 py-3 shadow-[0_20px_40px_-26px_rgba(0,0,0,0.46),inset_0_1px_0_rgba(255,255,255,0.05)] backdrop-blur-2xl"
               >
                 <p className="text-xs font-medium text-slate-500">
                   {field.label}
@@ -342,7 +342,7 @@ function DesignAssignmentForm({
   actions: FormActions;
 }) {
   return (
-    <div className="mt-4 rounded-3xl border border-slate-200 bg-slate-50 p-5 sm:p-6">
+    <div className="mt-4 rounded-3xl border border-white/10 bg-[linear-gradient(180deg,rgba(18,30,50,0.72),rgba(13,22,39,0.52))] p-5 shadow-[0_34px_90px_-38px_rgba(0,0,0,0.68),0_0_34px_rgba(96,165,250,0.08),inset_0_1px_0_rgba(255,255,255,0.07),inset_0_-22px_44px_-28px_rgba(7,13,25,0.98)] backdrop-blur-[28px] sm:p-6">
       <div className="flex flex-wrap items-center gap-2">
         <p className="text-sm font-semibold text-slate-900">設計交辦</p>
         <span className="inline-flex items-center justify-center rounded-full bg-sky-50 px-3 py-1 text-xs font-medium text-sky-700 ring-1 ring-sky-200">
@@ -475,7 +475,7 @@ function ProcurementAssignmentForm({
   actions: FormActions;
 }) {
   return (
-    <div className="mt-4 rounded-3xl border border-slate-200 bg-slate-50 p-5 sm:p-6">
+    <div className="mt-4 rounded-3xl border border-white/10 bg-[linear-gradient(180deg,rgba(18,30,50,0.72),rgba(13,22,39,0.52))] p-5 shadow-[0_34px_90px_-38px_rgba(0,0,0,0.68),0_0_34px_rgba(96,165,250,0.08),inset_0_1px_0_rgba(255,255,255,0.07),inset_0_-22px_44px_-28px_rgba(7,13,25,0.98)] backdrop-blur-[28px] sm:p-6">
       <div className="flex flex-wrap items-center gap-2">
         <p className="text-sm font-semibold text-slate-900">備品交辦</p>
         <span className="inline-flex items-center justify-center rounded-full bg-amber-50 px-3 py-1 text-xs font-medium text-amber-700 ring-1 ring-amber-200">
@@ -626,7 +626,7 @@ function VendorAssignmentForm({
   }, [draft.category, vendors]);
 
   return (
-    <div className="mt-4 rounded-3xl border border-slate-200 bg-slate-50 p-5 sm:p-6">
+    <div className="mt-4 rounded-3xl border border-white/10 bg-[linear-gradient(180deg,rgba(18,30,50,0.72),rgba(13,22,39,0.52))] p-5 shadow-[0_34px_90px_-38px_rgba(0,0,0,0.68),0_0_34px_rgba(96,165,250,0.08),inset_0_1px_0_rgba(255,255,255,0.07),inset_0_-22px_44px_-28px_rgba(7,13,25,0.98)] backdrop-blur-[28px] sm:p-6">
       <div className="flex flex-wrap items-center gap-2">
         <p className="text-sm font-semibold text-slate-900">廠商交辦</p>
         <span className="inline-flex items-center justify-center rounded-full bg-violet-50 px-3 py-1 text-xs font-medium text-violet-700 ring-1 ring-violet-200">
@@ -1860,7 +1860,7 @@ export function ExecutionTree({
         ) : null}
 
         {excelPreview ? (
-          <div className="mt-4 rounded-3xl border border-slate-200 bg-slate-50/80 p-4 ring-1 ring-slate-200">
+          <div className="mt-4 rounded-3xl border border-white/10 bg-[linear-gradient(180deg,rgba(18,30,50,0.72),rgba(13,22,39,0.52))] p-4 shadow-[0_34px_90px_-38px_rgba(0,0,0,0.68),0_0_34px_rgba(96,165,250,0.08),inset_0_1px_0_rgba(255,255,255,0.07),inset_0_-22px_44px_-28px_rgba(7,13,25,0.98)] backdrop-blur-[28px]">
             <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
               <h4 className="text-lg font-semibold text-slate-900">預覽</h4>
               <div className="flex flex-wrap gap-2">
@@ -1881,7 +1881,7 @@ export function ExecutionTree({
               </div>
             </div>
 
-            <div className="mt-4 rounded-2xl border border-slate-200 bg-white p-4 text-xs text-slate-600">
+            <div className="mt-4 rounded-2xl border border-white/10 bg-[linear-gradient(180deg,rgba(39,52,77,0.62),rgba(17,26,42,0.46))] p-4 shadow-[0_24px_46px_-28px_rgba(0,0,0,0.54),0_0_16px_rgba(96,165,250,0.05),inset_0_1px_0_rgba(255,255,255,0.05),inset_0_-16px_24px_-18px_rgba(10,18,32,0.86)] backdrop-blur-2xl text-xs text-slate-600">
               <p className="font-semibold text-slate-900">解析摘要</p>
               <div className="mt-2 flex flex-wrap gap-3">
                 <span>header row：{excelPreview.headerRowNumber}</span>
@@ -2161,7 +2161,7 @@ export function ExecutionTree({
             </div>
 
             {isOpen ? (
-              <div className="mt-5 rounded-3xl border border-slate-200 bg-slate-50 p-4">
+              <div className="mt-5 rounded-3xl border border-white/10 bg-[linear-gradient(180deg,rgba(18,30,50,0.72),rgba(13,22,39,0.52))] p-4 shadow-[0_34px_90px_-38px_rgba(0,0,0,0.68),0_0_34px_rgba(96,165,250,0.08),inset_0_1px_0_rgba(255,255,255,0.07),inset_0_-22px_44px_-28px_rgba(7,13,25,0.98)] backdrop-blur-[28px]">
                 {item.note ? (
                   <p className="mb-3 text-sm text-slate-500">
                     備註：{item.note}
@@ -2177,7 +2177,7 @@ export function ExecutionTree({
                     return (
                       <div
                         key={child.id}
-                        className="rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-sm"
+                        className="rounded-2xl border border-white/10 bg-[linear-gradient(180deg,rgba(40,53,79,0.64),rgba(17,27,44,0.46))] px-4 py-3 shadow-[0_20px_40px_-26px_rgba(0,0,0,0.46),inset_0_1px_0_rgba(255,255,255,0.05)] backdrop-blur-2xl"
                       >
                         <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
                           <div className="flex-1">

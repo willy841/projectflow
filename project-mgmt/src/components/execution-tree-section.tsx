@@ -486,6 +486,9 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
   return (
     <>
       <section id="project-execution-section" className="p-1">
+        <div className="mb-4">
+          <h3 className="text-xl font-semibold text-white">• 專案執行項目</h3>
+        </div>
         <ExecutionTree
           heading="專案執行項目"
           items={project.executionItems}
@@ -520,7 +523,7 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
 
       <section className="p-1">
         <div className="mb-5">
-          <h3 className="text-xl font-semibold text-white">專案分類檢視</h3>
+          <h3 className="text-xl font-semibold text-white">• 專案分類檢視</h3>
         </div>
 
         <div className="grid gap-3 lg:grid-cols-3">

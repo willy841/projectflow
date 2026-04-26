@@ -125,7 +125,7 @@ export function RequirementsPanel({
     <article className="p-1">
       <div className="mb-4 flex min-h-11 flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="min-w-0">
-          <h3 className="text-xl font-semibold leading-none text-white">需求溝通</h3>
+          <h3 className="text-xl font-semibold leading-none text-white">• 需求溝通</h3>
         </div>
         <button
           type="button"

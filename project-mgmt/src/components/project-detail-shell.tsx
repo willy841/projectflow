@@ -30,6 +30,14 @@ type ProjectFormState = {
   note: string;
 };
 
+const summaryItemsMeta = [
+  { label: "活動日期", icon: "▦" },
+  { label: "活動地點", icon: "⌖" },
+  { label: "進場時間", icon: "◴" },
+  { label: "專案預算", icon: "◫" },
+  { label: "目前成本", icon: "◩" },
+] as const;
+
 function formatDateOnly(value: string | null | undefined): string {
   if (!value) return "-";
   const text = String(value);
@@ -308,19 +316,29 @@ export function ProjectDetailShell({ project, entryContext }: { project: Project
           { label: "進場時間", value: projectView.loadInTime },
           { label: "專案預算", value: projectView.budget },
           { label: "目前成本", value: projectView.cost },
-        ].map((item) => (
-          <article key={item.label} className="rounded-[30px] border border-white/10 bg-[linear-gradient(180deg,rgba(36,48,72,0.76),rgba(14,22,39,0.52))] p-5 shadow-[0_34px_84px_-30px_rgba(0,0,0,0.72),0_10px_18px_-12px_rgba(15,23,42,0.5),inset_0_1px_0_rgba(255,255,255,0.1),inset_0_18px_28px_-20px_rgba(255,255,255,0.05),inset_0_-28px_44px_-24px_rgba(2,6,23,0.98)] backdrop-blur-[28px]">
-            <p className="text-xs font-medium uppercase tracking-wider text-slate-500">{item.label}</p>
-            <p className="mt-3 text-[1.15rem] font-semibold tracking-tight text-slate-100">{item.value}</p>
-          </article>
-        ))}
+        ].map((item) => {
+          const meta = summaryItemsMeta.find((entry) => entry.label === item.label);
+          return (
+            <article key={item.label} className="rounded-[30px] border border-white/10 bg-[linear-gradient(180deg,rgba(36,48,72,0.76),rgba(14,22,39,0.52))] p-5 shadow-[0_34px_84px_-30px_rgba(0,0,0,0.72),0_10px_18px_-12px_rgba(15,23,42,0.5),inset_0_1px_0_rgba(255,255,255,0.1),inset_0_18px_28px_-20px_rgba(255,255,255,0.05),inset_0_-28px_44px_-24px_rgba(2,6,23,0.98)] backdrop-blur-[28px]">
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs font-medium uppercase tracking-wider text-slate-500">{item.label}</p>
+                  <p className="mt-3 text-[1.15rem] font-semibold tracking-tight text-slate-100">{item.value}</p>
+                </div>
+                <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-sky-300/16 bg-sky-400/10 text-base text-sky-200 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]">
+                  {meta?.icon}
+                </span>
+              </div>
+            </article>
+          );
+        })}
       </section>
 
       <section className="grid gap-6 2xl:grid-cols-[minmax(0,1.08fr)_minmax(340px,0.92fr)]">
         <article className="p-1">
           <div className="mb-4 min-h-11 flex items-center">
             <div className="min-w-0">
-              <h3 className="text-xl font-semibold leading-none text-white">專案基本資訊</h3>
+              <h3 className="text-xl font-semibold leading-none text-white">• 專案基本資訊</h3>
             </div>
           </div>
 

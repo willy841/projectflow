@@ -14,6 +14,19 @@ export type AuthShellUser = {
   role: 'admin' | 'member';
 };
 
+const navIcons: Record<string, string> = {
+  '首頁總覽': '⌂',
+  '專案管理': '◫',
+  '設計任務版': '⟲',
+  '採購備品板': '▣',
+  '廠商發包板': '⌘',
+  '廠商資料': '◌',
+  '報價成本': '◍',
+  '結案紀錄': '☷',
+  '帳務中心': '◈',
+  '系統設定': '⚙',
+};
+
 export function AuthShellClient({
   children,
   activePath = '/',
@@ -36,17 +49,21 @@ export function AuthShellClient({
           <nav className="space-y-2 text-sm">
             {navItems.map((item) => {
               const isActive = activePath === item.href;
+              const icon = navIcons[item.label] ?? '•';
               return (
                 <Link
                   key={item.label}
                   href={item.href}
-                  className={`block rounded-2xl px-4 py-3 transition ${
+                  className={`group flex items-center gap-3 rounded-2xl px-4 py-3 transition ${
                     isActive
                       ? 'bg-[linear-gradient(180deg,rgba(75,132,220,0.24),rgba(34,53,92,0.12))] text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_0_28px_rgba(59,130,246,0.18)]'
                       : 'text-slate-300 hover:bg-white/6 hover:shadow-[0_0_22px_rgba(96,165,250,0.08)]'
                   }`}
                 >
-                  {item.label}
+                  <span className={`inline-flex h-8 w-8 items-center justify-center rounded-xl ${isActive ? 'bg-white/12 text-sky-100' : 'bg-white/6 text-slate-300 group-hover:text-sky-100'}`}>
+                    {icon}
+                  </span>
+                  <span>{item.label}</span>
                 </Link>
               );
             })}
