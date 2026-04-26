@@ -1040,6 +1040,7 @@ export function ExecutionTree({
   heading = "新增主項目",
   showHeader = true,
   headerActions,
+  externalCreateMainItemTrigger = 0,
   initialDesignAssignments = {},
   initialProcurementAssignments = {},
   initialVendorAssignments = {},
@@ -1050,6 +1051,7 @@ export function ExecutionTree({
   projectId?: string;
   showHeader?: boolean;
   headerActions?: React.ReactNode;
+  externalCreateMainItemTrigger?: number;
   onDesignAssignmentsChange?: (
     payload: Array<{
       targetId: string;
@@ -1129,6 +1131,11 @@ export function ExecutionTree({
   useEffect(() => {
     setLocalItems(items as ImportedItem[]);
   }, [items]);
+
+  useEffect(() => {
+    if (!externalCreateMainItemTrigger) return;
+    setShowMainItemCreator(true);
+  }, [externalCreateMainItemTrigger]);
 
   useEffect(() => {
     if (serverHandlers || !projectId || typeof window === "undefined") return;

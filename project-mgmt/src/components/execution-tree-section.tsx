@@ -98,6 +98,7 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
   const [saveFeedback, setSaveFeedback] = useState<{ category: OpenCategory; message: string } | null>(null);
   const [vendorOptions, setVendorOptions] = useState<VendorBasicProfile[]>([]);
   const [deletingSummaryKey, setDeletingSummaryKey] = useState<string | null>(null);
+  const [createMainItemTrigger, setCreateMainItemTrigger] = useState(0);
 
   const initialDesignAssignments = useMemo<Record<string, DesignAssignmentDraft>>(
     () =>
@@ -492,8 +493,7 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
             <button
               type="button"
               onClick={() => {
-                const trigger = document.getElementById("project-execution-inline-create-trigger") as HTMLButtonElement | null;
-                trigger?.click();
+                setCreateMainItemTrigger((prev) => prev + 1);
               }}
               className="inline-flex h-11 shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-slate-900/40 px-4 text-sm font-semibold text-slate-200 shadow-[0_18px_40px_-28px_rgba(0,0,0,0.42),inset_0_1px_0_rgba(255,255,255,0.03)] backdrop-blur-xl transition hover:bg-slate-900/60"
             >
@@ -515,6 +515,7 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
           heading="專案執行項目"
           showHeader={false}
           headerActions={null}
+          externalCreateMainItemTrigger={createMainItemTrigger}
           items={project.executionItems}
           projectId={project.id}
           onDesignAssignmentsChange={setDesignAssignments}
