@@ -1801,12 +1801,11 @@ export function ExecutionTree({
 
   return (
     <div className="space-y-4">
-      <div className="rounded-3xl border border-dashed border-slate-300 bg-slate-50 p-4">
-        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-          <div>
-            <h3 className="text-xl font-semibold text-slate-900">{heading}</h3>
-          </div>
-          <div className="flex flex-wrap gap-2">
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+        <div>
+          <h3 className="text-xl font-semibold text-white">{heading}</h3>
+        </div>
+        <div className="flex flex-wrap gap-2">
             <button
               type="button"
               onClick={() => setShowMainItemCreator((prev) => !prev)}
@@ -1817,7 +1816,7 @@ export function ExecutionTree({
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              className="inline-flex h-11 shrink-0 items-center justify-center rounded-2xl border border-slate-900 bg-slate-900 px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800"
+              className="inline-flex h-11 shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-slate-900/50 px-4 text-sm font-semibold text-slate-100 shadow-[0_22px_46px_-28px_rgba(0,0,0,0.45),inset_0_1px_0_rgba(255,255,255,0.04)] backdrop-blur-xl transition hover:bg-slate-900/70 hover:shadow-[0_0_24px_rgba(96,165,250,0.16)]"
             >
               匯入 .xlsx
             </button>
@@ -1956,7 +1955,6 @@ export function ExecutionTree({
             </div>
           </div>
         ) : null}
-      </div>
 
       <AssignmentDrawer
         activeDrawer={activeAssignmentDrawer}
