@@ -323,7 +323,7 @@ export function DesignPlanEditorClient({
         </div>
       ) : null}
       {visiblePlans.map((plan, index) => (
-        <article key={plan.id} className="rounded-[28px] border border-white/10 bg-[linear-gradient(180deg,rgba(39,52,77,0.62),rgba(17,26,42,0.46))] p-5 shadow-[0_24px_46px_-28px_rgba(0,0,0,0.54),0_0_16px_rgba(96,165,250,0.05),inset_0_1px_0_rgba(255,255,255,0.05),inset_0_-16px_24px_-18px_rgba(10,18,32,0.86)] backdrop-blur-2xl">
+        <article key={plan.id} className="space-y-4">
           <div className="mb-4 flex items-center justify-between gap-3 border-b border-white/10 pb-4">
             <div>
               <p className="text-xs font-medium tracking-wide text-slate-400">執行處理 #{index + 1}</p>
@@ -331,11 +331,11 @@ export function DesignPlanEditorClient({
           </div>
 
           <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-            <label className="rounded-2xl border border-white/10 bg-slate-950/35 px-4 py-3.5 xl:col-span-2">
+            <label className="xl:col-span-2">
               <p className="text-xs font-medium tracking-wide text-slate-400">標題</p>
               <input value={plan.title} onChange={(e) => updatePlan(plan.id, "title", e.target.value)} className="mt-2 h-10 w-full rounded-xl border border-white/10 bg-slate-950/50 px-3 text-sm font-medium text-slate-100 outline-none focus:border-sky-400/40 focus:ring-2 focus:ring-sky-400/20" />
             </label>
-            <label className="rounded-2xl border border-white/10 bg-slate-950/35 px-4 py-3.5">
+            <label>
               <p className="text-xs font-medium tracking-wide text-slate-400">尺寸</p>
               <input value={plan.size} onChange={(e) => updatePlan(plan.id, "size", e.target.value)} className="mt-2 h-10 w-full rounded-xl border border-white/10 bg-slate-950/50 px-3 text-sm font-medium text-slate-100 outline-none focus:border-sky-400/40 focus:ring-2 focus:ring-sky-400/20" />
             </label>
@@ -355,7 +355,7 @@ export function DesignPlanEditorClient({
               <p className="text-xs font-medium tracking-wide text-slate-400">金額</p>
               <input value={plan.amount} onChange={(e) => updatePlan(plan.id, "amount", e.target.value)} className="mt-2 h-10 w-full rounded-xl border border-white/10 bg-slate-950/50 px-3 text-sm font-medium text-slate-100 outline-none focus:border-sky-400/40 focus:ring-2 focus:ring-sky-400/20" />
             </label>
-            <label className="rounded-2xl border border-white/10 bg-slate-950/35 px-4 py-3.5 xl:col-span-2">
+            <label className="xl:col-span-2">
               <p className="text-xs font-medium tracking-wide text-slate-400">預覽連結</p>
               <input value={plan.previewUrl} onChange={(e) => updatePlan(plan.id, "previewUrl", e.target.value)} className="mt-2 h-10 w-full rounded-xl border border-white/10 bg-slate-950/50 px-3 text-sm font-medium text-slate-100 outline-none focus:border-sky-400/40 focus:ring-2 focus:ring-sky-400/20" />
             </label>

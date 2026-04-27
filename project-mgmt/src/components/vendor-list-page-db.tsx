@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { formatCurrency, type VendorBasicProfile } from '@/components/vendor-data';
-import { WorkspaceEmptyState, workspacePrimaryButtonClass } from '@/components/workspace-ui';
+import { WorkspaceEmptyState, WorkspaceHeader, workspacePrimaryButtonClass } from '@/components/workspace-ui';
 
 type VendorListPageDbProps = {
   vendors: VendorBasicProfile[];
@@ -143,40 +143,39 @@ export function VendorListPageDb({ vendors, tradeOptions: initialTradeOptions }:
 
   return (
     <>
-      <header className="xl:p-7">
-        <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
-          <div className="min-w-0 xl:pt-2">
-            <div className="flex flex-wrap items-center gap-3">
-              <h2 className="text-3xl font-semibold tracking-tight text-slate-900">廠商資料</h2>
-              <button
-                type="button"
-                onClick={() => {
-                  setIsCreateVendorOpen(true);
-                  setCreateVendorError(null);
-                }}
-                className="pf-btn-create px-4 py-2.5"
-              >
-                新增廠商
-              </button>
-              <button
-                type="button"
-                onClick={() => setIsTradeManagerOpen((current) => !current)}
-                className="pf-btn-secondary px-4 py-2.5"
-              >
-                {isTradeManagerOpen ? '收合工種管理' : '管理工種'}
-              </button>
-            </div>
-          </div>
+      <WorkspaceHeader
+        title="廠商資料"
+        meta={
+          <span className="inline-flex items-center gap-2 text-sm text-slate-400">
+            <span>未付款總額</span>
+            <span className="font-semibold text-slate-100">{formatCurrency(totalOutstanding)}</span>
+          </span>
+        }
+        actions={
+          <>
+            <button
+              type="button"
+              onClick={() => {
+                setIsCreateVendorOpen(true);
+                setCreateVendorError(null);
+              }}
+              className="pf-btn-create px-4 py-2.5"
+            >
+              新增廠商
+            </button>
+            <button
+              type="button"
+              onClick={() => setIsTradeManagerOpen((current) => !current)}
+              className="pf-btn-secondary px-4 py-2.5"
+            >
+              {isTradeManagerOpen ? '收合工種管理' : '管理工種'}
+            </button>
+          </>
+        }
+      />
 
-          <div className="sm:min-w-[260px] xl:self-stretch">
-            <div className="pf-panel-soft px-5 py-4 text-sm text-slate-200 xl:flex xl:h-full xl:min-h-[104px] xl:flex-col xl:justify-center">
-              <p className="font-semibold text-slate-300">未付款總額</p>
-              <p className="mt-2 text-2xl font-semibold text-slate-100">{formatCurrency(totalOutstanding)}</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="pf-panel-soft mt-5 p-3.5">
+      <section className="p-1">
+        <div className="mt-1">
           <div className="flex flex-col gap-3 xl:flex-row xl:flex-wrap xl:items-center xl:justify-between">
             <label className="block min-w-0 flex-1 xl:min-w-[280px]">
               <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-slate-950/45 px-4 py-2.5 transition focus-within:border-sky-400/45">
@@ -283,7 +282,7 @@ export function VendorListPageDb({ vendors, tradeOptions: initialTradeOptions }:
             </div>
           ) : null}
         </div>
-      </header>
+      </section>
 
       {filteredVendorCards.length ? (
         <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">

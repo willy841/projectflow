@@ -98,7 +98,7 @@ export function VendorPlanEditorClient({ taskId, initialPlans, showConfirmButton
       </div>
 
       {plans.map((plan, index) => (
-        <article key={plan.id} className="rounded-[28px] border border-white/10 bg-[linear-gradient(180deg,rgba(31,41,59,0.72),rgba(15,23,42,0.58))] p-5 shadow-[0_24px_56px_-32px_rgba(0,0,0,0.6),inset_0_1px_0_rgba(255,255,255,0.05)] backdrop-blur-2xl">
+        <article key={plan.id} className="space-y-4">
           <div className="mb-4 flex items-center justify-between gap-3 border-b border-white/10 pb-4">
             <div>
               <p className="text-xs font-medium tracking-wide text-slate-400">執行處理 #{index + 1}</p>
@@ -106,9 +106,9 @@ export function VendorPlanEditorClient({ taskId, initialPlans, showConfirmButton
           </div>
 
           <div className="grid gap-3 md:grid-cols-3">
-            <label className="block"><p className="text-xs font-medium tracking-wide text-slate-400">標題</p><input value={plan.title} onChange={(e) => updatePlan(plan.id, "title", e.target.value)} className="mt-2 h-10 w-full rounded-xl border border-white/10 bg-slate-950/50 px-3 text-sm font-medium text-slate-100 outline-none focus:border-sky-400/40 focus:ring-2 focus:ring-sky-400/20" /></label>
-            <label className="block md:col-span-2"><p className="text-xs font-medium tracking-wide text-slate-400">需求說明</p><textarea value={plan.requirement} onChange={(e) => updatePlan(plan.id, "requirement", e.target.value)} rows={3} className="mt-2 w-full rounded-xl border border-white/10 bg-slate-950/50 px-3 py-2 text-sm font-medium text-slate-100 outline-none focus:border-sky-400/40 focus:ring-2 focus:ring-sky-400/20" /></label>
-            <label className="block"><p className="text-xs font-medium tracking-wide text-slate-400">金額</p><input value={plan.amount} onChange={(e) => updatePlan(plan.id, "amount", e.target.value)} className="mt-2 h-10 w-full rounded-xl border border-white/10 bg-slate-950/50 px-3 text-sm font-medium text-slate-100 outline-none focus:border-sky-400/40 focus:ring-2 focus:ring-sky-400/20" /></label>
+            <label><p className="text-xs font-medium tracking-wide text-slate-400">標題</p><input value={plan.title} onChange={(e) => updatePlan(plan.id, "title", e.target.value)} className="mt-2 h-10 w-full rounded-xl border border-white/10 bg-slate-950/50 px-3 text-sm font-medium text-slate-100 outline-none focus:border-sky-400/40 focus:ring-2 focus:ring-sky-400/20" /></label>
+            <label className="md:col-span-2"><p className="text-xs font-medium tracking-wide text-slate-400">需求說明</p><textarea value={plan.requirement} onChange={(e) => updatePlan(plan.id, "requirement", e.target.value)} rows={3} className="mt-2 w-full rounded-xl border border-white/10 bg-slate-950/50 px-3 py-2 text-sm font-medium text-slate-100 outline-none focus:border-sky-400/40 focus:ring-2 focus:ring-sky-400/20" /></label>
+            <label><p className="text-xs font-medium tracking-wide text-slate-400">金額</p><input value={plan.amount} onChange={(e) => updatePlan(plan.id, "amount", e.target.value)} className="mt-2 h-10 w-full rounded-xl border border-white/10 bg-slate-950/50 px-3 text-sm font-medium text-slate-100 outline-none focus:border-sky-400/40 focus:ring-2 focus:ring-sky-400/20" /></label>
           </div>
           <div className="mt-4 flex items-center justify-between gap-3 border-t border-white/10 pt-4"><button type="button" onClick={() => removePlan(plan.id)} className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-rose-400/20 bg-rose-500/10 px-4 py-2.5 text-sm font-medium text-rose-200 transition hover:bg-rose-500/20">刪除這筆處理</button></div>
         </article>
