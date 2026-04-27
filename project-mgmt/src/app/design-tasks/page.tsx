@@ -143,13 +143,13 @@ export default async function DesignTasksPage({
               <table className="pf-table min-w-[1180px] table-fixed xl:min-w-full">
                 <thead>
                   <tr>
-                    <th className="w-[32%] px-4 py-3 font-medium align-middle">任務標題</th>
+                    <th className="w-[30%] px-4 py-3 font-medium align-middle">任務標題</th>
                     <th className="w-[16%] px-4 py-3 font-medium align-middle">尺寸</th>
                     <th className="w-[12%] px-4 py-3 font-medium align-middle">材質</th>
                     <th className="w-[12%] px-4 py-3 font-medium align-middle">結構</th>
                     <th className="w-[8%] px-4 py-3 font-medium align-middle">數量</th>
                     <th className="w-[11%] px-4 py-3 font-medium align-middle">執行回覆</th>
-                    <th className="w-[9%] px-4 py-3 font-medium text-center align-middle">操作</th>
+                    <th className="w-[11%] px-4 py-3 font-medium text-center align-middle">操作</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-white/10 bg-transparent">
