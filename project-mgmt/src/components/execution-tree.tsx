@@ -802,7 +802,7 @@ function AssignmentMenu({
       : "inline-flex h-11 w-[72px] items-center justify-center rounded-2xl border border-white/10 bg-slate-900/40 px-3 text-sm font-semibold text-slate-200 shadow-[0_16px_34px_-24px_rgba(0,0,0,0.38),inset_0_1px_0_rgba(255,255,255,0.03)] backdrop-blur-xl transition hover:bg-slate-900/60";
 
   return (
-    <div className="relative">
+    <div className={`relative ${isActive ? "z-[220]" : "z-0"}`}>
       <button
         type="button"
         onClick={() => onToggle(targetId)}
@@ -811,7 +811,7 @@ function AssignmentMenu({
         交辦
       </button>
       {isActive ? (
-        <div className="absolute right-0 z-10 mt-2 w-32 rounded-3xl border border-white/10 bg-slate-950 p-2 shadow-[0_24px_46px_-28px_rgba(0,0,0,0.54)] ring-1 ring-white/10">
+        <div className="absolute right-0 z-[230] mt-2 w-32 rounded-3xl border border-white/10 bg-slate-950 p-2 shadow-[0_24px_46px_-28px_rgba(0,0,0,0.54)] ring-1 ring-white/10">
           <div className="flex flex-col gap-1">
             <button
               type="button"
@@ -2200,7 +2200,7 @@ export function ExecutionTree({
                     return (
                       <div
                         key={child.id}
-                        className="rounded-2xl border border-white/10 bg-[linear-gradient(180deg,rgba(40,53,79,0.64),rgba(17,27,44,0.46))] px-4 py-3 shadow-[0_20px_40px_-26px_rgba(0,0,0,0.46),inset_0_1px_0_rgba(255,255,255,0.05)] backdrop-blur-2xl"
+                        className={`relative rounded-2xl border border-white/10 bg-[linear-gradient(180deg,rgba(40,53,79,0.64),rgba(17,27,44,0.46))] px-4 py-3 shadow-[0_20px_40px_-26px_rgba(0,0,0,0.46),inset_0_1px_0_rgba(255,255,255,0.05)] backdrop-blur-2xl ${activeAssignMenu === child.id ? 'z-[210]' : 'z-0'}`}
                       >
                         <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
                           <div className="flex-1">
