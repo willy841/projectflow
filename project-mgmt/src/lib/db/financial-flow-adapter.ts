@@ -6,7 +6,6 @@ import {
 import { createPhase1DbClient } from '@/lib/db/phase1-client';
 import { shouldUseDbDesignFlow } from '@/lib/db/design-flow-toggle';
 import { shouldUseDbProcurementFlow } from '@/lib/db/procurement-flow-toggle';
-import { shouldUseDbVendorFlow } from '@/lib/db/vendor-flow-toggle';
 import { loadQuotationReadModelIndex, type QuotationReadModel } from '@/lib/db/quotation-read-model';
 
 type DbFinancialProjectIdentity = {
@@ -366,7 +365,9 @@ async function listProcurementFinancialItems(): Promise<CostLineItem[]> {
 }
 
 async function listVendorFinancialItems(): Promise<CostLineItem[]> {
-  if (!shouldUseDbVendorFlow()) return [];
+  // Downstream financial readback must always honor formal vendor confirmations
+  // already written into DB, regardless of whether the upstream vendor board
+  // feature flag is currently enabled in this runtime.
   const db = createPhase1DbClient();
   const rows = await db.query<SnapshotAmountRow>(`
     ${CANONICAL_CONFIRMATIONS_CTE}
