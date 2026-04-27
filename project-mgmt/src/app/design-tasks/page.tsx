@@ -119,7 +119,7 @@ export default async function DesignTasksPage({
                     <th className="w-[46%] px-4 py-3 font-medium align-middle">專案名稱</th>
                     <th className="w-[16%] px-4 py-3 font-medium align-middle">任務數量</th>
                     <th className="w-[20%] px-4 py-3 font-medium align-middle">活動日期</th>
-                    <th className="w-[18%] px-4 py-3 font-medium text-right align-middle">操作</th>
+                    <th className="w-[18%] px-4 py-3 font-medium text-center align-middle">操作</th>
                   </tr>
                 </thead>
                 <tbody className="bg-transparent">
@@ -128,7 +128,7 @@ export default async function DesignTasksPage({
                       <td className="px-4 py-4 font-medium text-slate-100">{project.projectName}</td>
                       <td className="px-4 py-4 text-slate-300">共 {project.taskCount} 筆</td>
                       <td className="px-4 py-4 text-slate-300">{project.eventDate}</td>
-                      <td className="px-4 py-4 text-right">
+                      <td className="px-4 py-4 text-center">
                         <Link href={`/design-tasks?project=${encodeURIComponent(project.projectId)}`} className={workspacePrimaryButtonClass}>進入工作臺</Link>
                       </td>
                     </tr>
@@ -143,13 +143,13 @@ export default async function DesignTasksPage({
               <table className="pf-table min-w-[1180px] table-fixed xl:min-w-full">
                 <thead>
                   <tr>
-                    <th className="w-[26%] px-4 py-3 font-medium align-middle">任務標題</th>
-                    <th className="w-[14%] px-4 py-3 font-medium align-middle">尺寸</th>
-                    <th className="w-[10%] px-4 py-3 font-medium align-middle">材質</th>
-                    <th className="w-[10%] px-4 py-3 font-medium align-middle">結構</th>
-                    <th className="w-[9%] px-4 py-3 font-medium align-middle">數量</th>
-                    <th className="w-[18%] px-4 py-3 font-medium align-middle">執行回覆</th>
-                    <th className="w-[13%] px-4 py-3 font-medium text-center align-middle">操作</th>
+                    <th className="w-[32%] px-4 py-3 font-medium align-middle">任務標題</th>
+                    <th className="w-[16%] px-4 py-3 font-medium align-middle">尺寸</th>
+                    <th className="w-[12%] px-4 py-3 font-medium align-middle">材質</th>
+                    <th className="w-[12%] px-4 py-3 font-medium align-middle">結構</th>
+                    <th className="w-[8%] px-4 py-3 font-medium align-middle">數量</th>
+                    <th className="w-[11%] px-4 py-3 font-medium align-middle">執行回覆</th>
+                    <th className="w-[9%] px-4 py-3 font-medium text-center align-middle">操作</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-white/10 bg-transparent">

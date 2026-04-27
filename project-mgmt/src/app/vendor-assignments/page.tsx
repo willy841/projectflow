@@ -105,23 +105,11 @@ export default async function VendorAssignmentsPage({
       />
 
       <WorkspaceSection
-        title={activeProject ? (
-          <div className="flex flex-wrap items-center gap-3 text-sm font-medium text-slate-200">
-            <span>廠商</span>
-            <span className="text-slate-500">/</span>
-            <span>活動日期</span>
-            <span className="text-slate-500">/</span>
-            <span>筆數</span>
-          </div>
-        ) : undefined}
+        title={undefined}
         meta={null}
         actions={
           activeProject ? (
-            <>
-              <span className="text-sm text-slate-300">{activeProject.eventDate}</span>
-              <span className="inline-flex items-center rounded-full bg-white/8 px-2.5 py-1 text-xs font-medium text-slate-200 ring-1 ring-white/10">共 {vendorGroups.length} 筆</span>
-              <Link href="/vendor-assignments" className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-white/10 bg-slate-900/40 px-4 py-2.5 text-sm font-medium text-slate-200 shadow-[0_16px_34px_-24px_rgba(0,0,0,0.38),inset_0_1px_0_rgba(255,255,255,0.03)] backdrop-blur-xl">返回專案列表</Link>
-            </>
+            <Link href="/vendor-assignments" className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-white/10 bg-slate-900/40 px-4 py-2.5 text-sm font-medium text-slate-200 shadow-[0_16px_34px_-24px_rgba(0,0,0,0.38),inset_0_1px_0_rgba(255,255,255,0.03)] backdrop-blur-xl">返回專案列表</Link>
           ) : null
         }
        className="shell-none p-1">
@@ -134,7 +122,7 @@ export default async function VendorAssignmentsPage({
                     <th className="px-4 py-3 font-medium">專案名稱</th>
                     <th className="px-4 py-3 font-medium">任務數量</th>
                     <th className="px-4 py-3 font-medium">活動日期</th>
-                    <th className="px-4 py-3 font-medium text-right">操作</th>
+                    <th className="px-4 py-3 font-medium text-center">操作</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-white/10 bg-transparent">
@@ -143,7 +131,7 @@ export default async function VendorAssignmentsPage({
                       <td className="px-4 py-4 font-medium text-slate-100"><Link href={`/vendor-assignments?project=${encodeURIComponent(project.projectId)}`} className="underline-offset-4 hover:underline">{project.projectName}</Link></td>
                       <td className="px-4 py-4 text-slate-300">共 {project.taskCount} 筆</td>
                       <td className="px-4 py-4 text-slate-300">{project.eventDate}</td>
-                      <td className="px-4 py-4 text-right">
+                      <td className="px-4 py-4 text-center">
                         <Link href={`/vendor-assignments?project=${encodeURIComponent(project.projectId)}`} className={workspacePrimaryButtonClass}>進入工作臺</Link>
                       </td>
                     </tr>
@@ -156,6 +144,15 @@ export default async function VendorAssignmentsPage({
           vendorGroups.length ? (
             <div className="overflow-x-auto rounded-2xl border border-white/10 bg-[linear-gradient(180deg,rgba(39,52,77,0.62),rgba(17,26,42,0.46))] shadow-[0_24px_46px_-28px_rgba(0,0,0,0.54),0_0_16px_rgba(96,165,250,0.05),inset_0_1px_0_rgba(255,255,255,0.05),inset_0_-16px_24px_-18px_rgba(10,18,32,0.86)] backdrop-blur-2xl">
               <table className="min-w-[1180px] divide-y divide-white/10 text-left text-sm xl:min-w-full">
+                <thead className="bg-white/[0.04] text-slate-400">
+                  <tr>
+                    <th className="px-4 py-3 font-medium">廠商</th>
+                    <th className="px-4 py-3 font-medium">任務數量</th>
+                    <th className="px-4 py-3 font-medium">活動日期</th>
+                    <th className="px-4 py-3 font-medium">任務摘要</th>
+                    <th className="px-4 py-3 font-medium text-center">操作</th>
+                  </tr>
+                </thead>
                 <tbody className="divide-y divide-white/10 bg-transparent">
                   {vendorGroups.map((group) => (
                     <tr key={group.vendorKey} className="align-middle">
@@ -171,7 +168,7 @@ export default async function VendorAssignmentsPage({
                           ))}
                         </div>
                       </td>
-                      <td className="px-4 py-4 text-right">
+                      <td className="px-4 py-4 text-center">
                         <Link href={`/vendor-assignments/${encodeURIComponent(buildVendorGroupRouteId(activeProject.projectId, group.vendorId))}`} className={workspacePrimaryButtonClass}>進入廠商</Link>
                       </td>
                     </tr>

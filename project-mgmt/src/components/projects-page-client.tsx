@@ -184,7 +184,7 @@ export function ProjectsPageClient({ initialProjects }: { initialProjects: Proje
                   <th className="px-4 py-3 font-medium">預算</th>
                   <th className="px-4 py-3 font-medium">成本</th>
                   <th className="px-4 py-3 font-medium">負責人</th>
-                  <th className="px-4 py-3 font-medium text-right">操作</th>
+                  <th className="px-4 py-3 font-medium text-center">操作</th>
                 </tr>
               </thead>
               <tbody className="bg-transparent">
@@ -205,7 +205,7 @@ export function ProjectsPageClient({ initialProjects }: { initialProjects: Proje
                       <td className="px-4 py-4 align-middle text-slate-300">{project.budget}</td>
                       <td className="px-4 py-4 align-middle text-slate-300">{project.cost}</td>
                       <td className="px-4 py-4 align-middle text-slate-300">{project.owner}</td>
-                      <td className="px-4 py-4 align-middle text-right">
+                      <td className="px-4 py-4 align-middle text-center">
                         {isDbProject ? (
                           <button
                             type="button"
