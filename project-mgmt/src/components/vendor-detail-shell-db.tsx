@@ -301,7 +301,7 @@ export function VendorDetailShellDb({ vendor, initialOpenRecords, tradeOptions =
         <div className="flex flex-col gap-5 xl:flex-row xl:items-center xl:justify-between">
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-3">
-              <h2 className="text-3xl font-semibold tracking-tight text-slate-100">{vendor.name}</h2>
+              <h2 className="text-3xl font-semibold tracking-tight text-white drop-shadow-[0_2px_10px_rgba(15,23,42,0.45)]">{vendor.name}</h2>
               {(vendor.tradeLabels?.length ? vendor.tradeLabels : [vendor.tradeLabel || vendor.category || '—']).map((trade) => (
                 <span key={`${vendor.id}-${trade}`} className="inline-flex rounded-full bg-sky-50 px-3 py-1 text-xs font-medium text-sky-700 ring-1 ring-sky-200">{trade}</span>
               ))}
