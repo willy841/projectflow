@@ -273,7 +273,8 @@ export function DesignPlanEditorClient({
       });
 
       if (!response.ok) {
-        throw new Error("confirm failed");
+        const payload = (await response.json().catch(() => null)) as { error?: string } | null;
+        throw new Error(payload?.error || "confirm failed");
       }
 
       router.push(`/projects/${projectId}/design-document`);

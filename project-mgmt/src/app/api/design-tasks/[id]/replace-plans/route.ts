@@ -16,29 +16,38 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
         amount?: string;
         previewUrl?: string;
         vendor?: string;
+        vendorId?: string | null;
       }>;
     };
 
     const db = createPhase1DbClient();
     const repositories = createPhase1Repositories(db);
     const services = createPhase1Services(repositories);
+    const vendors = await repositories.vendors.list();
+    const vendorById = new Map(vendors.map((vendor) => [vendor.id, vendor]));
+    const vendorByName = new Map(vendors.map((vendor) => [vendor.name.trim(), vendor]));
 
     const rows = await services.replaceDesignPlans(
       id,
       body.plans
         .filter((plan) => [plan.title, plan.size, plan.material, plan.structure, plan.quantity, plan.amount, plan.previewUrl, plan.vendor].some((value) => value?.trim()))
-        .map((plan, index) => ({
-          design_task_id: id,
-          title: plan.title,
-          size: plan.size ?? null,
-          material: plan.material ?? null,
-          structure: plan.structure ?? null,
-          quantity: plan.quantity ?? null,
-          amount: plan.amount?.replace(/[^\d.-]/g, '') || null,
-          preview_url: plan.previewUrl ?? null,
-          vendor_name_text: plan.vendor ?? null,
-          sort_order: index + 1,
-        })),
+        .map((plan, index) => {
+          const rawVendorName = plan.vendor?.trim() ?? '';
+          const matchedVendor = (plan.vendorId ? vendorById.get(plan.vendorId) : null) ?? (rawVendorName ? vendorByName.get(rawVendorName) : null) ?? null;
+          return {
+            design_task_id: id,
+            title: plan.title,
+            size: plan.size ?? null,
+            material: plan.material ?? null,
+            structure: plan.structure ?? null,
+            quantity: plan.quantity ?? null,
+            amount: plan.amount?.replace(/[^\d.-]/g, '') || null,
+            preview_url: plan.previewUrl ?? null,
+            vendor_id: matchedVendor?.id ?? null,
+            vendor_name_text: matchedVendor?.name ?? (rawVendorName || null),
+            sort_order: index + 1,
+          };
+        }),
     );
 
     return NextResponse.json({ ok: true, rows });

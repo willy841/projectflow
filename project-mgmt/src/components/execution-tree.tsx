@@ -168,7 +168,7 @@ function VendorMatchField({
   const isExactMatch = vendors.some((vendor) => normalizeVendorKeyword(vendor.name) === keyword);
 
   return (
-    <label className="relative flex flex-col gap-2 md:col-span-2 xl:col-span-1">
+    <label className={`relative isolate flex flex-col gap-2 md:col-span-2 xl:col-span-1 ${isOpen ? 'z-[140]' : 'z-0'}`}>
       <span className="text-sm font-medium text-slate-200">{label}</span>
       <div className="relative">
         <input
@@ -196,7 +196,7 @@ function VendorMatchField({
         </div>
       ) : null}
       {isOpen ? (
-        <div className="absolute left-0 right-0 top-full z-20 mt-2 overflow-hidden rounded-2xl border border-white/10 bg-slate-900/55 shadow-xl">
+        <div className="absolute left-0 right-0 top-full z-[160] mt-2 overflow-hidden rounded-2xl border border-white/10 bg-slate-900/95 shadow-2xl">
           <div className="max-h-64 overflow-y-auto p-2">
             {matchedVendors.length ? (
               matchedVendors.map((vendor) => (
