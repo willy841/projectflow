@@ -60,12 +60,49 @@
 - delete 後是否同步消失
 - overwrite 後舊資料是否正確被替換
 - field mapping 是否寫到正確欄位
+- **DB write 成功後，資料是否真的出現在正確 downstream UI / read model 頁面**
 
 也就是：
 
 > **不是只看畫面有沒有變，而是驗證資料是否真的留存、覆蓋、同步與下游承接。**
+>
+> **只驗 DB write 成功但不驗 downstream UI/readback，不算正式通過。**
+
+### 2.2-A Fresh-project 驗收必須分清兩種層級（2026-04-27 補強）
+
+之後凡是宣稱 fresh-project「從頭到尾已驗過」，必須明確區分：
+
+1. **core mainline passed**
+   - 代表至少有一條從新建專案一路跑到下游/結案的主路徑通過
+   - 這只能證明主線沒斷，不代表所有真實使用者分支都驗過
+2. **all real user branches passed**
+   - 代表該 fresh-project 驗收已把本輪要求的真實分支也納入 must-pass
+   - 不只 happy-path
+
+對 fresh-project end-to-end 標準，後續正式要求是：
+
+> **不能只宣稱 core mainline passed；若要當作完整 fresh-project 驗收結論，必須把指定 real-user branches 一起驗過。**
 
 ---
+
+### 2.2-B 本輪新增的 must-pass acceptance 補強（2026-04-27）
+
+1. **Fresh-project from-scratch acceptance 必須含 branch-complete verification**
+   - 不得只跑單一路 happy-path mainline
+2. **設計任務 save/confirm 必須覆蓋兩條可達 confirm 的 save 分支**
+   - `sync-plans` 分支
+   - `replace-plans` 分支（含 vendor identity resolution）
+3. **Vendor board confirm → quote-cost downstream readback 是正式 must-pass**
+   - 正式 vendor confirmation 一旦寫入 DB
+   - 就必須在 quote-cost downstream 正確出現
+   - 不可因 upstream UI feature-flag / page gating 而被當成可忽略
+4. **Downstream readback 必須頁面化驗證**
+   - design/procurement document
+   - vendor package / quote-cost
+   - 必須驗正確頁面真的看得到，不只驗 DB
+5. **UI click-path regression 需納入 acceptance**
+   - 至少包含：dispatch sub-item assignment menu 可互動/可點擊
+   - 不可接受「畫面有 render 但實際被蓋住、點不到」
 
 ### 2.3 設計 / 備品 / 廠商三條線的正式文件層規則
 

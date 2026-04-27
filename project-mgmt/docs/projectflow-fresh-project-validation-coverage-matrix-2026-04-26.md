@@ -11,6 +11,14 @@ This matrix distinguishes three things clearly:
 
 This exists to avoid over-claiming that "everything" was re-tested from scratch, while still making the new-project validation status explicit.
 
+## Reading rule added on 2026-04-27
+
+For fresh-project acceptance, always distinguish:
+- **core mainline passed** = one end-to-end happy-path was verified
+- **all real user branches passed** = the required real-world branch set was explicitly verified
+
+Fresh-project end-to-end should no longer be treated as complete if it only satisfies the first line.
+
 ---
 
 ## A. Re-validated on a freshly created project
@@ -30,7 +38,7 @@ Covered:
 - project detail shows the three project-family entry buttons
 
 ### A2. Fresh project upstream → three-line dispatch → downstream closeout mainline
-Status: re-validated on fresh project
+Status: re-validated on fresh project (**core mainline passed**)
 Evidence:
 - `tests/formal-acceptance-v2/20-new-project-full-chain-spot-check.spec.ts`
 
@@ -85,6 +93,24 @@ Covered:
 - edit dispatched item title
 - task-view card on the same project-detail page reflects the updated title
 - old card title no longer remains
+
+### A6. Fresh project branch-complete readback and click-path coverage
+Status: re-validated on fresh project (**required real-user branch set passed for this batch**)
+Evidence:
+- `tests/formal-acceptance-v2/24-new-project-branch-complete-readback-and-clickpath.spec.ts`
+
+Covered:
+- sub-item dispatch menu is actually interactable/clickable
+- design `replace-plans` save branch reaches confirm correctly
+- vendor identity is resolved before design confirm on the replace-plans branch
+- save alone does not create confirmed downstream truth
+- confirmed design truth appears in project-level design document
+- confirmed design truth appears in quote-cost downstream UI
+- vendor group confirm truth appears in quote-cost downstream UI
+
+Interpretation:
+- A2 remains the core happy-path mainline proof
+- A6 is the explicit guard against over-claiming that one happy-path equals branch-complete fresh-project acceptance
 
 ---
 

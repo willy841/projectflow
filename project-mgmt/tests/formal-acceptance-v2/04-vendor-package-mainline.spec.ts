@@ -71,5 +71,10 @@ test.describe.serial('formal acceptance v2 · phase 3 · vendor package mainline
     await expect(page.locator('pre')).toContainText(latestRequirement);
     await expect(page.getByRole('button', { name: '複製內容' })).toBeVisible();
     await expect(page.getByRole('button', { name: '匯出 TXT' })).toBeVisible();
+
+    await page.goto(`/quote-costs/${PROJECT_ID}`);
+    await page.getByRole('button', { name: /廠商/ }).first().click();
+    await expect(page.getByRole('cell', { name: latestTitle }).first()).toBeVisible();
+    await expect(page.getByText(VENDOR_NAME).first()).toBeVisible();
   });
 });

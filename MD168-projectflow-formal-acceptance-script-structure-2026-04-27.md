@@ -29,11 +29,18 @@ Purpose: 把 `projectflow` 正式驗收的 script 分層固定下來，避免之
   - 適合這種「從頭到尾再測一次」的要求
 - 除了主線 `v2` 外，還包含：
   - boundary batch3 ~ batch12
-  - fresh-project 19 ~ 23
+  - fresh-project 19 ~ 24
   - requirements CRUD
   - upstream requirements API persistence
   - execution item import overwrite
   - execution item upload UI
+
+補充規則（2026-04-27）：
+- fresh-project 19~24 不再只代表「一條 happy-path 跑通」
+- 其中 24 明確承接 branch-complete / downstream readback / sub-item click-path acceptance
+- 因此之後若要回答「fresh-project from scratch 有沒有驗完整」
+  - 不可只看 20
+  - 至少要連 24 一起納入判讀
 
 ### C. 舊補充 script
 - script: `npm run test:formal-acceptance:legacy`

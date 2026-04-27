@@ -74,6 +74,20 @@ The new suite is based on the approved rules already visible in current repo con
    - vendor package/document layer must read latest confirmed package payload
    - old package payload is historical, not current truth
 
+14. **Fresh-project branch-complete rule**
+   - fresh-project acceptance cannot stop at one happy-path mainline
+   - it must distinguish `core mainline passed` from `all real user branches passed`
+   - the stricter fresh-project end-to-end standard must include the required real-user branches for this round
+
+15. **Downstream UI readback rule**
+   - DB write success alone is insufficient
+   - accepted truth must appear in the correct downstream UI/read-model pages
+   - this explicitly includes vendor confirm → quote-cost downstream readback
+
+16. **UI click-path interactability rule**
+   - acceptance must cover important rendered-but-blocked regressions
+   - at least the dispatch sub-item assignment menu must be actually clickable/interactable
+
 ---
 
 ## 3. Proposed new suite structure

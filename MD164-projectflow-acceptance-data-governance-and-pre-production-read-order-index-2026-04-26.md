@@ -52,6 +52,10 @@
 7. **`project-mgmt/docs/projectflow-fresh-project-validation-coverage-matrix-2026-04-26.md`**
    - 新建立專案重驗覆蓋矩陣
    - 明確區分：已在 fresh project 重驗、仍主要由既有 suite 覆蓋、尚未在 fresh project 窮舉重跑的範圍
+   - 2026-04-27 起另明確區分：`core mainline passed` vs `all real user branches passed`
+8. **MD168 — `projectflow-formal-acceptance-script-structure-2026-04-27.md`**
+   - 正式驗收 script 分層入口
+   - 用來避免只跑到主線 blocker，卻誤以為 fresh-project branch-complete 也已涵蓋
 
 這七份共同構成目前 Phase 1 技術收尾 / 正式站前技術紀律主線的最新入口。
 
