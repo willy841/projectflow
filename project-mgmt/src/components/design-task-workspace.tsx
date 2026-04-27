@@ -90,7 +90,7 @@ export function DesignTaskWorkspace({
           <div className="border-b border-white/10 px-4 py-4">
             <h3 className="text-base font-semibold text-slate-100">執行回覆列表</h3>
           </div>
-          <div className="divide-y divide-slate-100">
+          <div className="divide-y divide-white/10">
             {plans.length ? plans.map((plan, index) => {
               const active = selectedPlan?.id === plan.id;
               return (
@@ -98,18 +98,18 @@ export function DesignTaskWorkspace({
                   key={plan.id}
                   type="button"
                   onClick={() => setSelectedPlanId(plan.id)}
-                  className={`block w-full px-4 py-4 text-left transition ${active ? 'bg-slate-900 text-white' : 'bg-white hover:bg-slate-50'}`}
+                  className={`block w-full px-4 py-4 text-left transition ${active ? 'bg-[linear-gradient(180deg,rgba(24,37,60,0.96),rgba(11,19,34,0.92))] text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.06),inset_3px_0_0_rgba(96,165,250,0.72),0_24px_44px_-32px_rgba(15,23,42,0.82)]' : 'bg-transparent text-slate-200 hover:bg-white/[0.05]'}`}
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
-                      <p className={`text-xs font-medium ${active ? 'text-slate-300' : 'text-slate-500'}`}>回覆 #{index + 1}</p>
-                      <p className={`mt-1 line-clamp-2 text-sm font-semibold ${active ? 'text-white' : 'text-slate-900'}`}>{plan.title || taskTitle}</p>
+                      <p className={`text-xs font-medium ${active ? 'text-sky-100/80' : 'text-slate-400'}`}>回覆 #{index + 1}</p>
+                      <p className={`mt-1 line-clamp-2 text-sm font-semibold ${active ? 'text-white' : 'text-slate-100'}`}>{plan.title || taskTitle}</p>
                     </div>
-                    <span className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-medium ring-1 ${active ? 'bg-white/10 text-white ring-white/15' : 'bg-slate-100 text-slate-700 ring-slate-200'}`}>
+                    <span className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-medium ring-1 ${active ? 'bg-white/10 text-white ring-white/15' : 'bg-white/[0.06] text-slate-200 ring-white/10'}`}>
                       {plan.amount || '未填金額'}
                     </span>
                   </div>
-                  <div className={`mt-3 grid gap-2 text-xs ${active ? 'text-slate-200' : 'text-slate-500'}`}>
+                  <div className={`mt-3 grid gap-2 text-xs ${active ? 'text-slate-200' : 'text-slate-400'}`}>
                     <div>尺寸：{plan.size || '未填寫'}</div>
                     <div>材質：{plan.material || '未填寫'}</div>
                     <div>結構：{plan.structure || '未填寫'}</div>
@@ -135,14 +135,14 @@ export function DesignTaskWorkspace({
                   type="button"
                   onClick={headerActions.saveSelectedPlan}
                   disabled={headerActions.saving}
-                  className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 disabled:opacity-60"
+                  className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-white/10 bg-slate-900/50 px-4 py-2.5 text-sm font-medium text-slate-100 shadow-[0_22px_46px_-28px_rgba(0,0,0,0.45),inset_0_1px_0_rgba(255,255,255,0.04)] backdrop-blur-xl transition hover:bg-slate-900/70 disabled:opacity-60"
                 >
                   {headerActions.saving ? "儲存中..." : "儲存"}
                 </button>
                 <button
                   type="button"
                   onClick={headerActions.removeSelectedPlan}
-                  className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-rose-200 bg-rose-50 px-4 py-2.5 text-sm font-medium text-rose-700"
+                  className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-rose-400/18 bg-[linear-gradient(135deg,rgba(127,29,29,0.72),rgba(69,10,10,0.82))] px-4 py-2.5 text-sm font-medium text-rose-100 shadow-[0_22px_46px_-28px_rgba(127,29,29,0.48),inset_0_1px_0_rgba(255,255,255,0.05)] backdrop-blur-xl transition hover:brightness-110"
                 >
                   刪除這筆處理
                 </button>
