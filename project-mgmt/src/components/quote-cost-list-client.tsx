@@ -75,7 +75,7 @@ export function QuoteCostListClient({ mode = "active", initialProjects }: { mode
                 {activeProjects.map(({ project }) => (
                   <tr key={project.id}>
                     <td className="text-slate-300">{project.clientName}</td>
-                    <td className="font-medium text-slate-100">{project.projectName}</td>
+                    <td className="font-medium text-slate-100"><Link href={`/quote-costs/${project.id}`} className="underline-offset-4 hover:underline">{project.projectName}</Link></td>
                     <td className="text-slate-300">{project.eventDate}</td>
                     <td>
                       <span className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ring-1 ${project.quotationImported ? "bg-emerald-400/14 text-emerald-200 ring-emerald-300/20" : "bg-amber-400/14 text-amber-200 ring-amber-300/20"}`}>

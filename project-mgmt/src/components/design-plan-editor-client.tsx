@@ -323,17 +323,17 @@ export function DesignPlanEditorClient({
         </div>
       ) : null}
       {visiblePlans.map((plan, index) => (
-        <article key={plan.id} className="rounded-2xl border border-slate-200 bg-white p-5">
-          <div className="mb-4 flex items-center justify-between gap-3 border-b border-slate-100 pb-4">
+        <article key={plan.id} className="rounded-[28px] border border-white/10 bg-[linear-gradient(180deg,rgba(39,52,77,0.62),rgba(17,26,42,0.46))] p-5 shadow-[0_24px_46px_-28px_rgba(0,0,0,0.54),0_0_16px_rgba(96,165,250,0.05),inset_0_1px_0_rgba(255,255,255,0.05),inset_0_-16px_24px_-18px_rgba(10,18,32,0.86)] backdrop-blur-2xl">
+          <div className="mb-4 flex items-center justify-between gap-3 border-b border-white/10 pb-4">
             <div>
-              <p className="text-xs font-medium tracking-wide text-slate-500">執行處理 #{index + 1}</p>
+              <p className="text-xs font-medium tracking-wide text-slate-400">執行處理 #{index + 1}</p>
             </div>
           </div>
 
           <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-            <label className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3.5 xl:col-span-2">
-              <p className="text-xs font-medium tracking-wide text-slate-500">標題</p>
-              <input value={plan.title} onChange={(e) => updatePlan(plan.id, "title", e.target.value)} className="mt-2 h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm font-medium text-slate-900" />
+            <label className="rounded-2xl border border-white/10 bg-slate-950/35 px-4 py-3.5 xl:col-span-2">
+              <p className="text-xs font-medium tracking-wide text-slate-400">標題</p>
+              <input value={plan.title} onChange={(e) => updatePlan(plan.id, "title", e.target.value)} className="mt-2 h-10 w-full rounded-xl border border-white/10 bg-slate-950/50 px-3 text-sm font-medium text-slate-100 outline-none focus:border-sky-400/40 focus:ring-2 focus:ring-sky-400/20" />
             </label>
             <label className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3.5">
               <p className="text-xs font-medium tracking-wide text-slate-500">尺寸</p>
@@ -370,7 +370,7 @@ export function DesignPlanEditorClient({
               />
             </label>
           </div>
-          <div className="mt-4 border-t border-slate-100 pt-4" />
+          <div className="mt-4 border-t border-white/10 pt-4" />
         </article>
       ))}
 

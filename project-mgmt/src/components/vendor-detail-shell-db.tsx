@@ -297,11 +297,11 @@ export function VendorDetailShellDb({ vendor, initialOpenRecords, tradeOptions =
 
   return (
     <div className="space-y-6">
-      <header className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+      <header className="rounded-3xl border border-white/10 bg-[linear-gradient(180deg,rgba(18,30,50,0.72),rgba(13,22,39,0.52))] p-6 shadow-[0_34px_90px_-38px_rgba(0,0,0,0.68),0_0_34px_rgba(96,165,250,0.08),inset_0_1px_0_rgba(255,255,255,0.07),inset_0_-22px_44px_-28px_rgba(7,13,25,0.98)] backdrop-blur-[28px]">
         <div className="flex flex-col gap-5 xl:flex-row xl:items-center xl:justify-between">
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-3">
-              <h2 className="text-3xl font-semibold tracking-tight text-slate-900">{vendor.name}</h2>
+              <h2 className="text-3xl font-semibold tracking-tight text-slate-100">{vendor.name}</h2>
               {(vendor.tradeLabels?.length ? vendor.tradeLabels : [vendor.tradeLabel || vendor.category || '—']).map((trade) => (
                 <span key={`${vendor.id}-${trade}`} className="inline-flex rounded-full bg-sky-50 px-3 py-1 text-xs font-medium text-sky-700 ring-1 ring-sky-200">{trade}</span>
               ))}
@@ -320,7 +320,7 @@ export function VendorDetailShellDb({ vendor, initialOpenRecords, tradeOptions =
         </div>
 
         {profileExpanded ? (
-          <div className="mt-6 border-t border-slate-200 pt-6">
+          <div className="mt-6 border-t border-white/10 pt-6">
             <div className="mb-5 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
               <div>
                 <h3 className="text-xl font-semibold text-slate-900">廠商資訊</h3>

@@ -103,7 +103,7 @@ export default async function ProcurementTasksPage({
                 <tbody className="bg-transparent">
                   {projects.map((project) => (
                     <tr key={project.projectId} className="align-middle">
-                      <td className="px-4 py-4 font-medium text-slate-100">{project.projectName}</td>
+                      <td className="px-4 py-4 font-medium text-slate-100"><Link href={`/procurement-tasks?project=${encodeURIComponent(project.projectId)}`} className="underline-offset-4 hover:underline">{project.projectName}</Link></td>
                       <td className="px-4 py-4 text-slate-300">共 {project.taskCount} 筆</td>
                       <td className="px-4 py-4 text-slate-300">{project.eventDate}</td>
                       <td className="px-4 py-4 text-right">
