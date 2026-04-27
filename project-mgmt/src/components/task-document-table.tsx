@@ -22,12 +22,12 @@ export function TaskDocumentTable<T>({
   }
 
   return (
-    <div className="overflow-x-auto rounded-2xl border border-slate-200">
-      <table className="min-w-full border-collapse text-left text-sm">
-        <thead className="bg-slate-50 text-slate-600">
+    <div className="pf-table-shell rounded-[28px]">
+      <table className="pf-table min-w-[880px] xl:min-w-full">
+        <thead>
           <tr>
             {columns.map((column) => (
-              <th key={column.key} className="border-b border-slate-200 px-4 py-3 font-medium">
+              <th key={column.key} className="px-4 py-3 font-medium">
                 {column.label}
               </th>
             ))}
@@ -35,11 +35,11 @@ export function TaskDocumentTable<T>({
         </thead>
         <tbody>
           {rows.map((row, rowIndex) => (
-            <tr key={rowIndex} className="align-top text-slate-700">
+            <tr key={rowIndex}>
               {columns.map((column) => {
                 const value = column.render(row);
                 return (
-                  <td key={column.key} className="border-b border-slate-200 px-4 py-3">
+                  <td key={column.key} className="text-slate-300">
                     {value === null || value === undefined || value === "" ? "未填寫" : value}
                   </td>
                 );

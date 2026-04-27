@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation';
 import { AppShellAuth } from '@/components/app-shell-auth';
 import { ProcurementDocumentExportButton } from '@/components/document-export-button';
 import { TaskDocumentTable } from '@/components/task-document-table';
-import { WorkspaceHeader, WorkspaceSection } from '@/components/workspace-ui';
+import { WorkspaceHeader, WorkspaceSection, workspacePrimaryButtonClass } from '@/components/workspace-ui';
 import { resolveDbProjectIdByRouteId } from '@/lib/db/project-flow-adapter';
 import { getProjectProcurementDocument } from '@/lib/db/project-flow-documents';
 
@@ -25,7 +25,7 @@ export default async function ProjectProcurementDocumentPage({ params }: { param
         actions={
           <>
             <ProcurementDocumentExportButton taskId={document.projectId} rows={document.rows.map((row) => ({ id: row.id, item: row.item, quantity: row.quantity }))} />
-            <Link href={`/projects/${encodeURIComponent(id)}`} className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-700">
+            <Link href={`/projects/${encodeURIComponent(id)}`} className={workspacePrimaryButtonClass}>
               返回專案詳情
             </Link>
           </>

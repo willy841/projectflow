@@ -57,7 +57,7 @@ export function QuoteCostHeader({
   const isClosedView = presenter.archived;
 
   return (
-    <header className={`overflow-hidden rounded-[32px] border p-6 shadow-[0_34px_90px_-38px_rgba(0,0,0,0.68),0_0_34px_rgba(96,165,250,0.08),inset_0_1px_0_rgba(255,255,255,0.07),inset_0_-22px_44px_-28px_rgba(7,13,25,0.98)] backdrop-blur-[28px] xl:p-7 ${isClosedView ? 'border-white/10 bg-[linear-gradient(180deg,rgba(20,31,51,0.82),rgba(10,18,33,0.72))] text-slate-100' : 'border-white/10 bg-[linear-gradient(180deg,rgba(18,30,50,0.82),rgba(10,18,33,0.74))] text-white'}`}>
+    <header className={`rounded-[32px] border p-6 shadow-[0_34px_90px_-38px_rgba(0,0,0,0.68),0_0_34px_rgba(96,165,250,0.08),inset_0_1px_0_rgba(255,255,255,0.07),inset_0_-22px_44px_-28px_rgba(7,13,25,0.98)] backdrop-blur-[28px] xl:p-7 ${isClosedView ? 'border-white/10 bg-[linear-gradient(180deg,rgba(22,34,56,0.76),rgba(10,18,33,0.64))] text-slate-100' : 'border-white/10 bg-[linear-gradient(180deg,rgba(18,30,50,0.82),rgba(10,18,33,0.74))] text-white'}`}>
       <div className="flex flex-col gap-5 xl:flex-row xl:items-center xl:justify-between">
         <div className="min-w-0 flex-1 xl:self-center">
           <h2 className={`text-3xl font-semibold tracking-tight ${isClosedView ? 'text-slate-50' : 'text-white'}`}>{projectName}</h2>
@@ -65,7 +65,7 @@ export function QuoteCostHeader({
             <OverviewRow label="活動日期" value={eventDate} archived={isClosedView} />
           </div>
         </div>
-        <div className={`grid gap-3 rounded-3xl border p-4 text-sm shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] sm:min-w-[300px] ${isClosedView ? 'border-white/10 bg-white/[0.05] text-slate-300' : 'border-white/10 bg-white/[0.06] text-slate-200'}`}>
+        <div className={`grid gap-3 rounded-3xl border p-4 text-sm shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] sm:min-w-[300px] ${isClosedView ? 'border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.06),rgba(255,255,255,0.03))] text-slate-300' : 'border-white/10 bg-white/[0.06] text-slate-200'}`}>
           <div>
             <p className={`text-base font-semibold ${isClosedView ? 'text-slate-50' : 'text-white'}`}>{presenter.shellTitle}</p>
           </div>
@@ -98,7 +98,7 @@ export function CollectionSection({
   onDelete?: (id: string) => void;
 }) {
   return (
-    <section className="rounded-[32px] border border-white/10 bg-[linear-gradient(180deg,rgba(18,30,50,0.76),rgba(10,18,33,0.66))] p-6 shadow-[0_34px_84px_-30px_rgba(0,0,0,0.72),0_10px_18px_-12px_rgba(15,23,42,0.5),inset_0_1px_0_rgba(255,255,255,0.1),inset_0_18px_28px_-20px_rgba(255,255,255,0.05),inset_0_-28px_44px_-24px_rgba(2,6,23,0.98)] backdrop-blur-[28px]">
+    <section className={`rounded-[32px] border p-6 shadow-[0_34px_84px_-30px_rgba(0,0,0,0.72),0_10px_18px_-12px_rgba(15,23,42,0.5),inset_0_1px_0_rgba(255,255,255,0.1),inset_0_18px_28px_-20px_rgba(255,255,255,0.05),inset_0_-28px_44px_-24px_rgba(2,6,23,0.98)] backdrop-blur-[28px] ${presenter.archived ? 'border-white/10 bg-[linear-gradient(180deg,rgba(22,34,56,0.72),rgba(10,18,33,0.62))]' : 'border-white/10 bg-[linear-gradient(180deg,rgba(18,30,50,0.76),rgba(10,18,33,0.66))]'}`}>
       <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
         <SimpleSectionTitle title={presenter.collectionTitle} />
         {presenter.canCreateCollectionRecord ? (
