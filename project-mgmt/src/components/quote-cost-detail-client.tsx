@@ -396,7 +396,7 @@ export function QuoteCostDetailClient({ project, mode = "active", presenter = ge
 
   return (
     <>
-      <AppShell activePath={presenter.activePath} variant={isClosedView ? "dark-glass" : "default"}>
+      <AppShell activePath={presenter.activePath} variant="dark-glass">
       <QuoteCostHeader
         presenter={presenter}
         projectName={state.projectName}
@@ -494,7 +494,7 @@ export function QuoteCostDetailClient({ project, mode = "active", presenter = ge
         </div>
 
         {visibleReconciliationGroups.length ? (
-          <div className={`mt-6 rounded-3xl border p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] ${isClosedView ? 'border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.075),rgba(255,255,255,0.03))]' : 'border-white/10 bg-white/[0.04]'}`}>
+          <div className="mt-6 space-y-4">
             <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
               <div>
                 <h4 className="text-lg font-semibold text-slate-50">對帳群組</h4>
@@ -569,8 +569,8 @@ export function QuoteCostDetailClient({ project, mode = "active", presenter = ge
           </div>
         ) : null}
 
-        <div className={`mt-6 rounded-3xl border p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] ${isClosedView ? 'border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.07),rgba(255,255,255,0.024))]' : 'border-white/10 bg-white/[0.03]'}`}>
-          <div className="mb-5 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+        <div className="mt-6 space-y-5">
+          <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
             <h4 className="text-lg font-semibold text-slate-50">項目明細</h4>
             <div className="flex flex-wrap items-center justify-end gap-2">
               {presenter.canPersistManualCosts && activeArchiveSource === "人工" ? (
@@ -716,9 +716,9 @@ function ManualArchiveTable({
   }
 
   return (
-    <div className="rounded-3xl border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.075),rgba(255,255,255,0.028))] p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
+    <div className="space-y-3">
       <h5 className="text-base font-semibold text-slate-50">人工最終留存內容</h5>
-      <div className="mt-4 space-y-3">
+      <div className="space-y-3">
         {manualItems.map((item) => (
           <div key={item.id} className={`rounded-3xl border p-4 ${isClosedView ? "border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.05),rgba(255,255,255,0.025))]" : "border-white/10 bg-white/[0.04]"}`}>
             <div className="grid gap-4 xl:grid-cols-[1.6fr_1fr]">
@@ -740,7 +740,7 @@ function ManualArchiveTable({
 
 function ArchiveTable({ title, headers, rows, compact = false, emptyText = '目前沒有內容。' }: { title: string; headers: string[]; rows: string[][]; compact?: boolean; emptyText?: string }) {
   return (
-    <div className="rounded-3xl border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.075),rgba(255,255,255,0.028))] p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
+    <div>
       {title ? <h5 className="text-base font-semibold text-slate-50">{title}</h5> : null}
       {rows.length ? (
         <div className={`${title ? 'mt-4 ' : ''}pf-table-shell`}>

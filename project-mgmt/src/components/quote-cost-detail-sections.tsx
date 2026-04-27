@@ -57,11 +57,11 @@ export function QuoteCostHeader({
   const isClosedView = presenter.archived;
 
   return (
-    <header className={`rounded-[32px] border p-6 shadow-[0_34px_90px_-38px_rgba(0,0,0,0.68),0_0_34px_rgba(96,165,250,0.08),inset_0_1px_0_rgba(255,255,255,0.07),inset_0_-22px_44px_-28px_rgba(7,13,25,0.98)] backdrop-blur-[28px] xl:p-7 ${isClosedView ? 'border-white/10 bg-[linear-gradient(180deg,rgba(24,38,63,0.8),rgba(9,16,30,0.7))] text-slate-100' : 'border-white/10 bg-[linear-gradient(180deg,rgba(18,30,50,0.82),rgba(10,18,33,0.74))] text-white'}`}>
+    <header className={`px-1 py-1 ${isClosedView ? 'text-slate-100' : 'text-white'}`}>
       <div className="flex flex-col gap-5 xl:flex-row xl:items-center xl:justify-between">
         <div className="min-w-0 flex-1 xl:self-center">
           <h2 className={`text-3xl font-semibold tracking-tight ${isClosedView ? 'text-slate-50' : 'text-white'}`}>{projectName}</h2>
-          <div className={`mt-4 grid gap-3 sm:grid-cols-1 xl:max-w-[320px] ${isClosedView ? 'text-slate-300' : 'text-slate-200'}`}>
+          <div className={`mt-4 flex flex-wrap items-center gap-2 ${isClosedView ? 'text-slate-300' : 'text-slate-200'}`}>
             <OverviewRow label="活動日期" value={eventDate} archived={isClosedView} />
           </div>
         </div>
@@ -98,7 +98,7 @@ export function CollectionSection({
   onDelete?: (id: string) => void;
 }) {
   return (
-    <section className={`rounded-[32px] border p-6 shadow-[0_34px_84px_-30px_rgba(0,0,0,0.72),0_10px_18px_-12px_rgba(15,23,42,0.5),inset_0_1px_0_rgba(255,255,255,0.1),inset_0_18px_28px_-20px_rgba(255,255,255,0.05),inset_0_-28px_44px_-24px_rgba(2,6,23,0.98)] backdrop-blur-[28px] ${presenter.archived ? 'border-white/10 bg-[linear-gradient(180deg,rgba(24,38,63,0.76),rgba(9,16,30,0.66))]' : 'border-white/10 bg-[linear-gradient(180deg,rgba(18,30,50,0.76),rgba(10,18,33,0.66))]'}`}>
+    <section className="space-y-5 px-1">
       <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
         <SimpleSectionTitle title={presenter.collectionTitle} />
         {presenter.canCreateCollectionRecord ? (
@@ -232,7 +232,7 @@ export function CostManagementSection({
   children: ReactNode;
 }) {
   return (
-    <section className={`rounded-[32px] border p-6 shadow-[0_34px_84px_-30px_rgba(0,0,0,0.72),0_10px_18px_-12px_rgba(15,23,42,0.5),inset_0_1px_0_rgba(255,255,255,0.1),inset_0_18px_28px_-20px_rgba(255,255,255,0.05),inset_0_-28px_44px_-24px_rgba(2,6,23,0.98)] backdrop-blur-[28px] ${archived ? 'border-white/10 bg-[linear-gradient(180deg,rgba(24,38,63,0.76),rgba(9,16,30,0.68))]' : 'border-white/10 bg-[linear-gradient(180deg,rgba(18,30,50,0.76),rgba(10,18,33,0.66))]'}`}>
+    <section className="space-y-5 px-1">
       {children}
     </section>
   );
@@ -281,9 +281,9 @@ export function QuickPanel({ value, label, archived }: { value: string; label: s
 
 export function OverviewRow({ label, value, archived = false }: { label: string; value: string; archived?: boolean }) {
   return (
-    <div className={`rounded-2xl p-4 ring-1 ${archived ? 'bg-[linear-gradient(180deg,rgba(255,255,255,0.08),rgba(255,255,255,0.03))] ring-white/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]' : 'bg-white/[0.04] ring-white/10'}`}>
+    <div className={`inline-flex min-w-[180px] items-center gap-3 rounded-2xl border px-4 py-3 ${archived ? 'border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.08),rgba(255,255,255,0.03))] shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]' : 'border-white/10 bg-white/[0.04]'}`}>
       <p className="text-xs font-medium text-slate-400">{label}</p>
-      <p className="mt-2 text-sm font-semibold leading-6 text-slate-100">{value}</p>
+      <p className="text-sm font-semibold leading-6 text-slate-100">{value}</p>
     </div>
   );
 }
