@@ -58,6 +58,7 @@ export default async function VendorAssignmentTaskPage({ params }: { params: Pro
             key={task.id}
             title={task.title}
             meta={`第 ${index + 1} 筆群組任務`}
+            className="shell-none"
           >
             <div className="grid gap-3 md:grid-cols-2">
               <WorkspaceStat label="任務標題" value={task.title} />

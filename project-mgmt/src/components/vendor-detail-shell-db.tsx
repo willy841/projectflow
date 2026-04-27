@@ -297,13 +297,13 @@ export function VendorDetailShellDb({ vendor, initialOpenRecords, tradeOptions =
 
   return (
     <div className="space-y-6">
-      <header className="rounded-3xl border border-white/10 bg-[linear-gradient(180deg,rgba(18,30,50,0.72),rgba(13,22,39,0.52))] p-6 shadow-[0_34px_90px_-38px_rgba(0,0,0,0.68),0_0_34px_rgba(96,165,250,0.08),inset_0_1px_0_rgba(255,255,255,0.07),inset_0_-22px_44px_-28px_rgba(7,13,25,0.98)] backdrop-blur-[28px]">
+      <header className="pf-card p-6">
         <div className="flex flex-col gap-5 xl:flex-row xl:items-center xl:justify-between">
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-3">
               <h2 className="text-3xl font-semibold tracking-tight text-white drop-shadow-[0_2px_10px_rgba(15,23,42,0.45)]">{vendor.name}</h2>
               {(vendor.tradeLabels?.length ? vendor.tradeLabels : [vendor.tradeLabel || vendor.category || '—']).map((trade) => (
-                <span key={`${vendor.id}-${trade}`} className="inline-flex rounded-full bg-sky-50 px-3 py-1 text-xs font-medium text-sky-700 ring-1 ring-sky-200">{trade}</span>
+                <span key={`${vendor.id}-${trade}`} className="inline-flex rounded-full bg-white/[0.06] px-3 py-1 text-xs font-medium text-slate-200 ring-1 ring-white/10">{trade}</span>
               ))}
             </div>
           </div>
@@ -311,11 +311,11 @@ export function VendorDetailShellDb({ vendor, initialOpenRecords, tradeOptions =
             <button
               type="button"
               onClick={() => setProfileExpanded((current) => !current)}
-              className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-800 shadow-sm transition hover:border-slate-400 hover:bg-slate-50"
+              className="pf-btn-secondary px-5 py-3"
             >
               {profileExpanded ? '收合廠商資訊' : '展開廠商資訊'}
             </button>
-            <Link href="/vendors" className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-800 shadow-sm transition hover:border-slate-400 hover:bg-slate-50">返回廠商列表</Link>
+            <Link href="/vendors" className="pf-btn-secondary px-5 py-3">返回廠商列表</Link>
           </div>
         </div>
 
@@ -323,16 +323,16 @@ export function VendorDetailShellDb({ vendor, initialOpenRecords, tradeOptions =
           <div className="mt-6 border-t border-white/10 pt-6">
             <div className="mb-5 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
               <div>
-                <h3 className="text-xl font-semibold text-slate-900">廠商資訊</h3>
+                <h3 className="text-xl font-semibold text-slate-100">廠商資訊</h3>
               </div>
               <div className="flex items-center gap-3">
-                {profileMessage ? <p className="text-xs text-emerald-700">{profileMessage}</p> : null}
-                <button type="button" onClick={handleSaveProfile} disabled={profileSaving} className="inline-flex items-center justify-center rounded-2xl border border-slate-900 bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60">{profileSaving ? '儲存中…' : '儲存'}</button>
+                {profileMessage ? <p className="text-xs text-emerald-300">{profileMessage}</p> : null}
+                <button type="button" onClick={handleSaveProfile} disabled={profileSaving} className="pf-btn-create px-4 py-2.5 disabled:cursor-not-allowed disabled:opacity-60">{profileSaving ? '儲存中…' : '儲存'}</button>
               </div>
             </div>
             <div className="grid gap-4 md:grid-cols-2">
-              <div className="rounded-2xl bg-slate-50 p-4 md:col-span-2">
-                <p className="text-sm text-slate-500">工種（可複選）</p>
+              <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4 backdrop-blur-xl md:col-span-2">
+                <p className="text-sm text-slate-400">工種（可複選）</p>
                 <div className="mt-3 flex flex-wrap gap-2">
                   {tradeOptions.map((trade) => {
                     const active = profileForm.tradeLabels.includes(trade);
@@ -347,7 +347,7 @@ export function VendorDetailShellDb({ vendor, initialOpenRecords, tradeOptions =
                             ? current.tradeLabels.filter((item) => item !== trade)
                             : [...current.tradeLabels, trade],
                         }))}
-                        className={`rounded-full px-3 py-2 text-xs font-medium ring-1 transition ${active ? 'bg-slate-900 text-white ring-slate-900' : 'bg-white text-slate-700 ring-slate-200 hover:bg-slate-50'}`}
+                        className={`pf-pill px-3 py-2 ${active ? 'pf-pill-active text-white' : 'pf-pill-muted'}`}
                       >
                         {trade}
                       </button>
@@ -365,14 +365,14 @@ export function VendorDetailShellDb({ vendor, initialOpenRecords, tradeOptions =
                 ['戶名', 'accountName', '請輸入戶名'],
                 ['帳號', 'accountNumber', '請輸入帳號'],
               ].map(([label, field, placeholder]) => (
-                <label key={String(field)} className="rounded-2xl bg-slate-50 p-4">
-                  <p className="text-sm text-slate-500">{label}</p>
-                  <input value={profileForm[field as keyof VendorEditableForm]} onChange={(event) => updateProfileField(field as keyof VendorEditableForm, event.target.value)} placeholder={String(placeholder)} className="mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400" />
+                <label key={String(field)} className="rounded-2xl border border-white/10 bg-white/[0.04] p-4 backdrop-blur-xl">
+                  <p className="text-sm text-slate-400">{label}</p>
+                  <input value={profileForm[field as keyof VendorEditableForm]} onChange={(event) => updateProfileField(field as keyof VendorEditableForm, event.target.value)} placeholder={String(placeholder)} className="pf-input mt-2 h-11" />
                 </label>
               ))}
             </div>
-            <div className="mt-6 rounded-3xl border border-slate-200 bg-slate-50/60 p-5">
-              <h4 className="text-base font-semibold text-slate-900">勞報資訊</h4>
+            <div className="mt-6 rounded-3xl border border-white/10 bg-white/[0.04] p-5 backdrop-blur-xl">
+              <h4 className="text-base font-semibold text-slate-100">勞報資訊</h4>
               <div className="mt-4 grid gap-4 md:grid-cols-2">
                 {[
                   ['勞報姓名', 'laborName', '請輸入勞報姓名'],
@@ -380,9 +380,9 @@ export function VendorDetailShellDb({ vendor, initialOpenRecords, tradeOptions =
                   ['出生年月日（民國）', 'birthDateRoc', '例如：78/05/21'],
                   ['參加工會', 'unionMembership', '請輸入公會或會員資訊'],
                 ].map(([label, field, placeholder]) => (
-                  <label key={String(field)} className="rounded-2xl bg-white p-4 ring-1 ring-slate-200">
-                    <p className="text-sm text-slate-500">{label}</p>
-                    <input value={profileForm[field as keyof VendorEditableForm]} onChange={(event) => updateProfileField(field as keyof VendorEditableForm, event.target.value)} placeholder={String(placeholder)} className="mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400" />
+                  <label key={String(field)} className="rounded-2xl border border-white/10 bg-slate-950/30 p-4">
+                    <p className="text-sm text-slate-400">{label}</p>
+                    <input value={profileForm[field as keyof VendorEditableForm]} onChange={(event) => updateProfileField(field as keyof VendorEditableForm, event.target.value)} placeholder={String(placeholder)} className="pf-input mt-2 h-11" />
                   </label>
                 ))}
               </div>
@@ -394,32 +394,32 @@ export function VendorDetailShellDb({ vendor, initialOpenRecords, tradeOptions =
       <section className="space-y-6">
 
         <div className="space-y-4">
-        <div className="flex flex-wrap items-center gap-2 rounded-3xl bg-white p-3 shadow-sm ring-1 ring-slate-200">
+        <div className="flex flex-wrap items-center gap-2 rounded-3xl border border-white/10 bg-white/[0.04] p-3 backdrop-blur-xl">
           <button
             type="button"
             onClick={() => setDetailSectionTab('unpaid')}
-            className={`inline-flex h-10 items-center justify-center rounded-2xl px-4 text-sm font-medium ring-1 transition ${detailSectionTab === 'unpaid' ? 'bg-slate-900 text-white ring-slate-900' : 'bg-white text-slate-700 ring-slate-200 hover:bg-slate-50'}`}
+            className={`pf-pill inline-flex h-10 items-center justify-center px-4 text-sm ${detailSectionTab === 'unpaid' ? 'pf-pill-active text-white' : 'pf-pill-muted'}`}
           >
             未付款專案
           </button>
           <button
             type="button"
             onClick={() => setDetailSectionTab('history')}
-            className={`inline-flex h-10 items-center justify-center rounded-2xl px-4 text-sm font-medium ring-1 transition ${detailSectionTab === 'history' ? 'bg-slate-900 text-white ring-slate-900' : 'bg-white text-slate-700 ring-slate-200 hover:bg-slate-50'}`}
+            className={`pf-pill inline-flex h-10 items-center justify-center px-4 text-sm ${detailSectionTab === 'history' ? 'pf-pill-active text-white' : 'pf-pill-muted'}`}
           >
             往來紀錄
           </button>
         </div>
 
         {detailSectionTab === 'unpaid' ? (
-      <article className="rounded-3xl border border-amber-200 bg-amber-50/70 p-6 shadow-sm ring-1 ring-amber-100">
+      <article className="pf-card p-6">
           <div className="mb-5 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
             <div>
-              <h3 className="text-xl font-semibold text-slate-900">未付款專案</h3>
+              <h3 className="text-xl font-semibold text-slate-100">未付款專案</h3>
             </div>
-            <div className="min-w-[320px] rounded-2xl bg-white px-5 py-3 text-sm text-slate-700 ring-1 ring-amber-200 lg:min-w-[380px]">
-              <p className="whitespace-nowrap font-semibold text-slate-900">待付款 {unpaidRecords.length} 筆｜未付款總額 {formatCurrency(unpaidTotalAmount)}</p>
-              <p className="mt-1 whitespace-nowrap text-slate-500">其中 {incompleteReconciliationCount} 筆尚未全部對帳。</p>
+            <div className="min-w-[320px] rounded-2xl bg-white/[0.05] px-5 py-3 text-sm text-slate-300 ring-1 ring-white/10 lg:min-w-[380px]">
+              <p className="whitespace-nowrap font-semibold text-slate-100">待付款 {unpaidRecords.length} 筆｜未付款總額 {formatCurrency(unpaidTotalAmount)}</p>
+              <p className="mt-1 whitespace-nowrap text-slate-400">其中 {incompleteReconciliationCount} 筆尚未全部對帳。</p>
             </div>
           </div>
 
@@ -429,10 +429,10 @@ export function VendorDetailShellDb({ vendor, initialOpenRecords, tradeOptions =
             </div>
           ) : null}
 
-          <div className="overflow-x-auto rounded-2xl border border-amber-200 bg-white">
+          <div className="pf-table-shell rounded-2xl">
             {unpaidRecords.length ? (
-              <table className="min-w-full divide-y divide-slate-200 text-left text-sm">
-                <thead className="bg-slate-50 text-slate-500">
+              <table className="pf-table">
+                <thead>
                   <tr>
                     <th className="px-4 py-3 font-medium">勾選</th>
                     <th className="px-4 py-3 font-medium">專案名稱</th>
@@ -442,7 +442,7 @@ export function VendorDetailShellDb({ vendor, initialOpenRecords, tradeOptions =
                     <th className="px-4 py-3 font-medium">操作</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100 bg-white">
+                <tbody>
                   {unpaidRecords.map((record) => {
                     const isSelectable = !record.hasUnreconciledGroups;
                     const isSelected = selectedRecordIds.includes(record.id);
@@ -475,7 +475,7 @@ export function VendorDetailShellDb({ vendor, initialOpenRecords, tradeOptions =
                             <button
                               type="button"
                               onClick={() => toggleExpandedRecord(record)}
-                              className="inline-flex min-h-10 items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-800 transition hover:bg-slate-50"
+                              className="pf-btn-secondary min-h-10 px-4 py-2"
                             >
                               {isExpanded ? (isDetailLoading ? '載入明細中…' : '收合明細') : '查看明細'}
                             </button>
@@ -483,27 +483,27 @@ export function VendorDetailShellDb({ vendor, initialOpenRecords, tradeOptions =
                         </tr>
                       {isExpanded ? (
                         <tr key={`${record.id}-detail`}>
-                          <td colSpan={6} className="px-4 py-4 bg-slate-50/70">
+                          <td colSpan={6} className="px-4 py-4 bg-white/[0.03]">
                             {isDetailLoading ? (
-                              <div className="rounded-2xl border border-dashed border-slate-300 bg-white px-4 py-6 text-sm text-slate-500">明細載入中…</div>
+                              <div className="rounded-2xl border border-dashed border-white/10 bg-white/[0.04] px-4 py-6 text-sm text-slate-400">明細載入中…</div>
                             ) : (
                               <div className="grid gap-4 xl:grid-cols-2">
-                                <div className="rounded-2xl bg-white p-4 ring-1 ring-slate-200">
-                                  <p className="text-sm font-semibold text-slate-900">成本明細</p>
+                                <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4 backdrop-blur-xl">
+                                  <p className="text-sm font-semibold text-slate-100">成本明細</p>
                                   <div className="mt-3 space-y-3">
                                     {record.costBreakdown.map((item, index) => (
                                       <div key={`${record.id}-cost-${index}-${item.label}-${item.amount}`} className="flex items-center justify-between gap-3 text-sm">
-                                        <span className="text-slate-600">{item.label}</span>
-                                        <span className="font-medium text-slate-900">{item.amount}</span>
+                                        <span className="text-slate-400">{item.label}</span>
+                                        <span className="font-medium text-slate-100">{item.amount}</span>
                                       </div>
                                     ))}
                                   </div>
                                 </div>
-                                <div className="rounded-2xl bg-white p-4 ring-1 ring-slate-200">
-                                  <p className="text-sm font-semibold text-slate-900">發包內容明細</p>
-                                  <ul className="mt-3 space-y-2 text-sm text-slate-600">
+                                <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4 backdrop-blur-xl">
+                                  <p className="text-sm font-semibold text-slate-100">發包內容明細</p>
+                                  <ul className="mt-3 space-y-2 text-sm text-slate-300">
                                     {record.sourceItemDetails.map((item, index) => (
-                                      <li key={`${record.id}-source-${index}-${item}`} className="rounded-2xl bg-slate-50 px-3 py-2">• {item}</li>
+                                      <li key={`${record.id}-source-${index}-${item}`} className="rounded-2xl bg-white/[0.04] px-3 py-2 ring-1 ring-white/10">• {item}</li>
                                     ))}
                                   </ul>
                                 </div>
@@ -520,7 +520,7 @@ export function VendorDetailShellDb({ vendor, initialOpenRecords, tradeOptions =
             ) : <div className="px-5 py-6 text-sm text-slate-500">目前沒有待付款專案。</div>}
           </div>
 
-          <div className="mt-4 flex flex-col gap-3 rounded-2xl bg-slate-900 px-4 py-4 text-white lg:flex-row lg:items-center lg:justify-between">
+          <div className="mt-4 flex flex-col gap-3 rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-4 text-white backdrop-blur-xl lg:flex-row lg:items-center lg:justify-between">
             <div>
               <p className="font-semibold">已勾選 {selectedPayableRecords.length} 筆，合計 {formatCurrency(selectedPayableTotal)}</p>
 
@@ -529,7 +529,7 @@ export function VendorDetailShellDb({ vendor, initialOpenRecords, tradeOptions =
               type="button"
               onClick={handleBatchMarkPaid}
               disabled={!selectedPayableRecords.length || batchPaying}
-              className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-white px-5 py-3 text-sm font-semibold text-slate-900 transition disabled:cursor-not-allowed disabled:bg-slate-300 disabled:text-slate-500"
+              className="pf-btn-primary min-h-11 px-5 py-3 disabled:cursor-not-allowed disabled:bg-slate-300 disabled:text-slate-500"
             >
               {batchPaying ? '處理中…' : '標記為已付款'}
             </button>
@@ -538,29 +538,29 @@ export function VendorDetailShellDb({ vendor, initialOpenRecords, tradeOptions =
         ) : null}
 
         {detailSectionTab === 'history' ? (
-      <article className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+      <article className="pf-card p-6">
         <div className="mb-5 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
           <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
-            <h3 className="text-xl font-semibold text-slate-900">往來紀錄</h3>
+            <h3 className="text-xl font-semibold text-slate-100">往來紀錄</h3>
             <button
               type="button"
               onClick={() => setHistoryTab('open')}
-              className={`inline-flex h-10 items-center justify-center rounded-2xl px-4 text-sm font-medium ring-1 transition ${historyTab === 'open' ? 'bg-slate-900 text-white ring-slate-900' : 'bg-white text-slate-700 ring-slate-200 hover:bg-slate-50'}`}
+              className={`pf-pill inline-flex h-10 items-center justify-center px-4 text-sm ${historyTab === 'open' ? 'pf-pill-active text-white' : 'pf-pill-muted'}`}
             >
               未結帳
             </button>
             <button
               type="button"
               onClick={() => setHistoryTab('history')}
-              className={`inline-flex h-10 items-center justify-center rounded-2xl px-4 text-sm font-medium ring-1 transition ${historyTab === 'history' ? 'bg-slate-900 text-white ring-slate-900' : 'bg-white text-slate-700 ring-slate-200 hover:bg-slate-50'}`}
+              className={`pf-pill inline-flex h-10 items-center justify-center px-4 text-sm ${historyTab === 'history' ? 'pf-pill-active text-white' : 'pf-pill-muted'}`}
             >
               過往紀錄
             </button>
             <label className="min-w-[260px] flex-1 lg:max-w-md">
-              <input type="search" value={historyKeyword} onChange={(event) => setHistoryKeyword(event.target.value)} placeholder="搜尋專案名稱、摘要或發包內容" className="h-10 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400" />
+              <input type="search" value={historyKeyword} onChange={(event) => setHistoryKeyword(event.target.value)} placeholder="搜尋專案名稱、摘要或發包內容" className="pf-input h-10 w-full" />
             </label>
             <label className="block w-[220px]">
-              <select value={historySort} onChange={(event) => setHistorySort(event.target.value as typeof historySort)} className="h-10 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-400">
+              <select value={historySort} onChange={(event) => setHistorySort(event.target.value as typeof historySort)} className="pf-select h-10 w-full">
                 <option value="project-asc">專案名稱 A → Z</option>
                 <option value="project-desc">專案名稱 Z → A</option>
                 <option value="amount-desc">未付款金額高 → 低</option>
@@ -568,55 +568,55 @@ export function VendorDetailShellDb({ vendor, initialOpenRecords, tradeOptions =
               </select>
             </label>
           </div>
-          <div className="rounded-2xl bg-slate-50 px-4 py-3 text-sm text-slate-600 ring-1 ring-slate-200">
+          <div className="rounded-2xl bg-white/[0.05] px-4 py-3 text-sm text-slate-300 ring-1 ring-white/10">
             目前顯示 {filteredHistoryRecords.length} 筆往來紀錄
           </div>
         </div>
 
         <div className="space-y-4">
-          {historyLoading && historyTab === 'history' ? <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-5 py-6 text-sm text-slate-500">往來紀錄載入中…</div> : null}
-          {historyError && historyTab === 'history' ? <div className="rounded-2xl border border-rose-200 bg-rose-50 px-5 py-6 text-sm text-rose-700">{historyError}</div> : null}
+          {historyLoading && historyTab === 'history' ? <div className="rounded-2xl border border-dashed border-white/10 bg-white/[0.04] px-5 py-6 text-sm text-slate-400">往來紀錄載入中…</div> : null}
+          {historyError && historyTab === 'history' ? <div className="rounded-2xl border border-rose-400/20 bg-rose-950/20 px-5 py-6 text-sm text-rose-200">{historyError}</div> : null}
           {(!historyLoading || historyTab === 'open') && filteredHistoryRecords.length ? filteredHistoryRecords.map((record) => {
             const isExpanded = expandedRecordIds.includes(record.id);
             const isDetailLoading = detailLoadingIds.includes(record.id);
             return (
-              <div key={record.id} className="rounded-3xl border border-slate-200 bg-slate-50/70 p-5">
+              <div key={record.id} className="rounded-3xl border border-white/10 bg-white/[0.04] p-5 backdrop-blur-xl">
                 <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
-                      <h4 className="flex h-8 items-center text-lg font-semibold text-slate-900">{record.projectName}</h4>
+                      <h4 className="flex h-8 items-center text-lg font-semibold text-slate-100">{record.projectName}</h4>
                     </div>
-                    <p className="mt-2 text-sm text-slate-500">{record.reconciliationSummary}</p>
+                    <p className="mt-2 text-sm text-slate-400">{record.reconciliationSummary}</p>
                   </div>
                   <div className="flex flex-wrap items-center gap-3 xl:justify-end">
                     <div className="text-left xl:text-right">
-                      <p className="text-sm text-slate-500">未付金額</p>
-                      <p className="text-2xl font-semibold tracking-tight text-slate-900">{formatCurrency(record.unpaidAmount ?? record.adjustedCost)}</p>
+                      <p className="text-sm text-slate-400">未付金額</p>
+                      <p className="text-2xl font-semibold tracking-tight text-slate-100">{formatCurrency(record.unpaidAmount ?? record.adjustedCost)}</p>
                     </div>
-                    <button type="button" onClick={() => toggleExpandedRecord(record)} className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 transition hover:bg-slate-100">{isExpanded ? (isDetailLoading ? '載入明細中…' : '收合明細') : '查看明細'}</button>
+                    <button type="button" onClick={() => toggleExpandedRecord(record)} className="pf-btn-secondary px-4 py-2.5">{isExpanded ? (isDetailLoading ? '載入明細中…' : '收合明細') : '查看明細'}</button>
                   </div>
                 </div>
                 {isExpanded ? (
                   isDetailLoading ? (
-                    <div className="mt-5 rounded-2xl border border-dashed border-slate-300 bg-white px-4 py-6 text-sm text-slate-500">明細載入中…</div>
+                    <div className="mt-5 rounded-2xl border border-dashed border-white/10 bg-white/[0.04] px-4 py-6 text-sm text-slate-400">明細載入中…</div>
                   ) : (
                     <div className="mt-5 grid gap-4 xl:grid-cols-2">
-                      <div className="rounded-2xl bg-white p-4 ring-1 ring-slate-200">
-                        <p className="text-sm font-semibold text-slate-900">成本明細</p>
+                      <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4 backdrop-blur-xl">
+                        <p className="text-sm font-semibold text-slate-100">成本明細</p>
                         <div className="mt-3 space-y-3">
                           {record.costBreakdown.map((item, index) => (
                             <div key={`${record.id}-history-cost-${index}-${item.label}-${item.amount}`} className="flex items-center justify-between gap-3 text-sm">
-                              <span className="text-slate-600">{item.label}</span>
-                              <span className="font-medium text-slate-900">{item.amount}</span>
+                              <span className="text-slate-400">{item.label}</span>
+                              <span className="font-medium text-slate-100">{item.amount}</span>
                             </div>
                           ))}
                         </div>
                       </div>
-                      <div className="rounded-2xl bg-white p-4 ring-1 ring-slate-200">
-                        <p className="text-sm font-semibold text-slate-900">發包內容明細</p>
-                        <ul className="mt-3 space-y-2 text-sm text-slate-600">
+                      <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4 backdrop-blur-xl">
+                        <p className="text-sm font-semibold text-slate-100">發包內容明細</p>
+                        <ul className="mt-3 space-y-2 text-sm text-slate-300">
                           {record.sourceItemDetails.map((item, index) => (
-                            <li key={`${record.id}-history-source-${index}-${item}`} className="rounded-2xl bg-slate-50 px-3 py-2">• {item}</li>
+                            <li key={`${record.id}-history-source-${index}-${item}`} className="rounded-2xl bg-white/[0.04] px-3 py-2 ring-1 ring-white/10">• {item}</li>
                           ))}
                         </ul>
                       </div>
@@ -626,7 +626,7 @@ export function VendorDetailShellDb({ vendor, initialOpenRecords, tradeOptions =
 
               </div>
             );
-          }) : <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-5 py-6 text-sm text-slate-500">目前沒有符合條件的往來紀錄。</div>}
+          }) : <div className="rounded-2xl border border-dashed border-white/10 bg-white/[0.04] px-5 py-6 text-sm text-slate-400">目前沒有符合條件的往來紀錄。</div>}
         </div>
       </article>
         ) : null}
