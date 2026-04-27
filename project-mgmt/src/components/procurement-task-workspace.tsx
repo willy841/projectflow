@@ -71,13 +71,13 @@ export function ProcurementTaskWorkspace({
             type="button"
             onClick={headerActions.confirmPlans}
             disabled={headerActions.confirming}
-            className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-60"
+            className="pf-btn-create min-h-11 px-4 py-2.5 disabled:opacity-60"
           >
             {headerActions.confirming ? "確認中..." : "全部確認"}
           </button>
         </div>
       ) : null}
-      className="p-0"
+      className="shell-none p-0"
     >
       <div className="grid gap-4 p-6 xl:grid-cols-[360px_minmax(0,1fr)]">
         <section className="overflow-hidden rounded-[28px] border border-white/10 bg-[linear-gradient(180deg,rgba(39,52,77,0.62),rgba(17,26,42,0.46))] shadow-[0_24px_46px_-28px_rgba(0,0,0,0.54),0_0_16px_rgba(96,165,250,0.05),inset_0_1px_0_rgba(255,255,255,0.05),inset_0_-16px_24px_-18px_rgba(10,18,32,0.86)] backdrop-blur-2xl">

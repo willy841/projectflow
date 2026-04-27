@@ -43,7 +43,7 @@ export default async function DesignTaskDetailPage({
         }
       />
 
-      <WorkspaceSection title="原始任務資訊">
+      <WorkspaceSection title="原始任務資訊" className="shell-none">
         <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
           <WorkspaceStat label="任務標題" value={task.title} />
           <WorkspaceStat label="尺寸" value={task.size} />
