@@ -99,40 +99,47 @@ export default async function VendorAssignmentsPage({
   return (
     <AppShellAuth activePath="/vendor-assignments">
       <WorkspaceHeader
-        title="廠商發包板"
+        title={
+          activeProject ? (
+            <span className="flex flex-wrap items-center gap-x-3 gap-y-2 text-slate-50">
+              <span>廠商發包板</span>
+              <span className="text-xl font-semibold text-slate-100">{activeProject.projectName}</span>
+              <span className="text-base font-medium text-slate-400">{activeProject.eventDate}</span>
+            </span>
+          ) : (
+            "廠商發包板"
+          )
+        }
         badge={<span className="inline-flex items-center rounded-full bg-white/8 px-2.5 py-0.5 text-xs font-medium text-slate-200 ring-1 ring-white/10">共 {activeProject ? vendorGroups.length : projects.length} {activeProject ? "組廠商" : "個專案"}</span>}
-        meta={activeProject ? activeProject.projectName : null}
-      />
-
-      <WorkspaceSection
-        title={undefined}
         meta={null}
         actions={
           activeProject ? (
             <Link href="/vendor-assignments" className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-white/10 bg-slate-900/40 px-4 py-2.5 text-sm font-medium text-slate-200 shadow-[0_16px_34px_-24px_rgba(0,0,0,0.38),inset_0_1px_0_rgba(255,255,255,0.03)] backdrop-blur-xl">返回專案列表</Link>
           ) : null
         }
-       className="shell-none p-1">
+      />
+
+      <WorkspaceSection className="shell-none p-1">
         {!activeProject ? (
           projects.length ? (
-            <div className="overflow-x-auto rounded-2xl border border-white/10 bg-[linear-gradient(180deg,rgba(39,52,77,0.62),rgba(17,26,42,0.46))] shadow-[0_24px_46px_-28px_rgba(0,0,0,0.54),0_0_16px_rgba(96,165,250,0.05),inset_0_1px_0_rgba(255,255,255,0.05),inset_0_-16px_24px_-18px_rgba(10,18,32,0.86)] backdrop-blur-2xl">
-              <table className="min-w-[980px] divide-y divide-white/10 text-left text-sm xl:min-w-full">
-                <thead className="bg-white/[0.04] text-slate-400">
+            <div className="pf-table-shell rounded-[28px]">
+              <table className="pf-table min-w-[980px] table-fixed xl:min-w-full">
+                <thead>
                   <tr>
-                    <th className="px-4 py-3 font-medium">專案名稱</th>
-                    <th className="px-4 py-3 font-medium">任務數量</th>
-                    <th className="px-4 py-3 font-medium">活動日期</th>
-                    <th className="px-4 py-3 font-medium text-center">操作</th>
+                    <th className="w-[46%] px-4 py-3 font-medium align-middle">專案名稱</th>
+                    <th className="w-[16%] px-4 py-3 font-medium align-middle">任務數量</th>
+                    <th className="w-[20%] px-4 py-3 font-medium align-middle">活動日期</th>
+                    <th className="w-[18%] px-4 py-3 font-medium text-center align-middle">操作</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-white/10 bg-transparent">
+                <tbody className="bg-transparent">
                   {projects.map((project) => (
                     <tr key={project.projectId} className="align-middle">
                       <td className="px-4 py-4 font-medium text-slate-100"><Link href={`/vendor-assignments?project=${encodeURIComponent(project.projectId)}`} className="underline-offset-4 hover:underline">{project.projectName}</Link></td>
                       <td className="px-4 py-4 text-slate-300">共 {project.taskCount} 筆</td>
                       <td className="px-4 py-4 text-slate-300">{project.eventDate}</td>
                       <td className="px-4 py-4 text-center">
-                        <Link href={`/vendor-assignments?project=${encodeURIComponent(project.projectId)}`} className={workspacePrimaryButtonClass}>進入工作臺</Link>
+                        <Link href={`/vendor-assignments?project=${encodeURIComponent(project.projectId)}`} className={`${workspacePrimaryButtonClass} whitespace-nowrap`}>進入工作臺</Link>
                       </td>
                     </tr>
                   ))}
@@ -142,15 +149,15 @@ export default async function VendorAssignmentsPage({
           ) : <WorkspaceEmptyState title="目前尚無可查看的專案" description="待這條工作臺有正式任務後，會從這裡進入單專案工作臺。" />
         ) : (
           vendorGroups.length ? (
-            <div className="overflow-x-auto rounded-2xl border border-white/10 bg-[linear-gradient(180deg,rgba(39,52,77,0.62),rgba(17,26,42,0.46))] shadow-[0_24px_46px_-28px_rgba(0,0,0,0.54),0_0_16px_rgba(96,165,250,0.05),inset_0_1px_0_rgba(255,255,255,0.05),inset_0_-16px_24px_-18px_rgba(10,18,32,0.86)] backdrop-blur-2xl">
-              <table className="min-w-[1180px] divide-y divide-white/10 text-left text-sm xl:min-w-full">
-                <thead className="bg-white/[0.04] text-slate-400">
+            <div className="pf-table-shell rounded-[28px]">
+              <table className="pf-table min-w-[1180px] table-fixed xl:min-w-full">
+                <thead>
                   <tr>
-                    <th className="px-4 py-3 font-medium">廠商</th>
-                    <th className="px-4 py-3 font-medium">任務數量</th>
-                    <th className="px-4 py-3 font-medium">活動日期</th>
-                    <th className="px-4 py-3 font-medium">任務摘要</th>
-                    <th className="px-4 py-3 font-medium text-center">操作</th>
+                    <th className="w-[18%] px-4 py-3 font-medium align-middle">廠商</th>
+                    <th className="w-[12%] px-4 py-3 font-medium align-middle">任務數量</th>
+                    <th className="w-[16%] px-4 py-3 font-medium align-middle">活動日期</th>
+                    <th className="w-[38%] px-4 py-3 font-medium align-middle">任務摘要</th>
+                    <th className="w-[16%] px-4 py-3 font-medium text-center align-middle">操作</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-white/10 bg-transparent">
@@ -169,7 +176,9 @@ export default async function VendorAssignmentsPage({
                         </div>
                       </td>
                       <td className="px-4 py-4 text-center">
-                        <Link href={`/vendor-assignments/${encodeURIComponent(buildVendorGroupRouteId(activeProject.projectId, group.vendorId))}`} className={workspacePrimaryButtonClass}>進入廠商</Link>
+                        <div className="flex justify-center whitespace-nowrap">
+                          <Link href={`/vendor-assignments/${encodeURIComponent(buildVendorGroupRouteId(activeProject.projectId, group.vendorId))}`} className={`${workspacePrimaryButtonClass} whitespace-nowrap`}>進入廠商</Link>
+                        </div>
                       </td>
                     </tr>
                   ))}
