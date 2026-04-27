@@ -57,7 +57,7 @@ export function ProcurementTaskWorkspace({
 
   return (
     <WorkspaceSection
-      title="執行處理"
+      title={<div className="flex min-h-11 items-center">執行處理</div>}
       actions={headerActions ? (
         <div className="flex flex-wrap gap-2">
           <button
