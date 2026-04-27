@@ -322,14 +322,8 @@ export function DesignPlanEditorClient({
           </div>
         </div>
       ) : null}
-      {visiblePlans.map((plan, index) => (
+      {visiblePlans.map((plan) => (
         <article key={plan.id} className="space-y-4">
-          <div className="mb-4 flex items-center justify-between gap-3 border-b border-white/10 pb-4">
-            <div>
-              <p className="text-xs font-medium tracking-wide text-slate-400">執行處理 #{index + 1}</p>
-            </div>
-          </div>
-
           <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
             <label className="xl:col-span-2">
               <p className="text-xs font-medium tracking-wide text-slate-400">標題</p>

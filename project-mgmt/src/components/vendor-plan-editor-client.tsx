@@ -97,14 +97,8 @@ export function VendorPlanEditorClient({ taskId, initialPlans, showConfirmButton
         <div className="flex flex-wrap items-center gap-2"><button type="button" onClick={saveAllPlans} disabled={saving} className="pf-btn-secondary min-h-11 px-4 py-2.5 disabled:opacity-60">{saving ? "儲存中..." : "儲存"}</button>{showConfirmButton ? <button type="button" onClick={confirmPlans} disabled={confirming} className="pf-btn-create min-h-11 px-4 py-2.5 disabled:opacity-60">{confirming ? "確認中..." : "全部確認"}</button> : null}</div>
       </div>
 
-      {plans.map((plan, index) => (
+      {plans.map((plan) => (
         <article key={plan.id} className="space-y-4">
-          <div className="mb-4 flex items-center justify-between gap-3 border-b border-white/10 pb-4">
-            <div>
-              <p className="text-xs font-medium tracking-wide text-slate-400">執行處理 #{index + 1}</p>
-            </div>
-          </div>
-
           <div className="grid gap-3 md:grid-cols-3">
             <label><p className="text-xs font-medium tracking-wide text-slate-400">標題</p><input value={plan.title} onChange={(e) => updatePlan(plan.id, "title", e.target.value)} className="mt-2 h-10 w-full rounded-xl border border-white/10 bg-slate-950/50 px-3 text-sm font-medium text-slate-100 outline-none focus:border-sky-400/40 focus:ring-2 focus:ring-sky-400/20" /></label>
             <label className="md:col-span-2"><p className="text-xs font-medium tracking-wide text-slate-400">需求說明</p><textarea value={plan.requirement} onChange={(e) => updatePlan(plan.id, "requirement", e.target.value)} rows={3} className="mt-2 w-full rounded-xl border border-white/10 bg-slate-950/50 px-3 py-2 text-sm font-medium text-slate-100 outline-none focus:border-sky-400/40 focus:ring-2 focus:ring-sky-400/20" /></label>

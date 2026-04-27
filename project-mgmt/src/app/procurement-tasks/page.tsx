@@ -115,7 +115,7 @@ export default async function ProcurementTasksPage({
                 <tbody className="bg-transparent">
                   {projects.map((project) => (
                     <tr key={project.projectId} className="align-middle">
-                      <td className="px-4 py-4 font-medium text-slate-100"><Link href={`/procurement-tasks?project=${encodeURIComponent(project.projectId)}`} className="underline-offset-4 hover:underline">{project.projectName}</Link></td>
+                      <td className="px-4 py-4 font-medium text-slate-100">{project.projectName}</td>
                       <td className="px-4 py-4 text-slate-300">共 {project.taskCount} 筆</td>
                       <td className="px-4 py-4 text-slate-300">{project.eventDate}</td>
                       <td className="px-4 py-4 text-right">
@@ -131,6 +131,14 @@ export default async function ProcurementTasksPage({
           projectTasks.length ? (
             <div className="pf-table-shell rounded-[28px]">
               <table className="pf-table min-w-[980px] xl:min-w-full">
+                <thead>
+                  <tr>
+                    <th className="px-4 py-3 font-medium">任務標題</th>
+                    <th className="px-4 py-3 font-medium">數量</th>
+                    <th className="px-4 py-3 font-medium">預算</th>
+                    <th className="px-4 py-3 font-medium text-right">操作</th>
+                  </tr>
+                </thead>
                 <tbody className="divide-y divide-white/10 bg-transparent">
                   {projectTasks.map((task) => (
                     <tr key={task.id} className="align-middle">
