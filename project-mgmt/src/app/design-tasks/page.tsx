@@ -84,28 +84,32 @@ export default async function DesignTasksPage({
   return (
     <AppShellAuth activePath="/design-tasks">
       <WorkspaceHeader
-        title="設計任務板"
+        title={
+          activeProject ? (
+            <span className="flex flex-wrap items-center gap-x-3 gap-y-2 text-slate-50">
+              <span>設計任務板</span>
+              <span className="text-xl font-semibold text-slate-100">{activeProject.projectName}</span>
+              <span className="text-base font-medium text-slate-400">{activeProject.eventDate}</span>
+            </span>
+          ) : (
+            "設計任務板"
+          )
+        }
         badge={<span className="inline-flex items-center rounded-full bg-white/8 px-2.5 py-0.5 text-xs font-medium text-slate-200 ring-1 ring-white/10">共 {activeProject ? projectTasks.length : projects.length} {activeProject ? "筆任務" : "個專案"}</span>}
-        meta={null}
-      />
-
-      <WorkspaceSection
-        title={activeProject ? <span className="text-xl font-semibold text-slate-100">{activeProject.projectName}</span> : undefined}
         meta={null}
         actions={
           activeProject ? (
-            <div className="flex flex-wrap items-center gap-3">
-              <span className="text-sm text-slate-300">{activeProject.eventDate}</span>
-              <Link
-                href="/design-tasks"
-                className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-white/10 bg-slate-900/40 px-4 py-2.5 text-sm font-medium text-slate-200 shadow-[0_16px_34px_-24px_rgba(0,0,0,0.38),inset_0_1px_0_rgba(255,255,255,0.03)] backdrop-blur-xl"
-              >
-                返回專案列表
-              </Link>
-            </div>
+            <Link
+              href="/design-tasks"
+              className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-white/10 bg-slate-900/40 px-4 py-2.5 text-sm font-medium text-slate-200 shadow-[0_16px_34px_-24px_rgba(0,0,0,0.38),inset_0_1px_0_rgba(255,255,255,0.03)] backdrop-blur-xl"
+            >
+              返回列表
+            </Link>
           ) : null
         }
-       className="shell-none p-1">
+      />
+
+      <WorkspaceSection className="shell-none p-1">
         {!activeProject ? (
           projects.length ? (
             <div className="pf-table-shell rounded-[28px]">
@@ -139,13 +143,13 @@ export default async function DesignTasksPage({
               <table className="pf-table min-w-[1180px] table-fixed xl:min-w-full">
                 <thead>
                   <tr>
-                    <th className="w-[28%] px-4 py-3 font-medium align-middle">任務標題</th>
-                    <th className="w-[11%] px-4 py-3 font-medium align-middle">尺寸</th>
-                    <th className="w-[11%] px-4 py-3 font-medium align-middle">材質</th>
-                    <th className="w-[11%] px-4 py-3 font-medium align-middle">結構</th>
-                    <th className="w-[10%] px-4 py-3 font-medium align-middle">數量</th>
-                    <th className="w-[12%] px-4 py-3 font-medium align-middle">執行回覆</th>
-                    <th className="w-[17%] px-4 py-3 font-medium text-right align-middle">操作</th>
+                    <th className="w-[26%] px-4 py-3 font-medium align-middle">任務標題</th>
+                    <th className="w-[14%] px-4 py-3 font-medium align-middle">尺寸</th>
+                    <th className="w-[10%] px-4 py-3 font-medium align-middle">材質</th>
+                    <th className="w-[10%] px-4 py-3 font-medium align-middle">結構</th>
+                    <th className="w-[9%] px-4 py-3 font-medium align-middle">數量</th>
+                    <th className="w-[18%] px-4 py-3 font-medium align-middle">執行回覆</th>
+                    <th className="w-[13%] px-4 py-3 font-medium text-center align-middle">操作</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-white/10 bg-transparent">
@@ -157,7 +161,7 @@ export default async function DesignTasksPage({
                       <td className="px-4 py-4 text-slate-300">{task.structureRequired}</td>
                       <td className="px-4 py-4 text-slate-300">{task.quantity}</td>
                       <td className="px-4 py-4 text-slate-300">共 {task.replyCount ?? 0} 筆</td>
-                      <td className="px-4 py-4 text-right">
+                      <td className="px-4 py-4 text-center">
                         <Link href={`/design-tasks/${task.id}`} className={workspacePrimaryButtonClass}>進入任務</Link>
                       </td>
                     </tr>

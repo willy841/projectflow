@@ -69,28 +69,32 @@ export default async function ProcurementTasksPage({
   return (
     <AppShellAuth activePath="/procurement-tasks">
       <WorkspaceHeader
-        title="採購備品板"
+        title={
+          activeProject ? (
+            <span className="flex flex-wrap items-center gap-x-3 gap-y-2 text-slate-50">
+              <span>採購備品板</span>
+              <span className="text-xl font-semibold text-slate-100">{activeProject.projectName}</span>
+              <span className="text-base font-medium text-slate-400">{activeProject.eventDate}</span>
+            </span>
+          ) : (
+            "採購備品板"
+          )
+        }
         badge={<span className="inline-flex items-center rounded-full bg-white/8 px-2.5 py-0.5 text-xs font-medium text-slate-200 ring-1 ring-white/10">共 {activeProject ? projectTasks.length : projects.length} {activeProject ? "筆任務" : "個專案"}</span>}
-        meta={null}
-      />
-
-      <WorkspaceSection
-        title={activeProject ? <span className="text-xl font-semibold text-slate-100">{activeProject.projectName}</span> : undefined}
         meta={null}
         actions={
           activeProject ? (
-            <div className="flex flex-wrap items-center gap-3">
-              <span className="text-sm text-slate-300">{activeProject.eventDate}</span>
-              <Link
-                href="/procurement-tasks"
-                className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-white/10 bg-slate-900/40 px-4 py-2.5 text-sm font-medium text-slate-200 shadow-[0_16px_34px_-24px_rgba(0,0,0,0.38),inset_0_1px_0_rgba(255,255,255,0.03)] backdrop-blur-xl"
-              >
-                返回專案列表
-              </Link>
-            </div>
+            <Link
+              href="/procurement-tasks"
+              className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-white/10 bg-slate-900/40 px-4 py-2.5 text-sm font-medium text-slate-200 shadow-[0_16px_34px_-24px_rgba(0,0,0,0.38),inset_0_1px_0_rgba(255,255,255,0.03)] backdrop-blur-xl"
+            >
+              返回列表
+            </Link>
           ) : null
         }
-       className="shell-none p-1">
+      />
+
+      <WorkspaceSection className="shell-none p-1">
         {!activeProject ? (
           projects.length ? (
             <div className="pf-table-shell rounded-[28px]">
@@ -127,7 +131,7 @@ export default async function ProcurementTasksPage({
                     <th className="w-[52%] px-4 py-3 font-medium align-middle">任務標題</th>
                     <th className="w-[14%] px-4 py-3 font-medium align-middle">數量</th>
                     <th className="w-[16%] px-4 py-3 font-medium align-middle">預算</th>
-                    <th className="w-[18%] px-4 py-3 font-medium text-right align-middle">操作</th>
+                    <th className="w-[18%] px-4 py-3 font-medium text-center align-middle">操作</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-white/10 bg-transparent">
@@ -136,7 +140,7 @@ export default async function ProcurementTasksPage({
                       <td className="px-4 py-4 font-medium text-slate-100">{task.title}</td>
                       <td className="px-4 py-4 text-slate-300">{task.quantity}</td>
                       <td className="px-4 py-4 text-slate-300">{task.costLabel}</td>
-                      <td className="px-4 py-4 text-right">
+                      <td className="px-4 py-4 text-center">
                         <Link href={`/procurement-tasks/${task.id}`} className={workspacePrimaryButtonClass}>進入任務</Link>
                       </td>
                     </tr>
