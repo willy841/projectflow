@@ -339,19 +339,19 @@ export function DesignPlanEditorClient({
               <p className="text-xs font-medium tracking-wide text-slate-400">尺寸</p>
               <input value={plan.size} onChange={(e) => updatePlan(plan.id, "size", e.target.value)} className="mt-2 h-10 w-full rounded-xl border border-white/10 bg-slate-950/50 px-3 text-sm font-medium text-slate-100 outline-none focus:border-sky-400/40 focus:ring-2 focus:ring-sky-400/20" />
             </label>
-            <label className="rounded-2xl border border-white/10 bg-slate-950/35 px-4 py-3.5">
+            <label>
               <p className="text-xs font-medium tracking-wide text-slate-400">材質</p>
               <input value={plan.material} onChange={(e) => updatePlan(plan.id, "material", e.target.value)} className="mt-2 h-10 w-full rounded-xl border border-white/10 bg-slate-950/50 px-3 text-sm font-medium text-slate-100 outline-none focus:border-sky-400/40 focus:ring-2 focus:ring-sky-400/20" />
             </label>
-            <label className="rounded-2xl border border-white/10 bg-slate-950/35 px-4 py-3.5">
+            <label>
               <p className="text-xs font-medium tracking-wide text-slate-400">結構</p>
               <input value={plan.structure} onChange={(e) => updatePlan(plan.id, "structure", e.target.value)} className="mt-2 h-10 w-full rounded-xl border border-white/10 bg-slate-950/50 px-3 text-sm font-medium text-slate-100 outline-none focus:border-sky-400/40 focus:ring-2 focus:ring-sky-400/20" />
             </label>
-            <label className="rounded-2xl border border-white/10 bg-slate-950/35 px-4 py-3.5">
+            <label>
               <p className="text-xs font-medium tracking-wide text-slate-400">數量</p>
               <input value={plan.quantity} onChange={(e) => updatePlan(plan.id, "quantity", e.target.value)} className="mt-2 h-10 w-full rounded-xl border border-white/10 bg-slate-950/50 px-3 text-sm font-medium text-slate-100 outline-none focus:border-sky-400/40 focus:ring-2 focus:ring-sky-400/20" />
             </label>
-            <label className="rounded-2xl border border-white/10 bg-slate-950/35 px-4 py-3.5">
+            <label>
               <p className="text-xs font-medium tracking-wide text-slate-400">金額</p>
               <input value={plan.amount} onChange={(e) => updatePlan(plan.id, "amount", e.target.value)} className="mt-2 h-10 w-full rounded-xl border border-white/10 bg-slate-950/50 px-3 text-sm font-medium text-slate-100 outline-none focus:border-sky-400/40 focus:ring-2 focus:ring-sky-400/20" />
             </label>
@@ -359,7 +359,7 @@ export function DesignPlanEditorClient({
               <p className="text-xs font-medium tracking-wide text-slate-400">預覽連結</p>
               <input value={plan.previewUrl} onChange={(e) => updatePlan(plan.id, "previewUrl", e.target.value)} className="mt-2 h-10 w-full rounded-xl border border-white/10 bg-slate-950/50 px-3 text-sm font-medium text-slate-100 outline-none focus:border-sky-400/40 focus:ring-2 focus:ring-sky-400/20" />
             </label>
-            <label className="rounded-2xl border border-white/10 bg-slate-950/35 px-4 py-3.5 xl:col-span-2">
+            <label className="xl:col-span-2">
               <p className="text-xs font-medium tracking-wide text-slate-400">執行廠商</p>
               <input
                 list={vendorListId}
