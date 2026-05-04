@@ -123,8 +123,8 @@ export function DesignTaskWorkspace({
           </div>
         </section>
 
-        <section className="rounded-[28px] border border-white/10 bg-[linear-gradient(180deg,rgba(39,52,77,0.62),rgba(17,26,42,0.46))] p-5 shadow-[0_24px_46px_-28px_rgba(0,0,0,0.54),0_0_16px_rgba(96,165,250,0.05),inset_0_1px_0_rgba(255,255,255,0.05),inset_0_-16px_24px_-18px_rgba(10,18,32,0.86)] backdrop-blur-2xl">
-          <div className="mb-5 flex flex-wrap items-start justify-between gap-3 border-b border-white/10 pb-4">
+        <section className="rounded-[28px] border border-white/10 bg-[linear-gradient(180deg,rgba(39,52,77,0.62),rgba(17,26,42,0.46))] shadow-[0_24px_46px_-28px_rgba(0,0,0,0.54),0_0_16px_rgba(96,165,250,0.05),inset_0_1px_0_rgba(255,255,255,0.05),inset_0_-16px_24px_-18px_rgba(10,18,32,0.86)] backdrop-blur-2xl">
+          <div className="flex flex-wrap items-start justify-between gap-3 border-b border-white/10 px-5 py-4">
             <div>
               <p className="text-xs font-medium tracking-wide text-slate-400">目前檢視</p>
               <p className="mt-1 text-lg font-semibold text-slate-100">{selectedPlan?.title || taskTitle}</p>
@@ -150,6 +150,7 @@ export function DesignTaskWorkspace({
             ) : null}
           </div>
 
+          <div className="p-5">
           <DesignPlanEditorClient
             taskId={taskId}
             projectId={projectId}
@@ -160,6 +161,7 @@ export function DesignTaskWorkspace({
             hideTopActions
             externalHeaderActions={setHeaderActions}
           />
+          </div>
         </section>
       </div>
     </WorkspaceSection>

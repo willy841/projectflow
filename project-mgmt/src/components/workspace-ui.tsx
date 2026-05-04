@@ -34,7 +34,7 @@ export function WorkspaceHeader({
           ) : null}
           <div className="space-y-1">
             <div className="flex flex-wrap items-center gap-2">
-              <h2 className="text-3xl font-semibold tracking-tight text-slate-50">{typeof title === 'string' && !title.trim().startsWith('•') ? `• ${title}` : title}</h2>
+              <h2 className="text-3xl font-semibold tracking-tight text-slate-50">{title}</h2>
               {badge ? <div>{badge}</div> : null}
             </div>
             {meta ? <div className="text-sm text-slate-400">{meta}</div> : null}
