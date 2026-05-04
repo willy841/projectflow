@@ -46,7 +46,7 @@ export function QuoteCostListClient({ mode = "active", initialProjects }: { mode
       <header className="p-1 xl:p-1">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
           <div className="flex items-center gap-3">
-            <h2 className="text-3xl font-semibold tracking-tight text-slate-50">報價成本</h2>
+            <h2 className="text-3xl font-semibold tracking-tight text-slate-50">• 報價成本</h2>
           </div>
 
           <input

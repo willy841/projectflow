@@ -323,7 +323,7 @@ export function VendorDetailShellDb({ vendor, initialOpenRecords, tradeOptions =
           <div className="mt-6 border-t border-white/10 pt-6">
             <div className="mb-5 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
               <div>
-                <h3 className="text-xl font-semibold text-slate-100">廠商資訊</h3>
+                <h3 className="text-xl font-semibold text-slate-100">• 廠商資訊</h3>
               </div>
               <div className="flex items-center gap-3">
                 {profileMessage ? <p className="text-xs text-emerald-300">{profileMessage}</p> : null}
@@ -415,7 +415,7 @@ export function VendorDetailShellDb({ vendor, initialOpenRecords, tradeOptions =
       <article className="pf-card p-6">
           <div className="mb-5 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
             <div>
-              <h3 className="text-xl font-semibold text-slate-100">未付款專案</h3>
+              <h3 className="text-xl font-semibold text-slate-100">• 未付款專案</h3>
             </div>
             <div className="min-w-[320px] rounded-2xl bg-white/[0.05] px-5 py-3 text-sm text-slate-300 ring-1 ring-white/10 lg:min-w-[380px]">
               <p className="whitespace-nowrap font-semibold text-slate-100">待付款 {unpaidRecords.length} 筆｜未付款總額 {formatCurrency(unpaidTotalAmount)}</p>
@@ -541,7 +541,7 @@ export function VendorDetailShellDb({ vendor, initialOpenRecords, tradeOptions =
       <article className="pf-card p-6">
         <div className="mb-5 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
           <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
-            <h3 className="text-xl font-semibold text-slate-100">往來紀錄</h3>
+            <h3 className="text-xl font-semibold text-slate-100">• 往來紀錄</h3>
             <button
               type="button"
               onClick={() => setHistoryTab('open')}

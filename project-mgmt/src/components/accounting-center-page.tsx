@@ -963,7 +963,7 @@ export function AccountingCenterPage({
 
         <section className="p-1">
           <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
-            <h3 className="text-2xl font-semibold tracking-tight text-slate-50">營收概況</h3>
+            <h3 className="text-xl font-semibold text-slate-50">• 營收概況</h3>
             <div className="flex flex-col gap-3 xl:flex-row xl:flex-wrap xl:items-center xl:gap-4">
               <div className="flex flex-wrap gap-2">
                 {([
@@ -1054,7 +1054,7 @@ export function AccountingCenterPage({
         <section className="p-1">
           <div className="flex flex-col gap-4 border-b border-white/10 pb-5 xl:flex-row xl:items-end xl:justify-between">
             <div className="flex items-center gap-4">
-              <h3 className="text-2xl font-semibold tracking-tight text-slate-50">帳務管理</h3>
+              <h3 className="text-xl font-semibold text-slate-50">• 帳務管理</h3>
               <div className="flex flex-wrap gap-2">
               <button type="button" onClick={() => setWorkspaceTab("active-projects")} className={`rounded-2xl px-4 py-2.5 text-sm font-semibold ring-1 transition ${workspaceTab === "active-projects" ? "bg-sky-500/20 text-sky-100 ring-sky-400/30" : "bg-white/6 text-slate-300 ring-white/10 hover:bg-white/10"}`}>執行中專案</button>
               <button type="button" onClick={() => setWorkspaceTab("operating-expenses")} className={`rounded-2xl px-4 py-2.5 text-sm font-semibold ring-1 transition ${workspaceTab === "operating-expenses" ? "bg-sky-500/20 text-sky-100 ring-sky-400/30" : "bg-white/6 text-slate-300 ring-white/10 hover:bg-white/10"}`}>管銷成本</button>

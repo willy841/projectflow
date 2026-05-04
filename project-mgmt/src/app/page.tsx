@@ -43,7 +43,7 @@ export default async function Home() {
         <article className="p-1">
           <div className="mb-5 flex items-center justify-between">
             <div>
-              <h3 className="text-xl font-semibold text-slate-100">近期專案</h3>
+              <h3 className="text-xl font-semibold text-slate-100">• 近期專案</h3>
             </div>
             <Link href="/projects" className="pf-btn-secondary rounded-xl px-3 py-2 !text-slate-200">
               查看全部
@@ -88,7 +88,7 @@ export default async function Home() {
         <article className="p-1">
           <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="min-w-0">
-              <h3 className="text-xl font-semibold text-slate-100">收款概況</h3>
+              <h3 className="text-xl font-semibold text-slate-100">• 收款概況</h3>
             </div>
             <Link href="/quote-costs" className="pf-btn-secondary shrink-0 self-start px-4 py-2 text-slate-200">
               前往報價成本

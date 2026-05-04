@@ -278,7 +278,8 @@ export function OverviewRow({ label, value, archived = false }: { label: string;
 }
 
 export function SimpleSectionTitle({ title }: { title: string }) {
-  return <h3 className="text-xl font-semibold text-slate-50">{title}</h3>;
+  const normalizedTitle = title.trim().startsWith('•') ? title : `• ${title}`;
+  return <h3 className="text-xl font-semibold text-slate-50">{normalizedTitle}</h3>;
 }
 
 export function QuoteDetailModal({

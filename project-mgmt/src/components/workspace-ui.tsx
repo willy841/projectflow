@@ -34,7 +34,7 @@ export function WorkspaceHeader({
           ) : null}
           <div className="space-y-1">
             <div className="flex flex-wrap items-center gap-2">
-              <h2 className="text-3xl font-semibold tracking-tight text-slate-50">{title}</h2>
+              <h2 className="text-3xl font-semibold tracking-tight text-slate-50">{typeof title === 'string' && !title.trim().startsWith('•') ? `• ${title}` : title}</h2>
               {badge ? <div>{badge}</div> : null}
             </div>
             {meta ? <div className="text-sm text-slate-400">{meta}</div> : null}
@@ -66,7 +66,7 @@ export function WorkspaceSection({
       {title || meta || actions ? (
         <div className="mb-5 flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
           <div className="space-y-1">
-            {title ? <h3 className="text-xl font-semibold text-slate-100">{title}</h3> : null}
+            {title ? <h3 className="text-xl font-semibold text-slate-100">{typeof title === 'string' && !title.trim().startsWith('•') ? `• ${title}` : title}</h3> : null}
             {meta ? <div className="text-sm text-slate-400">{meta}</div> : null}
           </div>
           {actions ? <div className="flex flex-wrap gap-2">{actions}</div> : null}

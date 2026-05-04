@@ -107,7 +107,7 @@ export function ProjectsPageClient({ initialProjects }: { initialProjects: Proje
         <div className="flex flex-col gap-5 2xl:flex-row 2xl:items-center 2xl:justify-between">
           <div className="min-w-0">
             <div className="flex min-h-11 flex-wrap items-center gap-3">
-              <h2 className="text-3xl font-semibold tracking-tight text-slate-50">專案列表</h2>
+              <h2 className="text-3xl font-semibold tracking-tight text-slate-50">• 專案列表</h2>
               <p className="text-sm leading-none text-slate-400">
                 目前顯示 <span className="font-semibold text-slate-100">{visibleProjects.length}</span> / {projects.length} 個專案
               </p>
