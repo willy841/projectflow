@@ -54,18 +54,36 @@ export async function getHomeOverviewReadModel(): Promise<HomeOverviewReadModel>
     ),
     design_pending as (
       select count(*)::int as count
-      from design_tasks
-      where coalesce(status, '') not in ('已完成', '已結案', 'done')
+      from design_tasks dt
+      where not exists (
+        select 1
+        from task_confirmations tc
+        where tc.flow_type = 'design'
+          and tc.task_id = dt.id
+          and tc.status = 'confirmed'
+      )
     ),
     procurement_pending as (
       select count(*)::int as count
-      from procurement_tasks
-      where coalesce(status, '') not in ('已完成', '已結案', 'done')
+      from procurement_tasks pt
+      where not exists (
+        select 1
+        from task_confirmations tc
+        where tc.flow_type = 'procurement'
+          and tc.task_id = pt.id
+          and tc.status = 'confirmed'
+      )
     ),
     vendor_pending as (
       select count(*)::int as count
-      from vendor_tasks
-      where coalesce(status, '') not in ('已完成', '已結案', 'done')
+      from vendor_tasks vt
+      where not exists (
+        select 1
+        from task_confirmations tc
+        where tc.flow_type = 'vendor'
+          and tc.task_id = vt.id
+          and tc.status = 'confirmed'
+      )
     ),
     active_projects as (
       select id
