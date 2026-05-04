@@ -40,7 +40,7 @@ export default async function Home() {
       </section>
 
       <section className="grid gap-6 2xl:grid-cols-[minmax(0,1.65fr)_minmax(340px,0.95fr)]">
-        <article className="pf-card p-6">
+        <article className="p-1">
           <div className="mb-5 flex items-center justify-between">
             <div>
               <h3 className="text-xl font-semibold text-slate-100">近期專案</h3>
@@ -85,7 +85,7 @@ export default async function Home() {
           )}
         </article>
 
-        <article className="pf-card p-6">
+        <article className="p-1">
           <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="min-w-0">
               <h3 className="text-xl font-semibold text-slate-100">收款概況</h3>
