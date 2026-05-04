@@ -529,7 +529,7 @@ export function VendorDetailShellDb({ vendor, initialOpenRecords, tradeOptions =
               type="button"
               onClick={handleBatchMarkPaid}
               disabled={!selectedPayableRecords.length || batchPaying}
-              className="pf-btn-primary min-h-11 px-5 py-3 disabled:cursor-not-allowed disabled:bg-slate-300 disabled:text-slate-500"
+              className="pf-btn-primary min-h-11 px-5 py-3 disabled:border-sky-400/20 disabled:bg-[linear-gradient(180deg,rgba(37,99,235,0.92),rgba(29,78,216,0.84))] disabled:text-white disabled:opacity-100"
             >
               {batchPaying ? '處理中…' : '標記為已付款'}
             </button>
