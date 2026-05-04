@@ -58,25 +58,23 @@ export function QuoteCostHeader({
 
   return (
     <header className={`px-1 py-1 ${isClosedView ? 'text-slate-100' : 'text-white'}`}>
-      <div className="flex flex-col gap-5 xl:flex-row xl:items-center xl:justify-between">
-        <div className="min-w-0 flex-1 xl:self-center">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex min-w-0 flex-wrap items-center gap-3">
           <h2 className={`text-3xl font-semibold tracking-tight ${isClosedView ? 'text-slate-50' : 'text-white'}`}>{projectName}</h2>
-          <div className={`mt-4 flex flex-wrap items-center gap-2 ${isClosedView ? 'text-slate-300' : 'text-slate-200'}`}>
+          <div className={`${isClosedView ? 'text-slate-300' : 'text-slate-200'}`}>
             <OverviewRow label="活動日期" value={eventDate} archived={isClosedView} />
           </div>
         </div>
-        <div className="sm:min-w-[300px]">
-          <div className="flex flex-wrap items-center justify-end gap-2">
-            <p className={`text-base font-semibold ${isClosedView ? 'text-slate-50' : 'text-white'}`}>{presenter.shellTitle}</p>
-            <div className="flex flex-wrap items-center gap-2 text-xs">
-              <QuickPanel value={reconciliationStatus} label="對帳狀態" archived={isClosedView} />
-              <QuickPanel value={closeStatus} label="結案狀態" archived={isClosedView} />
-              {presenter.archived ? (
-                <Link href={presenter.listHref} className={`inline-flex items-center justify-center rounded-2xl px-4 py-2.5 text-sm font-semibold transition ${isClosedView ? 'border border-white/10 bg-white/[0.06] text-slate-100 hover:bg-white/[0.1]' : 'border border-white/10 bg-white/[0.08] text-white hover:bg-white/[0.12]'}`}>
-                  返回{presenter.listLabel}
-                </Link>
-              ) : null}
-            </div>
+        <div className="flex flex-wrap items-center justify-end gap-2">
+          <p className={`text-base font-semibold ${isClosedView ? 'text-slate-50' : 'text-white'}`}>{presenter.shellTitle}</p>
+          <div className="flex flex-wrap items-center gap-2 text-xs">
+            <QuickPanel value={reconciliationStatus} label="對帳狀態" archived={isClosedView} />
+            <QuickPanel value={closeStatus} label="結案狀態" archived={isClosedView} />
+            {presenter.archived ? (
+              <Link href={presenter.listHref} className={`inline-flex items-center justify-center rounded-2xl px-4 py-2.5 text-sm font-semibold transition ${isClosedView ? 'border border-white/10 bg-white/[0.06] text-slate-100 hover:bg-white/[0.1]' : 'border border-white/10 bg-white/[0.08] text-white hover:bg-white/[0.12]'}`}>
+                返回{presenter.listLabel}
+              </Link>
+            ) : null}
           </div>
         </div>
       </div>
