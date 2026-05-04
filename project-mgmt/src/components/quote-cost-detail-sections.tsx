@@ -137,24 +137,21 @@ export function CollectionSection({
   );
 }
 
-export function ActiveOnlyFinancialSections({
+export function QuoteOverviewSection({
   quoteImportRecord,
   quotationItems,
-  vendorPaymentRecords,
   quotationTotal,
   onOpenQuoteDetail,
   onImportExcel,
 }: {
   quoteImportRecord: QuoteCostProject['quotationImport'];
   quotationItems: QuoteCostProject['quotationItems'];
-  vendorPaymentRecords: VendorPaymentView[];
   quotationTotal: number;
   onOpenQuoteDetail?: () => void;
   onImportExcel?: () => void;
 }) {
   return (
-    <section className="space-y-6">
-      <section className="p-1">
+    <section className="p-1">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
           <SimpleSectionTitle title="• 對外報價單" />
           <div className="flex flex-wrap gap-2">
@@ -181,34 +178,41 @@ export function ActiveOnlyFinancialSections({
           <p className="mt-2 text-3xl font-semibold tracking-tight">{formatCurrency(quotationTotal)}</p>
         </div>
       </section>
+  );
+}
 
-      <section className="p-1">
-        <div className="flex items-center justify-between gap-3">
-          <SimpleSectionTitle title="• 廠商對帳摘要" />
-        </div>
-        <div className="pf-table-shell mt-4">
-          <table className="pf-table">
-            <thead>
-              <tr>
-                <th className="px-4 py-3 font-medium">廠商</th>
-                <th className="px-4 py-3 font-medium">已對帳</th>
-                <th className="px-4 py-3 font-medium">未對帳</th>
-                <th className="px-4 py-3 font-medium">目前應付總額</th>
+export function VendorPaymentSummarySection({
+  vendorPaymentRecords,
+}: {
+  vendorPaymentRecords: VendorPaymentView[];
+}) {
+  return (
+    <section className="p-1">
+      <div className="flex items-center justify-between gap-3">
+        <SimpleSectionTitle title="• 廠商對帳摘要" />
+      </div>
+      <div className="pf-table-shell mt-4">
+        <table className="pf-table">
+          <thead>
+            <tr>
+              <th className="px-4 py-3 font-medium">廠商</th>
+              <th className="px-4 py-3 font-medium">已對帳</th>
+              <th className="px-4 py-3 font-medium">未對帳</th>
+              <th className="px-4 py-3 font-medium">目前應付總額</th>
+            </tr>
+          </thead>
+          <tbody>
+            {vendorPaymentRecords.map((record) => (
+              <tr key={record.vendorName}>
+                <td className="font-medium text-slate-100">{record.vendorName}</td>
+                <td className="text-slate-300">{record.reconciledCount} 筆</td>
+                <td className="text-slate-300">{record.unreconciledCount} 筆</td>
+                <td className="font-semibold text-slate-100">{formatCurrency(record.payableAmount)}</td>
               </tr>
-            </thead>
-            <tbody>
-              {vendorPaymentRecords.map((record) => (
-                <tr key={record.vendorName}>
-                  <td className="font-medium text-slate-100">{record.vendorName}</td>
-                  <td className="text-slate-300">{record.reconciledCount} 筆</td>
-                  <td className="text-slate-300">{record.unreconciledCount} 筆</td>
-                  <td className="font-semibold text-slate-100">{formatCurrency(record.payableAmount)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </section>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </section>
   );
 }

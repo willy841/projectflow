@@ -17,7 +17,8 @@ import {
 } from "@/components/quote-cost-data";
 import { getQuoteCostDetailPresenter, type QuoteCostDetailPresenter } from "@/components/quote-cost-detail-presenter";
 import {
-  ActiveOnlyFinancialSections,
+  QuoteOverviewSection,
+  VendorPaymentSummarySection,
   CollectionSection,
   CostManagementSection,
   getCostSourceSummary,
@@ -415,10 +416,9 @@ export function QuoteCostDetailClient({ project, mode = "active", presenter = ge
       {!isClosedView ? (
         <section className="space-y-6">
           <div className="grid gap-6 xl:grid-cols-[minmax(0,1.08fr)_minmax(0,0.92fr)] xl:items-start">
-            <ActiveOnlyFinancialSections
+            <QuoteOverviewSection
               quoteImportRecord={quoteImportRecord}
               quotationItems={state.quotationItems}
-              vendorPaymentRecords={vendorPaymentRecords}
               quotationTotal={quotationTotal}
               onOpenQuoteDetail={() => setIsQuoteDetailModalOpen(true)}
               onImportExcel={() => quoteImportInputRef.current?.click()}
@@ -431,6 +431,9 @@ export function QuoteCostDetailClient({ project, mode = "active", presenter = ge
               onDelete={handleDeleteCollectionRecord}
             />
           </div>
+          <VendorPaymentSummarySection
+            vendorPaymentRecords={vendorPaymentRecords}
+          />
         </section>
       ) : (
         <CollectionSection
@@ -580,7 +583,7 @@ export function QuoteCostDetailClient({ project, mode = "active", presenter = ge
 
         <div className="mt-6 space-y-5">
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <h4 className="text-lg font-semibold text-slate-50">項目明細</h4>
+            <h4 className="text-lg font-semibold text-slate-50">• 項目明細</h4>
             <div className="flex flex-wrap items-center justify-end gap-2">
               {presenter.canPersistManualCosts && activeArchiveSource === "人工" ? (
                 <button
