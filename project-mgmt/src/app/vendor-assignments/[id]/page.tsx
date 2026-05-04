@@ -44,7 +44,7 @@ export default async function VendorAssignmentTaskPage({ params }: { params: Pro
         }
       />
 
-      <WorkspaceSection title="群組總覽">
+      <WorkspaceSection className="shell-none p-0">
         <div className="grid gap-3 md:grid-cols-3">
           <WorkspaceStat label="專案" value={group.projectName} />
           <WorkspaceStat label="活動日期" value={group.eventDate} />
@@ -57,7 +57,7 @@ export default async function VendorAssignmentTaskPage({ params }: { params: Pro
           <WorkspaceSection
             key={task.id}
             title={task.title}
-            meta={`第 ${index + 1} 筆群組任務`}
+            meta={undefined}
             className="shell-none"
           >
             <div className="grid gap-3 md:grid-cols-2">

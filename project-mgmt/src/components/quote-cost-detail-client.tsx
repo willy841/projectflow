@@ -583,7 +583,7 @@ export function QuoteCostDetailClient({ project, mode = "active", presenter = ge
 
         <div className="mt-6 space-y-5">
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <h4 className="text-lg font-semibold text-slate-50">• 項目明細</h4>
+            <h4 className="text-lg font-semibold text-slate-50">項目明細</h4>
             <div className="flex flex-wrap items-center justify-end gap-2">
               {presenter.canPersistManualCosts && activeArchiveSource === "人工" ? (
                 <button
