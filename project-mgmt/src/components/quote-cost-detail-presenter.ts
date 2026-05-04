@@ -23,7 +23,7 @@ const activePresenter: QuoteCostDetailPresenter = {
   activePath: "/quote-costs",
   listHref: "/quote-costs",
   listLabel: "報價成本列表",
-  shellTitle: "成本管理 / 對帳推進",
+  shellTitle: "結案狀態",
   collectionTitle: "收款管理",
   collectionPrimaryActionLabel: "新增收款",
   quotationLockedLabel: "已承接正式報價版本",

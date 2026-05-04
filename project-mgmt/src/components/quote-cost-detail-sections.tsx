@@ -65,7 +65,7 @@ export function QuoteCostHeader({
             <OverviewRow label="活動日期" value={eventDate} archived={isClosedView} />
           </div>
         </div>
-        <div className={`rounded-3xl border p-4 text-sm shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] sm:min-w-[300px] ${isClosedView ? 'border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.075),rgba(255,255,255,0.03))] text-slate-300' : 'border-white/10 bg-white/[0.06] text-slate-200'}`}>
+        <div className="sm:min-w-[300px]">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <p className={`text-base font-semibold ${isClosedView ? 'text-slate-50' : 'text-white'}`}>{presenter.shellTitle}</p>
             <div className="flex flex-wrap items-center gap-3 text-xs">
