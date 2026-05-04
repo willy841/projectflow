@@ -73,17 +73,17 @@ export function QuoteCostListClient({ mode = "active", initialProjects }: { mode
               </thead>
               <tbody>
                 {activeProjects.map(({ project }) => (
-                  <tr key={project.id}>
-                    <td className="text-slate-300">{project.clientName}</td>
-                    <td className="font-medium text-slate-100"><Link href={`/quote-costs/${project.id}`} className="underline-offset-4 hover:underline">{project.projectName}</Link></td>
-                    <td className="text-slate-300">{project.eventDate}</td>
-                    <td>
+                  <tr key={project.id} className="align-middle">
+                    <td className="align-middle text-slate-300">{project.clientName}</td>
+                    <td className="align-middle font-medium text-slate-100"><Link href={`/quote-costs/${project.id}`} className="underline-offset-4 hover:underline">{project.projectName}</Link></td>
+                    <td className="align-middle text-slate-300">{project.eventDate}</td>
+                    <td className="align-middle">
                       <span className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ring-1 ${project.quotationImported ? "bg-emerald-400/14 text-emerald-200 ring-emerald-300/20" : "bg-amber-400/14 text-amber-200 ring-amber-300/20"}`}>
                         {project.quotationImported ? "已上傳" : "未上傳"}
                       </span>
                     </td>
-                    <td>
-                      <Link href={`/quote-costs/${project.id}`} className={workspacePrimaryButtonClass}>
+                    <td className="align-middle">
+                      <Link href={`/quote-costs/${project.id}`} className="pf-btn-secondary px-3 py-2 text-sm">
                         查看
                       </Link>
                     </td>
