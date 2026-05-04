@@ -16,7 +16,6 @@ const defaultForm = {
   contactLine: "",
   owner: "",
   budget: "",
-  note: "",
 };
 
 export function ProjectForm() {
@@ -78,27 +77,17 @@ export function ProjectForm() {
             ["contactLine", "LINE", "例如：brand-team"],
             ["budget", "預估預算", "例如：NT$ 500,000"],
           ].map(([key, label, placeholder]) => (
-            <label key={key} className={`flex flex-col gap-2 ${key === "note" ? "md:col-span-2" : ""}`}>
+            <label key={key} className="flex flex-col gap-2">
               <span className="text-sm font-medium text-slate-300">{label}</span>
               <input
                 type={key === "eventDate" ? "date" : "text"}
                 value={form[key as keyof typeof defaultForm]}
                 onChange={(event) => updateField(key as keyof typeof defaultForm, event.target.value)}
                 placeholder={placeholder}
-                className="pf-input h-12"
+                className={`pf-input h-12 ${key === "eventDate" ? "calendar-picker-visible" : ""}`}
               />
             </label>
           ))}
-
-          <label className="md:col-span-2 flex flex-col gap-2">
-            <span className="text-sm font-medium text-slate-300">專案備註</span>
-            <textarea
-              value={form.note}
-              onChange={(event) => updateField("note", event.target.value)}
-              placeholder="記錄需求背景、特殊備註、後續提醒事項"
-              className="pf-input min-h-32 px-4 py-3"
-            />
-          </label>
         </div>
 
         {submitError ? <p className="mt-4 text-sm text-rose-300">{submitError}</p> : null}

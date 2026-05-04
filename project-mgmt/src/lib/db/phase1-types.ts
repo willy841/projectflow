@@ -26,6 +26,7 @@ export interface ProjectRow extends BaseMutableRow {
   contact_phone: string | null;
   contact_email: string | null;
   contact_line: string | null;
+  owner: string | null;
   status: string;
 }
 

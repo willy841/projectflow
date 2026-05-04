@@ -25,6 +25,7 @@ export async function PATCH(
       contactPhone?: string;
       contactEmail?: string;
       contactLine?: string;
+      owner?: string;
       status?: string;
     };
 
@@ -40,6 +41,7 @@ export async function PATCH(
       contact_phone: body.contactPhone?.trim() || null,
       contact_email: body.contactEmail?.trim() || null,
       contact_line: body.contactLine?.trim() || null,
+      owner: body.owner?.trim() || null,
       status: body.status?.trim() || '執行中',
     });
 

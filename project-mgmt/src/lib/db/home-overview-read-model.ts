@@ -142,7 +142,7 @@ export async function getHomeOverviewReadModel(): Promise<HomeOverviewReadModel>
       coalesce(p.client_name, '未填寫') as client,
       coalesce(to_char(p.event_date, 'YYYY-MM-DD'), '-') as "eventDate",
       '執行中' as status,
-      '-' as owner
+      coalesce(p.owner, '-') as owner
     from projects p
     where coalesce(p.status, '') not in ('已結案', '結案')
     order by p.event_date desc nulls last, p.created_at desc

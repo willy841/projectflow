@@ -136,4 +136,10 @@ button[class*="bg-slate-800"] {
   .pf-table tbody td {
     @apply px-4 py-3.5 align-middle;
   }
+
+  .calendar-picker-visible::-webkit-calendar-picker-indicator {
+    filter: invert(88%) sepia(18%) saturate(548%) hue-rotate(180deg) brightness(105%) contrast(101%);
+    opacity: 1;
+    cursor: pointer;
+  }
 }

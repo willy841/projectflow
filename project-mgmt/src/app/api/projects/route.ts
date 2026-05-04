@@ -23,7 +23,6 @@ export async function POST(request: Request) {
       eventDate?: string;
       location?: string;
       owner?: string;
-      note?: string;
       loadInTime?: string;
       eventType?: string;
       contactName?: string;
@@ -50,6 +49,7 @@ export async function POST(request: Request) {
       contact_phone: body.contactPhone?.trim() || null,
       contact_email: body.contactEmail?.trim() || null,
       contact_line: body.contactLine?.trim() || null,
+      owner: body.owner?.trim() || null,
       status: '執行中',
     });
 

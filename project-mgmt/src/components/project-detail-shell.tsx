@@ -27,7 +27,6 @@ type ProjectFormState = {
   owner: string;
   budget: string;
   cost: string;
-  note: string;
 };
 
 const summaryItemsMeta = [
@@ -66,7 +65,6 @@ function buildProjectForm(project: Project): ProjectFormState {
     owner: project.owner,
     budget: project.budget,
     cost: project.cost,
-    note: project.note,
   };
 }
 
@@ -86,7 +84,6 @@ function buildProjectView(baseProject: Project, form: ProjectFormState): Project
     owner: form.owner,
     budget: form.budget,
     cost: form.cost,
-    note: form.note,
   };
 }
 
@@ -135,6 +132,7 @@ export function ProjectDetailShell({ project, entryContext }: { project: Project
           contactPhone: projectForm.contactPhone,
           contactEmail: projectForm.contactEmail,
           contactLine: projectForm.contactLine,
+          owner: projectForm.owner,
           status: project.status,
         }),
       });
@@ -157,6 +155,7 @@ export function ProjectDetailShell({ project, entryContext }: { project: Project
         contactPhone: result.project.contact_phone ?? "-",
         contactEmail: result.project.contact_email ?? "-",
         contactLine: result.project.contact_line ?? "-",
+        owner: result.project.owner ?? "-",
       };
       const nextView = buildProjectView(projectView, nextForm);
 
@@ -245,7 +244,7 @@ export function ProjectDetailShell({ project, entryContext }: { project: Project
               ["location", "活動地點", "例如：松山文創園區", "text"],
               ["loadInTime", "進場時間", "", "time"],
               ["eventType", "活動類型", "例如：品牌快閃", "text"],
-              ["owner", "專案負責人", "目前為唯讀欄位", "text"],
+              ["owner", "專案負責人", "例如：Willy", "text"],
               ["contactName", "聯繫人", "例如：林雅晴", "text"],
               ["contactPhone", "電話", "例如：0912-345-678", "text"],
               ["contactEmail", "Email", "例如：name@brand.com", "text"],
@@ -253,7 +252,7 @@ export function ProjectDetailShell({ project, entryContext }: { project: Project
               ["budget", "專案預算", "目前為唯讀欄位", "text"],
               ["cost", "目前成本", "目前為唯讀欄位", "text"],
             ].map(([key, label, placeholder, type]) => {
-              const isReadonly = ["owner", "budget", "cost"].includes(key);
+              const isReadonly = ["budget", "cost"].includes(key);
               return (
                 <label key={key} className="flex flex-col gap-2">
                   <span className="text-sm font-medium text-slate-300">{label}</span>
@@ -273,16 +272,6 @@ export function ProjectDetailShell({ project, entryContext }: { project: Project
               );
             })}
 
-            <label className="flex flex-col gap-2 md:col-span-2 xl:col-span-3">
-              <span className="text-sm font-medium text-slate-300">專案備註</span>
-              <textarea
-                value={projectForm.note}
-                onChange={(event) => updateField("note", event.target.value)}
-                placeholder="目前為前端顯示欄位，正式 DB 欄位尚未納入"
-                readOnly
-                className="min-h-28 rounded-2xl border border-white/8 bg-slate-900/30 px-4 py-3 text-sm text-slate-500 outline-none"
-              />
-            </label>
           </div>
 
           <div className="mt-5 flex flex-wrap gap-2">
