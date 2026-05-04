@@ -82,33 +82,30 @@ export function CloseoutListClient({ initialProjects }: { initialProjects: Close
         </div>
 
         {pagedProjects.length ? (
-          <div className="overflow-x-auto rounded-2xl border border-white/10 bg-[linear-gradient(180deg,rgba(39,52,77,0.62),rgba(17,26,42,0.46))] shadow-[0_24px_46px_-28px_rgba(0,0,0,0.54),0_0_16px_rgba(96,165,250,0.05),inset_0_1px_0_rgba(255,255,255,0.05),inset_0_-16px_24px_-18px_rgba(10,18,32,0.86)] backdrop-blur-2xl">
-            <table className="min-w-full divide-y divide-white/10 text-left text-sm">
-              <thead className="bg-white/[0.04] text-slate-400">
+          <div className="pf-table-shell rounded-2xl">
+            <table className="pf-table">
+              <thead>
                 <tr>
-                  <th className="px-4 py-3 font-medium">客戶名稱</th>
-                  <th className="px-4 py-3 font-medium">專案名稱</th>
-                  <th className="px-4 py-3 font-medium">活動日期</th>
-                  <th className="px-4 py-3 font-medium">對外報價總額</th>
-                  <th className="px-4 py-3 font-medium">專案成本</th>
-                  <th className="px-4 py-3 font-medium">毛利</th>
-                  <th className="px-4 py-3 font-medium">操作</th>
+                  <th>客戶名稱</th>
+                  <th>專案名稱</th>
+                  <th>活動日期</th>
+                  <th>對外報價總額</th>
+                  <th>專案成本</th>
+                  <th>毛利</th>
+                  <th>操作</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-white/10 bg-transparent">
+              <tbody>
                 {pagedProjects.map((project) => (
                   <tr key={project.id}>
-                    <td className="px-4 py-4 text-slate-300">{project.clientName}</td>
-                    <td className="px-4 py-4 font-medium text-slate-100">{project.projectName}</td>
-                    <td className="px-4 py-4 text-slate-300">{project.eventDate}</td>
-                    <td className="px-4 py-4 text-slate-300">{formatCurrency(project.quotationTotal)}</td>
-                    <td className="px-4 py-4 text-slate-300">{formatCurrency(project.projectCostTotal)}</td>
-                    <td className="px-4 py-4 font-semibold text-slate-100">{formatCurrency(project.grossProfit)}</td>
-                    <td className="px-4 py-4">
-                      <Link
-                        href={`/closeouts/${project.id}`}
-                        className="inline-flex min-h-10 items-center justify-center rounded-2xl border border-white/10 bg-slate-900/50 px-4 py-2 text-sm font-semibold text-slate-100 shadow-[0_20px_42px_-28px_rgba(0,0,0,0.45),inset_0_1px_0_rgba(255,255,255,0.04)] backdrop-blur-xl transition hover:bg-slate-900/70"
-                      >
+                    <td className="text-slate-300">{project.clientName}</td>
+                    <td className="font-medium text-slate-100">{project.projectName}</td>
+                    <td className="text-slate-300">{project.eventDate}</td>
+                    <td className="text-slate-300">{formatCurrency(project.quotationTotal)}</td>
+                    <td className="text-slate-300">{formatCurrency(project.projectCostTotal)}</td>
+                    <td className="font-semibold text-slate-100">{formatCurrency(project.grossProfit)}</td>
+                    <td>
+                      <Link href={`/closeouts/${project.id}`} className="pf-btn-secondary px-3 py-2 text-sm">
                         查看
                       </Link>
                     </td>

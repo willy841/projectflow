@@ -462,7 +462,7 @@ export function VendorDetailShellDb({ vendor, initialOpenRecords, tradeOptions =
                           </td>
                           <td className="px-4 py-4 align-top font-medium text-slate-900">{record.projectName}</td>
                           <td className="px-4 py-4 align-top">
-                            <span className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold leading-tight text-center ring-1 ${getVendorReconciliationStatusClass(record)}`}>{record.reconciliationStatus}</span>
+                            <span className={`inline-flex rounded-full px-3 py-1 text-sm font-semibold leading-tight text-center ring-1 ${getVendorReconciliationStatusClass(record)}`}>{record.reconciliationStatus}</span>
                           </td>
                           <td className="px-4 py-4 align-top font-semibold text-slate-900">{formatCurrency(record.unpaidAmount ?? record.adjustedCost)}</td>
                           <td className="px-4 py-4 align-top text-slate-600">
@@ -475,7 +475,7 @@ export function VendorDetailShellDb({ vendor, initialOpenRecords, tradeOptions =
                             <button
                               type="button"
                               onClick={() => toggleExpandedRecord(record)}
-                              className="pf-btn-secondary min-h-10 px-4 py-2"
+                              className="pf-btn-secondary px-3 py-2 text-sm"
                             >
                               {isExpanded ? (isDetailLoading ? '載入明細中…' : '收合明細') : '查看明細'}
                             </button>
@@ -602,7 +602,7 @@ export function VendorDetailShellDb({ vendor, initialOpenRecords, tradeOptions =
                   ) : (
                     <div className="mt-5 grid gap-4 xl:grid-cols-2">
                       <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4 backdrop-blur-xl">
-                        <p className="text-sm font-semibold text-slate-100">成本明細</p>
+                        <h4 className="text-lg font-semibold text-slate-100">成本明細</h4>
                         <div className="mt-3 space-y-3">
                           {record.costBreakdown.map((item, index) => (
                             <div key={`${record.id}-history-cost-${index}-${item.label}-${item.amount}`} className="flex items-center justify-between gap-3 text-sm">
@@ -613,7 +613,7 @@ export function VendorDetailShellDb({ vendor, initialOpenRecords, tradeOptions =
                         </div>
                       </div>
                       <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4 backdrop-blur-xl">
-                        <p className="text-sm font-semibold text-slate-100">發包內容明細</p>
+                        <h4 className="text-lg font-semibold text-slate-100">發包內容明細</h4>
                         <ul className="mt-3 space-y-2 text-sm text-slate-300">
                           {record.sourceItemDetails.map((item, index) => (
                             <li key={`${record.id}-history-source-${index}-${item}`} className="rounded-2xl bg-white/[0.04] px-3 py-2 ring-1 ring-white/10">• {item}</li>
