@@ -128,7 +128,7 @@ export async function getVendorFinancialSummary({ vendorId, vendorName }: { vend
         id: `vendor-group-${projectId}-${group.sourceType}-${index + 1}`,
         itemName: `${group.sourceType} 對帳內容`,
         sourceType: group.sourceType,
-        sourceRef: `${group.itemCount} 筆已對帳內容`,
+        sourceRef: `${group.itemCount} 筆發包內容`,
         vendorId: vendorId ?? null,
         vendorName: group.vendorName,
         originalAmount: group.amountTotal,

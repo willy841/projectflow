@@ -371,7 +371,7 @@ export async function listDbVendorProjectRecordsByVendorId(
       projectStatus: financialRecord.projectStatus,
       adjustedCost: financialRecord.adjustedCost,
       adjustedCostLabel: financialRecord.adjustedCostLabel,
-      reconciliationSummary: `已對帳 ${totalReconciledCount} 筆 / 未對帳 ${totalUnreconciledCount} 筆`,
+      reconciliationSummary: `已對帳群組 ${totalReconciledCount} 筆 / 未對帳群組 ${totalUnreconciledCount} 筆`,
       reconciliationStatus: financialRecord.hasUnreconciledGroups ? '尚未全部對帳' : '已全部對帳',
       sourceItemDetails: includeDetails ? (sourceItemDetails.length ? sourceItemDetails : ['待補充']) : [],
       costBreakdown: includeDetails
