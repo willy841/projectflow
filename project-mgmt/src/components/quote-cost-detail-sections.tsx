@@ -66,9 +66,9 @@ export function QuoteCostHeader({
           </div>
         </div>
         <div className="sm:min-w-[300px]">
-          <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex flex-wrap items-center justify-end gap-2">
             <p className={`text-base font-semibold ${isClosedView ? 'text-slate-50' : 'text-white'}`}>{presenter.shellTitle}</p>
-            <div className="flex flex-wrap items-center gap-3 text-xs">
+            <div className="flex flex-wrap items-center gap-2 text-xs">
               <QuickPanel value={reconciliationStatus} label="對帳狀態" archived={isClosedView} />
               <QuickPanel value={closeStatus} label="結案狀態" archived={isClosedView} />
               {presenter.archived ? (
@@ -272,7 +272,7 @@ export function getCostSourceSummary(costItems: CostLineItem[], projectId: strin
 
 export function QuickPanel({ value, label, archived }: { value: string; label: string; archived: boolean }) {
   return (
-    <div className={`rounded-2xl border px-3 py-2 ${archived ? 'border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.08),rgba(255,255,255,0.03))] text-slate-400 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]' : 'border-white/10 bg-black/10 text-slate-300'}`}>
+    <div className={`rounded-2xl border px-3 py-2 text-center ${archived ? 'border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.08),rgba(255,255,255,0.03))] text-slate-400 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]' : 'border-white/10 bg-black/10 text-slate-300'}`}>
       <p>{label}</p>
       <p className={`mt-1 font-semibold ${archived ? 'text-slate-100' : 'text-white'}`}>{value}</p>
     </div>

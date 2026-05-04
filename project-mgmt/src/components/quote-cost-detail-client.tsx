@@ -586,7 +586,7 @@ export function QuoteCostDetailClient({ project, mode = "active", presenter = ge
                   type="button"
                   onClick={handleCloseProject}
                   disabled={!canCloseProject || closeoutWriteState === 'submitting'}
-                  className="pf-btn-create px-4 py-2.5"
+                  className="pf-btn-create px-4 py-2.5 disabled:border-sky-400/20 disabled:bg-[linear-gradient(180deg,rgba(59,130,246,0.42),rgba(37,99,235,0.24))] disabled:text-white disabled:opacity-100"
                 >
                   {closeoutWriteState === 'submitting' ? '結案中...' : '確認結案'}
                 </button>
