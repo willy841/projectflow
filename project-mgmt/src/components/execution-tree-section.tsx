@@ -99,6 +99,7 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
   const [vendorOptions, setVendorOptions] = useState<VendorBasicProfile[]>([]);
   const [deletingSummaryKey, setDeletingSummaryKey] = useState<string | null>(null);
   const [createMainItemTrigger, setCreateMainItemTrigger] = useState(0);
+  const [importExcelTrigger, setImportExcelTrigger] = useState(0);
 
   const initialDesignAssignments = useMemo<Record<string, DesignAssignmentDraft>>(
     () =>
@@ -502,8 +503,7 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
             <button
               type="button"
               onClick={() => {
-                const trigger = document.getElementById("project-execution-inline-import-trigger") as HTMLButtonElement | null;
-                trigger?.click();
+                setImportExcelTrigger((prev) => prev + 1);
               }}
               className="inline-flex h-11 shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-slate-900/50 px-4 text-sm font-semibold text-slate-100 shadow-[0_22px_46px_-28px_rgba(0,0,0,0.45),inset_0_1px_0_rgba(255,255,255,0.04)] backdrop-blur-xl transition hover:bg-slate-900/70 hover:shadow-[0_0_24px_rgba(96,165,250,0.16)]"
             >
@@ -516,6 +516,7 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
           showHeader={false}
           headerActions={null}
           externalCreateMainItemTrigger={createMainItemTrigger}
+          externalImportTrigger={importExcelTrigger}
           items={project.executionItems}
           projectId={project.id}
           onDesignAssignmentsChange={setDesignAssignments}

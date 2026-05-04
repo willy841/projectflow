@@ -1041,6 +1041,7 @@ export function ExecutionTree({
   showHeader = true,
   headerActions,
   externalCreateMainItemTrigger = 0,
+  externalImportTrigger = 0,
   initialDesignAssignments = {},
   initialProcurementAssignments = {},
   initialVendorAssignments = {},
@@ -1074,6 +1075,7 @@ export function ExecutionTree({
     }>,
   ) => void;
   heading?: string;
+  externalImportTrigger?: number;
   initialDesignAssignments?: Record<string, DesignAssignmentDraft>;
   initialProcurementAssignments?: Record<string, ProcurementAssignmentDraft>;
   initialVendorAssignments?: Record<string, VendorAssignmentDraft>;
@@ -1136,6 +1138,11 @@ export function ExecutionTree({
     if (!externalCreateMainItemTrigger) return;
     setShowMainItemCreator(true);
   }, [externalCreateMainItemTrigger]);
+
+  useEffect(() => {
+    if (!externalImportTrigger) return;
+    fileInputRef.current?.click();
+  }, [externalImportTrigger]);
 
   useEffect(() => {
     if (serverHandlers || !projectId || typeof window === "undefined") return;
