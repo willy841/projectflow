@@ -412,24 +412,33 @@ export function QuoteCostDetailClient({ project, mode = "active", presenter = ge
         <SummaryCard title="毛利" value={formatCurrency(grossProfit)} mode={mode} />
       </section>
 
-      <CollectionSection
-        presenter={presenter}
-        eventDate={state.eventDate}
-        collectionRecords={collectionRecords}
-        onCreate={() => setCollectionForm({ collectedOn: state.eventDate, amount: '', note: '' })}
-        onDelete={handleDeleteCollectionRecord}
-      />
-
       {!isClosedView ? (
-        <ActiveOnlyFinancialSections
-          quoteImportRecord={quoteImportRecord}
-          quotationItems={state.quotationItems}
-          vendorPaymentRecords={vendorPaymentRecords}
-          quotationTotal={quotationTotal}
-          onOpenQuoteDetail={() => setIsQuoteDetailModalOpen(true)}
-          onImportExcel={() => quoteImportInputRef.current?.click()}
+        <section className="grid gap-6 xl:grid-cols-[minmax(0,1.08fr)_minmax(0,0.92fr)] xl:items-start">
+          <ActiveOnlyFinancialSections
+            quoteImportRecord={quoteImportRecord}
+            quotationItems={state.quotationItems}
+            vendorPaymentRecords={vendorPaymentRecords}
+            quotationTotal={quotationTotal}
+            onOpenQuoteDetail={() => setIsQuoteDetailModalOpen(true)}
+            onImportExcel={() => quoteImportInputRef.current?.click()}
+          />
+          <CollectionSection
+            presenter={presenter}
+            eventDate={state.eventDate}
+            collectionRecords={collectionRecords}
+            onCreate={() => setCollectionForm({ collectedOn: state.eventDate, amount: '', note: '' })}
+            onDelete={handleDeleteCollectionRecord}
+          />
+        </section>
+      ) : (
+        <CollectionSection
+          presenter={presenter}
+          eventDate={state.eventDate}
+          collectionRecords={collectionRecords}
+          onCreate={() => setCollectionForm({ collectedOn: state.eventDate, amount: '', note: '' })}
+          onDelete={handleDeleteCollectionRecord}
         />
-      ) : null}
+      )}
 
       <CostManagementSection archived={isClosedView}>
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">

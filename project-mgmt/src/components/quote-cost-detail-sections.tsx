@@ -153,7 +153,7 @@ export function ActiveOnlyFinancialSections({
   onImportExcel?: () => void;
 }) {
   return (
-    <section className="grid gap-4 xl:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] xl:items-start">
+    <section className="space-y-6">
       <section className="p-1">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
           <SimpleSectionTitle title="• 對外報價單" />
@@ -178,9 +178,9 @@ export function ActiveOnlyFinancialSections({
 
         <div className="mt-4 flex flex-wrap items-center gap-2">
           {quoteImportRecord ? (
-            <span className="inline-flex items-center rounded-2xl border border-emerald-300/20 bg-emerald-400/12 px-4 py-2 text-sm font-semibold text-emerald-200">已承接正式報價版本</span>
+            <span className="inline-flex items-center rounded-2xl border border-emerald-300/20 px-4 py-2 text-sm font-semibold text-emerald-200">已承接正式報價版本</span>
           ) : (
-            <span className="inline-flex items-center rounded-2xl border border-amber-300/20 bg-amber-400/12 px-4 py-2 text-sm font-semibold text-amber-200">尚無正式報價資料</span>
+            <span className="inline-flex items-center rounded-2xl border border-amber-300/20 px-4 py-2 text-sm font-semibold text-amber-200">尚無正式報價資料</span>
           )}
           <span className="inline-flex items-center rounded-2xl border border-white/10 bg-white/[0.05] px-4 py-2 text-sm font-semibold text-slate-200">共 {quotationItems.length} 筆</span>
         </div>
