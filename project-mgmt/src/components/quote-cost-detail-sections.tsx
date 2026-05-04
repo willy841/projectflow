@@ -65,19 +65,19 @@ export function QuoteCostHeader({
             <OverviewRow label="活動日期" value={eventDate} archived={isClosedView} />
           </div>
         </div>
-        <div className={`grid gap-3 rounded-3xl border p-4 text-sm shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] sm:min-w-[300px] ${isClosedView ? 'border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.075),rgba(255,255,255,0.03))] text-slate-300' : 'border-white/10 bg-white/[0.06] text-slate-200'}`}>
-          <div>
+        <div className={`rounded-3xl border p-4 text-sm shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] sm:min-w-[300px] ${isClosedView ? 'border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.075),rgba(255,255,255,0.03))] text-slate-300' : 'border-white/10 bg-white/[0.06] text-slate-200'}`}>
+          <div className="flex flex-wrap items-center justify-between gap-3">
             <p className={`text-base font-semibold ${isClosedView ? 'text-slate-50' : 'text-white'}`}>{presenter.shellTitle}</p>
+            <div className="flex flex-wrap items-center gap-3 text-xs">
+              <QuickPanel value={reconciliationStatus} label="對帳狀態" archived={isClosedView} />
+              <QuickPanel value={closeStatus} label="結案狀態" archived={isClosedView} />
+              {presenter.archived ? (
+                <Link href={presenter.listHref} className={`inline-flex items-center justify-center rounded-2xl px-4 py-2.5 text-sm font-semibold transition ${isClosedView ? 'border border-white/10 bg-white/[0.06] text-slate-100 hover:bg-white/[0.1]' : 'border border-white/10 bg-white/[0.08] text-white hover:bg-white/[0.12]'}`}>
+                  返回{presenter.listLabel}
+                </Link>
+              ) : null}
+            </div>
           </div>
-          <div className="grid grid-cols-2 gap-3 text-xs">
-            <QuickPanel value={reconciliationStatus} label="對帳狀態" archived={isClosedView} />
-            <QuickPanel value={closeStatus} label="結案狀態" archived={isClosedView} />
-          </div>
-          {presenter.archived ? (
-            <Link href={presenter.listHref} className={`inline-flex items-center justify-center rounded-2xl px-4 py-2.5 text-sm font-semibold transition ${isClosedView ? 'border border-white/10 bg-white/[0.06] text-slate-100 hover:bg-white/[0.1]' : 'border border-white/10 bg-white/[0.08] text-white hover:bg-white/[0.12]'}`}>
-              返回{presenter.listLabel}
-            </Link>
-          ) : null}
         </div>
       </div>
     </header>
