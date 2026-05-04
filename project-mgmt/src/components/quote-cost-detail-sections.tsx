@@ -176,15 +176,6 @@ export function ActiveOnlyFinancialSections({
           </div>
         </div>
 
-        <div className="mt-4 flex flex-wrap items-center gap-2">
-          {quoteImportRecord ? (
-            <span className="inline-flex items-center rounded-2xl border border-emerald-300/20 px-4 py-2 text-sm font-semibold text-emerald-200">已承接正式報價版本</span>
-          ) : (
-            <span className="inline-flex items-center rounded-2xl border border-amber-300/20 px-4 py-2 text-sm font-semibold text-amber-200">尚無正式報價資料</span>
-          )}
-          <span className="inline-flex items-center rounded-2xl border border-white/10 bg-white/[0.05] px-4 py-2 text-sm font-semibold text-slate-200">共 {quotationItems.length} 筆</span>
-        </div>
-
         <div className="mt-4 rounded-3xl border border-white/10 bg-[linear-gradient(180deg,rgba(8,47,73,0.88),rgba(15,23,42,0.92))] px-5 py-4 text-white shadow-[0_24px_48px_-28px_rgba(14,165,233,0.35),inset_0_1px_0_rgba(255,255,255,0.08)]">
           <p className="text-sm text-slate-300">報價總金額</p>
           <p className="mt-2 text-3xl font-semibold tracking-tight">{formatCurrency(quotationTotal)}</p>
