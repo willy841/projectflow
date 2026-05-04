@@ -130,10 +130,10 @@ button[class*="bg-slate-800"] {
   }
 
   .pf-table tbody tr {
-    @apply align-top transition hover:bg-white/[0.03];
+    @apply align-middle transition hover:bg-white/[0.03];
   }
 
   .pf-table tbody td {
-    @apply px-4 py-4;
+    @apply px-4 py-3.5 align-middle;
   }
 }

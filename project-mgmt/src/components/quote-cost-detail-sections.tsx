@@ -286,6 +286,10 @@ export function SimpleSectionTitle({ title }: { title: string }) {
   return <h3 className="text-xl font-semibold text-slate-50">{normalizedTitle}</h3>;
 }
 
+export function SecondarySectionTitle({ title }: { title: string }) {
+  return <h4 className="text-lg font-semibold text-slate-50">{title}</h4>;
+}
+
 export function QuoteDetailModal({
   items,
   quoteImportRecord,

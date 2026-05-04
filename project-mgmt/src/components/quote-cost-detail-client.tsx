@@ -27,6 +27,7 @@ import {
   type ReconciliationGroupView,
   type VendorPaymentView,
   QuoteCostHeader,
+  SecondarySectionTitle,
   SimpleSectionTitle,
 } from "@/components/quote-cost-detail-sections";
 
@@ -510,7 +511,7 @@ export function QuoteCostDetailClient({ project, mode = "active", presenter = ge
         {visibleReconciliationGroups.length ? (
           <div className="mt-6 space-y-4">
             <div className="flex flex-wrap items-center justify-between gap-3">
-              <h4 className="text-lg font-semibold text-slate-50">對帳群組</h4>
+              <SecondarySectionTitle title="對帳群組" />
               <div className="rounded-2xl border border-white/10 bg-white/[0.05] px-4 py-3 text-sm text-slate-300">
                 共 {visibleReconciliationGroups.length} 組
               </div>
@@ -583,7 +584,7 @@ export function QuoteCostDetailClient({ project, mode = "active", presenter = ge
 
         <div className="mt-6 space-y-5">
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <h4 className="text-lg font-semibold text-slate-50">項目明細</h4>
+            <SecondarySectionTitle title="項目明細" />
             <div className="flex flex-wrap items-center justify-end gap-2">
               {presenter.canPersistManualCosts && activeArchiveSource === "人工" ? (
                 <button

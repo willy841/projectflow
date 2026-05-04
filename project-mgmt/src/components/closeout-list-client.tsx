@@ -42,7 +42,7 @@ export function CloseoutListClient({ initialProjects }: { initialProjects: Close
     <>
       <header className="p-1">
         <div className="flex items-center justify-between gap-3">
-          <h2 className="text-3xl font-semibold tracking-tight text-slate-50">• 結案紀錄</h2>
+          <h2 className="text-3xl font-semibold tracking-tight text-slate-50">結案紀錄</h2>
         </div>
       </header>
 
