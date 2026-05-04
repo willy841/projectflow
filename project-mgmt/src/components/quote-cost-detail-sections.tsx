@@ -154,9 +154,9 @@ export function ActiveOnlyFinancialSections({
 }) {
   return (
     <section className="grid gap-4 xl:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] xl:items-start">
-      <section className="rounded-[32px] border border-white/10 bg-[linear-gradient(180deg,rgba(18,30,50,0.76),rgba(10,18,33,0.66))] p-5 shadow-[0_34px_84px_-30px_rgba(0,0,0,0.72),0_10px_18px_-12px_rgba(15,23,42,0.5),inset_0_1px_0_rgba(255,255,255,0.1),inset_0_18px_28px_-20px_rgba(255,255,255,0.05),inset_0_-28px_44px_-24px_rgba(2,6,23,0.98)] backdrop-blur-[28px]">
+      <section className="p-1">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-          <SimpleSectionTitle title="對外報價單" />
+          <SimpleSectionTitle title="• 對外報價單" />
           <div className="flex flex-wrap gap-2">
             <button
               type="button"
@@ -191,9 +191,9 @@ export function ActiveOnlyFinancialSections({
         </div>
       </section>
 
-      <section className="rounded-[32px] border border-white/10 bg-[linear-gradient(180deg,rgba(18,30,50,0.76),rgba(10,18,33,0.66))] p-5 shadow-[0_34px_84px_-30px_rgba(0,0,0,0.72),0_10px_18px_-12px_rgba(15,23,42,0.5),inset_0_1px_0_rgba(255,255,255,0.1),inset_0_18px_28px_-20px_rgba(255,255,255,0.05),inset_0_-28px_44px_-24px_rgba(2,6,23,0.98)] backdrop-blur-[28px]">
+      <section className="p-1">
         <div className="flex items-center justify-between gap-3">
-          <SimpleSectionTitle title="廠商對帳摘要" />
+          <SimpleSectionTitle title="• 廠商對帳摘要" />
         </div>
         <div className="pf-table-shell mt-4">
           <table className="pf-table">
