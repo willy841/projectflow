@@ -338,6 +338,11 @@ export function createPhase1Services(repositories: Phase1Repositories): Phase1Se
         }
       }
 
+      for (const existing of existingConfirmations) {
+        await repositories.taskConfirmations.deleteSnapshots(existing.id);
+        await repositories.taskConfirmations.delete(existing.id);
+      }
+
       const confirmation = await repositories.taskConfirmations.insert({
         project_id: task.project_id,
         flow_type: 'vendor',

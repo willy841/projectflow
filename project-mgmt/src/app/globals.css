@@ -90,7 +90,7 @@ button[class*="bg-slate-800"] {
   }
 
   .pf-pill-active {
-    @apply bg-slate-900 text-white ring-slate-900;
+    @apply bg-[linear-gradient(180deg,rgba(37,99,235,0.96),rgba(29,78,216,0.88))] text-white ring-sky-300/35 shadow-[0_18px_38px_-22px_rgba(37,99,235,0.72),inset_0_1px_0_rgba(255,255,255,0.16)];
   }
 
   .pf-pill {
