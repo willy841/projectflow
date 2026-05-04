@@ -297,7 +297,7 @@ export function VendorDetailShellDb({ vendor, initialOpenRecords, tradeOptions =
 
   return (
     <div className="space-y-6">
-      <header className="pf-card p-6">
+      <header className="p-1">
         <div className="flex flex-col gap-5 xl:flex-row xl:items-center xl:justify-between">
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-3">
@@ -394,7 +394,7 @@ export function VendorDetailShellDb({ vendor, initialOpenRecords, tradeOptions =
       <section className="space-y-6">
 
         <div className="space-y-4">
-        <div className="flex flex-wrap items-center gap-2 rounded-3xl border border-white/10 bg-white/[0.04] p-3 backdrop-blur-xl">
+        <div className="flex flex-wrap items-center gap-2 p-1">
           <button
             type="button"
             onClick={() => setDetailSectionTab('unpaid')}
@@ -412,7 +412,7 @@ export function VendorDetailShellDb({ vendor, initialOpenRecords, tradeOptions =
         </div>
 
         {detailSectionTab === 'unpaid' ? (
-      <article className="pf-card p-6">
+      <article className="p-1">
           <div className="mb-5 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
             <div>
               <h3 className="text-xl font-semibold text-slate-100">• 未付款專案</h3>
@@ -538,7 +538,7 @@ export function VendorDetailShellDb({ vendor, initialOpenRecords, tradeOptions =
         ) : null}
 
         {detailSectionTab === 'history' ? (
-      <article className="pf-card p-6">
+      <article className="p-1">
         <div className="mb-5 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
           <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
             <h3 className="text-xl font-semibold text-slate-100">• 往來紀錄</h3>
