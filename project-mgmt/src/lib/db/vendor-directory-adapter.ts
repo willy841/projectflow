@@ -207,28 +207,32 @@ export async function listDbVendors(): Promise<VendorBasicProfile[]> {
   const repositories = createPhase1Repositories(db);
   const vendors = await repositories.vendors.list();
 
-  const outstandingRows = await db.query<{ vendorId: string | null; vendorName: string; outstandingTotal: number }>(`
-    select
-      frg.vendor_id as "vendorId",
-      coalesce(v.name, frg.vendor_name) as "vendorName",
-      coalesce(sum(frg.amount_total), 0)::float8 as "outstandingTotal"
-    from financial_reconciliation_groups frg
-    left join vendors v on v.id = frg.vendor_id
-    where frg.reconciliation_status = '已對帳'
-    group by frg.vendor_id, coalesce(v.name, frg.vendor_name)
-  `);
+  const vendorProfiles = await Promise.all(
+    vendors.map(async (vendor) => {
+      const [financial, paymentRecords] = await Promise.all([
+        getVendorFinancialSummary({ vendorId: vendor.id, vendorName: vendor.name }),
+        listDbVendorPaymentRecordsByVendorId(vendor.id),
+      ]);
 
-  const outstandingByVendorId = new Map<string, number>();
-  const outstandingByVendorName = new Map<string, number>();
-  for (const row of outstandingRows.rows) {
-    if (row.vendorId) outstandingByVendorId.set(row.vendorId, row.outstandingTotal ?? 0);
-    outstandingByVendorName.set(row.vendorName, row.outstandingTotal ?? 0);
-  }
+      const paidAmountByProjectId = new Map<string, number>();
+      for (const record of paymentRecords) {
+        paidAmountByProjectId.set(record.projectId, (paidAmountByProjectId.get(record.projectId) ?? 0) + record.amount);
+      }
 
-  return vendors.map((vendor) => ({
-    ...mapVendorRowToProfile(vendor),
-    outstandingTotal: outstandingByVendorId.get(vendor.id) ?? outstandingByVendorName.get(vendor.name) ?? 0,
-  })) as VendorBasicProfile[];
+      const outstandingTotal = financial.records.reduce((sum, record) => {
+        const paidAmount = paidAmountByProjectId.get(record.projectId) ?? 0;
+        const unpaidAmount = Math.max(record.adjustedCost - paidAmount, 0);
+        return sum + unpaidAmount;
+      }, 0);
+
+      return {
+        ...mapVendorRowToProfile(vendor),
+        outstandingTotal,
+      };
+    }),
+  );
+
+  return vendorProfiles as VendorBasicProfile[];
 }
 
 export async function getDbVendorById(id: string): Promise<VendorBasicProfile | null> {
@@ -354,13 +358,9 @@ export async function listDbVendorProjectRecordsByVendorId(
     const unpaidAmount = Math.max(financialRecord.adjustedCost - paidAmount, 0);
     const totalReconciledCount = financialRecord.reconciledGroupCount;
     const totalUnreconciledCount = financialRecord.unreconciledGroupCount;
-    const paymentStatus = financialRecord.hasUnreconciledGroups
-      ? (paidAmount <= 0 ? '未付款' : '部分付款')
-      : paidAmount <= 0
-        ? '未付款'
-        : paidAmount < financialRecord.adjustedCost
-          ? '部分付款'
-          : '已付款';
+    const paymentStatus = !financialRecord.hasUnreconciledGroups && paidAmount >= financialRecord.adjustedCost
+      ? '已付款'
+      : '未付款';
 
     return {
       id: pkg?.id ?? `vendor-record-${financialRecord.projectId}-${vendorId}`,
