@@ -961,7 +961,7 @@ export function AccountingCenterPage({
           </div>
         </header>
 
-        <section className="pf-card p-6">
+        <section className="p-1">
           <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
             <h3 className="text-2xl font-semibold tracking-tight text-slate-50">營收概況</h3>
             <div className="flex flex-col gap-3 xl:flex-row xl:flex-wrap xl:items-center xl:gap-4">
@@ -1051,7 +1051,7 @@ export function AccountingCenterPage({
 
         </section>
 
-        <section className="pf-card p-6">
+        <section className="p-1">
           <div className="flex flex-col gap-4 border-b border-white/10 pb-5 xl:flex-row xl:items-end xl:justify-between">
             <div className="flex items-center gap-4">
               <h3 className="text-2xl font-semibold tracking-tight text-slate-50">帳務管理</h3>

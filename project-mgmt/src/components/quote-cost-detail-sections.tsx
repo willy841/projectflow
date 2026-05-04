@@ -102,7 +102,7 @@ export function CollectionSection({
       <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
         <SimpleSectionTitle title={presenter.collectionTitle} />
         {presenter.canCreateCollectionRecord ? (
-          <button type="button" onClick={onCreate} className="pf-btn-primary px-4 py-2.5">
+          <button type="button" onClick={onCreate} className="pf-btn-create px-4 py-2.5">
             {presenter.collectionPrimaryActionLabel}
           </button>
         ) : null}
@@ -171,7 +171,7 @@ export function ActiveOnlyFinancialSections({
               type="button"
               onClick={onOpenQuoteDetail}
               disabled={!quotationItems.length && !quoteImportRecord}
-              className="pf-btn-primary min-h-11 px-4 py-2.5 disabled:border-white/10 disabled:bg-white/10"
+              className="pf-btn-create min-h-11 px-4 py-2.5 disabled:border-white/10 disabled:bg-white/10"
             >
               查看明細
             </button>

@@ -495,10 +495,8 @@ export function QuoteCostDetailClient({ project, mode = "active", presenter = ge
 
         {visibleReconciliationGroups.length ? (
           <div className="mt-6 space-y-4">
-            <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
-              <div>
-                <h4 className="text-lg font-semibold text-slate-50">對帳群組</h4>
-              </div>
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <h4 className="text-lg font-semibold text-slate-50">對帳群組</h4>
               <div className="rounded-2xl border border-white/10 bg-white/[0.05] px-4 py-3 text-sm text-slate-300">
                 共 {visibleReconciliationGroups.length} 組
               </div>
@@ -570,7 +568,7 @@ export function QuoteCostDetailClient({ project, mode = "active", presenter = ge
         ) : null}
 
         <div className="mt-6 space-y-5">
-          <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+          <div className="flex flex-wrap items-center justify-between gap-3">
             <h4 className="text-lg font-semibold text-slate-50">項目明細</h4>
             <div className="flex flex-wrap items-center justify-end gap-2">
               {presenter.canPersistManualCosts && activeArchiveSource === "人工" ? (
@@ -588,7 +586,7 @@ export function QuoteCostDetailClient({ project, mode = "active", presenter = ge
                   type="button"
                   onClick={handleCloseProject}
                   disabled={!canCloseProject || closeoutWriteState === 'submitting'}
-                  className="pf-btn-primary px-4 py-2.5 disabled:border-white/10 disabled:bg-white/10 disabled:text-slate-500"
+                  className="pf-btn-create px-4 py-2.5 disabled:border-white/10 disabled:bg-white/10 disabled:text-slate-500"
                 >
                   {closeoutWriteState === 'submitting' ? '結案中...' : '確認結案'}
                 </button>
@@ -717,7 +715,6 @@ function ManualArchiveTable({
 
   return (
     <div className="space-y-3">
-      <h5 className="text-base font-semibold text-slate-50">人工最終留存內容</h5>
       <div className="space-y-3">
         {manualItems.map((item) => (
           <div key={item.id} className={`rounded-3xl border p-4 ${isClosedView ? "border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.05),rgba(255,255,255,0.025))]" : "border-white/10 bg-white/[0.04]"}`}>
