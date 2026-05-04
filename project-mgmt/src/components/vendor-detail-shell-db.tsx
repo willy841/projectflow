@@ -460,12 +460,12 @@ export function VendorDetailShellDb({ vendor, initialOpenRecords, tradeOptions =
                               className="mt-1 h-4 w-4 rounded border-slate-300 text-slate-900 focus:ring-slate-400 disabled:cursor-not-allowed disabled:opacity-50"
                             />
                           </td>
-                          <td className="px-4 py-4 align-top font-medium text-slate-900">{record.projectName}</td>
+                          <td className="px-4 py-4 align-top font-medium text-slate-100">{record.projectName}</td>
                           <td className="px-4 py-4 align-top">
                             <span className={`inline-flex rounded-full px-3 py-1 text-sm font-semibold leading-tight text-center ring-1 ${getVendorReconciliationStatusClass(record)}`}>{record.reconciliationStatus}</span>
                           </td>
-                          <td className="px-4 py-4 align-top font-semibold text-slate-900">{formatCurrency(record.unpaidAmount ?? record.adjustedCost)}</td>
-                          <td className="px-4 py-4 align-top text-slate-600">
+                          <td className="px-4 py-4 align-top font-semibold text-slate-100">{formatCurrency(record.unpaidAmount ?? record.adjustedCost)}</td>
+                          <td className="px-4 py-4 align-top text-slate-100">
                             <div>{record.reconciliationSummary}</div>
                             {record.reconciliationWarning ? (
                               <div className="mt-2 text-xs text-amber-700">{record.reconciliationWarning}</div>
@@ -520,9 +520,9 @@ export function VendorDetailShellDb({ vendor, initialOpenRecords, tradeOptions =
             ) : <div className="px-5 py-6 text-sm text-slate-500">目前沒有待付款專案。</div>}
           </div>
 
-          <div className="mt-4 flex flex-col gap-3 rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-4 text-white backdrop-blur-xl lg:flex-row lg:items-center lg:justify-between">
+          <div className="mt-4 flex flex-col gap-3 rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-4 text-slate-100 backdrop-blur-xl lg:flex-row lg:items-center lg:justify-between">
             <div>
-              <p className="font-semibold">已勾選 {selectedPayableRecords.length} 筆，合計 {formatCurrency(selectedPayableTotal)}</p>
+              <p className="font-semibold text-slate-100">已勾選 {selectedPayableRecords.length} 筆，合計 {formatCurrency(selectedPayableTotal)}</p>
 
             </div>
             <button
