@@ -581,7 +581,7 @@ function ProcurementAssignmentForm({
               type="button"
               onClick={actions.onSave}
               disabled={actions.isSaving}
-              className="inline-flex items-center justify-center rounded-2xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-400"
+              className="inline-flex items-center justify-center rounded-2xl border border-white/10 bg-slate-900/50 px-4 py-2.5 text-sm font-semibold text-slate-100 shadow-[0_22px_46px_-28px_rgba(0,0,0,0.45),inset_0_1px_0_rgba(255,255,255,0.04)] backdrop-blur-xl transition hover:bg-slate-900/70 hover:shadow-[0_0_24px_rgba(96,165,250,0.16)] disabled:cursor-not-allowed disabled:bg-slate-300"
             >
               {actions.saveLabel ?? "儲存備品交辦"}
             </button>
