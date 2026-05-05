@@ -214,16 +214,7 @@ export async function listDbVendors(): Promise<VendorBasicProfile[]> {
         listDbVendorPaymentRecordsByVendorId(vendor.id),
       ]);
 
-      const paidAmountByProjectId = new Map<string, number>();
-      for (const record of paymentRecords) {
-        paidAmountByProjectId.set(record.projectId, (paidAmountByProjectId.get(record.projectId) ?? 0) + record.amount);
-      }
-
-      const outstandingTotal = financial.records.reduce((sum, record) => {
-        const paidAmount = paidAmountByProjectId.get(record.projectId) ?? 0;
-        const unpaidAmount = Math.max(record.adjustedCost - paidAmount, 0);
-        return sum + unpaidAmount;
-      }, 0);
+      const outstandingTotal = financial.records.reduce((sum, record) => sum + record.adjustedCost, 0);
 
       return {
         ...mapVendorRowToProfile(vendor),

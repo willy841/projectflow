@@ -75,6 +75,15 @@ export async function getVendorFinancialSummary({ vendorId, vendorName }: { vend
     `, [vendorId ?? null, normalizedVendorName]);
 
     const groupRows = groupRowsResult.rows;
+    const paidRowsResult = await db.query<{ projectId: string; totalPaid: number }>(`
+      select project_id as "projectId", coalesce(sum(amount), 0)::float8 as "totalPaid"
+      from project_vendor_payment_records
+      where ($1::uuid is not null and vendor_id = $1::uuid)
+         or lower(trim(vendor_name)) = lower($2)
+      group by project_id
+    `, [vendorId ?? null, normalizedVendorName]);
+    const paidAmountByProjectId = new Map(paidRowsResult.rows.map((row) => [row.projectId, row.totalPaid]));
+
     const queryMs = performance.now() - queryStartedAt;
     if (!groupRows.length) {
       console.log('[vendor-financial-summary]', JSON.stringify({ vendorId: vendorId ?? null, vendorName: normalizedVendorName, rowCount: 0, queryMs: Number(queryMs.toFixed(1)), totalMs: Number((performance.now() - startedAt).toFixed(1)) }));
@@ -120,7 +129,9 @@ export async function getVendorFinancialSummary({ vendorId, vendorName }: { vend
         });
       const unreconciledCount = rows.filter((row) => row.reconciliationStatus !== '已對帳').length;
       const hasUnreconciledGroups = unreconciledCount > 0;
-      const adjustedCost = reconciledGroups.reduce((sum, row) => sum + row.amountTotal, 0);
+      const grossAdjustedCost = reconciledGroups.reduce((sum, row) => sum + row.amountTotal, 0);
+      const paidAmount = paidAmountByProjectId.get(projectId) ?? 0;
+      const adjustedCost = Math.max(grossAdjustedCost - paidAmount, 0);
       const reconciliationStatus = reconciledGroups.length > 0
         ? (hasUnreconciledGroups ? '待確認' : '已完成')
         : '未開始';
