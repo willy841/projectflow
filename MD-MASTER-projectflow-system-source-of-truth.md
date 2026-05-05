@@ -7,6 +7,51 @@
 
 ## 0. 2026-04-26 起的最新補充（Phase 1 技術收尾 / 正式站前主線）
 
+### 2026-05-05 新增：全站驗收體系 / cross-page consistency / source-of-truth 正式入口
+
+若續接重點是以下任一項：
+- `projectflow` 全站到底要怎麼驗，不只是單頁 clickpath
+- source-of-truth / cross-page consistency / downstream lifecycle 要如何制度化
+- 為什麼最近同型 bug 會一直出現在 owner / assignee / project list financial / reconciliation / vendor unpaid
+- 第一輪正式 regression packs 做到哪裡
+
+則除本母檔外，必須納入：
+
+1. `MD171-projectflow-whole-system-acceptance-framework-source-of-truth-and-cross-page-consistency-matrix-2026-05-05.md`
+2. `MD172-projectflow-source-of-truth-test-gap-matrix-2026-05-05.md`
+3. `MD173-projectflow-cross-page-consistency-regression-pack-spec-2026-05-05.md`
+
+補充規則：
+- A~H packs 已正式落地為 `tests/formal-acceptance-v2/25~32`
+- 並已正式納入：
+  - `npm run test:formal-acceptance:v2`
+  - `npm run test:formal-acceptance:full`
+- 這代表 acceptance 主入口已不再只驗 mainline clickpath，也開始正式驗：
+  - 欄位級 readback
+  - project/detail/list/home 一致性
+  - financial source-of-truth list sync
+  - reconciliation amount completeness
+  - vendor unpaid lifecycle
+  - closeout active/archive consistency
+
+### 2026-04-26 新增：前端美化 / 視覺統一標準入口
+
+若續接重點是以下任一項：
+- `Project Detail` dark-glass 視覺重建後的全站風格統一
+- list page / overview page / task board / vendor / quote-cost 的視覺對齊
+- header 外框移除、卡片材質、表格 dark glass、按鈕/ badge / pill 規則
+- 後續前端美化不想再每頁重談，而要直接依已批准標準執行
+
+則除本母檔外，必須納入：
+
+1. `project-mgmt/docs/projectflow-visual-style-standard-from-project-detail-2026-04-26.md`
+
+用途：
+- 這份文件是目前 `projectflow` **前端美化標準** 的正式入口
+- 來源基準是已被使用者接受的 `Project Detail` 視覺方向
+- 後續其他頁面應以此作為統一標準，而不是再各自 patch 或回頭參照舊白底頁面
+
+
 若續接重點是以下任一項：
 - Phase 1 技術性收尾完成度
 - runtime / env / acceptance-deploy separation 收尾

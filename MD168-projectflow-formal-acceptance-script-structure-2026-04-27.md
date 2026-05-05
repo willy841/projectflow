@@ -21,6 +21,15 @@ Purpose: 把 `projectflow` 正式驗收的 script 分層固定下來，避免之
   - vendor unpaid / history / reversal
   - closeout list / manual cost freeze
   - cross-flow smoke
+  - **cross-page consistency packs A~H（2026-05-05 起已正式納入）**
+    - Pack A：project owner cross-page consistency
+    - Pack B：design assignee consistency
+    - Pack C：project list budget/cost source-of-truth
+    - Pack D：reconciliation group integrity
+    - Pack E：vendor unpaid lifecycle
+    - Pack F：dispatch family routing downstream readback
+    - Pack G：collections downstream summary
+    - Pack H：closeout active/archive consistency
 
 ### B. 完整正式驗收
 - script: `npm run test:formal-acceptance:full`
@@ -34,6 +43,7 @@ Purpose: 把 `projectflow` 正式驗收的 script 分層固定下來，避免之
   - upstream requirements API persistence
   - execution item import overwrite
   - execution item upload UI
+  - **A~H cross-page consistency packs 25~32（2026-05-05 起已正式納入）**
 
 補充規則（2026-04-27）：
 - fresh-project 19~24 不再只代表「一條 happy-path 跑通」
@@ -66,6 +76,16 @@ Purpose: 把 `projectflow` 正式驗收的 script 分層固定下來，避免之
 
 ---
 
-## 3. 一句話總結
+## 3. 2026-05-05 最新補充
 
-> `test:formal-acceptance:v2` = 正式主線 blocker；`test:formal-acceptance:full` = 完整正式驗收全跑版。 
+- `tests/formal-acceptance-v2/25~32` 已正式落地並進入 acceptance 入口。
+- 這批不是額外補充腳本，而是目前正式驗收體系中負責鎖住：
+  - source-of-truth
+  - cross-page consistency
+  - status transition completeness
+  - downstream lifecycle readback
+  的第一輪正式 regression packs。
+
+## 4. 一句話總結
+
+> `test:formal-acceptance:v2` = 正式主線 blocker（現在已包含 A~H cross-page consistency packs）；`test:formal-acceptance:full` = 完整正式驗收全跑版。 

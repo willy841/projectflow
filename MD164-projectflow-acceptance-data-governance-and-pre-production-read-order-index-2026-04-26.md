@@ -56,8 +56,11 @@
 8. **MD168 — `projectflow-formal-acceptance-script-structure-2026-04-27.md`**
    - 正式驗收 script 分層入口
    - 用來避免只跑到主線 blocker，卻誤以為 fresh-project branch-complete 也已涵蓋
+9. **MD171 / MD172 / MD173 — 2026-05-05 acceptance framework / gap matrix / regression pack specs**
+   - 用來理解全站 source-of-truth、cross-page consistency、缺口優先級與 A~H packs 的制度化位置
+   - 其中 A~H 已正式落地成 `tests/formal-acceptance-v2/25~32` 並進入口
 
-這七份共同構成目前 Phase 1 技術收尾 / 正式站前技術紀律主線的最新入口。
+這批文件共同構成目前 acceptance / 資料治理 / 技術紀律主線的最新入口。
 
 ### 第一層：先看整體管理總結
 1. **MD163 — `projectflow-current-maturity-and-next-step-management-summary-2026-04-26.md`**
