@@ -18,6 +18,7 @@ type ProjectEntry = {
 type ProjectTaskEntry = {
   id: string;
   title: string;
+  assignee?: string;
   size: string;
   material: string;
   structureRequired: string;
@@ -42,6 +43,7 @@ export default async function DesignTasksPage({
     projectTasks = activeProjectId
       ? (await listDbDesignTasksByProject(activeProjectId)).map((task) => ({
           ...task,
+          assignee: (task as { assignee?: string }).assignee,
           eventDate: task.eventDate,
           replyCount: task.replyCount,
         }))
@@ -71,6 +73,7 @@ export default async function DesignTasksPage({
           .map((task) => ({
             id: task.id,
             title: task.title,
+            assignee: task.assignee,
             size: task.size,
             material: task.material,
             structureRequired: task.structureRequired,
@@ -143,10 +146,11 @@ export default async function DesignTasksPage({
               <table className="pf-table min-w-[1180px] table-fixed xl:min-w-full">
                 <thead>
                   <tr>
-                    <th className="w-[30%] px-4 py-3 font-medium align-middle">任務標題</th>
-                    <th className="w-[16%] px-4 py-3 font-medium align-middle">尺寸</th>
-                    <th className="w-[12%] px-4 py-3 font-medium align-middle">材質</th>
-                    <th className="w-[12%] px-4 py-3 font-medium align-middle">結構</th>
+                    <th className="w-[24%] px-4 py-3 font-medium align-middle">任務標題</th>
+                    <th className="w-[12%] px-4 py-3 font-medium align-middle">設計負責人</th>
+                    <th className="w-[14%] px-4 py-3 font-medium align-middle">尺寸</th>
+                    <th className="w-[10%] px-4 py-3 font-medium align-middle">材質</th>
+                    <th className="w-[10%] px-4 py-3 font-medium align-middle">結構</th>
                     <th className="w-[8%] px-4 py-3 font-medium align-middle">數量</th>
                     <th className="w-[11%] px-4 py-3 font-medium align-middle">執行回覆</th>
                     <th className="w-[11%] px-4 py-3 font-medium text-center align-middle">操作</th>
@@ -156,6 +160,7 @@ export default async function DesignTasksPage({
                   {projectTasks.map((task) => (
                     <tr key={task.id} className="align-middle">
                       <td className="px-4 py-4 font-medium text-slate-100">{task.title}</td>
+                      <td className="px-4 py-4 text-slate-300">{task.assignee || '未指定'}</td>
                       <td className="px-4 py-4 text-slate-300">{task.size}</td>
                       <td className="px-4 py-4 text-slate-300">{task.material}</td>
                       <td className="px-4 py-4 text-slate-300">{task.structureRequired}</td>

@@ -435,6 +435,7 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
               flowType: "design",
               executionItemId: targetId,
               title: title || findExecutionTitle(project, targetId),
+              assignee: draft.assignee,
               size: draft.size,
               material: draft.material,
               structure: draft.material,

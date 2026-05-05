@@ -12,6 +12,7 @@ type DbDesignTaskSummary = {
   projectName: string;
   eventDate: string;
   title: string;
+  assignee: string;
   size: string;
   material: string;
   structureRequired: string;
@@ -61,6 +62,7 @@ export async function listDbDesignTasksByProject(projectId: string): Promise<DbD
         p.name as "projectName",
         coalesce(to_char(p.event_date, 'YYYY-MM-DD'), '-') as "eventDate",
         dt.title,
+        coalesce(dt.assignee, '-') as assignee,
         coalesce(dt.size, '未填寫') as size,
         coalesce(dt.material, '未填寫') as material,
         coalesce(dt.structure, '未填寫') as "structureRequired",
@@ -71,7 +73,7 @@ export async function listDbDesignTasksByProject(projectId: string): Promise<DbD
       inner join projects p on p.id = dt.project_id
       left join design_task_plans dtp on dtp.design_task_id = dt.id
       where dt.project_id = $1
-      group by dt.id, dt.project_id, p.name, p.event_date, dt.title, dt.size, dt.material, dt.structure, dt.quantity
+      group by dt.id, dt.project_id, p.name, p.event_date, dt.title, dt.assignee, dt.size, dt.material, dt.structure, dt.quantity
       order by dt.created_at desc
     `,
     [projectId],
@@ -124,9 +126,9 @@ export async function getDbDesignTaskById(id: string): Promise<DbBackedDesignTas
     projectName: project?.name ?? '未命名專案',
     projectCode: project?.code ?? '-',
     client: project?.client_name ?? '-',
-    owner: '-',
+    owner: project?.owner ?? '-',
     title: task.title,
-    assignee: '-',
+    assignee: task.assignee ?? '-',
     due: formatDateLike(project?.event_date),
     status: task.status,
     size: task.size ?? '未填寫',

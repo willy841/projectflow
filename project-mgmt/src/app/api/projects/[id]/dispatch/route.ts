@@ -34,6 +34,7 @@ export async function POST(
       vendorName?: string;
       requirement?: string;
       amount?: string;
+      assignee?: string;
       status?: string;
     };
 
@@ -56,6 +57,7 @@ export async function POST(
         ? await repositories.designTasks.update(existing.id, {
             vendor_id: null,
             title,
+            assignee: body.assignee?.trim() || null,
             size: body.size?.trim() || null,
             material: body.material?.trim() || null,
             structure: body.structure?.trim() || null,
@@ -69,6 +71,7 @@ export async function POST(
             source_execution_item_id: body.executionItemId,
             vendor_id: null,
             title,
+            assignee: body.assignee?.trim() || null,
             size: body.size?.trim() || null,
             material: body.material?.trim() || null,
             structure: body.structure?.trim() || null,

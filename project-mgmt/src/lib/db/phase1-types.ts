@@ -66,6 +66,7 @@ export interface DesignTaskRow extends BaseMutableRow {
   source_execution_item_id: UUID;
   vendor_id: UUID | null;
   title: string;
+  assignee: string | null;
   size: string | null;
   material: string | null;
   structure: string | null;

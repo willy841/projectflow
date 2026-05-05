@@ -144,7 +144,7 @@ export async function getDbProjectById(id: string): Promise<DbBackedProject | nu
     designTasks: designTasks.map((task) => ({
       id: task.id,
       title: task.title,
-      assignee: vendorNameById.get(task.vendor_id ?? '') ?? '-',
+      assignee: task.assignee ?? '-',
       due: formatDateLike(project.event_date),
       status: task.status,
       sourceExecutionItemId: task.source_execution_item_id,

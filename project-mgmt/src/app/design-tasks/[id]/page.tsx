@@ -46,6 +46,7 @@ export default async function DesignTaskDetailPage({
       <WorkspaceSection title="原始任務資訊" className="shell-none">
         <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
           <WorkspaceStat label="任務標題" value={task.title} />
+          <WorkspaceStat label="設計負責人" value={task.assignee || '未指定'} />
           <WorkspaceStat label="尺寸" value={task.size} />
           <WorkspaceStat label="材質 + 結構" value={task.material} />
           <WorkspaceStat label="數量" value={task.quantity} />
