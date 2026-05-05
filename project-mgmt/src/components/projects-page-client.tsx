@@ -4,8 +4,6 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { getProjectRouteId, type Project } from "@/components/project-data";
-import { formatCurrency, getProjectCostTotal, getQuotationTotal } from "@/components/quote-cost-data";
-import { getQuoteCostProjectsWithWorkflow } from "@/components/project-workflow-store";
 import { WorkspaceEmptyState, WorkspaceStatusNotice, workspacePrimaryButtonClass } from "@/components/workspace-ui";
 import { isUuidLike } from "@/lib/db/project-flow-toggle";
 
@@ -32,7 +30,6 @@ export function ProjectsPageClient({ initialProjects }: { initialProjects: Proje
 
   const visibleProjects = useMemo(() => {
     const keyword = searchKeyword.trim().toLowerCase();
-    const financialProjects = getQuoteCostProjectsWithWorkflow();
 
     const filteredProjects = projects.filter((project) => {
       const matchesKeyword =
@@ -41,22 +38,10 @@ export function ProjectsPageClient({ initialProjects }: { initialProjects: Proje
       return matchesKeyword && matchesStatus;
     });
 
-    return [...filteredProjects]
-      .map((project) => {
-        const financialProject = financialProjects.find((item) => item.id === project.id || item.projectName === project.name);
-        const budget = financialProject ? formatCurrency(getQuotationTotal(financialProject.quotationItems, financialProject.quotationImport)) : project.budget;
-        const cost = financialProject ? formatCurrency(getProjectCostTotal(financialProject.costItems)) : project.cost;
-
-        return {
-          ...project,
-          budget,
-          cost,
-        };
-      })
-      .sort((a, b) => {
-        const dateDiff = parseEventDate(a.eventDate) - parseEventDate(b.eventDate);
-        return dateSortOrder === "asc" ? dateDiff : -dateDiff;
-      });
+    return [...filteredProjects].sort((a, b) => {
+      const dateDiff = parseEventDate(a.eventDate) - parseEventDate(b.eventDate);
+      return dateSortOrder === "asc" ? dateDiff : -dateDiff;
+    });
   }, [dateSortOrder, projects, searchKeyword, statusFilter]);
 
   const totalPages = Math.max(1, Math.ceil(visibleProjects.length / PROJECTS_PER_PAGE));
