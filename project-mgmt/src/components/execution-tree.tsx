@@ -2191,7 +2191,7 @@ export function ExecutionTree({
             </div>
 
             {isOpen ? (
-              <div className="mt-5 rounded-3xl border border-white/10 bg-[linear-gradient(180deg,rgba(18,30,50,0.72),rgba(13,22,39,0.52))] p-4 shadow-[0_34px_90px_-38px_rgba(0,0,0,0.68),0_0_34px_rgba(96,165,250,0.08),inset_0_1px_0_rgba(255,255,255,0.07),inset_0_-22px_44px_-28px_rgba(7,13,25,0.98)] backdrop-blur-[28px]">
+              <div className="mt-5">
                 {item.note ? (
                   <p className="mb-3 text-sm text-slate-500">
                     備註：{item.note}
