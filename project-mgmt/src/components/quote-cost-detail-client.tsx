@@ -214,6 +214,8 @@ export function QuoteCostDetailClient({ project, mode = "active", presenter = ge
             vendorId: group.vendorId ?? null,
             vendorName: group.vendorName,
             reconciliationStatus: group.reconciliationStatus,
+            amountTotal: group.amountTotal,
+            itemCount: group.itemCount,
           })),
         }),
       });

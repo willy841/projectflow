@@ -16,6 +16,18 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     };
 
     const groups = (body.groups ?? []).filter((group) => group.sourceType && group.vendorName);
+
+    for (const group of groups) {
+      const amountTotal = Number(group.amountTotal ?? 0);
+      const itemCount = Number(group.itemCount ?? 0);
+      if (group.reconciliationStatus === '已對帳' && (amountTotal <= 0 || itemCount <= 0)) {
+        return NextResponse.json(
+          { ok: false, error: `對帳群組缺少有效金額或筆數：${group.vendorName} / ${group.sourceType}` },
+          { status: 400 },
+        );
+      }
+    }
+
     const db = createPhase1DbClient();
     await db.query(`alter table financial_reconciliation_groups add column if not exists amount_total numeric null`);
     await db.query(`alter table financial_reconciliation_groups add column if not exists item_count integer null`);
