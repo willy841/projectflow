@@ -6,6 +6,23 @@ Goal: 定義之後要補進 `projectflow` 的 cross-page consistency regression 
 
 ---
 
+## 0. 最新狀態（2026-05-05）
+
+- 本文件定義的第一輪 Pack A ~ H，已全部正式落地成：
+  - `tests/formal-acceptance-v2/25~32`
+- 並已正式納入：
+  - `npm run test:formal-acceptance:v2`
+  - `npm run test:formal-acceptance:full`
+
+因此這份文件目前的角色已從「待補規格」升級成：
+- 已落地第一輪 regression packs 的管理地圖
+- 後續第二輪 / 第三輪 regression pack 擴充入口
+
+對應關係：
+- `MD171` = 體系母檔
+- `MD172` = 缺口矩陣
+- `MD173` = pack 規格與落地對照
+
 ## 1. 這份文件怎麼用
 
 這份不是母檔，這份是：
@@ -22,11 +39,13 @@ Goal: 定義之後要補進 `projectflow` 的 cross-page consistency regression 
 
 ---
 
-## 2. Regression Pack 清單（第一波）
+## 2. Regression Pack 清單（第一波 / 已落地）
 
 ---
 
 ## Pack A — Project Core Cross-Page Consistency
+
+- 已落地測試：`tests/formal-acceptance-v2/25-project-core-owner-cross-page-consistency.spec.ts`
 
 ### 目的
 鎖住 project base fields 在 detail / reopen edit / list / home 之間的一致性。
@@ -57,6 +76,8 @@ Goal: 定義之後要補進 `projectflow` 的 cross-page consistency regression 
 
 ## Pack B — Design Assignee Consistency Pack
 
+- 已落地測試：`tests/formal-acceptance-v2/26-design-assignee-cross-page-consistency.spec.ts`
+
 ### 目的
 鎖住「任務發布 → 交辦設計」新增設計負責人後，所有下游頁一致。
 
@@ -83,6 +104,8 @@ Goal: 定義之後要補進 `projectflow` 的 cross-page consistency regression 
 ---
 
 ## Pack C — Project List Budget/Cost Source-of-Truth Pack
+
+- 已落地測試：`tests/formal-acceptance-v2/27-project-list-budget-cost-source-of-truth.spec.ts`
 
 ### 目的
 確保 `/projects` 的預算 / 成本欄位永遠吃正式 DB financial source，不再被 local store / 錯 adapter 污染。
@@ -111,6 +134,8 @@ Goal: 定義之後要補進 `projectflow` 的 cross-page consistency regression 
 
 ## Pack D — Reconciliation Group Integrity Pack
 
+- 已落地測試：`tests/formal-acceptance-v2/28-reconciliation-group-integrity.spec.ts`
+
 ### 目的
 鎖住已對帳不是只改 status，而是會正確寫入 amountTotal / itemCount。
 
@@ -134,6 +159,8 @@ Goal: 定義之後要補進 `projectflow` 的 cross-page consistency regression 
 ---
 
 ## Pack E — Vendor Unpaid Increase/Decrease Lifecycle Pack
+
+- 已落地測試：`tests/formal-acceptance-v2/29-vendor-unpaid-lifecycle-cross-page.spec.ts`
 
 ### 目的
 鎖住 vendor payable lifecycle：
@@ -165,6 +192,8 @@ Goal: 定義之後要補進 `projectflow` 的 cross-page consistency regression 
 
 ## Pack F — Dispatch Family Routing + Downstream Readback Pack
 
+- 已落地測試：`tests/formal-acceptance-v2/30-dispatch-family-routing-downstream-readback.spec.ts`
+
 ### 目的
 避免 dispatch 類欄位改動後，只在上游頁成功，family pages 沒承接。
 
@@ -187,6 +216,8 @@ Goal: 定義之後要補進 `projectflow` 的 cross-page consistency regression 
 
 ## Pack G — Collections Downstream Summary Pack
 
+- 已落地測試：`tests/formal-acceptance-v2/31-collections-downstream-summary-pack.spec.ts`
+
 ### 目的
 鎖住收款 mutation 後，quote-cost / home / accounting 的讀值一致。
 
@@ -205,6 +236,8 @@ Goal: 定義之後要補進 `projectflow` 的 cross-page consistency regression 
 ---
 
 ## Pack H — Closeout Active/Archive Consistency Pack
+
+- 已落地測試：`tests/formal-acceptance-v2/32-closeout-active-archive-consistency-pack.spec.ts`
 
 ### 目的
 鎖住 closeout / retained snapshot / reopen 前後，active 與 archived source 不互相污染。
@@ -254,22 +287,26 @@ Goal: 定義之後要補進 `projectflow` 的 cross-page consistency regression 
 
 ---
 
-## 4. 實作順序建議
+## 4. 實作順序建議（更新後）
 
-### 第一輪（最急）
+### 第一輪（已完成）
 1. Pack A
 2. Pack B
 3. Pack C
 4. Pack D
 5. Pack E
-
-### 第二輪
 6. Pack F
 7. Pack G
 8. Pack H
+
+### 下一輪建議
+1. home financial summary packs
+2. accounting deeper UI packs
+3. procurement/vendor-specific reconciliation variants
+4. adapter drift / manual spot-check packs
 
 ---
 
 ## 5. 一句話總結
 
-> 之後 `projectflow` 的回歸測試，不應只是再跑一次主線 clickpath，而應以這些 regression packs 為核心，專門鎖 mutation 後的 source-of-truth、cross-page consistency 與 downstream lifecycle。
+> `projectflow` 的回歸測試現在已不再只是主線 clickpath；A~H 第一輪 packs 已正式落地成 `25~32` 並進入口，後續主線應以這批 regression packs 為基礎，往第二輪 deeper coverage 擴充。
