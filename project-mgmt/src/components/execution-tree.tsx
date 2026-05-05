@@ -362,7 +362,7 @@ function DesignAssignmentForm({
           ].filter((item): item is string => Boolean(item))}
           fields={[
             { label: "來源項目 / 次項目", value: title },
-            { label: "負責人", value: saved.assignee || "未指定" },
+            { label: "設計負責人", value: saved.assignee || "未指定" },
             { label: "尺寸", value: saved.size || "未填寫" },
             { label: "材質 + 結構", value: saved.material || "未填寫" },
             { label: "數量", value: saved.quantity || "未填寫" },
@@ -375,7 +375,7 @@ function DesignAssignmentForm({
         <>
           <div className="mt-4 grid gap-4 md:grid-cols-2">
             <label className="flex flex-col gap-2">
-              <span className="text-sm font-medium text-slate-200">負責人</span>
+              <span className="text-sm font-medium text-slate-200">設計負責人</span>
               <input
                 value={draft.assignee}
                 onChange={(e) => onChange("assignee", e.target.value)}
