@@ -33,6 +33,7 @@ export async function listDbProcurementTaskProjects(): Promise<DbProcurementProj
       count(pt.id)::int as "taskCount"
     from procurement_tasks pt
     inner join projects p on p.id = pt.project_id
+    where coalesce(p.status, '') not in ('已結案', '結案')
     group by p.id, p.name, p.event_date
     order by p.event_date nulls last, p.created_at desc
   `);

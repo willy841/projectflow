@@ -45,6 +45,7 @@ export async function listDbDesignTaskProjects(): Promise<DbDesignProjectSummary
       count(dt.id)::int as "taskCount"
     from design_tasks dt
     inner join projects p on p.id = dt.project_id
+    where coalesce(p.status, '') not in ('已結案', '結案')
     group by p.id, p.name, p.event_date
     order by p.event_date nulls last, p.created_at desc
   `);

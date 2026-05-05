@@ -70,6 +70,7 @@ export async function listDbVendorProjects(): Promise<DbVendorProjectSummary[]> 
       count(vt.id)::int as "taskCount"
     from vendor_tasks vt
     inner join projects p on p.id = vt.project_id
+    where coalesce(p.status, '') not in ('已結案', '結案')
     group by p.id, p.name, p.event_date
     order by p.event_date nulls last, p.created_at desc
   `);
