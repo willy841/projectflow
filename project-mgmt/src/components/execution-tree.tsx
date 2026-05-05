@@ -2207,7 +2207,7 @@ export function ExecutionTree({
                     return (
                       <div
                         key={child.id}
-                        className={`relative rounded-2xl border border-white/10 bg-[linear-gradient(180deg,rgba(40,53,79,0.64),rgba(17,27,44,0.46))] px-4 py-3 shadow-[0_20px_40px_-26px_rgba(0,0,0,0.46),inset_0_1px_0_rgba(255,255,255,0.05)] backdrop-blur-2xl ${activeAssignMenu === child.id ? 'z-[210]' : 'z-0'}`}
+                        className={`relative px-2 py-2 md:px-3 ${activeAssignMenu === child.id ? 'z-[210]' : 'z-0'}`}
                       >
                         <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
                           <div className="flex-1">
