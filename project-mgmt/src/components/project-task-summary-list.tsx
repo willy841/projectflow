@@ -5,8 +5,6 @@ export type ProjectTaskSummaryItem = {
   summaryKey?: string;
   title: string;
   quantity?: string;
-  status: string;
-  statusClass: string;
   href: string;
   ctaLabel: string;
   extraSummary?: string;
@@ -42,10 +40,8 @@ export function ProjectTaskSummaryList({
                 <h5 className="text-base font-semibold text-slate-100">
                   {item.title}
                 </h5>
-                <span
-                  className={`inline-flex items-center justify-center rounded-full px-3 py-1 text-xs font-medium ${item.statusClass}`}
-                >
-                  {item.status}
+                <span className="inline-flex items-center justify-center rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700 ring-1 ring-emerald-200">
+                  已建立交辦
                 </span>
                 {item.quantity ? (
                   <span className="inline-flex items-center justify-center rounded-full bg-white/8 px-3 py-1 text-xs font-medium text-slate-300 ring-1 ring-white/10">

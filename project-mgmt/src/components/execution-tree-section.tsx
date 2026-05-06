@@ -85,13 +85,6 @@ function dedupeProjectTaskSummaryItems(items: ProjectTaskSummaryItem[]) {
   return Array.from(map.values());
 }
 
-function buildDerivedSummaryStatus() {
-  return {
-    status: "已建立交辦",
-    statusClass: "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200",
-  };
-}
-
 export function ExecutionTreeSection({ project }: { project: Project }) {
   const router = useRouter();
   const isDbProject = isUuidLike(project.id);
@@ -217,12 +210,10 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
   }
 
   const designSummaryList = useMemo<ProjectTaskSummaryItem[]>(() => {
-    const derivedStatus = buildDerivedSummaryStatus();
     const fromAssignments = designAssignments.map((assignment) => ({
       id: assignment.targetId,
       summaryKey: assignment.targetId,
       title: assignment.title,
-      ...derivedStatus,
       href: assignment.boardPath || `/design-tasks?project=${encodeURIComponent(project.id)}`,
       ctaLabel: assignment.boardPath ? "前往設計任務詳情" : "前往設計任務板",
       onDelete: deletingSummaryKey ? undefined : () => void handleDeleteDispatchedTask('design', assignment.targetId),
@@ -232,7 +223,6 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
       id: task.id ?? `${task.sourceExecutionItemId ?? task.title}-design-${index}`,
       summaryKey: task.sourceExecutionItemId ?? task.id ?? `${task.title}-${index}`,
       title: task.title,
-      ...derivedStatus,
       href: task.id ? `/design-tasks/${task.id}` : `/design-tasks?project=${encodeURIComponent(project.id)}`,
       ctaLabel: task.id ? "前往設計任務詳情" : "前往設計任務板",
       onDelete: task.sourceExecutionItemId && !deletingSummaryKey ? () => void handleDeleteDispatchedTask('design', task.sourceExecutionItemId as string) : undefined,
@@ -242,12 +232,10 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
   }, [deletingSummaryKey, designAssignments, project.designTasks, project.id]);
 
   const procurementSummaryList = useMemo<ProjectTaskSummaryItem[]>(() => {
-    const derivedStatus = buildDerivedSummaryStatus();
     const fromAssignments = procurementAssignments.map((assignment) => ({
       id: assignment.targetId,
       summaryKey: assignment.targetId,
       title: assignment.data.item || assignment.title,
-      ...derivedStatus,
       href: assignment.boardPath || `/procurement-tasks?project=${encodeURIComponent(project.id)}`,
       ctaLabel: assignment.boardPath ? "前往備品任務詳情" : "前往採購備品板",
       onDelete: deletingSummaryKey ? undefined : () => void handleDeleteDispatchedTask('procurement', assignment.targetId),
@@ -257,7 +245,6 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
       id: task.id ?? `${task.sourceExecutionItemId ?? task.title}-procurement-${index}`,
       summaryKey: task.sourceExecutionItemId ?? task.id ?? `${task.title}-${index}`,
       title: task.title,
-      ...derivedStatus,
       href: task.id ? `/procurement-tasks/${task.id}` : `/procurement-tasks?project=${encodeURIComponent(project.id)}`,
       ctaLabel: task.id ? "前往備品任務詳情" : "前往採購備品板",
       onDelete: task.sourceExecutionItemId && !deletingSummaryKey ? () => void handleDeleteDispatchedTask('procurement', task.sourceExecutionItemId as string) : undefined,
@@ -268,13 +255,11 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
 
   const vendorSummaryList = useMemo<ProjectTaskSummaryItem[]>(
     () => {
-      const derivedStatus = buildDerivedSummaryStatus();
       return dedupeProjectTaskSummaryItems([
         ...vendorAssignments.map((assignment) => ({
           id: assignment.targetId,
           summaryKey: assignment.targetId,
           title: assignment.data.title || assignment.title,
-          ...derivedStatus,
           href: assignment.boardPath || `/vendor-assignments?project=${encodeURIComponent(project.id)}`,
           ctaLabel: assignment.boardPath ? "前往廠商任務詳情" : "前往廠商發包板",
           onDelete: deletingSummaryKey ? undefined : () => void handleDeleteDispatchedTask('vendor', assignment.targetId),
@@ -283,7 +268,6 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
           id: task.id ?? `${task.sourceExecutionItemId ?? task.title}-vendor-${index}`,
           summaryKey: task.sourceExecutionItemId ?? task.id ?? `${task.title}-${index}`,
           title: task.title,
-          ...derivedStatus,
           href: task.id ? `/vendor-assignments/${task.id}` : `/vendor-assignments?project=${encodeURIComponent(project.id)}`,
           ctaLabel: task.id ? "前往廠商任務詳情" : "前往廠商發包板",
           onDelete: task.sourceExecutionItemId && !deletingSummaryKey ? () => void handleDeleteDispatchedTask('vendor', task.sourceExecutionItemId as string) : undefined,
