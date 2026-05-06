@@ -105,10 +105,14 @@ export async function POST(
         ? await repositories.procurementTasks.update(existing.id, {
             vendor_id: null,
             title,
+            assignee: body.assignee?.trim() || null,
             quantity: body.quantity?.trim() || null,
+            size: body.size?.trim() || null,
+            material: body.material?.trim() || null,
             budget_note: body.budgetNote?.trim() || null,
             requirement_text: body.note?.trim() || null,
             reference_url: body.referenceUrl?.trim() || null,
+            style_url: body.referenceUrl?.trim() || null,
             status: taskStatus,
           })
         : await services.publishProcurementTask({
@@ -116,10 +120,14 @@ export async function POST(
             source_execution_item_id: body.executionItemId,
             vendor_id: null,
             title,
+            assignee: body.assignee?.trim() || null,
             quantity: body.quantity?.trim() || null,
+            size: body.size?.trim() || null,
+            material: body.material?.trim() || null,
             budget_note: body.budgetNote?.trim() || null,
             requirement_text: body.note?.trim() || null,
             reference_url: body.referenceUrl?.trim() || null,
+            style_url: body.referenceUrl?.trim() || null,
             status: taskStatus,
           });
 
@@ -153,7 +161,12 @@ export async function POST(
     const task = existing
       ? await repositories.vendorTasks.update(existing.id, {
           title,
+          assignee: body.assignee?.trim() || null,
+          category: body.item?.trim() || null,
           requirement_text: body.requirement?.trim() || body.note?.trim() || null,
+          specification: body.size?.trim() || null,
+          reference_url: body.referenceUrl?.trim() || null,
+          quoted_amount: body.amount?.trim() || null,
           status: taskStatus,
         })
       : await services.publishVendorTask({
@@ -161,7 +174,12 @@ export async function POST(
           source_execution_item_id: body.executionItemId,
           vendor_id: vendor.id,
           title,
+          assignee: body.assignee?.trim() || null,
+          category: body.item?.trim() || null,
           requirement_text: body.requirement?.trim() || body.note?.trim() || null,
+          specification: body.size?.trim() || null,
+          reference_url: body.referenceUrl?.trim() || null,
+          quoted_amount: body.amount?.trim() || null,
           status: taskStatus,
         });
 
@@ -171,6 +189,16 @@ export async function POST(
         title,
         requirement_text: body.requirement?.trim() || body.note?.trim() || null,
         amount: body.amount?.trim() || null,
+        vendor_name_text: normalizedVendorName,
+      });
+    } else if (currentPlans.length === 0) {
+      await repositories.vendorTaskPlans.insert({
+        vendor_task_id: task.id,
+        sort_order: 0,
+        title,
+        requirement_text: body.requirement?.trim() || body.note?.trim() || null,
+        amount: body.amount?.trim() || null,
+        vendor_name_text: normalizedVendorName,
       });
     }
 

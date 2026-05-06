@@ -19,9 +19,6 @@ function mapExecutionChild(row: {
   return {
     id: row.id,
     title: row.title,
-    status: '待交辦',
-    assignee: '未指派',
-    category: '專案',
     quantity: row.quantity ?? undefined,
     note: row.note ?? undefined,
   };
@@ -39,8 +36,6 @@ function mapExecutionItem(row: {
   return {
     id: row.id,
     title: row.title,
-    status: '待交辦',
-    category: '專案',
     detail: row.note ?? '待補充執行說明。',
     quantity: row.quantity ?? undefined,
     note: row.note ?? undefined,

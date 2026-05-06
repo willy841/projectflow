@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
   type VendorDocumentStatus,
   type VendorPackage,
@@ -35,6 +35,7 @@ export function VendorPackageDetail({ vendorPackage }: { vendorPackage: VendorPa
   const [items, setItems] = useState(vendorPackage.items);
   const [note, setNote] = useState(vendorPackage.note);
   const [documentStatus, setDocumentStatus] = useState<VendorDocumentStatus>(vendorPackage.documentStatus);
+  const [isSaving, setIsSaving] = useState(false);
 
   function markDirty() {
     setDocumentStatus((current) => (current === "已生成" ? "需更新" : current));
@@ -64,6 +65,35 @@ export function VendorPackageDetail({ vendorPackage }: { vendorPackage: VendorPa
   const documentText = buildDocumentText(currentPackage);
   const primaryActionLabel = documentStatus === "未生成" ? "生成文件" : documentStatus === "需更新" ? "重新生成文件" : null;
 
+  async function persist(nextStatus: VendorDocumentStatus) {
+    setIsSaving(true);
+    try {
+      const response = await fetch(`/api/vendor-packages/${vendorPackage.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          note,
+          documentStatus: nextStatus,
+          items: items.map((item) => ({
+            id: item.id,
+            assignmentId: item.assignmentId,
+            itemName: item.itemName,
+            requirementText: item.requirementText,
+          })),
+        }),
+      });
+      const result = await response.json();
+      if (!response.ok || !result?.ok) {
+        throw new Error(result?.error ?? 'vendor package save failed');
+      }
+    } catch (error) {
+      window.alert(error instanceof Error ? error.message : '儲存失敗');
+      throw error;
+    } finally {
+      setIsSaving(false);
+    }
+  }
+
   async function handleCopy() {
     try {
       await navigator.clipboard.writeText(documentText);
@@ -83,13 +113,21 @@ export function VendorPackageDetail({ vendorPackage }: { vendorPackage: VendorPa
     URL.revokeObjectURL(url);
   }
 
-  function handleGenerate() {
+  async function handleGenerate() {
     if (documentStatus === "需更新") {
       const confirmed = window.confirm("目前文件不是最新內容，確定要重新生成文件嗎？");
       if (!confirmed) return;
     }
+    await persist("已生成");
     setDocumentStatus("已生成");
   }
+
+  async function handleSaveDraft() {
+    await persist(documentStatus);
+    window.alert('已儲存包件內容');
+  }
+
+  const dirtyMessage = useMemo(() => getDocumentStatusMessage(documentStatus), [documentStatus]);
 
   return (
     <div className="space-y-6">
@@ -171,13 +209,19 @@ export function VendorPackageDetail({ vendorPackage }: { vendorPackage: VendorPa
                 {documentStatus}
               </span>
             </div>
+            <p className="mt-2 text-sm text-slate-400">{dirtyMessage}</p>
           </div>
 
-          {primaryActionLabel ? (
-            <button type="button" onClick={handleGenerate} className="pf-btn-primary w-full px-4 py-2.5">
-              {primaryActionLabel}
+          <div className="flex flex-wrap gap-3">
+            {primaryActionLabel ? (
+              <button type="button" disabled={isSaving} onClick={handleGenerate} className="pf-btn-primary px-4 py-2.5 disabled:opacity-60">
+                {primaryActionLabel}
+              </button>
+            ) : null}
+            <button type="button" disabled={isSaving} onClick={handleSaveDraft} className="pf-btn-secondary px-4 py-2.5 disabled:opacity-60">
+              {isSaving ? '儲存中...' : '儲存包件內容'}
             </button>
-          ) : null}
+          </div>
 
           <pre className="min-h-[360px] whitespace-pre-wrap rounded-2xl border border-white/10 bg-slate-950/70 p-5 text-sm leading-7 text-slate-100 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">{documentText}</pre>
 

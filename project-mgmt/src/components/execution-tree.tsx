@@ -13,7 +13,6 @@ import {
 import {
   ProjectExecutionItem,
   ProjectExecutionSubItem,
-  getStatusClass,
 } from "@/components/project-data";
 import type { VendorBasicProfile } from "@/components/vendor-data";
 import { WorkspaceStatusNotice } from "@/components/workspace-ui";
@@ -882,6 +881,17 @@ type AssignmentSaveResult = {
   boardPath?: string;
 };
 
+type AssignmentBadge = {
+  key: string;
+  label: string;
+  className: string;
+};
+
+type AssignmentSummaryField = {
+  label: string;
+  value: string;
+};
+
 type ExecutionTreeServerHandlers = {
   createExecutionItem?: (input: { title: string; parentId?: string | null }) => Promise<{ item: ImportedItem | ProjectExecutionSubItem; parentId?: string | null }>;
   importExecutionItems?: (input: { items: ImportedItem[] }) => Promise<{ items: ImportedItem[] }>;
@@ -891,6 +901,44 @@ type ExecutionTreeServerHandlers = {
   saveProcurementAssignment?: (payload: PersistedAssignmentPayload & { draft: ProcurementAssignmentDraft }) => Promise<AssignmentSaveResult | void>;
   saveVendorAssignment?: (payload: PersistedAssignmentPayload & { draft: VendorAssignmentDraft }) => Promise<AssignmentSaveResult | void>;
 };
+
+function buildAssignmentBadges({
+  hasDesign,
+  hasProcurement,
+  hasVendor,
+}: {
+  hasDesign: boolean;
+  hasProcurement: boolean;
+  hasVendor: boolean;
+}): AssignmentBadge[] {
+  return [
+    hasDesign
+      ? { key: "design", label: "設計已交辦", className: "bg-sky-50 text-sky-700 ring-1 ring-sky-200" }
+      : null,
+    hasProcurement
+      ? { key: "procurement", label: "備品已交辦", className: "bg-amber-50 text-amber-700 ring-1 ring-amber-200" }
+      : null,
+    hasVendor
+      ? { key: "vendor", label: "廠商已交辦", className: "bg-violet-50 text-violet-700 ring-1 ring-violet-200" }
+      : null,
+  ].filter((badge): badge is AssignmentBadge => Boolean(badge));
+}
+
+function buildAssignmentSummaryFields({
+  design,
+  procurement,
+  vendor,
+}: {
+  design?: SavedAssignment<DesignAssignmentDraft>;
+  procurement?: SavedAssignment<ProcurementAssignmentDraft>;
+  vendor?: SavedAssignment<VendorAssignmentDraft>;
+}): AssignmentSummaryField[] {
+  return [
+    design?.data.assignee ? { label: "設計", value: design.data.assignee } : null,
+    procurement?.data.assignee ? { label: "備品", value: procurement.data.assignee } : null,
+    vendor?.data.assignee ? { label: "廠商", value: vendor.data.assignee } : null,
+  ].filter((field): field is AssignmentSummaryField => Boolean(field));
+}
 
 function AssignmentDrawer({
   activeDrawer,
@@ -1561,9 +1609,7 @@ export function ExecutionTree({
         {
           id: newId,
           title: draft,
-          status: "待交辦",
-          category: "專案",
-          detail: "請補充此主項目的需求說明與執行方向。",
+          detail: "",
           referenceExample: "",
           designTaskCount: 0,
           procurementTaskCount: 0,
@@ -1651,9 +1697,6 @@ export function ExecutionTree({
                   {
                     id: `${item.id}-new-${(item.children?.length ?? 0) + 1}`,
                     title: draft,
-                    status: "待交辦",
-                    assignee: "未指派",
-                    category: item.category,
                   },
                 ],
               },
@@ -2075,10 +2118,23 @@ export function ExecutionTree({
       {localItems.map((item, itemIndex) => {
         const isOpen = expandedItemId === item.id;
         const isEditingMain = editingMainId === item.id;
+        const designAssignment = savedDesignAssignments[item.id];
+        const procurementAssignment = savedProcurementAssignments[item.id];
+        const vendorAssignment = savedVendorAssignments[item.id];
         const hasMainAssignment =
-          Boolean(savedDesignAssignments[item.id]) ||
-          Boolean(savedProcurementAssignments[item.id]) ||
-          Boolean(savedVendorAssignments[item.id]);
+          Boolean(designAssignment) ||
+          Boolean(procurementAssignment) ||
+          Boolean(vendorAssignment);
+        const mainBadges = buildAssignmentBadges({
+          hasDesign: Boolean(designAssignment),
+          hasProcurement: Boolean(procurementAssignment),
+          hasVendor: Boolean(vendorAssignment),
+        });
+        const mainSummaryFields = buildAssignmentSummaryFields({
+          design: designAssignment,
+          procurement: procurementAssignment,
+          vendor: vendorAssignment,
+        });
         return (
           <div
             key={item.id}
@@ -2136,21 +2192,14 @@ export function ExecutionTree({
                         <span className="inline-flex min-w-[24px] items-center justify-center rounded-full bg-white/10 px-2 py-0.5 text-[11px] font-semibold text-slate-100 ring-1 ring-white/10">
                           {item.children?.length ?? 0}
                         </span>
-                        {savedDesignAssignments[item.id] ? (
-                          <span className="inline-flex items-center justify-center rounded-full bg-sky-50 px-3 py-1 text-xs font-medium text-sky-700 ring-1 ring-sky-200">
-                            已建立設計交辦
+                        {mainBadges.map((badge) => (
+                          <span
+                            key={`${item.id}-${badge.key}`}
+                            className={`inline-flex items-center justify-center rounded-full px-3 py-1 text-xs font-medium ${badge.className}`}
+                          >
+                            {badge.label}
                           </span>
-                        ) : null}
-                        {savedProcurementAssignments[item.id] ? (
-                          <span className="inline-flex items-center justify-center rounded-full bg-amber-50 px-3 py-1 text-xs font-medium text-amber-700 ring-1 ring-amber-200">
-                            已建立備品交辦
-                          </span>
-                        ) : null}
-                        {savedVendorAssignments[item.id] ? (
-                          <span className="inline-flex items-center justify-center rounded-full bg-violet-50 px-3 py-1 text-xs font-medium text-violet-700 ring-1 ring-violet-200">
-                            已建立廠商交辦
-                          </span>
-                        ) : null}
+                        ))}
                         {!hasMainAssignment ? (
                           <span className="inline-flex items-center justify-center rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-500 ring-1 ring-slate-200">
                             尚未建立交辦
@@ -2197,13 +2246,38 @@ export function ExecutionTree({
                     備註：{item.note}
                   </p>
                 ) : null}
+                {mainSummaryFields.length ? (
+                  <div className="mb-3 flex flex-wrap gap-2">
+                    {mainSummaryFields.map((field) => (
+                      <span
+                        key={`${item.id}-${field.label}-${field.value}`}
+                        className="inline-flex items-center rounded-full bg-white/8 px-3 py-1 text-xs font-medium text-slate-300 ring-1 ring-white/10"
+                      >
+                        {field.label}：{field.value}
+                      </span>
+                    ))}
+                  </div>
+                ) : null}
                 <div className="space-y-3 border-l border-slate-200 pl-4 md:pl-6">
                   {(item.children ?? []).map((child, childIndex) => {
                     const isEditingChild = editingChildId === child.id;
+                    const childDesignAssignment = savedDesignAssignments[child.id];
+                    const childProcurementAssignment = savedProcurementAssignments[child.id];
+                    const childVendorAssignment = savedVendorAssignments[child.id];
                     const hasChildAssignment =
-                      Boolean(savedDesignAssignments[child.id]) ||
-                      Boolean(savedProcurementAssignments[child.id]) ||
-                      Boolean(savedVendorAssignments[child.id]);
+                      Boolean(childDesignAssignment) ||
+                      Boolean(childProcurementAssignment) ||
+                      Boolean(childVendorAssignment);
+                    const childBadges = buildAssignmentBadges({
+                      hasDesign: Boolean(childDesignAssignment),
+                      hasProcurement: Boolean(childProcurementAssignment),
+                      hasVendor: Boolean(childVendorAssignment),
+                    });
+                    const childSummaryFields = buildAssignmentSummaryFields({
+                      design: childDesignAssignment,
+                      procurement: childProcurementAssignment,
+                      vendor: childVendorAssignment,
+                    });
                     return (
                       <div
                         key={child.id}
@@ -2246,28 +2320,14 @@ export function ExecutionTree({
                                   <h5 className="font-medium text-slate-100">
                                     {child.title}
                                   </h5>
-                                  {child.status !== "待交辦" ? (
+                                  {childBadges.map((badge) => (
                                     <span
-                                      className={`inline-flex items-center justify-center whitespace-nowrap rounded-full px-3 py-1 text-xs font-medium ring-1 ${getStatusClass(child.status)}`}
+                                      key={`${child.id}-${badge.key}`}
+                                      className={`inline-flex items-center justify-center rounded-full px-3 py-1 text-xs font-medium ${badge.className}`}
                                     >
-                                      {child.status}
+                                      {badge.label}
                                     </span>
-                                  ) : null}
-                                  {savedDesignAssignments[child.id] ? (
-                                    <span className="inline-flex items-center justify-center rounded-full bg-sky-50 px-3 py-1 text-xs font-medium text-sky-700 ring-1 ring-sky-200">
-                                      已建立設計交辦
-                                    </span>
-                                  ) : null}
-                                  {savedProcurementAssignments[child.id] ? (
-                                    <span className="inline-flex items-center justify-center rounded-full bg-amber-50 px-3 py-1 text-xs font-medium text-amber-700 ring-1 ring-amber-200">
-                                      已建立備品交辦
-                                    </span>
-                                  ) : null}
-                                  {savedVendorAssignments[child.id] ? (
-                                    <span className="inline-flex items-center justify-center rounded-full bg-violet-50 px-3 py-1 text-xs font-medium text-violet-700 ring-1 ring-violet-200">
-                                      已建立廠商交辦
-                                    </span>
-                                  ) : null}
+                                  ))}
                                   {!hasChildAssignment ? (
                                     <span className="inline-flex items-center justify-center rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-500 ring-1 ring-slate-200">
                                       尚未建立交辦
@@ -2278,6 +2338,18 @@ export function ExecutionTree({
                                   <p className="mt-2 text-sm text-slate-500">
                                     備註：{child.note}
                                   </p>
+                                ) : null}
+                                {childSummaryFields.length ? (
+                                  <div className="mt-2 flex flex-wrap gap-2">
+                                    {childSummaryFields.map((field) => (
+                                      <span
+                                        key={`${child.id}-${field.label}-${field.value}`}
+                                        className="inline-flex items-center rounded-full bg-white/8 px-3 py-1 text-xs font-medium text-slate-300 ring-1 ring-white/10"
+                                      >
+                                        {field.label}：{field.value}
+                                      </span>
+                                    ))}
+                                  </div>
                                 ) : null}
                               </>
                             )}

@@ -12,7 +12,7 @@ import {
   ProcurementAssignmentDraft,
   VendorAssignmentDraft,
 } from "@/components/execution-tree";
-import { Project, getStatusClass, type ProjectExecutionSubItem } from "@/components/project-data";
+import { Project, type ProjectExecutionSubItem } from "@/components/project-data";
 import type { VendorBasicProfile } from "@/components/vendor-data";
 import { isUuidLike } from "@/lib/db/project-flow-toggle";
 
@@ -68,13 +68,10 @@ function resolveExecutionTargetId(project: Project, sourceExecutionItemId?: stri
   return sourceExecutionItemId ?? fallbackTitle ?? null;
 }
 
-function buildImportedChild(child: { id: string; title: string; quantity?: string | null; note?: string | null }, category = "專案"): ProjectExecutionSubItem {
+function buildImportedChild(child: { id: string; title: string; quantity?: string | null; note?: string | null }): ProjectExecutionSubItem {
   return {
     id: child.id,
     title: child.title,
-    status: "待交辦",
-    assignee: "未指派",
-    category,
     quantity: child.quantity ?? undefined,
     note: child.note ?? undefined,
   };
@@ -86,6 +83,13 @@ function dedupeProjectTaskSummaryItems(items: ProjectTaskSummaryItem[]) {
     map.set(item.summaryKey ?? item.id, item);
   });
   return Array.from(map.values());
+}
+
+function buildDerivedSummaryStatus() {
+  return {
+    status: "已建立交辦",
+    statusClass: "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200",
+  };
 }
 
 export function ExecutionTreeSection({ project }: { project: Project }) {
@@ -213,12 +217,12 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
   }
 
   const designSummaryList = useMemo<ProjectTaskSummaryItem[]>(() => {
+    const derivedStatus = buildDerivedSummaryStatus();
     const fromAssignments = designAssignments.map((assignment) => ({
       id: assignment.targetId,
       summaryKey: assignment.targetId,
       title: assignment.title,
-      status: '已建立',
-      statusClass: getStatusClass('已完成'),
+      ...derivedStatus,
       href: assignment.boardPath || `/design-tasks?project=${encodeURIComponent(project.id)}`,
       ctaLabel: assignment.boardPath ? "前往設計任務詳情" : "前往設計任務板",
       onDelete: deletingSummaryKey ? undefined : () => void handleDeleteDispatchedTask('design', assignment.targetId),
@@ -228,23 +232,22 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
       id: task.id ?? `${task.sourceExecutionItemId ?? task.title}-design-${index}`,
       summaryKey: task.sourceExecutionItemId ?? task.id ?? `${task.title}-${index}`,
       title: task.title,
-      status: task.status,
-      statusClass: getStatusClass(task.status),
+      ...derivedStatus,
       href: task.id ? `/design-tasks/${task.id}` : `/design-tasks?project=${encodeURIComponent(project.id)}`,
       ctaLabel: task.id ? "前往設計任務詳情" : "前往設計任務板",
       onDelete: task.sourceExecutionItemId && !deletingSummaryKey ? () => void handleDeleteDispatchedTask('design', task.sourceExecutionItemId as string) : undefined,
     }));
 
     return dedupeProjectTaskSummaryItems([...fromAssignments, ...fromLegacyTasks]);
-  }, [designAssignments, project.designTasks, project.id]);
+  }, [deletingSummaryKey, designAssignments, project.designTasks, project.id]);
 
   const procurementSummaryList = useMemo<ProjectTaskSummaryItem[]>(() => {
+    const derivedStatus = buildDerivedSummaryStatus();
     const fromAssignments = procurementAssignments.map((assignment) => ({
       id: assignment.targetId,
       summaryKey: assignment.targetId,
       title: assignment.data.item || assignment.title,
-      status: '已建立',
-      statusClass: getStatusClass('已完成'),
+      ...derivedStatus,
       href: assignment.boardPath || `/procurement-tasks?project=${encodeURIComponent(project.id)}`,
       ctaLabel: assignment.boardPath ? "前往備品任務詳情" : "前往採購備品板",
       onDelete: deletingSummaryKey ? undefined : () => void handleDeleteDispatchedTask('procurement', assignment.targetId),
@@ -254,25 +257,24 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
       id: task.id ?? `${task.sourceExecutionItemId ?? task.title}-procurement-${index}`,
       summaryKey: task.sourceExecutionItemId ?? task.id ?? `${task.title}-${index}`,
       title: task.title,
-      status: task.status,
-      statusClass: getStatusClass(task.status),
+      ...derivedStatus,
       href: task.id ? `/procurement-tasks/${task.id}` : `/procurement-tasks?project=${encodeURIComponent(project.id)}`,
       ctaLabel: task.id ? "前往備品任務詳情" : "前往採購備品板",
       onDelete: task.sourceExecutionItemId && !deletingSummaryKey ? () => void handleDeleteDispatchedTask('procurement', task.sourceExecutionItemId as string) : undefined,
     }));
 
     return dedupeProjectTaskSummaryItems([...fromAssignments, ...fromLegacyTasks]);
-  }, [procurementAssignments, project.procurementTasks, project.id]);
+  }, [deletingSummaryKey, procurementAssignments, project.procurementTasks, project.id]);
 
   const vendorSummaryList = useMemo<ProjectTaskSummaryItem[]>(
-    () =>
-      dedupeProjectTaskSummaryItems([
+    () => {
+      const derivedStatus = buildDerivedSummaryStatus();
+      return dedupeProjectTaskSummaryItems([
         ...vendorAssignments.map((assignment) => ({
           id: assignment.targetId,
           summaryKey: assignment.targetId,
           title: assignment.data.title || assignment.title,
-          status: '已建立',
-          statusClass: getStatusClass('已完成'),
+          ...derivedStatus,
           href: assignment.boardPath || `/vendor-assignments?project=${encodeURIComponent(project.id)}`,
           ctaLabel: assignment.boardPath ? "前往廠商任務詳情" : "前往廠商發包板",
           onDelete: deletingSummaryKey ? undefined : () => void handleDeleteDispatchedTask('vendor', assignment.targetId),
@@ -281,14 +283,14 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
           id: task.id ?? `${task.sourceExecutionItemId ?? task.title}-vendor-${index}`,
           summaryKey: task.sourceExecutionItemId ?? task.id ?? `${task.title}-${index}`,
           title: task.title,
-          status: task.status,
-          statusClass: getStatusClass(task.status),
+          ...derivedStatus,
           href: task.id ? `/vendor-assignments/${task.id}` : `/vendor-assignments?project=${encodeURIComponent(project.id)}`,
           ctaLabel: task.id ? "前往廠商任務詳情" : "前往廠商發包板",
           onDelete: task.sourceExecutionItemId && !deletingSummaryKey ? () => void handleDeleteDispatchedTask('vendor', task.sourceExecutionItemId as string) : undefined,
         })),
-      ]),
-    [vendorAssignments, project.id, project.vendorTasks],
+      ]);
+    },
+    [deletingSummaryKey, project.id, project.vendorTasks, vendorAssignments],
   );
 
   const currentList =
@@ -366,9 +368,7 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
               : {
                   id: result.item.id,
                   title: result.item.title,
-                  status: "待交辦",
-                  category: "專案",
-                  detail: result.item.note ?? "待補充執行說明。",
+                  detail: result.item.note ?? "",
                   quantity: result.item.quantity ?? undefined,
                   note: result.item.note ?? undefined,
                   children: [],
@@ -390,7 +390,7 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
           if (!response.ok || !result.ok) {
             throw new Error(result.error || "批次匯入執行項目失敗");
           }
-          return { items: result.items as Array<{ id: string; title: string; status: string; category: string; detail: string; children: Array<{ id: string; title: string; status: string; assignee: string; category: string }> }> };
+          return { items: result.items as Array<{ id: string; title: string; detail: string; note?: string; quantity?: string; children: Array<{ id: string; title: string; note?: string; quantity?: string }> }> };
         },
         updateExecutionItem: async ({ itemId, title }: { itemId: string; title: string }) => {
           const response = await fetch(`/api/projects/${project.id}/execution-items/${itemId}`, {
@@ -408,9 +408,7 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
               : {
                   id: result.item.id,
                   title: result.item.title,
-                  status: "待交辦",
-                  category: "專案",
-                  detail: result.item.note ?? "待補充執行說明。",
+                  detail: result.item.note ?? "",
                   quantity: result.item.quantity ?? undefined,
                   note: result.item.note ?? undefined,
                   children: [],
@@ -478,8 +476,12 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
               flowType: "vendor",
               executionItemId: targetId,
               title: draft.title || title || findExecutionTitle(project, targetId),
+              assignee: draft.assignee,
+              item: draft.category,
               vendorName: draft.vendorName,
               requirement: draft.requirement,
+              size: draft.specification,
+              referenceUrl: draft.referenceUrl,
               amount: draft.amount,
             }),
           });

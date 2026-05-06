@@ -154,7 +154,7 @@ export function parseExecutionItemsFromExcelRows(rawRows: unknown[][]): ParsedEx
       currentMain.children.push(currentSub);
       currentItem.children = [
         ...(currentItem.children ?? []),
-        { id: currentSub.id, title, status: "待交辦", assignee: "未指派", category: "專案", quantity, unit, amount, note: unitPrice ? `預覽單價：${unitPrice}` : undefined },
+        { id: currentSub.id, title, quantity, unit, amount, note: unitPrice ? `預覽單價：${unitPrice}` : undefined },
       ];
       parsedRows.push({ rowNumber, code, name, quantity, unit, unitPrice, amount, raw, type: "sub", parentMainTitle: currentMain.title });
       continue;
@@ -169,7 +169,7 @@ export function parseExecutionItemsFromExcelRows(rawRows: unknown[][]): ParsedEx
       }
       mainOrder += 1;
       currentMain = { id: makeMainItemId(mainOrder, rowNumber), title: mainTitle, rowNumber, children: [] };
-      currentItem = { id: currentMain.id, title: name, status: "待交辦", category: "專案", detail: `匯入自 Excel 第 ${rowNumber} 列`, referenceExample: "", designTaskCount: 0, procurementTaskCount: 0, children: [] };
+      currentItem = { id: currentMain.id, title: name, detail: `匯入自 Excel 第 ${rowNumber} 列`, referenceExample: "", designTaskCount: 0, procurementTaskCount: 0, children: [] };
       currentSub = null;
       mainItems.push(currentMain);
       items.push(currentItem);

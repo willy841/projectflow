@@ -146,7 +146,8 @@ async function buildVendorPackageGroups(): Promise<VendorPackageGroupSeed[]> {
 
 export async function listDbVendorPackages(): Promise<VendorPackage[]> {
   const startedAt = performance.now();
-  const repositories = createPhase1Repositories(createPhase1DbClient());
+  const db = createPhase1DbClient();
+  const repositories = createPhase1Repositories(db);
   const groupsStartedAt = performance.now();
   const groups = await buildVendorPackageGroups();
   const groupsMs = performance.now() - groupsStartedAt;
@@ -183,6 +184,36 @@ export async function listDbVendorPackages(): Promise<VendorPackage[]> {
         }),
       );
 
+      const documentRows = await db.query<{
+        note: string | null;
+        document_status: string | null;
+      }>(
+        `select note, document_status from public.vendor_package_documents where id = $1 limit 1`,
+        [group.packageId],
+      ).catch(() => ({ rows: [] }));
+      const savedItemsRows = await db.query<{
+        id: string;
+        vendor_task_id: string | null;
+        item_name: string | null;
+        requirement_text: string | null;
+      }>(
+        `select id, vendor_task_id, item_name, requirement_text
+         from public.vendor_package_document_items
+         where document_id = $1
+         order by sort_order asc, created_at asc`,
+        [group.packageId],
+      ).catch(() => ({ rows: [] }));
+
+      const savedDocument = documentRows.rows[0];
+      const effectiveItems = savedItemsRows.rows.length
+        ? savedItemsRows.rows.map((row) => ({
+            id: row.id,
+            assignmentId: row.vendor_task_id ?? '',
+            itemName: row.item_name ?? '',
+            requirementText: row.requirement_text ?? '',
+          }))
+        : items;
+
       return {
         id: group.packageId,
         code: group.code,
@@ -193,9 +224,9 @@ export async function listDbVendorPackages(): Promise<VendorPackage[]> {
         eventDate: group.eventDate,
         location: group.location,
         loadInTime: group.loadInTime,
-        note: '',
-        documentStatus: normalizeVendorDocumentStatus(items.length),
-        items,
+        note: savedDocument?.note ?? '',
+        documentStatus: (savedDocument?.document_status as VendorPackage['documentStatus'] | undefined) ?? normalizeVendorDocumentStatus(effectiveItems.length),
+        items: effectiveItems,
       } satisfies VendorPackage;
     }),
   );

@@ -81,10 +81,14 @@ export interface ProcurementTaskRow extends BaseMutableRow {
   source_execution_item_id: UUID;
   vendor_id: UUID | null;
   title: string;
+  assignee: string | null;
   quantity: string | null;
+  size: string | null;
+  material: string | null;
   budget_note: string | null;
   requirement_text: string | null;
   reference_url: string | null;
+  style_url: string | null;
   status: string;
 }
 
@@ -93,7 +97,12 @@ export interface VendorTaskRow extends BaseMutableRow {
   source_execution_item_id: UUID;
   vendor_id: UUID;
   title: string;
+  assignee: string | null;
+  category: string | null;
   requirement_text: string | null;
+  specification: string | null;
+  reference_url: string | null;
+  quoted_amount: string | null;
   status: string;
 }
 

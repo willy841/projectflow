@@ -3,9 +3,6 @@ export type ProjectStatus = "執行中" | "待發包" | "採購中" | "已結案
 export type ProjectExecutionSubItem = {
   id: string;
   title: string;
-  status: string;
-  assignee?: string;
-  category: string;
   quantity?: string;
   unit?: string;
   amount?: string;
@@ -15,8 +12,6 @@ export type ProjectExecutionSubItem = {
 export type ProjectExecutionItem = {
   id: string;
   title: string;
-  status: string;
-  category: string;
   detail: string;
   referenceExample?: string;
   designTaskCount?: number;
@@ -133,50 +128,44 @@ export const projects: Project[] = [
     cost: "NT$ 472,000",
     note: "主視覺已確認，現場背板與導視系統需於下週前定稿。",
     requirements: [
-      { title: "入口主背板需搭配春季主題色與產品燈箱", status: "已確認", category: "設計" },
-      { title: "現場需要 3 組陳列桌與品牌立牌", status: "執行中", category: "備品" },
-      { title: "贈品包裝與動線指示需同時整合", status: "待拆解", category: "專案" },
+      { title: "入口主背板需搭配春季主題色與產品燈箱" },
+      { title: "現場需要 3 組陳列桌與品牌立牌" },
+      { title: "贈品包裝與動線指示需同時整合" },
     ],
     executionItems: [
       {
         id: "spring-item-1",
         title: "入口主背板",
-        status: "進行中",
-        category: "設計",
         detail: "根據春季主題色延伸入口主背板，需與產品燈箱與導視動線一致。",
         referenceExample: "春季視覺範例 A",
         designTaskCount: 1,
         procurementTaskCount: 0,
         children: [
-          { id: "spring-item-1-1", title: "主背板輸出完稿", status: "進行中", assignee: "Aster", category: "設計" },
-          { id: "spring-item-1-2", title: "入口燈箱視覺延伸", status: "待確認", assignee: "Mika", category: "設計" },
+          { id: "spring-item-1-1", title: "主背板輸出完稿" },
+          { id: "spring-item-1-2", title: "入口燈箱視覺延伸" },
         ],
       },
       {
         id: "spring-item-2",
         title: "陳列桌與品牌立牌",
-        status: "待交辦",
-        category: "備品",
         detail: "現場需 3 組陳列桌與品牌立牌，需同步考量施工與輸出規格。",
         referenceExample: "門市陳列範例 B",
         designTaskCount: 1,
         procurementTaskCount: 1,
         children: [
-          { id: "spring-item-2-1", title: "品牌立牌版型整理", status: "待交辦", assignee: "未指派", category: "設計" },
+          { id: "spring-item-2-1", title: "品牌立牌版型整理" },
         ],
       },
       {
         id: "spring-item-3",
         title: "贈品包裝與動線指示",
-        status: "待拆解",
-        category: "專案",
         detail: "需同時處理贈品包裝視覺、吊卡與現場動線指示延伸。",
         referenceExample: "活動贈品範例 C",
         designTaskCount: 0,
         procurementTaskCount: 1,
         children: [
-          { id: "spring-item-3-1", title: "吊卡與包裝貼紙", status: "待交辦", assignee: "未指派", category: "設計" },
-          { id: "spring-item-3-2", title: "動線立牌內容整理", status: "待拆解", assignee: "未指派", category: "專案" },
+          { id: "spring-item-3-1", title: "吊卡與包裝貼紙" },
+          { id: "spring-item-3-2", title: "動線立牌內容整理" },
         ],
       },
     ],
@@ -209,34 +198,30 @@ export const projects: Project[] = [
     cost: "NT$ 654,000",
     note: "客戶要求螢幕牆與舞台主視覺同步調整，需重新估價。",
     requirements: [
-      { title: "主舞台 LED 動畫需配合新品亮點切換", status: "已確認", category: "設計" },
-      { title: "接待區背牆木作需重新估價", status: "待發包", category: "廠商" },
+      { title: "主舞台 LED 動畫需配合新品亮點切換" },
+      { title: "接待區背牆木作需重新估價" },
     ],
     executionItems: [
       {
         id: "obsidian-item-1",
         title: "主舞台 LED 動畫",
-        status: "進行中",
-        category: "設計",
         detail: "舞台螢幕主視覺與 LED 動畫需跟新品亮點同步切換。",
         referenceExample: "舞台動畫提案 01",
         designTaskCount: 1,
         procurementTaskCount: 0,
         children: [
-          { id: "obsidian-item-1-1", title: "主 KV 延伸版位", status: "進行中", assignee: "Nora", category: "設計" },
+          { id: "obsidian-item-1-1", title: "主 KV 延伸版位" },
         ],
       },
       {
         id: "obsidian-item-2",
         title: "接待區背牆木作",
-        status: "待發包",
-        category: "廠商",
         detail: "接待區背牆尺寸與木作結構需重新估價並確認施工方式。",
         referenceExample: "背牆木作範例",
         designTaskCount: 1,
         procurementTaskCount: 0,
         children: [
-          { id: "obsidian-item-2-1", title: "木作結構圖整理", status: "待確認", assignee: "Jay", category: "設計" },
+          { id: "obsidian-item-2-1", title: "木作結構圖整理" },
         ],
       },
     ],
@@ -268,34 +253,30 @@ export const projects: Project[] = [
     cost: "NT$ 188,000",
     note: "贈品與展示架規格尚未完全定版，採購需要保留彈性。",
     requirements: [
-      { title: "檔期主視覺需同步套用至吊牌與 POP", status: "執行中", category: "設計" },
-      { title: "展示架需可重複使用並可拆裝", status: "比價中", category: "備品" },
+      { title: "檔期主視覺需同步套用至吊牌與 POP" },
+      { title: "展示架需可重複使用並可拆裝" },
     ],
     executionItems: [
       {
         id: "dept-item-1",
         title: "POP 與價卡完稿",
-        status: "待確認",
-        category: "設計",
         detail: "百貨檔期 POP、價卡與吊牌需套用統一檔期主視覺。",
         referenceExample: "百貨 POP 範例",
         designTaskCount: 1,
         procurementTaskCount: 0,
         children: [
-          { id: "dept-item-1-1", title: "價卡尺寸整理", status: "待確認", assignee: "Dora", category: "設計" },
+          { id: "dept-item-1-1", title: "價卡尺寸整理" },
         ],
       },
       {
         id: "dept-item-2",
         title: "展示架五金與配件",
-        status: "採購中",
-        category: "備品",
         detail: "展示架須可重複使用並具拆裝結構，需搭配五金與運輸包材。",
         referenceExample: "展示架拆裝範例",
         designTaskCount: 0,
         procurementTaskCount: 1,
         children: [
-          { id: "dept-item-2-1", title: "五金包裝清單", status: "採購中", assignee: "Momo", category: "備品" },
+          { id: "dept-item-2-1", title: "五金包裝清單" },
         ],
       },
     ],
