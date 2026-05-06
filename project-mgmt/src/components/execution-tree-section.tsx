@@ -119,7 +119,7 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
                   material: "",
                   quantity: "",
                   referenceUrl: "",
-                  requirement: task.title,
+                  requirement: "",
                 },
               ]),
           )
@@ -140,13 +140,13 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
               .map(({ targetId, task }) => [
                 targetId as string,
                 {
-                  assignee: task.buyer,
+                  assignee: task.assignee ?? task.buyer,
                   item: task.title,
-                  size: "",
-                  material: "",
-                  quantity: "",
-                  styleUrl: "",
-                  requirement: task.title,
+                  size: task.size ?? "",
+                  material: task.material ?? "",
+                  quantity: task.quantity ?? "",
+                  styleUrl: task.styleUrl ?? task.referenceUrl ?? "",
+                  requirement: task.requirement ?? "",
                 },
               ]),
           )
@@ -167,14 +167,14 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
               .map(({ targetId, task }) => [
                 targetId as string,
                 {
-                  assignee: "",
-                  category: "其他",
+                  assignee: task.assignee ?? "",
+                  category: task.category || "其他",
                   title: task.title,
                   vendorName: task.vendorName,
-                  requirement: task.title,
-                  specification: "",
-                  referenceUrl: "",
-                  amount: "",
+                  requirement: task.requirement ?? "",
+                  specification: task.specification ?? "",
+                  referenceUrl: task.referenceUrl ?? "",
+                  amount: task.amount ?? "",
                 },
               ]),
           )
