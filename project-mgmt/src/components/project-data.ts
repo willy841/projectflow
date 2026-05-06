@@ -62,6 +62,11 @@ export type Project = {
     due: string;
     status: string;
     sourceExecutionItemId?: string;
+    size?: string;
+    material?: string;
+    quantity?: string;
+    referenceUrl?: string;
+    requirement?: string;
   }>;
   procurementTasks: Array<{
     id?: string;
@@ -70,6 +75,13 @@ export type Project = {
     budget: string;
     status: string;
     sourceExecutionItemId?: string;
+    assignee?: string;
+    size?: string;
+    material?: string;
+    quantity?: string;
+    referenceUrl?: string;
+    styleUrl?: string;
+    requirement?: string;
   }>;
   vendorTasks?: Array<{
     id?: string;
@@ -77,6 +89,12 @@ export type Project = {
     vendorName: string;
     status: string;
     sourceExecutionItemId?: string;
+    assignee?: string;
+    category?: string;
+    specification?: string;
+    referenceUrl?: string;
+    amount?: string;
+    requirement?: string;
   }>;
 };
 
