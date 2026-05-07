@@ -86,7 +86,7 @@ function buildWorkflowCostItems(projectId: string): CostLineItem[] {
   return items;
 }
 
-export function getQuoteCostProjectsWithWorkflow(): QuoteCostProject[] {
+export function getQuoteCostProjectsForClientFallback(): QuoteCostProject[] {
   if (typeof window === "undefined") return quoteCostProjects;
 
   return quoteCostProjects.map((project) => {

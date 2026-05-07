@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import type { QuoteCostProject } from "@/components/quote-cost-data";
-import { getQuoteCostProjectsWithWorkflow, workflowCostBridgeBoundary } from "@/components/workflow-cost-bridge";
+import { getQuoteCostProjectsForClientFallback, workflowCostBridgeBoundary } from "@/components/workflow-cost-bridge";
 import { WorkspaceEmptyState, workspacePrimaryButtonClass } from "@/components/workspace-ui";
 
 export const quoteCostListClientBoundary = {
@@ -18,7 +18,7 @@ function resolveQuoteCostSourceProjects(initialProjects?: QuoteCostProject[]) {
   }
 
   return workflowCostBridgeBoundary.mode === "client-fallback-bridge"
-    ? getQuoteCostProjectsWithWorkflow()
+    ? getQuoteCostProjectsForClientFallback()
     : [];
 }
 
