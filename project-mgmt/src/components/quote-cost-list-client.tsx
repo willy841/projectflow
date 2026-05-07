@@ -6,6 +6,11 @@ import type { QuoteCostProject } from "@/components/quote-cost-data";
 import { getQuoteCostProjectsWithWorkflow, workflowCostBridgeBoundary } from "@/components/workflow-cost-bridge";
 import { WorkspaceEmptyState, workspacePrimaryButtonClass } from "@/components/workspace-ui";
 
+export const quoteCostListClientBoundary = {
+  mode: "db-first-with-client-fallback-readback",
+  fallbackScope: "local-workflow-cost-readback-only",
+} as const;
+
 export function QuoteCostListClient({ mode = "active", initialProjects }: { mode?: "active" | "closed"; initialProjects?: QuoteCostProject[] }) {
   const [searchKeyword, setSearchKeyword] = useState("");
   const sourceProjects = initialProjects ?? (workflowCostBridgeBoundary.mode === "client-fallback-bridge" ? getQuoteCostProjectsWithWorkflow() : []);
