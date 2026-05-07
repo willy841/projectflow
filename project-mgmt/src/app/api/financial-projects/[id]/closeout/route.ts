@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { revalidatePath } from 'next/cache';
 import { createPhase1DbClient } from '@/lib/db/phase1-client';
+import { getProjectCollectedTotal } from '@/lib/db/collection-aggregate-read-model';
 import { hasFinancialQuotationImportTotalAmountColumn } from '@/lib/db/quotation-schema';
 import { getQuoteCostProjectByIdWithDbFinancials } from '@/lib/db/financial-flow-adapter';
 import { saveCloseoutRetainedSnapshot } from '@/lib/db/closeout-retained-snapshot';
@@ -23,14 +24,7 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
       return NextResponse.json({ ok: false, error: 'project-not-found' }, { status: 404 });
     }
 
-    const collectionRows = await db.query<{ total: number | null }>(
-      `
-        select coalesce(sum(amount), 0)::float8 as total
-        from project_collection_records
-        where project_id = $1
-      `,
-      [id],
-    );
+    const collectedTotal = await getProjectCollectedTotal(id);
 
     const hasQuotationImportTotalAmountColumn = await hasFinancialQuotationImportTotalAmountColumn().catch(() => false);
     const quotationRows = await db.query<{ total: number | null }>(
@@ -62,7 +56,6 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     );
 
     const quotationTotal = quotationRows.rows[0]?.total ?? 0;
-    const collectedTotal = collectionRows.rows[0]?.total ?? 0;
     const outstandingTotal = Math.max(quotationTotal - collectedTotal, 0);
     const totalCount = reconciliationRows.rows[0]?.totalCount ?? 0;
     const reconciledCount = reconciliationRows.rows[0]?.reconciledCount ?? 0;
