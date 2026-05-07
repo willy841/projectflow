@@ -5,6 +5,12 @@ import { vendorPackages, type VendorPackage } from "@/components/vendor-data";
 
 const STORAGE_KEY = "projectflow-vendor-packages";
 
+export const vendorPackageStoreLegacyBoundary = {
+  mode: "legacy-local-package-store",
+  usedBy: ["project-vendor-section", "workflow-vendor-package-bridge"],
+  routeStatus: "not-formal-db-package-source",
+} as const;
+
 function getDefaultPackages() {
   return vendorPackages;
 }
