@@ -39,7 +39,7 @@ function persistPackages(packages: VendorPackage[]) {
   window.localStorage.setItem(STORAGE_KEY, JSON.stringify(packages));
 }
 
-export function getStoredVendorPackageById(id: string) {
+function getStoredVendorPackageById(id: string) {
   return readStoredPackages().find((pkg) => pkg.id === id);
 }
 
@@ -47,11 +47,11 @@ export function getStoredPackagesByProjectId(projectId: string) {
   return readStoredPackages().filter((pkg) => pkg.projectId === projectId);
 }
 
-export function getStoredVendorPackages() {
+function getStoredVendorPackages() {
   return readStoredPackages();
 }
 
-export function upsertStoredVendorPackage(nextPackage: VendorPackage) {
+function upsertStoredVendorPackage(nextPackage: VendorPackage) {
   const current = readStoredPackages();
   const existed = current.some((pkg) => pkg.id === nextPackage.id);
   const next = existed
