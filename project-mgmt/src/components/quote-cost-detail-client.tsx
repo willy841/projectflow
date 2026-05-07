@@ -52,7 +52,18 @@ type Props = {
   project: QuoteCostProject;
   mode?: DetailMode;
   presenter?: QuoteCostDetailPresenter;
-  initialProject?: QuoteCostProject & { reconciliationGroups?: ReconciliationGroupView[]; collectionRecords?: CollectionRecordView[]; vendorPaymentRecords?: VendorPaymentView[] };
+  initialProject?: QuoteCostProject & {
+    reconciliationGroups?: ReconciliationGroupView[];
+    collectionRecords?: CollectionRecordView[];
+    vendorPaymentRecords?: VendorPaymentView[];
+    summaryTotals?: {
+      quotationTotal: number;
+      collectedTotal: number;
+      outstandingTotal: number;
+      projectCostTotal: number;
+      grossProfit: number;
+    };
+  };
 };
 
 type EditableProjectState = QuoteCostProject;
@@ -85,13 +96,45 @@ export function QuoteCostDetailClient({ project, mode = "active", presenter = ge
   const quoteImportRecord = state.quotationImport;
   const isClosedView = presenter.archived;
 
-  const quotationTotal = useMemo(() => getQuotationTotal(state.quotationItems, state.quotationImport), [state.quotationItems, state.quotationImport]);
-  const collectedTotal = useMemo(() => collectionRecords.reduce((sum, record) => sum + record.amount, 0), [collectionRecords]);
-  const outstandingTotal = useMemo(() => Math.max(quotationTotal - collectedTotal, 0), [quotationTotal, collectedTotal]);
+  const quotationTotal = useMemo(() => {
+    if (initialProject?.summaryTotals && state.quotationItems === resolvedProject.quotationItems && state.quotationImport === resolvedProject.quotationImport) {
+      return initialProject.summaryTotals.quotationTotal;
+    }
+    return getQuotationTotal(state.quotationItems, state.quotationImport);
+  }, [initialProject?.summaryTotals, resolvedProject.quotationImport, resolvedProject.quotationItems, state.quotationImport, state.quotationItems]);
+  const collectedTotal = useMemo(() => {
+    if (initialProject?.summaryTotals && collectionRecords === (initialProject.collectionRecords ?? [])) {
+      return initialProject.summaryTotals.collectedTotal;
+    }
+    return collectionRecords.reduce((sum, record) => sum + record.amount, 0);
+  }, [collectionRecords, initialProject?.collectionRecords, initialProject?.summaryTotals]);
+  const outstandingTotal = useMemo(() => {
+    if (initialProject?.summaryTotals
+      && collectionRecords === (initialProject.collectionRecords ?? [])
+      && state.quotationItems === resolvedProject.quotationItems
+      && state.quotationImport === resolvedProject.quotationImport) {
+      return initialProject.summaryTotals.outstandingTotal;
+    }
+    return Math.max(quotationTotal - collectedTotal, 0);
+  }, [collectionRecords, collectedTotal, initialProject?.collectionRecords, initialProject?.summaryTotals, quotationTotal, resolvedProject.quotationImport, resolvedProject.quotationItems, state.quotationImport, state.quotationItems]);
   const originalCostTotal = useMemo(() => getFormalOriginalCostTotal(state.costItems), [state.costItems]);
   const additionalManualCostTotal = useMemo(() => getAdditionalManualCostTotal(state.costItems), [state.costItems]);
-  const projectCostTotal = useMemo(() => originalCostTotal + additionalManualCostTotal, [originalCostTotal, additionalManualCostTotal]);
-  const grossProfit = useMemo(() => getGrossProfit(quotationTotal, projectCostTotal), [quotationTotal, projectCostTotal]);
+  const projectCostTotal = useMemo(() => {
+    if (initialProject?.summaryTotals && state.costItems === resolvedProject.costItems) {
+      return initialProject.summaryTotals.projectCostTotal;
+    }
+    return originalCostTotal + additionalManualCostTotal;
+  }, [additionalManualCostTotal, initialProject?.summaryTotals, originalCostTotal, resolvedProject.costItems, state.costItems]);
+  const grossProfit = useMemo(() => {
+    if (initialProject?.summaryTotals
+      && state.costItems === resolvedProject.costItems
+      && state.quotationItems === resolvedProject.quotationItems
+      && state.quotationImport === resolvedProject.quotationImport
+      && collectionRecords === (initialProject.collectionRecords ?? [])) {
+      return initialProject.summaryTotals.grossProfit;
+    }
+    return getGrossProfit(quotationTotal, projectCostTotal);
+  }, [collectionRecords, initialProject?.collectionRecords, initialProject?.summaryTotals, projectCostTotal, quotationTotal, resolvedProject.costItems, resolvedProject.quotationImport, resolvedProject.quotationItems, state.costItems, state.quotationImport, state.quotationItems]);
   const costSourceSummary = useMemo(() => getCostSourceSummary(state.costItems, state.id), [state.costItems, state.id]);
   const manualItems = useMemo(() => state.costItems.filter((item) => item.isManual), [state.costItems]);
   const visibleReconciliationGroups = useMemo(

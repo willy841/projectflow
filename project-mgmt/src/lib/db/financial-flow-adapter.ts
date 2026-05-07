@@ -1,4 +1,7 @@
 import {
+  getGrossProfit,
+  getProjectCostTotal,
+  getQuotationTotal,
   type CostLineItem,
   type CostSourceType,
   type QuoteCostProject,
@@ -644,15 +647,36 @@ export type QuoteCostDetailReadModel = {
   project: QuoteCostProjectWithGroups;
   collectionRecords: QuoteCostDetailCollectionRecord[];
   vendorPaymentRecords: QuoteCostDetailVendorPaymentRecord[];
+  summaryTotals: {
+    quotationTotal: number;
+    collectedTotal: number;
+    outstandingTotal: number;
+    projectCostTotal: number;
+    grossProfit: number;
+  };
 };
 
 export async function getQuoteCostDetailReadModel(projectId: string): Promise<QuoteCostDetailReadModel | null> {
   const project = await getQuoteCostProjectByIdWithDbFinancials(projectId);
   if (!project) return null;
 
+  const collectionRecords = await listProjectCollectionRecords(projectId);
+  const quotationTotal = getQuotationTotal(project.quotationItems, project.quotationImport);
+  const collectedTotal = collectionRecords.reduce((sum, record) => sum + record.amount, 0);
+  const outstandingTotal = Math.max(quotationTotal - collectedTotal, 0);
+  const projectCostTotal = getProjectCostTotal(project.costItems);
+  const grossProfit = getGrossProfit(quotationTotal, projectCostTotal);
+
   return {
     project,
-    collectionRecords: await listProjectCollectionRecords(projectId),
+    collectionRecords,
     vendorPaymentRecords: buildVendorPaymentSummaryRows(project.reconciliationGroups),
+    summaryTotals: {
+      quotationTotal,
+      collectedTotal,
+      outstandingTotal,
+      projectCostTotal,
+      grossProfit,
+    },
   };
 }
