@@ -16,7 +16,7 @@ function getRelationKey(projectId: string, vendorId: string) {
   return `${projectId}::${vendorId}`;
 }
 
-export function readStoredProjectVendorFinancialOverrides() {
+function readStoredProjectVendorFinancialOverrides() {
   if (typeof window === "undefined") return [] as ProjectVendorFinancialRelation[];
 
   const raw = window.localStorage.getItem(STORAGE_KEY);
@@ -29,6 +29,25 @@ export function readStoredProjectVendorFinancialOverrides() {
   } catch {
     return [];
   }
+}
+
+export function applyStoredProjectVendorFinancialOverrides(relations: Map<string, ProjectVendorFinancialRelation>) {
+  const storedOverrides = readStoredProjectVendorFinancialOverrides();
+
+  storedOverrides.forEach((relation) => {
+    const baseRelation = relations.get(relation.relationKey);
+    if (!baseRelation) return;
+
+    const nextAdjustedCostTotal = baseRelation.adjustedCostTotal;
+    const nextPaymentStatus = relation.paymentStatus;
+    relations.set(relation.relationKey, {
+      ...baseRelation,
+      paymentStatus: nextPaymentStatus,
+      unpaidAmount: nextPaymentStatus === "已付款" ? 0 : nextAdjustedCostTotal,
+    });
+  });
+
+  return relations;
 }
 
 export function writeStoredProjectVendorFinancialPaymentStatus(

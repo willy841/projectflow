@@ -11,8 +11,8 @@ import {
 import { getQuoteCostProjectsWithWorkflow } from "@/components/workflow-cost-bridge";
 import { getVendorPackageSummariesForWorkflowProject } from "@/components/workflow-vendor-package-bridge";
 import {
+  applyStoredProjectVendorFinancialOverrides,
   buildProjectVendorFinancialFallbackRelations,
-  readStoredProjectVendorFinancialOverrides,
   writeStoredProjectVendorFinancialPaymentStatus,
 } from "@/components/workflow-vendor-financial-fallback";
 
@@ -121,26 +121,8 @@ function buildQuoteCostRelations(projects: QuoteCostProject[]) {
 }
 
 export function getProjectVendorFinancialRelations() {
-  const quoteCostRelations = buildQuoteCostRelations(getQuoteCostProjectsWithWorkflow());
-  const storedOverrides = readStoredProjectVendorFinancialOverrides();
-  const merged = new Map<string, ProjectVendorFinancialRelation>();
-
-  quoteCostRelations.forEach((relation, key) => {
-    merged.set(key, relation);
-  });
-
-  storedOverrides.forEach((relation) => {
-    const baseRelation = merged.get(relation.relationKey);
-    if (!baseRelation) return;
-
-    const nextAdjustedCostTotal = baseRelation.adjustedCostTotal;
-    const nextPaymentStatus = relation.paymentStatus;
-    merged.set(relation.relationKey, {
-      ...baseRelation,
-      paymentStatus: nextPaymentStatus,
-      unpaidAmount: nextPaymentStatus === "已付款" ? 0 : nextAdjustedCostTotal,
-    });
-  });
+  const merged = buildQuoteCostRelations(getQuoteCostProjectsWithWorkflow());
+  applyStoredProjectVendorFinancialOverrides(merged);
 
   if (!merged.size) {
     buildProjectVendorFinancialFallbackRelations().forEach((relation) => {
