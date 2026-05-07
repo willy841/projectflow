@@ -5,7 +5,7 @@ import * as XLSX from "xlsx";
 import {
   getExecutionTreeStorageKey,
   readStoredExecutionTreeState,
-} from "@/components/project-workflow-store";
+} from "@/components/workflow-local-storage";
 import {
   parseExecutionItemsFromExcelRows,
   type ParsedExcelImportPreview,

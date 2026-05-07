@@ -39,8 +39,10 @@ test.describe.serial('formal acceptance v2 · phase 4 · vendor unpaid, history,
     await expect(page.getByText('已對帳群組 3 筆 / 未對帳群組 0 筆')).toBeVisible();
     const unpaidProjectRow = page.getByRole('row', { name: new RegExp(PROJECT_NAME) });
     await expect(unpaidProjectRow).toContainText('$43,210');
-    await page.getByRole('button', { name: '查看明細' }).first().click();
-    await expect(page.getByText('成本明細')).toBeVisible();
+    const detailButton = unpaidProjectRow.getByRole('button').first();
+    await expect(detailButton).not.toHaveText('載入明細中…');
+    await detailButton.click();
+    await expect(page.getByText('發包內容明細')).toBeVisible();
     await expect(page.getByText('發包內容明細')).toBeVisible();
     await expect(page.getByText('設計｜設計 對帳內容')).toBeVisible();
     await expect(page.getByText('備品｜備品 對帳內容')).toBeVisible();
