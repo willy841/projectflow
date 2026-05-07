@@ -10,9 +10,10 @@ export const workflowCostBridgeBoundary = {
   vendorPackageSource: "workflow-vendor-package-legacy-bridge",
   consumerScope: "local-workflow-cost-readback-only",
   formalQuoteCostRouteStatus: "not-used-when-initialProjects-present",
+  clientConsumer: "quote-cost-list-client-fallback-only",
 } as const;
 
-export function buildWorkflowCostItems(projectId: string): CostLineItem[] {
+function buildWorkflowCostItems(projectId: string): CostLineItem[] {
   if (typeof window === "undefined") return [];
 
   const tree = readStoredExecutionTreeState(projectId);
