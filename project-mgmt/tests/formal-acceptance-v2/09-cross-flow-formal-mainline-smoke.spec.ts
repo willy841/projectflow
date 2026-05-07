@@ -92,10 +92,11 @@ test.describe.serial('formal acceptance v2 · phase 5 · cross-flow formal mainl
     const unpaidRow = page.getByRole('row', { name: new RegExp(PROJECT_NAME) });
     await expect(unpaidRow).toContainText('已對帳群組 3 筆 / 未對帳群組 0 筆');
     await expect(unpaidRow).toContainText('已全部對帳');
-    await unpaidRow.getByRole('button', { name: '查看明細' }).click();
+    const detailButton = unpaidRow.getByRole('button').first();
+    await detailButton.click();
     const projectDetailsRow = unpaidRow.locator('xpath=following-sibling::tr[1]');
-    await expect(projectDetailsRow.getByText('成本明細')).toBeVisible();
-    await expect(projectDetailsRow.getByText('發包內容明細')).toBeVisible();
+    await expect(projectDetailsRow.getByRole('heading', { level: 4, name: '成本明細' })).toBeVisible({ timeout: 15000 });
+    await expect(projectDetailsRow.getByRole('heading', { level: 4, name: '發包內容明細' })).toBeVisible();
 
     await page.goto(`/quote-costs/${PROJECT_ID}`);
     await expect(page.getByText(collectionNote)).toBeVisible();

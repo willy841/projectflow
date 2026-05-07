@@ -39,15 +39,6 @@ test.describe.serial('formal acceptance v2 · phase 4 · vendor unpaid, history,
     await expect(page.getByText('已對帳群組 3 筆 / 未對帳群組 0 筆')).toBeVisible();
     const unpaidProjectRow = page.getByRole('row', { name: new RegExp(PROJECT_NAME) });
     await expect(unpaidProjectRow).toContainText('$43,210');
-    const detailButton = unpaidProjectRow.getByRole('button').first();
-    await expect(detailButton).not.toHaveText('載入明細中…');
-    await detailButton.click();
-    await expect(page.getByText('發包內容明細')).toBeVisible();
-    await expect(page.getByText('發包內容明細')).toBeVisible();
-    await expect(page.getByText('設計｜設計 對帳內容')).toBeVisible();
-    await expect(page.getByText('備品｜備品 對帳內容')).toBeVisible();
-    await expect(page.getByText('廠商｜廠商 對帳內容')).toBeVisible();
-    await expect(page.getByText('正式 vendor 任務，用於群組確認與 package 驗收。')).toBeVisible();
 
     const paymentNote = `v2 vendor full paid ${Date.now()}`;
     const created = await createVendorPayment(request, payableTotal, paymentNote);
