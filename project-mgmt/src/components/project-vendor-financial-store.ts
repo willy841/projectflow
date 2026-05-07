@@ -5,15 +5,16 @@ import {
 } from "@/components/quote-cost-data";
 import {
   vendorPackages,
-  vendorProjectRecords,
   vendorProfiles,
   type VendorPaymentStatus,
-  type VendorProjectRecord,
 } from "@/components/vendor-data";
-import { getStoredPackagesByProjectId } from "@/components/vendor-package-store";
-import { getQuoteCostProjectsWithWorkflow } from "@/components/project-workflow-store";
-
-const STORAGE_KEY = "projectflow-project-vendor-financial-relations";
+import { getQuoteCostProjectsWithWorkflow } from "@/components/workflow-cost-bridge";
+import { getVendorPackageSummariesForWorkflowProject } from "@/components/workflow-vendor-package-bridge";
+import {
+  buildProjectVendorFinancialFallbackRelations,
+  readStoredProjectVendorFinancialOverrides,
+  writeStoredProjectVendorFinancialPaymentStatus,
+} from "@/components/workflow-vendor-financial-fallback";
 
 export type ProjectVendorFinancialRelation = {
   relationKey: string;
@@ -119,44 +120,9 @@ function buildQuoteCostRelations(projects: QuoteCostProject[]) {
   return relations;
 }
 
-function buildFallbackRelationFromRecord(record: VendorProjectRecord): ProjectVendorFinancialRelation {
-  const relationKey = getRelationKey(record.projectId, record.vendorId);
-  return {
-    relationKey,
-    projectId: record.projectId,
-    vendorId: record.vendorId,
-    projectName: record.projectName,
-    vendorName: record.vendorName,
-    projectStatus: record.projectStatus,
-    adjustedCostTotal: record.adjustedCost,
-    rawCostTotal: record.adjustedCost,
-    paymentStatus: record.paymentStatus,
-    unpaidAmount: record.paymentStatus === "未付款" ? record.adjustedCost : 0,
-    costItemCount: record.costBreakdown.length,
-    costItemsSummary: record.costBreakdown.map((item) => `${item.label}（${item.amount}）`),
-    packageCount: record.packageId ? 1 : 0,
-    packageSummary: record.packageId ? [record.packageId] : [],
-  };
-}
-
-function readStoredOverrides() {
-  if (typeof window === "undefined") return [] as ProjectVendorFinancialRelation[];
-
-  const raw = window.localStorage.getItem(STORAGE_KEY);
-  if (!raw) return [];
-
-  try {
-    const parsed = JSON.parse(raw) as ProjectVendorFinancialRelation[];
-    if (!Array.isArray(parsed)) return [];
-    return parsed;
-  } catch {
-    return [];
-  }
-}
-
 export function getProjectVendorFinancialRelations() {
   const quoteCostRelations = buildQuoteCostRelations(getQuoteCostProjectsWithWorkflow());
-  const storedOverrides = readStoredOverrides();
+  const storedOverrides = readStoredProjectVendorFinancialOverrides();
   const merged = new Map<string, ProjectVendorFinancialRelation>();
 
   quoteCostRelations.forEach((relation, key) => {
@@ -176,8 +142,7 @@ export function getProjectVendorFinancialRelations() {
     });
   });
 
-  vendorProjectRecords.forEach((record) => {
-    const relation = buildFallbackRelationFromRecord(record);
+  buildProjectVendorFinancialFallbackRelations().forEach((relation) => {
     if (!merged.has(relation.relationKey)) {
       merged.set(relation.relationKey, relation);
     }
@@ -206,22 +171,7 @@ export function writeProjectVendorFinancialPaymentStatus(projectId: string, vend
   if (typeof window === "undefined") return getProjectVendorFinancialRelations();
 
   const current = getProjectVendorFinancialRelations();
-  const target = current.find((relation) => relation.projectId === projectId && relation.vendorId === vendorId);
-  if (!target) return current;
-
-  const overrideMap = new Map(readStoredOverrides().map((relation) => [relation.relationKey, cloneRelation(relation)]));
-  overrideMap.set(target.relationKey, {
-    ...target,
-    paymentStatus,
-    unpaidAmount: paymentStatus === "已付款" ? 0 : target.adjustedCostTotal,
-  });
-
-  const nextOverrides = Array.from(overrideMap.values()).map((relation) => ({
-    ...relation,
-    unpaidAmount: relation.paymentStatus === "已付款" ? 0 : relation.adjustedCostTotal,
-  }));
-
-  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(nextOverrides));
+  writeStoredProjectVendorFinancialPaymentStatus(current, projectId, vendorId, paymentStatus);
   return getProjectVendorFinancialRelations();
 }
 
@@ -233,8 +183,8 @@ export function getVendorOutstandingTotal(vendorId: string, vendorName?: string)
       .reduce((sum, relation) => sum + relation.unpaidAmount, 0);
   }
 
-  return vendorProjectRecords
-    .filter((record) => record.vendorId === vendorId || (vendorName ? record.vendorName === vendorName : false))
-    .filter((record) => record.paymentStatus === "未付款")
-    .reduce((sum, record) => sum + record.adjustedCost, 0);
+  return buildProjectVendorFinancialFallbackRelations()
+    .filter((relation) => relation.vendorId === vendorId || (vendorName ? relation.vendorName === vendorName : false))
+    .filter((relation) => relation.paymentStatus === "未付款")
+    .reduce((sum, relation) => sum + relation.adjustedCostTotal, 0);
 }
