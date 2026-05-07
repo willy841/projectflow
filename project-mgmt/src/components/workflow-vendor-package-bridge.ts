@@ -6,6 +6,8 @@ export const workflowVendorPackageBridgeBoundary = {
   mode: "legacy-local-package-bridge",
   primarySource: "local-package-store",
   fallbackSource: "assignment-fallback",
+  consumerScope: "workflow-cost-local-readback-only",
+  formalVendorAssignmentsRouteStatus: "not-used-by-formal-vendor-assignments-route",
 } as const;
 
 export type WorkflowVendorPackageSource = "local-package-store" | "assignment-fallback";

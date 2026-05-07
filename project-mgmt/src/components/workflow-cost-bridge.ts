@@ -7,6 +7,8 @@ import { parseCurrency, parseReplyMessage } from "@/components/workflow-reply-pa
 export const workflowCostBridgeBoundary = {
   mode: "client-fallback-bridge",
   baseProjectSource: "quote-cost-fixture-only",
+  vendorPackageSource: "workflow-vendor-package-legacy-bridge",
+  consumerScope: "local-workflow-cost-readback-only",
 } as const;
 
 export function buildWorkflowCostItems(projectId: string): CostLineItem[] {

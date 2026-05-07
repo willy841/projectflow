@@ -24,6 +24,7 @@ export const projectVendorSectionLegacyBoundary = {
   vendorSource: "legacy-local-vendor-store",
   packageSource: "legacy-local-package-store",
   routeStatus: "still-used-inside-project-detail-workflow",
+  formalVendorAssignmentsRouteStatus: "not-used-by-formal-vendor-assignments-route",
 } as const;
 
 type PackageMap = Record<string, VendorPackage>;
