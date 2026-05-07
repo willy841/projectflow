@@ -77,6 +77,13 @@ function buildImportedChild(child: { id: string; title: string; quantity?: strin
   };
 }
 
+export const executionTreeSectionBoundary = {
+  mode: "formal-project-detail-shell-with-mixed-source-adapter",
+  dbHydrationSources: ["designTasks", "procurementTasks", "vendorTasks"],
+  interactiveShell: "execution-tree",
+  legacyBridgeScope: ["project-vendor-section", "local-execution-workflow"],
+} as const;
+
 function dedupeProjectTaskSummaryItems(items: ProjectTaskSummaryItem[]) {
   const map = new Map<string, ProjectTaskSummaryItem>();
   items.forEach((item) => {

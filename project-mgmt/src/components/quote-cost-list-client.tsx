@@ -9,6 +9,7 @@ import { WorkspaceEmptyState, workspacePrimaryButtonClass } from "@/components/w
 export const quoteCostListClientBoundary = {
   mode: "db-first-with-client-fallback-readback",
   fallbackScope: "local-workflow-cost-readback-only",
+  formalRouteStatus: "db-first-route-consumer",
 } as const;
 
 export function QuoteCostListClient({ mode = "active", initialProjects }: { mode?: "active" | "closed"; initialProjects?: QuoteCostProject[] }) {

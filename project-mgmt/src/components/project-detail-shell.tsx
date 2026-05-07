@@ -68,6 +68,12 @@ function buildProjectForm(project: Project): ProjectFormState {
   };
 }
 
+export const projectDetailShellBoundary = {
+  mode: "formal-project-detail-shell",
+  executionSectionSource: "execution-tree-section",
+  directLegacyBridgeUsage: "none",
+} as const;
+
 function buildProjectView(baseProject: Project, form: ProjectFormState): Project {
   return {
     ...baseProject,
