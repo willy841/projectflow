@@ -43,9 +43,9 @@ test.describe.serial('formal acceptance v2 · boundary batch4 · product complet
     const revertResponse = await request.post(`/api/financial-projects/${PROJECT_ID}/reconciliation-groups/sync`, {
       data: {
         groups: [
-          { sourceType: '設計', vendorId: '77777777-7777-4777-8777-777777777777', vendorName: '驗收廠商C', reconciliationStatus: '已對帳' },
-          { sourceType: '備品', vendorId: '77777777-7777-4777-8777-777777777777', vendorName: '驗收廠商C', reconciliationStatus: '待確認' },
-          { sourceType: '廠商', vendorId: '77777777-7777-4777-8777-777777777777', vendorName: '驗收廠商C', reconciliationStatus: '已對帳' },
+          { sourceType: '設計', vendorId: '77777777-7777-4777-8777-777777777777', vendorName: '驗收廠商C', reconciliationStatus: '已對帳', amountTotal: 12000, itemCount: 1 },
+          { sourceType: '備品', vendorId: '77777777-7777-4777-8777-777777777777', vendorName: '驗收廠商C', reconciliationStatus: '待確認', amountTotal: 13333, itemCount: 1 },
+          { sourceType: '廠商', vendorId: '77777777-7777-4777-8777-777777777777', vendorName: '驗收廠商C', reconciliationStatus: '已對帳', amountTotal: 17877, itemCount: 1 },
         ],
       },
     });
@@ -81,14 +81,14 @@ test.describe.serial('formal acceptance v2 · boundary batch4 · product complet
     await page.goto(`/vendors/77777777-7777-4777-8777-777777777777`);
     const unpaidRowBefore = page.getByRole('row', { name: new RegExp(PROJECT_NAME) });
     await expect(unpaidRowBefore).toBeVisible();
-    await expect(unpaidRowBefore).toContainText('已對帳 3 筆 / 未對帳 0 筆');
+    await expect(unpaidRowBefore).toContainText('已對帳群組 3 筆 / 未對帳群組 0 筆');
 
     const res = await request.post(`/api/financial-projects/${PROJECT_ID}/reconciliation-groups/sync`, {
       data: {
         groups: [
-          { sourceType: '設計', vendorId: '77777777-7777-4777-8777-777777777777', vendorName: '驗收廠商C', reconciliationStatus: '已對帳' },
-          { sourceType: '備品', vendorId: '77777777-7777-4777-8777-777777777777', vendorName: '驗收廠商C', reconciliationStatus: '待確認' },
-          { sourceType: '廠商', vendorId: '77777777-7777-4777-8777-777777777777', vendorName: '驗收廠商C', reconciliationStatus: '已對帳' },
+          { sourceType: '設計', vendorId: '77777777-7777-4777-8777-777777777777', vendorName: '驗收廠商C', reconciliationStatus: '已對帳', amountTotal: 12000, itemCount: 1 },
+          { sourceType: '備品', vendorId: '77777777-7777-4777-8777-777777777777', vendorName: '驗收廠商C', reconciliationStatus: '待確認', amountTotal: 13333, itemCount: 1 },
+          { sourceType: '廠商', vendorId: '77777777-7777-4777-8777-777777777777', vendorName: '驗收廠商C', reconciliationStatus: '已對帳', amountTotal: 17877, itemCount: 1 },
         ],
       },
     });
