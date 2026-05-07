@@ -10,7 +10,6 @@ import {
 } from "@/components/vendor-data";
 import { getStoredPackagesByProjectId } from "@/components/vendor-package-store";
 import { getQuoteCostProjectsWithWorkflow } from "@/components/workflow-cost-bridge";
-import { getVendorPackageSummariesForWorkflowProject } from "@/components/workflow-vendor-package-bridge";
 import {
   applyStoredProjectVendorFinancialOverrides,
   buildProjectVendorFinancialFallbackRelations,
@@ -18,9 +17,11 @@ import {
 } from "@/components/workflow-vendor-financial-fallback";
 
 export const projectVendorFinancialStoreBoundary = {
-  mode: "client-sync-store",
+  mode: "legacy-vendor-financial-island",
   primaryProjectSource: "workflow-fallback-bridge",
   sourceStatus: "legacy-compatibility-only-not-formal-source-of-truth",
+  formalRouteConsumer: "none",
+  formalVendorPagesStatus: "db-routes-detached",
   dbReplacementRequires: "server-or-async-read-model",
 } as const;
 
