@@ -4,6 +4,11 @@ import type { ProjectVendorFinancialRelation } from "@/components/project-vendor
 
 const STORAGE_KEY = "projectflow-project-vendor-financial-relations";
 
+export const workflowVendorFinancialFallbackBoundary = {
+  overrideStorageMode: "temporary-local-override",
+  fixtureFallbackMode: "emergency-fallback-only",
+} as const;
+
 type StoredProjectVendorFinancialOverride = {
   relationKey: string;
   paymentStatus: VendorPaymentStatus;
