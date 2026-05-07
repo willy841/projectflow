@@ -16,6 +16,12 @@ import {
   writeStoredProjectVendorFinancialPaymentStatus,
 } from "@/components/workflow-vendor-financial-fallback";
 
+export const projectVendorFinancialStoreBoundary = {
+  mode: "client-sync-store",
+  primaryProjectSource: "workflow-fallback-bridge",
+  dbReplacementRequires: "server-or-async-read-model",
+} as const;
+
 export type ProjectVendorFinancialRelation = {
   relationKey: string;
   projectId: string;
