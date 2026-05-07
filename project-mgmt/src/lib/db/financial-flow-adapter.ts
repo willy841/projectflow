@@ -4,6 +4,7 @@ import {
   type QuoteCostProject,
 } from '@/components/quote-cost-data';
 import { createPhase1DbClient } from '@/lib/db/phase1-client';
+import { buildVendorPaymentSummaryRows } from '@/lib/db/vendor-payment-summary-read-model';
 import { shouldUseDbDesignFlow } from '@/lib/db/design-flow-toggle';
 import { shouldUseDbProcurementFlow } from '@/lib/db/procurement-flow-toggle';
 import { loadQuotationReadModelIndex, type QuotationReadModel } from '@/lib/db/quotation-read-model';
@@ -636,12 +637,7 @@ export type QuoteCostDetailCollectionRecord = {
   note: string;
 };
 
-export type QuoteCostDetailVendorPaymentRecord = {
-  vendorName: string;
-  reconciledCount: number;
-  unreconciledCount: number;
-  payableAmount: number;
-};
+export type QuoteCostDetailVendorPaymentRecord = import('@/lib/db/vendor-payment-summary-read-model').VendorPaymentSummaryRow;
 
 export type QuoteCostDetailReadModel = {
   project: QuoteCostProjectWithGroups;
@@ -661,26 +657,9 @@ export async function getQuoteCostDetailReadModel(projectId: string): Promise<Qu
     order by collected_on desc, created_at desc
   `, [projectId]);
 
-  const vendorGroupMap = new Map<string, { reconciledCount: number; unreconciledCount: number; payableAmount: number }>();
-  for (const group of project.reconciliationGroups) {
-    const current = vendorGroupMap.get(group.vendorName) ?? { reconciledCount: 0, unreconciledCount: 0, payableAmount: 0 };
-    if (group.reconciliationStatus === '已對帳') {
-      current.reconciledCount += 1;
-      current.payableAmount += group.amountTotal;
-    } else {
-      current.unreconciledCount += 1;
-    }
-    vendorGroupMap.set(group.vendorName, current);
-  }
-
   return {
     project,
     collectionRecords: collectionRows.rows,
-    vendorPaymentRecords: Array.from(vendorGroupMap.entries()).map(([vendorName, summary]) => ({
-      vendorName,
-      reconciledCount: summary.reconciledCount,
-      unreconciledCount: summary.unreconciledCount,
-      payableAmount: summary.payableAmount,
-    })),
+    vendorPaymentRecords: buildVendorPaymentSummaryRows(project.reconciliationGroups),
   };
 }

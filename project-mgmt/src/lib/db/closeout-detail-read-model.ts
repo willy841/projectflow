@@ -3,6 +3,7 @@ import { createPhase1DbClient } from '@/lib/db/phase1-client';
 import type { CostLineItem } from '@/components/quote-cost-data';
 import type { QuoteCostProjectWithGroups } from '@/lib/db/financial-flow-adapter';
 import { getCloseoutRetainedSnapshot } from '@/lib/db/closeout-retained-snapshot';
+import { buildVendorPaymentSummaryRows, type VendorPaymentSummaryRow } from '@/lib/db/vendor-payment-summary-read-model';
 
 export type CloseoutArchiveCollectionRecord = {
   id: string;
@@ -11,14 +12,7 @@ export type CloseoutArchiveCollectionRecord = {
   note: string;
 };
 
-export type CloseoutArchiveVendorPaymentRecord = {
-  vendorName: string;
-  reconciledCount: number;
-  unreconciledCount: number;
-  payableAmount: number;
-};
-
-type RetainedReconciliationGroup = QuoteCostProjectWithGroups['reconciliationGroups'][number];
+export type CloseoutArchiveVendorPaymentRecord = VendorPaymentSummaryRow;
 
 
 export type CloseoutArchiveDetailReadModel = {
@@ -32,28 +26,6 @@ export type CloseoutArchiveDetailReadModel = {
   };
 };
 
-
-function buildArchiveVendorPaymentRows(reconciliationGroups: RetainedReconciliationGroup[]): CloseoutArchiveVendorPaymentRecord[] {
-  const vendorGroupMap = new Map<string, { reconciledCount: number; unreconciledCount: number; payableAmount: number }>();
-
-  for (const group of reconciliationGroups) {
-    const current = vendorGroupMap.get(group.vendorName) ?? { reconciledCount: 0, unreconciledCount: 0, payableAmount: 0 };
-    if (group.reconciliationStatus === '已對帳') {
-      current.reconciledCount += 1;
-      current.payableAmount += group.amountTotal;
-    } else {
-      current.unreconciledCount += 1;
-    }
-    vendorGroupMap.set(group.vendorName, current);
-  }
-
-  return Array.from(vendorGroupMap.entries()).map(([vendorName, summary]) => ({
-    vendorName,
-    reconciledCount: summary.reconciledCount,
-    unreconciledCount: summary.unreconciledCount,
-    payableAmount: summary.payableAmount,
-  }));
-}
 
 export async function getCloseoutArchiveDetailReadModel(projectId: string): Promise<CloseoutArchiveDetailReadModel | null> {
   const archiveProject = await getCloseoutArchiveProjectById(projectId);
@@ -108,7 +80,7 @@ export async function getCloseoutArchiveDetailReadModel(projectId: string): Prom
       reconciliationStatus: retainedReconciliationGroups.length > 0 ? '已完成' : '未開始',
     },
     archiveCollections: collectionRows.rows,
-    archiveVendorPayments: buildArchiveVendorPaymentRows(retainedReconciliationGroups),
+    archiveVendorPayments: buildVendorPaymentSummaryRows(retainedReconciliationGroups),
     summaryTotals,
   };
 }
