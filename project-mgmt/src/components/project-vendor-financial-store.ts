@@ -142,11 +142,11 @@ export function getProjectVendorFinancialRelations() {
     });
   });
 
-  buildProjectVendorFinancialFallbackRelations().forEach((relation) => {
-    if (!merged.has(relation.relationKey)) {
+  if (!merged.size) {
+    buildProjectVendorFinancialFallbackRelations().forEach((relation) => {
       merged.set(relation.relationKey, relation);
-    }
-  });
+    });
+  }
 
   return Array.from(merged.values()).map(cloneRelation);
 }

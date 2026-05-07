@@ -58,24 +58,26 @@ export function writeStoredProjectVendorFinancialPaymentStatus(
   return nextOverrides;
 }
 
+function mapFallbackRecordToRelation(record: VendorProjectRecord): ProjectVendorFinancialRelation {
+  const relationKey = getRelationKey(record.projectId, record.vendorId);
+  return {
+    relationKey,
+    projectId: record.projectId,
+    vendorId: record.vendorId,
+    projectName: record.projectName,
+    vendorName: record.vendorName,
+    projectStatus: record.projectStatus,
+    adjustedCostTotal: record.adjustedCost,
+    rawCostTotal: record.adjustedCost,
+    paymentStatus: record.paymentStatus,
+    unpaidAmount: record.paymentStatus === "未付款" ? record.adjustedCost : 0,
+    costItemCount: record.costBreakdown.length,
+    costItemsSummary: record.costBreakdown.map((item) => `${item.label}（${item.amount}）`),
+    packageCount: record.packageId ? 1 : 0,
+    packageSummary: record.packageId ? [record.packageId] : [],
+  } satisfies ProjectVendorFinancialRelation;
+}
+
 export function buildProjectVendorFinancialFallbackRelations() {
-  return vendorProjectRecords.map((record) => {
-    const relationKey = getRelationKey(record.projectId, record.vendorId);
-    return {
-      relationKey,
-      projectId: record.projectId,
-      vendorId: record.vendorId,
-      projectName: record.projectName,
-      vendorName: record.vendorName,
-      projectStatus: record.projectStatus,
-      adjustedCostTotal: record.adjustedCost,
-      rawCostTotal: record.adjustedCost,
-      paymentStatus: record.paymentStatus,
-      unpaidAmount: record.paymentStatus === "未付款" ? record.adjustedCost : 0,
-      costItemCount: record.costBreakdown.length,
-      costItemsSummary: record.costBreakdown.map((item) => `${item.label}（${item.amount}）`),
-      packageCount: record.packageId ? 1 : 0,
-      packageSummary: record.packageId ? [record.packageId] : [],
-    } satisfies ProjectVendorFinancialRelation;
-  });
+  return vendorProjectRecords.map(mapFallbackRecordToRelation);
 }
