@@ -3,23 +3,16 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import type { QuoteCostProject } from "@/components/quote-cost-data";
-import { getQuoteCostProjectsForClientFallback, workflowCostBridgeBoundary } from "@/components/workflow-cost-bridge";
 import { WorkspaceEmptyState, workspacePrimaryButtonClass } from "@/components/workspace-ui";
 
 export const quoteCostListClientBoundary = {
-  mode: "db-first-with-client-fallback-readback",
-  fallbackScope: "local-workflow-cost-readback-only",
+  mode: "db-only-formal-read-model-consumer",
+  fallbackScope: "retired-for-formal-route",
   formalRouteStatus: "db-first-route-consumer",
 } as const;
 
 function resolveQuoteCostSourceProjects(initialProjects?: QuoteCostProject[]) {
-  if (initialProjects) {
-    return initialProjects;
-  }
-
-  return workflowCostBridgeBoundary.mode === "client-fallback-bridge"
-    ? getQuoteCostProjectsForClientFallback()
-    : [];
+  return initialProjects ?? [];
 }
 
 export function QuoteCostListClient({ mode = "active", initialProjects }: { mode?: "active" | "closed"; initialProjects?: QuoteCostProject[] }) {

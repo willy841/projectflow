@@ -102,3 +102,7 @@ export function getQuoteCostProjectsForClientFallback(): QuoteCostProject[] {
     };
   });
 }
+
+export function getQuoteCostProjectsWithWorkflow(): QuoteCostProject[] {
+  return getQuoteCostProjectsForClientFallback();
+}

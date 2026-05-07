@@ -83,3 +83,9 @@ export function getVendorPackagesForWorkflowProject(projectId: string): Workflow
   };
 }
 
+export function getVendorPackageSummariesForWorkflowProject(projectId: string): string[] {
+  return getVendorPackagesForWorkflowProject(projectId).packages.map(
+    (pkg) => `${pkg.code}：${pkg.items.length} 項 / 文件${pkg.documentStatus}`,
+  );
+}
+

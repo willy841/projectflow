@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { getLegacyVendorOutstandingTotal, formatCurrency } from "@/components/vendor-data";
+import { getVendorOutstandingTotal, formatCurrency } from "@/components/vendor-data";
 import { useVendorStore } from "@/components/vendor-store";
 
 export const vendorListPageLegacyBoundary = {
@@ -31,7 +31,7 @@ export function LegacyVendorListPage() {
 
   const vendorCards = useMemo(() => vendors.map((vendor) => ({
     ...vendor,
-    outstandingTotal: getLegacyVendorOutstandingTotal(vendor.id),
+    outstandingTotal: getVendorOutstandingTotal(vendor.id),
   })), [vendors]);
 
   const filteredVendorCards = useMemo(() => {
