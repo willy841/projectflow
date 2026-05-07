@@ -15,6 +15,7 @@ export type VendorPaymentRecord = {
 };
 import { listDbVendorPackages } from '@/lib/db/vendor-package-adapter';
 import { getVendorFinancialSummary } from '@/lib/db/vendor-financial-adapter';
+import { listDbVendorFinancialRelationsByVendorId } from '@/lib/db/vendor-financial-relation-adapter';
 
 function normalizeVendorName(name: string) {
   return name.trim().toLowerCase().replace(/\s+/g, ' ');
@@ -272,7 +273,8 @@ export async function listDbVendorProjectRecordsByVendorId(
 
   const fanoutStartedAt = performance.now();
   const includeDetails = options?.includeDetails ?? false;
-  const [financial, paymentRecords, vendorTasks] = await Promise.all([
+  const [relations, financial, paymentRecords, vendorTasks] = await Promise.all([
+    listDbVendorFinancialRelationsByVendorId(vendorId, vendor.name),
     getVendorFinancialSummary({ vendorId, vendorName: vendor.name }),
     options?.paymentRecords ? Promise.resolve(options.paymentRecords) : listDbVendorPaymentRecordsByVendorId(vendorId),
     includeDetails
@@ -294,7 +296,7 @@ export async function listDbVendorProjectRecordsByVendorId(
 
   const fanoutMs = performance.now() - fanoutStartedAt;
 
-  if (!financial.records.length) {
+  if (!relations.length && !financial.records.length) {
     console.log('[vendor-project-records]', JSON.stringify({
       vendorId,
       vendorName: vendor.name,
@@ -335,7 +337,10 @@ export async function listDbVendorProjectRecordsByVendorId(
   }
 
   const mapStartedAt = performance.now();
+  const relationByProjectId = new Map(relations.map((relation) => [relation.projectId, relation]));
+
   const mapped = financial.records.map((financialRecord) => {
+    const relation = relationByProjectId.get(financialRecord.projectId);
     const pkg = packageByProjectId.get(financialRecord.projectId);
     const projectTasks = tasksByProjectId.get(financialRecord.projectId) ?? [];
     const sourceItemDetails = includeDetails
@@ -346,12 +351,13 @@ export async function listDbVendorProjectRecordsByVendorId(
       : [];
 
     const paidAmount = paidAmountByProjectId.get(financialRecord.projectId) ?? 0;
-    const unpaidAmount = Math.max(financialRecord.adjustedCost - paidAmount, 0);
+    const adjustedCost = relation?.adjustedCostTotal ?? financialRecord.adjustedCost;
+    const unpaidAmount = relation?.unpaidAmount ?? Math.max(adjustedCost - paidAmount, 0);
     const totalReconciledCount = financialRecord.reconciledGroupCount;
     const totalUnreconciledCount = financialRecord.unreconciledGroupCount;
-    const paymentStatus = !financialRecord.hasUnreconciledGroups && paidAmount >= financialRecord.adjustedCost
+    const paymentStatus = relation?.paymentStatus ?? (!financialRecord.hasUnreconciledGroups && paidAmount >= adjustedCost
       ? '已付款'
-      : '未付款';
+      : '未付款');
 
     return {
       id: pkg?.id ?? `vendor-record-${financialRecord.projectId}-${vendorId}`,
@@ -360,8 +366,8 @@ export async function listDbVendorProjectRecordsByVendorId(
       projectId: financialRecord.projectId,
       projectName: financialRecord.projectName,
       projectStatus: financialRecord.projectStatus,
-      adjustedCost: financialRecord.adjustedCost,
-      adjustedCostLabel: financialRecord.adjustedCostLabel,
+      adjustedCost,
+      adjustedCostLabel: `NT$ ${adjustedCost.toLocaleString('zh-TW')}`,
       reconciliationSummary: `已對帳群組 ${totalReconciledCount} 筆 / 未對帳群組 ${totalUnreconciledCount} 筆`,
       reconciliationStatus: financialRecord.hasUnreconciledGroups ? '尚未全部對帳' : '已全部對帳',
       sourceItemDetails: includeDetails ? (sourceItemDetails.length ? sourceItemDetails : ['待補充']) : [],

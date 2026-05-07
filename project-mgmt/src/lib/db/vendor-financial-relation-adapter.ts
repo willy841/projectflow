@@ -130,3 +130,12 @@ export async function listDbVendorFinancialRelations(): Promise<DbVendorFinancia
 
   return Array.from(relations.values());
 }
+
+export async function listDbVendorFinancialRelationsByVendorId(vendorId: string, vendorName?: string): Promise<DbVendorFinancialRelation[]> {
+  const relations = await listDbVendorFinancialRelations();
+  return relations.filter((relation) => {
+    if (relation.vendorId === vendorId) return true;
+    if (vendorName && relation.vendorName === vendorName) return true;
+    return false;
+  });
+}
