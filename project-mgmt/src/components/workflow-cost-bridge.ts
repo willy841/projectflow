@@ -5,12 +5,13 @@ import { readStoredExecutionSectionState, readStoredExecutionTreeState } from "@
 import { parseCurrency, parseReplyMessage } from "@/components/workflow-reply-parser";
 
 export const workflowCostBridgeBoundary = {
-  mode: "client-fallback-bridge",
+  mode: "legacy-readback-compatibility-bridge",
   baseProjectSource: "quote-cost-fixture-only",
   vendorPackageSource: "workflow-vendor-package-legacy-bridge",
-  consumerScope: "local-workflow-cost-readback-only",
-  formalQuoteCostRouteStatus: "not-used-when-initialProjects-present",
-  clientConsumer: "quote-cost-list-client-fallback-only",
+  consumerScope: "legacy-local-workflow-cost-readback-only",
+  formalQuoteCostRouteStatus: "retired-from-formal-quote-cost-route",
+  formalClientConsumer: "none",
+  remainingCompatibilityConsumer: "project-vendor-financial-store-only",
 } as const;
 
 function buildWorkflowCostItems(projectId: string): CostLineItem[] {

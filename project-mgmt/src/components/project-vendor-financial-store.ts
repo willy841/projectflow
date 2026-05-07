@@ -20,6 +20,7 @@ import {
 export const projectVendorFinancialStoreBoundary = {
   mode: "client-sync-store",
   primaryProjectSource: "workflow-fallback-bridge",
+  sourceStatus: "legacy-compatibility-only-not-formal-source-of-truth",
   dbReplacementRequires: "server-or-async-read-model",
 } as const;
 
