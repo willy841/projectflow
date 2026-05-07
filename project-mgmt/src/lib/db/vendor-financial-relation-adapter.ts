@@ -1,5 +1,6 @@
 import { formatCurrency, type CostLineItem, type QuoteCostProject } from '@/components/quote-cost-data';
 import type { VendorPaymentStatus } from '@/components/vendor-data';
+import { createPhase1DbClient } from '@/lib/db/phase1-client';
 import { listDbVendorPackages } from '@/lib/db/vendor-package-adapter';
 import { getQuoteCostProjectsWithDbFinancialsAndGroups } from '@/lib/db/financial-flow-adapter';
 
@@ -45,10 +46,36 @@ function summarizePackages(
     .map((pkg) => `${pkg.code}：${pkg.items.length} 項 / 文件${pkg.documentStatus}`);
 }
 
+async function loadPaidAmountByProjectVendor() {
+  const db = createPhase1DbClient();
+  const rows = await db.query<{
+    projectId: string;
+    vendorId: string | null;
+    vendorName: string;
+    totalPaid: number;
+  }>(`
+    select
+      project_id as "projectId",
+      vendor_id as "vendorId",
+      vendor_name as "vendorName",
+      coalesce(sum(amount), 0)::float8 as "totalPaid"
+    from project_vendor_payment_records
+    group by project_id, vendor_id, vendor_name
+  `).catch(() => ({ rows: [] }));
+
+  const byRelationKey = new Map<string, number>();
+  rows.rows.forEach((row) => {
+    const vendorId = row.vendorId?.trim() || `vendor-name:${row.vendorName.trim()}`;
+    byRelationKey.set(getRelationKey(row.projectId, vendorId), Number(row.totalPaid ?? 0));
+  });
+  return byRelationKey;
+}
+
 export async function listDbVendorFinancialRelations(): Promise<DbVendorFinancialRelation[]> {
-  const [projects, packages] = await Promise.all([
+  const [projects, packages, paidAmountByRelationKey] = await Promise.all([
     getQuoteCostProjectsWithDbFinancialsAndGroups(),
     listDbVendorPackages(),
+    loadPaidAmountByProjectVendor(),
   ]);
 
   const relations = new Map<string, DbVendorFinancialRelation>();
@@ -78,6 +105,9 @@ export async function listDbVendorFinancialRelations(): Promise<DbVendorFinancia
       const adjustedCostTotal = items.filter((item) => item.includedInCost).reduce((sum, item) => sum + item.adjustedAmount, 0);
       const rawCostTotal = items.filter((item) => item.includedInCost).reduce((sum, item) => sum + item.originalAmount, 0);
       const packageSummary = summarizePackages(project.id, vendorName, packages);
+      const paidAmount = paidAmountByRelationKey.get(relationKey) ?? 0;
+      const unpaidAmount = Math.max(adjustedCostTotal - paidAmount, 0);
+      const paymentStatus: VendorPaymentStatus = unpaidAmount === 0 && adjustedCostTotal > 0 ? '已付款' : '未付款';
 
       relations.set(relationKey, {
         relationKey,
@@ -88,8 +118,8 @@ export async function listDbVendorFinancialRelations(): Promise<DbVendorFinancia
         projectStatus: project.projectStatus,
         adjustedCostTotal,
         rawCostTotal,
-        paymentStatus: '未付款',
-        unpaidAmount: adjustedCostTotal,
+        paymentStatus,
+        unpaidAmount,
         costItemCount: items.length,
         costItemsSummary: summarizeCostItems(items),
         packageCount: packageSummary.length,
