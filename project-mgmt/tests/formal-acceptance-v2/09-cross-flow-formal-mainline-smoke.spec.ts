@@ -90,7 +90,7 @@ test.describe.serial('formal acceptance v2 · phase 5 · cross-flow formal mainl
 
     await page.goto(`/vendors/${VENDOR_ID}`);
     const unpaidRow = page.getByRole('row', { name: new RegExp(PROJECT_NAME) });
-    await expect(unpaidRow).toContainText('已對帳 3 筆 / 未對帳 0 筆');
+    await expect(unpaidRow).toContainText('已對帳群組 3 筆 / 未對帳群組 0 筆');
     await expect(unpaidRow).toContainText('已全部對帳');
     await unpaidRow.getByRole('button', { name: '查看明細' }).click();
     const projectDetailsRow = unpaidRow.locator('xpath=following-sibling::tr[1]');

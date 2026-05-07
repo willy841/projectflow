@@ -97,7 +97,7 @@ test.describe.serial('formal acceptance v2 · phase 4 · closeout list, manual r
     await expect(page.getByText('已結案留存版本')).toBeVisible();
     await expect(page.getByText(collectionNote)).toBeVisible();
     await page.getByRole('button', { name: /人工/ }).click();
-    await expect(page.getByText('人工最終留存內容')).toBeVisible();
+    await expect(page.getByRole('heading', { level: 4, name: '項目明細' })).toBeVisible();
     await expect(page.locator(`input[value="${manualItemName}"]`)).toBeVisible();
     await expect(page.locator('input[type="number"]').first()).toHaveValue('3456');
     await expect(page.locator('input[value="v2 excluded manual"]')).toBeVisible();

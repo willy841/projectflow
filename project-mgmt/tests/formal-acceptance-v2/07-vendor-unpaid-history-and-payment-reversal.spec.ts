@@ -36,7 +36,7 @@ test.describe.serial('formal acceptance v2 · phase 4 · vendor unpaid, history,
     await page.goto(`/vendors/${VENDOR_ID}`);
     await expect(page.getByRole('heading', { name: '未付款專案' })).toBeVisible();
     await expect(page.getByText(PROJECT_NAME).first()).toBeVisible();
-    await expect(page.getByText('已對帳 3 筆 / 未對帳 0 筆')).toBeVisible();
+    await expect(page.getByText('已對帳群組 3 筆 / 未對帳群組 0 筆')).toBeVisible();
     const unpaidProjectRow = page.getByRole('row', { name: new RegExp(PROJECT_NAME) });
     await expect(unpaidProjectRow).toContainText('$43,210');
     await page.getByRole('button', { name: '查看明細' }).first().click();
@@ -78,7 +78,7 @@ test.describe.serial('formal acceptance v2 · phase 4 · vendor unpaid, history,
     await page.goto(`/vendors/${VENDOR_ID}`);
     const restoredRow = page.getByRole('row', { name: new RegExp(PROJECT_NAME) });
     await expect(restoredRow).toBeVisible();
-    await expect(restoredRow).toContainText('已對帳 3 筆 / 未對帳 0 筆');
+    await expect(restoredRow).toContainText('已對帳群組 3 筆 / 未對帳群組 0 筆');
     await expect(restoredRow).toContainText('$43,210');
   });
 });
