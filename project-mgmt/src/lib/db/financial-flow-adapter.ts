@@ -628,3 +628,59 @@ export async function getQuoteCostProjectByIdWithDbFinancials(projectId: string)
   const projects = await getQuoteCostProjectsWithDbFinancialsAndGroups();
   return projects.find((project) => project.id === projectId) ?? null;
 }
+
+export type QuoteCostDetailCollectionRecord = {
+  id: string;
+  collectedOn: string;
+  amount: number;
+  note: string;
+};
+
+export type QuoteCostDetailVendorPaymentRecord = {
+  vendorName: string;
+  reconciledCount: number;
+  unreconciledCount: number;
+  payableAmount: number;
+};
+
+export type QuoteCostDetailReadModel = {
+  project: QuoteCostProjectWithGroups;
+  collectionRecords: QuoteCostDetailCollectionRecord[];
+  vendorPaymentRecords: QuoteCostDetailVendorPaymentRecord[];
+};
+
+export async function getQuoteCostDetailReadModel(projectId: string): Promise<QuoteCostDetailReadModel | null> {
+  const project = await getQuoteCostProjectByIdWithDbFinancials(projectId);
+  if (!project) return null;
+
+  const db = createPhase1DbClient();
+  const collectionRows = await db.query<QuoteCostDetailCollectionRecord>(`
+    select id, to_char(collected_on, 'YYYY-MM-DD') as "collectedOn", amount::float8 as amount, coalesce(note, '') as note
+    from project_collection_records
+    where project_id = $1
+    order by collected_on desc, created_at desc
+  `, [projectId]);
+
+  const vendorGroupMap = new Map<string, { reconciledCount: number; unreconciledCount: number; payableAmount: number }>();
+  for (const group of project.reconciliationGroups) {
+    const current = vendorGroupMap.get(group.vendorName) ?? { reconciledCount: 0, unreconciledCount: 0, payableAmount: 0 };
+    if (group.reconciliationStatus === '已對帳') {
+      current.reconciledCount += 1;
+      current.payableAmount += group.amountTotal;
+    } else {
+      current.unreconciledCount += 1;
+    }
+    vendorGroupMap.set(group.vendorName, current);
+  }
+
+  return {
+    project,
+    collectionRecords: collectionRows.rows,
+    vendorPaymentRecords: Array.from(vendorGroupMap.entries()).map(([vendorName, summary]) => ({
+      vendorName,
+      reconciledCount: summary.reconciledCount,
+      unreconciledCount: summary.unreconciledCount,
+      payableAmount: summary.payableAmount,
+    })),
+  };
+}
