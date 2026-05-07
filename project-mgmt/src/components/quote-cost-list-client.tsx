@@ -12,9 +12,19 @@ export const quoteCostListClientBoundary = {
   formalRouteStatus: "db-first-route-consumer",
 } as const;
 
+function resolveQuoteCostSourceProjects(initialProjects?: QuoteCostProject[]) {
+  if (initialProjects) {
+    return initialProjects;
+  }
+
+  return workflowCostBridgeBoundary.mode === "client-fallback-bridge"
+    ? getQuoteCostProjectsWithWorkflow()
+    : [];
+}
+
 export function QuoteCostListClient({ mode = "active", initialProjects }: { mode?: "active" | "closed"; initialProjects?: QuoteCostProject[] }) {
   const [searchKeyword, setSearchKeyword] = useState("");
-  const sourceProjects = initialProjects ?? (workflowCostBridgeBoundary.mode === "client-fallback-bridge" ? getQuoteCostProjectsWithWorkflow() : []);
+  const sourceProjects = resolveQuoteCostSourceProjects(initialProjects);
 
   const activeProjects = useMemo(() => {
     const keyword = searchKeyword.trim().toLowerCase();

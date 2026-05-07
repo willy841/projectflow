@@ -9,6 +9,7 @@ export const workflowCostBridgeBoundary = {
   baseProjectSource: "quote-cost-fixture-only",
   vendorPackageSource: "workflow-vendor-package-legacy-bridge",
   consumerScope: "local-workflow-cost-readback-only",
+  formalQuoteCostRouteStatus: "not-used-when-initialProjects-present",
 } as const;
 
 export function buildWorkflowCostItems(projectId: string): CostLineItem[] {
