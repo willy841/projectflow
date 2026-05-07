@@ -12,6 +12,10 @@ type Props = {
   confirmLabel?: string;
 };
 
+/**
+ * Legacy/local-store quick create dialog.
+ * Formal vendor creation on /vendors uses DB APIs.
+ */
 export function VendorQuickCreateDialog({
   open,
   onClose,
