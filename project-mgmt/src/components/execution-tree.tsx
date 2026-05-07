@@ -17,6 +17,12 @@ import {
 import type { VendorBasicProfile } from "@/components/vendor-data";
 import { WorkspaceStatusNotice } from "@/components/workspace-ui";
 
+export const executionTreeBoundary = {
+  mode: "formal-project-detail-interactive-shell",
+  persistenceSource: "workflow-local-storage",
+  routeScope: "project-detail-main-ui",
+} as const;
+
 export type AssignmentReply = {
   id: string;
   message: string;
