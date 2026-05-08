@@ -1,6 +1,6 @@
 import type { VendorPaymentStatus, VendorProjectRecord } from "@/components/vendor-data";
 import { vendorProjectRecords } from "@/components/vendor-data";
-import type { ProjectVendorFinancialRelation } from "@/components/project-vendor-financial-store";
+import type { ProjectVendorFinancialRelation } from "@/components/vendor-financial-relation-types";
 
 const STORAGE_KEY = "projectflow-project-vendor-financial-relations";
 

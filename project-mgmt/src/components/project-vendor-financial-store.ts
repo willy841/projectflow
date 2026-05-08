@@ -8,6 +8,7 @@ import {
   vendorProfiles,
   type VendorPaymentStatus,
 } from "@/components/vendor-data";
+import type { ProjectVendorFinancialRelation } from "@/components/vendor-financial-relation-types";
 import { getStoredPackagesByProjectId } from "@/components/vendor-package-store";
 import { getQuoteCostProjectsWithWorkflow } from "@/components/workflow-cost-bridge";
 import {
@@ -28,23 +29,6 @@ export const projectVendorFinancialStoreBoundary = {
   retirementGate: "may-retire-after-formal-vendor-financial-island-replacement-or-direct-island-removal",
   dbReplacementRequires: "server-or-async-read-model",
 } as const;
-
-export type ProjectVendorFinancialRelation = {
-  relationKey: string;
-  projectId: string;
-  vendorId: string;
-  projectName: string;
-  vendorName: string;
-  projectStatus: QuoteCostProject["projectStatus"];
-  adjustedCostTotal: number;
-  rawCostTotal: number;
-  paymentStatus: VendorPaymentStatus;
-  unpaidAmount: number;
-  costItemCount: number;
-  costItemsSummary: string[];
-  packageCount: number;
-  packageSummary: string[];
-};
 
 function cloneRelation(relation: ProjectVendorFinancialRelation): ProjectVendorFinancialRelation {
   return {
