@@ -30,6 +30,8 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
         assignmentId?: string;
         itemName?: string;
         requirementText?: string;
+        amountLabel?: string | null;
+        amountValue?: number | null;
       }>;
     };
 
@@ -52,9 +54,17 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
       for (let index = 0; index < body.items.length; index += 1) {
         const item = body.items[index];
         await db.query(
-          `insert into public.vendor_package_document_items (document_id, vendor_task_id, sort_order, item_name, requirement_text, updated_at)
-           values ($1, $2, $3, $4, $5, now())`,
-          [documentId, item.assignmentId ?? null, index, item.itemName?.trim() ?? '', item.requirementText?.trim() ?? ''],
+          `insert into public.vendor_package_document_items (document_id, vendor_task_id, sort_order, item_name, requirement_text, amount_label, amount_value, updated_at)
+           values ($1, $2, $3, $4, $5, $6, $7, now())`,
+          [
+            documentId,
+            item.assignmentId ?? null,
+            index,
+            item.itemName?.trim() ?? '',
+            item.requirementText?.trim() ?? '',
+            item.amountLabel?.trim() ?? null,
+            item.amountValue ?? null,
+          ],
         );
       }
     }

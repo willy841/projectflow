@@ -20,7 +20,7 @@ function buildDocumentText(vendorPackage: VendorPackage) {
     `進場時間：${vendorPackage.loadInTime}`,
     "",
     "需求內容",
-    ...vendorPackage.items.map((item, index) => `${index + 1}. ${item.itemName || "-"}：${item.requirementText || "-"}`),
+    ...vendorPackage.items.map((item, index) => `${index + 1}. ${item.itemName || "-"}｜${item.amountLabel || '-'}：${item.requirementText || "-"}`),
     "",
     "備註",
     vendorPackage.note || "-",
@@ -48,6 +48,11 @@ export function VendorPackageDetail({ vendorPackage }: { vendorPackage: VendorPa
 
   function updateRequirement(id: string, value: string) {
     setItems((current) => current.map((item) => (item.id === id ? { ...item, requirementText: value } : item)));
+    markDirty();
+  }
+
+  function updateAmountLabel(id: string, value: string) {
+    setItems((current) => current.map((item) => (item.id === id ? { ...item, amountLabel: value, amountValue: Number(String(value).replace(/[^\\d.-]/g, '')) || 0 } : item)));
     markDirty();
   }
 
@@ -79,6 +84,8 @@ export function VendorPackageDetail({ vendorPackage }: { vendorPackage: VendorPa
             assignmentId: item.assignmentId,
             itemName: item.itemName,
             requirementText: item.requirementText,
+            amountLabel: item.amountLabel ?? null,
+            amountValue: item.amountValue ?? null,
           })),
         }),
       });
@@ -184,6 +191,10 @@ export function VendorPackageDetail({ vendorPackage }: { vendorPackage: VendorPa
                       <input value={item.itemName} onChange={(event) => updateItemName(item.id, event.target.value)} className="pf-input h-11" />
                     </label>
                     <label className="flex flex-col gap-2">
+                      <span className="text-sm font-medium text-slate-300">金額</span>
+                      <input value={item.amountLabel ?? ''} onChange={(event) => updateAmountLabel(item.id, event.target.value)} className="pf-input h-11" />
+                    </label>
+                    <label className="flex flex-col gap-2 xl:col-span-2">
                       <span className="text-sm font-medium text-slate-300">需求內容</span>
                       <textarea value={item.requirementText} onChange={(event) => updateRequirement(item.id, event.target.value)} rows={3} className="pf-input" />
                     </label>
