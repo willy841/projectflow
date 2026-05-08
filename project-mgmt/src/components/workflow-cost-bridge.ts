@@ -1,6 +1,7 @@
 import type { CostLineItem, QuoteCostProject } from "@/components/quote-cost-data";
 import { quoteCostProjects } from "@/components/quote-cost-data";
 import type { ProjectFlowFormalReadbackRow } from "@/components/workflow-derived-board";
+import type { DbVendorPackageShape, WorkflowVendorPackageBridgeResult } from "@/components/workflow-vendor-package-bridge";
 import { getVendorPackagesForWorkflowProject } from "@/components/workflow-vendor-package-bridge";
 import { readStoredExecutionSectionState, readStoredExecutionTreeState } from "@/components/workflow-local-storage";
 import { parseCurrency, parseReplyMessage } from "@/components/workflow-reply-parser";
@@ -21,7 +22,13 @@ export const workflowCostBridgeBoundary = {
   formalizedSegments: ["design-cost-mapper", "procurement-cost-mapper", "design-procurement-transitional-formal-row-provider"],
   residualLegacySegment: "vendor-package-and-assignment-fallback-only",
   vendorResidualConsumerMode: "package-output-only-no-direct-savedVendorAssignments-read",
+  preloadReadyVendorPackageInput: true,
 } as const;
+
+export type WorkflowCostBridgeInput = {
+  projectId: string;
+  preloadedDbPackages?: DbVendorPackageShape[] | null;
+};
 
 export function buildFormalDesignCostItems(rows: ProjectFlowFormalReadbackRow[]): CostLineItem[] {
   return rows
@@ -180,16 +187,27 @@ function getMockFormalReadbackRowsForCost(projectId: string): ProjectFlowFormalR
   return [...designRows, ...procurementRows];
 }
 
-function buildWorkflowCostItems(projectId: string): CostLineItem[] {
+function getVendorPackageBridgeResult(input: WorkflowCostBridgeInput): WorkflowVendorPackageBridgeResult {
+  if (input.preloadedDbPackages?.length) {
+    return {
+      source: "db-package-source",
+      packages: input.preloadedDbPackages.filter((pkg) => pkg.projectId === input.projectId),
+    };
+  }
+
+  return getVendorPackagesForWorkflowProject(input.projectId);
+}
+
+function buildWorkflowCostItems(input: WorkflowCostBridgeInput): CostLineItem[] {
   if (typeof window === "undefined") return [];
 
-  const formalRows = getMockFormalReadbackRowsForCost(projectId);
+  const formalRows = getMockFormalReadbackRowsForCost(input.projectId);
   const designAndProcurementItems = [
     ...buildFormalDesignCostItems(formalRows),
     ...buildFormalProcurementCostItems(formalRows),
   ];
 
-  const vendorPackageBridge = getVendorPackagesForWorkflowProject(projectId);
+  const vendorPackageBridge = getVendorPackageBridgeResult(input);
   const vendorItems: CostLineItem[] = [];
 
   vendorPackageBridge.packages.forEach((pkg) => {
@@ -212,11 +230,14 @@ function buildWorkflowCostItems(projectId: string): CostLineItem[] {
   return [...designAndProcurementItems, ...vendorItems];
 }
 
-export function getQuoteCostProjectsForClientFallback(): QuoteCostProject[] {
+export function getQuoteCostProjectsForClientFallback(preloadedDbPackages?: DbVendorPackageShape[] | null): QuoteCostProject[] {
   if (typeof window === "undefined") return quoteCostProjects;
 
   return quoteCostProjects.map((project) => {
-    const workflowItems = buildWorkflowCostItems(project.id);
+    const workflowItems = buildWorkflowCostItems({
+      projectId: project.id,
+      preloadedDbPackages,
+    });
     if (!workflowItems.length) return project;
 
     const workflowSourceTypes = new Set(workflowItems.map((item) => item.sourceType));
