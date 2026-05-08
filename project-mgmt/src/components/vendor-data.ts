@@ -31,6 +31,8 @@ export type VendorPackageItem = {
   assignmentId: string;
   itemName: string;
   requirementText: string;
+  amountLabel?: string | null;
+  amountValue?: number | null;
 };
 
 export type VendorPackage = {

@@ -222,8 +222,8 @@ function buildWorkflowCostItems(input: WorkflowCostBridgeInput): CostLineItem[] 
         sourceRef: `廠商發包清單 / ${pkg.vendorName}`,
         vendorId: null,
         vendorName: pkg.vendorName || null,
-        originalAmount: 0,
-        adjustedAmount: 0,
+        originalAmount: item.amountValue ?? 0,
+        adjustedAmount: item.amountValue ?? 0,
         includedInCost: true,
         isManual: false,
       });

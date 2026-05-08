@@ -79,6 +79,8 @@ function buildFallbackPackagesFromFormalRows(projectId: string, rows: VendorPack
         assignmentId: row.vendorTaskId,
         itemName: row.itemTitle,
         requirementText: row.requirementText,
+        amountLabel: null,
+        amountValue: null,
       });
       return;
     }
@@ -100,6 +102,8 @@ function buildFallbackPackagesFromFormalRows(projectId: string, rows: VendorPack
           assignmentId: row.vendorTaskId,
           itemName: row.itemTitle,
           requirementText: row.requirementText,
+          amountLabel: null,
+          amountValue: null,
         },
       ],
     });

@@ -180,6 +180,8 @@ export async function listDbVendorPackages(): Promise<VendorPackage[]> {
             assignmentId: row.vendorTaskId,
             itemName: line.itemName,
             requirementText: line.requirementText,
+            amountLabel: line.amountLabel,
+            amountValue: line.amountValue,
           };
         }),
       );
@@ -196,8 +198,10 @@ export async function listDbVendorPackages(): Promise<VendorPackage[]> {
         vendor_task_id: string | null;
         item_name: string | null;
         requirement_text: string | null;
+        amount_label: string | null;
+        amount_value: number | null;
       }>(
-        `select id, vendor_task_id, item_name, requirement_text
+        `select id, vendor_task_id, item_name, requirement_text, amount_label, amount_value
          from public.vendor_package_document_items
          where document_id = $1
          order by sort_order asc, created_at asc`,
@@ -211,6 +215,8 @@ export async function listDbVendorPackages(): Promise<VendorPackage[]> {
             assignmentId: row.vendor_task_id ?? '',
             itemName: row.item_name ?? '',
             requirementText: row.requirement_text ?? '',
+            amountLabel: row.amount_label ?? null,
+            amountValue: row.amount_value ?? null,
           }))
         : items;
 
