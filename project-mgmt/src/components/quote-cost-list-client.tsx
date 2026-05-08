@@ -2,13 +2,22 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { getQuoteCostProjectsWithWorkflow } from "@/components/project-workflow-store";
 import type { QuoteCostProject } from "@/components/quote-cost-data";
 import { WorkspaceEmptyState, workspacePrimaryButtonClass } from "@/components/workspace-ui";
 
+export const quoteCostListClientBoundary = {
+  mode: "db-only-formal-read-model-consumer",
+  fallbackScope: "retired-for-formal-route",
+  formalRouteStatus: "db-first-route-consumer",
+} as const;
+
+function resolveQuoteCostSourceProjects(initialProjects?: QuoteCostProject[]) {
+  return initialProjects ?? [];
+}
+
 export function QuoteCostListClient({ mode = "active", initialProjects }: { mode?: "active" | "closed"; initialProjects?: QuoteCostProject[] }) {
   const [searchKeyword, setSearchKeyword] = useState("");
-  const sourceProjects = initialProjects ?? getQuoteCostProjectsWithWorkflow();
+  const sourceProjects = resolveQuoteCostSourceProjects(initialProjects);
 
   const activeProjects = useMemo(() => {
     const keyword = searchKeyword.trim().toLowerCase();

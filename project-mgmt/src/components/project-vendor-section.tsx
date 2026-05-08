@@ -10,7 +10,7 @@ import {
 } from "@/components/vendor-data";
 import { useStoredVendorPackages } from "@/components/vendor-package-store";
 import type { VendorAssignmentItem } from "@/components/execution-tree-section";
-import { useVendorStore } from "@/components/vendor-store";
+import { VendorStoreProvider, useVendorStore } from "@/components/vendor-store";
 
 type ProjectVendorInfo = {
   name: string;
@@ -18,6 +18,14 @@ type ProjectVendorInfo = {
   location: string;
   loadInTime: string;
 };
+
+export const projectVendorSectionLegacyBoundary = {
+  mode: "project-detail-local-vendor-bridge",
+  vendorSource: "legacy-local-vendor-store",
+  packageSource: "legacy-local-package-store",
+  routeStatus: "still-used-inside-project-detail-workflow",
+  formalVendorAssignmentsRouteStatus: "not-used-by-formal-vendor-assignments-route",
+} as const;
 
 type PackageMap = Record<string, VendorPackage>;
 
@@ -49,7 +57,20 @@ function buildPackageMap(packages: VendorPackage[]): PackageMap {
   return Object.fromEntries(packages.map((pkg) => [pkg.id, pkg]));
 }
 
-export function ProjectVendorSection({
+export function ProjectVendorSection(props: {
+  projectId: string;
+  projectInfo: ProjectVendorInfo;
+  visible?: boolean;
+  vendorTaskItems?: VendorAssignmentItem[];
+}) {
+  return (
+    <VendorStoreProvider>
+      <ProjectVendorSectionInner {...props} />
+    </VendorStoreProvider>
+  );
+}
+
+function ProjectVendorSectionInner({
   projectId,
   projectInfo,
   visible = true,

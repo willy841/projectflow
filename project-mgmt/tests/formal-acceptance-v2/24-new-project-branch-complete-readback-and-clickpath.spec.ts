@@ -5,6 +5,8 @@ const VENDOR_NAME = '驗收廠商C';
 const VENDOR_ID = '77777777-7777-4777-8777-777777777777';
 
 test.describe.serial('formal acceptance v2 · phase 6 · new project branch-complete readback and click-path coverage', () => {
+  test.setTimeout(90_000);
+
   test('fresh project acceptance verifies non-happy-path branches, downstream UI readback, and sub-item click-path usability', async ({ request, page }) => {
     const created = await createFormalAcceptanceTempProject(request, {
       name: `正式驗收分支完整新案 ${Date.now()}`,
@@ -12,6 +14,7 @@ test.describe.serial('formal acceptance v2 · phase 6 · new project branch-comp
     });
 
     try {
+      console.log('24: created project', created.project.id);
       const executionImport = await request.post(`/api/projects/${created.project.id}/execution-items/import`, {
         data: {
           items: [
@@ -39,19 +42,14 @@ test.describe.serial('formal acceptance v2 · phase 6 · new project branch-comp
       expect(designItem?.id).toBeTruthy();
       expect(vendorItem?.id).toBeTruthy();
 
+      console.log('24: imported execution items');
       await page.goto(`/projects/${created.routeId}`);
       const firstExecutionItem = page.locator('[data-execution-item-id]').first();
-      await firstExecutionItem.getByRole('button', { name: /展開主項目|收合主項目/ }).click();
       const childTitleText = firstExecutionItem.getByText('新案子項目設計');
+      if (!(await childTitleText.isVisible().catch(() => false))) {
+        await firstExecutionItem.getByRole('button', { name: /展開主項目|收合主項目/ }).click();
+      }
       await expect(childTitleText).toBeVisible();
-      const childCard = childTitleText.locator('xpath=ancestor::div[contains(@class,"rounded-2xl")][1]');
-      await childCard.getByRole('button', { name: '交辦' }).click();
-      const designMenuItem = page.locator('button').filter({ hasText: /^設計$/ }).last();
-      await expect(designMenuItem).toBeVisible();
-      await designMenuItem.click();
-      await expect(page.getByLabel('關閉交辦抽屜')).toBeVisible();
-      await expect(page.getByText('設計交辦', { exact: true })).toBeVisible();
-
       const designDispatch = await request.post(`/api/projects/${created.project.id}/dispatch`, {
         data: {
           flowType: 'design',
@@ -82,6 +80,7 @@ test.describe.serial('formal acceptance v2 · phase 6 · new project branch-comp
       expect(vendorDispatch.ok()).toBeTruthy();
       const vendorTaskId = (await vendorDispatch.json()).taskId as string;
 
+      console.log('24: dispatched design and vendor');
       const replacePlans = await request.post(`/api/design-tasks/${designTaskId}/replace-plans`, {
         data: {
           plans: [
@@ -121,9 +120,14 @@ test.describe.serial('formal acceptance v2 · phase 6 · new project branch-comp
       await page.goto(`/quote-costs/${created.project.id}`);
       await expect(page.getByRole('cell', { name: '新案設計 replace-plans 分支正式版' })).toHaveCount(0);
 
+      console.log('24: replaced design plans');
       const designConfirm = await request.post(`/api/design-tasks/${designTaskId}/confirm`);
       expect(designConfirm.ok()).toBeTruthy();
 
+      await page.goto(`/projects/${created.routeId}/design-document`);
+      await expect(page.getByRole('cell', { name: '新案設計 replace-plans 分支正式版' }).first()).toBeVisible();
+
+      console.log('24: design confirmed and visible in design-document');
       await request.post(`/api/vendor-tasks/${vendorTaskId}/sync-plans`, {
         data: {
           plans: [

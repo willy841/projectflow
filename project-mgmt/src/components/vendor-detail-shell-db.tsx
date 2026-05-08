@@ -51,7 +51,7 @@ export function VendorDetailShellDb({ vendor, initialOpenRecords, tradeOptions =
   const unpaidRecords = useMemo(
     () =>
       [...openRecords]
-        .filter((record) => record.paymentStatus !== '已付款')
+        .filter((record) => (record.unpaidAmount ?? record.adjustedCost) > 0)
         .sort((a, b) => {
           if (a.hasUnreconciledGroups !== b.hasUnreconciledGroups) {
             return a.hasUnreconciledGroups ? -1 : 1;
@@ -95,7 +95,8 @@ export function VendorDetailShellDb({ vendor, initialOpenRecords, tradeOptions =
     const keyword = historyKeyword.trim().toLowerCase();
     const sourceRecords = historyTab === 'open' ? openRecords : (historyRecords ?? []);
     const next = sourceRecords.filter((record) => {
-      const matchesTab = historyTab === 'open' ? record.paymentStatus !== '已付款' : record.paymentStatus === '已付款';
+      const unpaidAmount = record.unpaidAmount ?? record.adjustedCost;
+      const matchesTab = historyTab === 'open' ? unpaidAmount > 0 : unpaidAmount <= 0;
       if (!matchesTab) return false;
       if (!keyword) return true;
       return [record.projectName, record.reconciliationSummary, ...record.sourceItemDetails].join(' ').toLowerCase().includes(keyword);
@@ -155,6 +156,21 @@ export function VendorDetailShellDb({ vendor, initialOpenRecords, tradeOptions =
   function updateRecordCollection(record: VendorProjectRecord) {
     setOpenRecords((current) => current.map((item) => (item.id === record.id ? record : item)));
     setHistoryRecords((current) => (current ? current.map((item) => (item.id === record.id ? record : item)) : current));
+  }
+
+  async function refreshVendorRecords(scope: 'open' | 'history') {
+    const response = await fetch(`/api/vendors/${vendor.id}/records?scope=${scope}&includeDetails=false`);
+    const result = await response.json();
+    if (!response.ok || !result?.ok || !Array.isArray(result?.records)) {
+      throw new Error(result?.error ?? '載入廠商紀錄失敗');
+    }
+    const records = result.records as VendorProjectRecord[];
+    if (scope === 'open') {
+      setOpenRecords(records);
+    } else {
+      setHistoryRecords(records);
+    }
+    return records;
   }
 
   async function ensureRecordDetails(record: VendorProjectRecord) {
@@ -258,7 +274,11 @@ export function VendorDetailShellDb({ vendor, initialOpenRecords, tradeOptions =
         note: paymentForm.note,
       });
       void createdPayment;
-      window.location.reload();
+      await Promise.all([
+        refreshVendorRecords('open'),
+        detailSectionTab === 'history' || historyRecords !== null ? refreshVendorRecords('history') : Promise.resolve([]),
+      ]);
+      setPaymentForm(null);
     } catch (error) {
       window.alert(error instanceof Error ? error.message : '新增付款失敗');
     }
@@ -285,9 +305,12 @@ export function VendorDetailShellDb({ vendor, initialOpenRecords, tradeOptions =
         });
         createdPayments.push(createdPayment);
       }
+      await Promise.all([
+        refreshVendorRecords('open'),
+        detailSectionTab === 'history' || historyRecords !== null ? refreshVendorRecords('history') : Promise.resolve([]),
+      ]);
       setSelectedRecordIds([]);
       setBatchPaymentMessage(`已完成 ${createdPayments.length} 筆已付款標記。`);
-      window.location.reload();
     } catch (error) {
       setBatchPaymentMessage(error instanceof Error ? error.message : '批次標記已付款失敗');
     } finally {

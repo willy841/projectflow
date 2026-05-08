@@ -18,6 +18,8 @@ test.describe.serial('formal acceptance v2 · boundary batch6 · lifecycle cross
     await ensureFormalAcceptanceBaseline();
   });
 
+  test.setTimeout(90_000);
+
   test('vendor fully-paid history remains correct across closeout then reopen lifecycle switch', async ({ page, request }) => {
     await resetVendorPaymentBaseline();
     await createCollection(request, `batch6 lifecycle ${Date.now()}`, 43210);

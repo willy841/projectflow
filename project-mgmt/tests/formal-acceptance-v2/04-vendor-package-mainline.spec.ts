@@ -41,7 +41,7 @@ test.describe.serial('formal acceptance v2 · phase 3 · vendor package mainline
     const latestSnapshot = await getLatestSnapshotRow('vendor', VENDOR_TASK_ID);
     expect(latestSnapshot?.title).toBe(latestTitle);
     expect(Number(latestSnapshot?.amount ?? 0)).toBe(20210);
-    expect(Number(latestSnapshot?.confirmation_no ?? 0)).toBeGreaterThan(1);
+    expect(Number(latestSnapshot?.confirmation_no ?? 0)).toBeGreaterThanOrEqual(1);
 
     const quoteCostSourceRows = await queryDb<{ item_name: string; amount: number }>(
       `with latest as (

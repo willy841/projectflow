@@ -110,8 +110,9 @@ test.describe.serial('formal acceptance v2 · boundary batch3 regressions', () =
     const reopenedRows = await queryDb<{ status: string }>(`select status from projects where id = $1`, [PROJECT_ID]);
     expect(reopenedRows[0]?.status).toBe('執行中');
 
-    await page.goto('/projects');
+    await page.goto(`/projects/${PROJECT_ID}`);
     await expect(page.getByText(PROJECT_NAME).first()).toBeVisible();
+    await expect(page.locator('[data-execution-item-id]').first()).toBeVisible();
 
     const homeAggregateRows = await queryDb<{ activeCount: number; closedCount: number }>(`
       select

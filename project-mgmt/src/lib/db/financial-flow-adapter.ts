@@ -4,6 +4,11 @@ import {
   type QuoteCostProject,
 } from '@/components/quote-cost-data';
 import { createPhase1DbClient } from '@/lib/db/phase1-client';
+import { listProjectCollectionRecords } from '@/lib/db/collection-read-model';
+import type { ActiveProjectFinancialSummaryTotals } from '@/lib/db/financial-summary-types';
+import type { QuoteCostDetailInitialPayload } from '@/lib/db/quote-cost-detail-payload-types';
+import { buildProjectFinancialSummary } from '@/lib/db/project-financial-summary-read-model';
+import { buildVendorPaymentSummaryRows } from '@/lib/db/vendor-payment-summary-read-model';
 import { shouldUseDbDesignFlow } from '@/lib/db/design-flow-toggle';
 import { shouldUseDbProcurementFlow } from '@/lib/db/procurement-flow-toggle';
 import { loadQuotationReadModelIndex, type QuotationReadModel } from '@/lib/db/quotation-read-model';
@@ -627,4 +632,90 @@ export async function getQuoteCostProjectsWithDbFinancialsAndGroups(): Promise<Q
 export async function getQuoteCostProjectByIdWithDbFinancials(projectId: string): Promise<QuoteCostProjectWithGroups | null> {
   const projects = await getQuoteCostProjectsWithDbFinancialsAndGroups();
   return projects.find((project) => project.id === projectId) ?? null;
+}
+
+async function getQuoteCostProjectByIdWithDbFinancialsDirect(projectId: string): Promise<QuoteCostProjectWithGroups | null> {
+  if (!hasDbConnectionString()) return null;
+
+  const dbProjects = await listDbFinancialProjects();
+  const dbProject = dbProjects.find((project) => project.id === projectId);
+  if (!dbProject) return null;
+
+  const [designItems, procurementItems, vendorItems, manualItems, quotationReadModelIndex, reconciliationStatusIndex] = await Promise.all([
+    loadFinancialItemsSafely('design', listDesignFinancialItems, [] as CostLineItem[]),
+    loadFinancialItemsSafely('procurement', listProcurementFinancialItems, [] as CostLineItem[]),
+    loadFinancialItemsSafely('vendor', listVendorFinancialItems, [] as CostLineItem[]),
+    loadFinancialItemsSafely('manual', listManualFinancialItems, [] as Array<{ projectId: string; item: CostLineItem }>),
+    loadQuotationReadModelIndex([projectId]),
+    loadFinancialItemsSafely('reconciliation', () => loadProjectReconciliationStatusIndex([projectId]), new Map<string, QuoteCostProject['reconciliationStatus']>()),
+  ]);
+
+  const snapshotToProject = new Map<string, string>();
+  const allDbItems = [...designItems, ...procurementItems, ...vendorItems];
+  allDbItems.forEach((item) => {
+    const snapshotId = item.id.replace(/^db-(design|procurement|vendor)-/, '');
+    snapshotToProject.set(snapshotId, projectId);
+  });
+
+  const dbItems = allDbItems.filter((item) => {
+    const snapshotId = item.id.replace(/^db-(design|procurement|vendor)-/, '');
+    return snapshotToProject.get(snapshotId) === projectId;
+  });
+
+  const manualProjectItems = manualItems.filter((entry) => entry.projectId === projectId).map((entry) => entry.item);
+  const quotationReadModel = quotationReadModelIndex.get(projectId) ?? {
+    quotationImported: false,
+    quotationImport: null,
+    quotationItems: [],
+    status: 'missing-schema-empty' as const,
+  };
+
+  const merged = buildMergedFinancialProject({
+    dbProject,
+    quotationReadModel,
+    dbItems: [...dbItems, ...manualProjectItems],
+    reconciliationStatus: reconciliationStatusIndex.get(projectId) ?? '未開始',
+  });
+
+  return attachReconciliationGroups(merged);
+}
+
+export type QuoteCostDetailCollectionRecord = {
+  id: string;
+  collectedOn: string;
+  amount: number;
+  note: string;
+};
+
+export type QuoteCostDetailVendorPaymentRecord = import('@/lib/db/vendor-payment-summary-read-model').VendorPaymentSummaryRow;
+
+export type QuoteCostDetailReadModel = {
+  project: QuoteCostProjectWithGroups;
+  initialPayload: QuoteCostDetailInitialPayload;
+};
+
+export async function getQuoteCostDetailReadModel(projectId: string): Promise<QuoteCostDetailReadModel | null> {
+  const project = await getQuoteCostProjectByIdWithDbFinancialsDirect(projectId);
+  if (!project) return null;
+
+  const collectionRecords = await listProjectCollectionRecords(projectId);
+  const { quotationTotal, projectCostTotal, grossProfit } = buildProjectFinancialSummary(project);
+  const collectedTotal = collectionRecords.reduce((sum, record) => sum + record.amount, 0);
+  const outstandingTotal = Math.max(quotationTotal - collectedTotal, 0);
+
+  return {
+    project,
+    initialPayload: {
+      ...project,
+      collectionRecords,
+      vendorPaymentRecords: buildVendorPaymentSummaryRows(project.reconciliationGroups),
+      summaryTotals: {
+        quotationTotal,
+        collectedTotal,
+        outstandingTotal,
+        projectCostTotal,
+        grossProfit,
+      },
+    },
+  };
 }

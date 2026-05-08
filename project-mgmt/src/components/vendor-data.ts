@@ -29,8 +29,11 @@ export type VendorAssignment = {
 export type VendorPackageItem = {
   id: string;
   assignmentId: string;
+  sourceExecutionItemId?: string | null;
   itemName: string;
   requirementText: string;
+  amountLabel?: string | null;
+  amountValue?: number | null;
 };
 
 export type VendorPackage = {

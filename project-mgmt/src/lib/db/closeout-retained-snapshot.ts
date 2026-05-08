@@ -1,6 +1,7 @@
 import type { CostLineItem, QuoteImportRecord } from '@/components/quote-cost-data';
 import type { QuoteCostProjectWithGroups } from '@/lib/db/financial-flow-adapter';
 import { createPhase1DbClient } from '@/lib/db/phase1-client';
+import { buildProjectFinancialSummary } from '@/lib/db/project-financial-summary-read-model';
 
 export type CloseoutRetainedSnapshot = {
   projectId: string;
@@ -57,13 +58,7 @@ export async function ensureCloseoutSnapshotTable() {
 export async function saveCloseoutRetainedSnapshot(project: QuoteCostProjectWithGroups) {
   await ensureCloseoutSnapshotTable();
   const db = createPhase1DbClient();
-  const quotationTotal = typeof project.quotationImport?.totalAmount === 'number'
-    ? project.quotationImport.totalAmount
-    : project.quotationItems.reduce((sum, item) => sum + item.amount, 0);
-  const projectCostTotal = project.costItems
-    .filter((item) => item.includedInCost)
-    .reduce((sum, item) => sum + (item.isManual ? item.adjustedAmount : item.originalAmount), 0);
-  const grossProfit = quotationTotal - projectCostTotal;
+  const { quotationTotal, projectCostTotal, grossProfit } = buildProjectFinancialSummary(project);
 
   await db.query(
     `

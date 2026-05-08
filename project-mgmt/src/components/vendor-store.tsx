@@ -5,6 +5,12 @@ import { vendorProfiles, type VendorBasicProfile } from "@/components/vendor-dat
 
 const STORAGE_KEY = "projectflow-vendors";
 
+export const vendorStoreLegacyBoundary = {
+  mode: "legacy-local-vendor-universe",
+  providerScope: "project-section-or-legacy-shell-only",
+  routeStatus: "not-used-by-formal-vendors-routes",
+} as const;
+
 export const DEFAULT_TRADE_OPTIONS = ["輸出", "木作", "施工", "平面輸出", "大圖輸出", "活動佈置", "燈光", "音響", "視覺製作", "道具", "金工", "壓克力", "招牌"];
 const TRADE_OPTIONS_STORAGE_KEY = "projectflow-vendor-trade-options";
 

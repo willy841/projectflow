@@ -2,11 +2,11 @@ import { expect, test } from '@playwright/test';
 import {
   PROCUREMENT_TASK_ID,
   PROJECT_ID,
+  VENDOR_NAME,
   countConfirmations,
   confirmProcurementPlans,
   ensureFormalAcceptanceBaseline,
   expectProjectDocumentRows,
-  getLatestSnapshotRow,
   queryDb,
   syncSingleProcurementPlan,
 } from './helpers';
@@ -35,10 +35,38 @@ test.describe.serial('formal acceptance v2 · phase 2 · procurement project doc
     await syncSingleProcurementPlan(request, latestTitle);
     await confirmProcurementPlans(request);
 
-    const latestSnapshot = await getLatestSnapshotRow('procurement', PROCUREMENT_TASK_ID);
-    expect(latestSnapshot?.title).toBe(latestTitle);
-    expect(latestSnapshot?.vendor_name_text).toBe('驗收廠商C');
-    expect(Number(latestSnapshot?.confirmation_no ?? 0)).toBeGreaterThan(1);
+    const latestSnapshotRows = await queryDb<{
+      confirmation_no: number;
+      title: string | null;
+      vendor_name_text: string | null;
+      amount: string | null;
+    }>(
+      `with latest as (
+         select id, confirmation_no
+         from task_confirmations
+         where flow_type = 'procurement' and task_id = $1
+         order by confirmation_no desc, confirmed_at desc, created_at desc, id desc
+         limit 1
+       )
+       select latest.confirmation_no,
+              ts.payload_json->>'title' as title,
+              ts.payload_json->>'vendor_name_text' as vendor_name_text,
+              ts.payload_json->>'amount' as amount
+       from latest
+       inner join task_confirmation_plan_snapshots ts on ts.task_confirmation_id = latest.id
+       order by ts.sort_order asc`,
+      [PROCUREMENT_TASK_ID],
+    );
+    expect(latestSnapshotRows).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          title: latestTitle,
+          vendor_name_text: VENDOR_NAME,
+        }),
+      ]),
+    );
+    expect(Number(latestSnapshotRows[0]?.confirmation_no ?? 0)).toBeGreaterThan(1);
+    expect(latestSnapshotRows.some((row) => Number(row.amount ?? 0) === 11000)).toBeTruthy();
 
     const documentRows = await expectProjectDocumentRows('procurement', latestTitle);
     expect(documentRows.some((row) => row.task_title === '展示架五金與配件採購')).toBeTruthy();

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createPhase1DbClient } from '@/lib/db/phase1-client';
+import { getProjectCollectedTotal } from '@/lib/db/collection-aggregate-read-model';
 
 export async function POST(request: Request, context: { params: Promise<{ id: string }> }) {
   try {
@@ -21,12 +22,7 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     `, [id]);
     const receivableTotal = quotationRow.rows[0]?.total ?? 0;
 
-    const collectedRow = await db.query<{ total: number | null }>(`
-      select coalesce(sum(amount), 0)::float8 as total
-      from project_collection_records
-      where project_id = $1
-    `, [id]);
-    const collectedTotal = collectedRow.rows[0]?.total ?? 0;
+    const collectedTotal = await getProjectCollectedTotal(id);
 
     if (receivableTotal > 0 && collectedTotal + amount > receivableTotal) {
       return NextResponse.json(

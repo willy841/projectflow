@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AppShell } from "@/components/app-shell";
 import {
@@ -15,7 +15,12 @@ import {
   type CostLineItem,
   type CostSourceType,
 } from "@/components/quote-cost-data";
+import type { DbVendorPackageShape } from "@/components/workflow-vendor-package-bridge";
+import { getQuoteCostProjectCostItemsFromPreloadedSources } from "@/components/workflow-cost-bridge";
+import type { ProjectFlowFormalReadbackRow } from "@/components/workflow-derived-board";
 import { getQuoteCostDetailPresenter, type QuoteCostDetailPresenter } from "@/components/quote-cost-detail-presenter";
+import type { ActiveProjectFinancialSummaryTotals } from '@/lib/db/financial-summary-types';
+import type { QuoteCostDetailInitialPayload } from '@/lib/db/quote-cost-detail-payload-types';
 import {
   QuoteOverviewSection,
   VendorPaymentSummarySection,
@@ -52,19 +57,51 @@ type Props = {
   project: QuoteCostProject;
   mode?: DetailMode;
   presenter?: QuoteCostDetailPresenter;
-  initialProject?: QuoteCostProject & { reconciliationGroups?: ReconciliationGroupView[]; collectionRecords?: CollectionRecordView[]; vendorPaymentRecords?: VendorPaymentView[] };
+  preloadedDbPackages?: DbVendorPackageShape[];
+  preloadedFormalRows?: ProjectFlowFormalReadbackRow[];
+  initialProject?: Partial<QuoteCostDetailInitialPayload> & QuoteCostProject & {
+    reconciliationGroups?: ReconciliationGroupView[];
+    collectionRecords?: CollectionRecordView[];
+    vendorPaymentRecords?: VendorPaymentView[];
+    summaryTotals?: ActiveProjectFinancialSummaryTotals;
+  };
 };
 
 type EditableProjectState = QuoteCostProject;
 
-export function QuoteCostDetailClient({ project, mode = "active", presenter = getQuoteCostDetailPresenter(mode), initialProject }: Props) {
+export const quoteCostDetailClientBoundary = {
+  mode: "db-detail-client-with-vendor-package-preload-boundary",
+  vendorPackagePreloadStatus: "supplied-and-consumed-in-detail-client",
+  vendorPackageRuntimeStatus: "fallback-project-overlay-applied-to-resolved-project-cost-items-when-preloaded-packages-exist",
+} as const;
+
+export function QuoteCostDetailClient({ project, mode = "active", presenter = getQuoteCostDetailPresenter(mode), initialProject, preloadedDbPackages, preloadedFormalRows }: Props) {
   const router = useRouter();
-  const resolvedProject = initialProject ?? project;
+  const seedResolvedProject = useMemo(() => ({
+    ...(initialProject ?? project),
+    costItems: initialProject?.costItems ?? project.costItems,
+  }), [initialProject, project]);
   const [reconciliationGroups, setReconciliationGroups] = useState<ReconciliationGroupView[]>(initialProject?.reconciliationGroups ?? []);
   const [state, setState] = useState<EditableProjectState>(() => ({
-    ...resolvedProject,
+    ...seedResolvedProject,
     reconciliationStatus: normalizeGroupStatus(initialProject?.reconciliationGroups ?? []),
   }));
+  useEffect(() => {
+    const nextCostItems = getQuoteCostProjectCostItemsFromPreloadedSources({
+      projectId: project.id,
+      seedCostItems: initialProject?.costItems ?? project.costItems,
+      preloadedDbPackages,
+      preloadedFormalRows,
+    });
+
+    setState((prev) => ({
+      ...prev,
+      ...seedResolvedProject,
+      costItems: nextCostItems,
+      reconciliationStatus: normalizeGroupStatus(reconciliationGroups),
+    }));
+  }, [initialProject, preloadedDbPackages, preloadedFormalRows, project, project.id, reconciliationGroups, seedResolvedProject]);
+
   const derivedReconciliationStatus = useMemo(
     () => normalizeGroupStatus(reconciliationGroups),
     [reconciliationGroups],
@@ -85,13 +122,45 @@ export function QuoteCostDetailClient({ project, mode = "active", presenter = ge
   const quoteImportRecord = state.quotationImport;
   const isClosedView = presenter.archived;
 
-  const quotationTotal = useMemo(() => getQuotationTotal(state.quotationItems, state.quotationImport), [state.quotationItems, state.quotationImport]);
-  const collectedTotal = useMemo(() => collectionRecords.reduce((sum, record) => sum + record.amount, 0), [collectionRecords]);
-  const outstandingTotal = useMemo(() => Math.max(quotationTotal - collectedTotal, 0), [quotationTotal, collectedTotal]);
+  const quotationTotal = useMemo(() => {
+    if (initialProject?.summaryTotals && state.quotationItems === seedResolvedProject.quotationItems && state.quotationImport === seedResolvedProject.quotationImport) {
+      return initialProject.summaryTotals.quotationTotal;
+    }
+    return getQuotationTotal(state.quotationItems, state.quotationImport);
+  }, [initialProject?.summaryTotals, seedResolvedProject.quotationImport, seedResolvedProject.quotationItems, state.quotationImport, state.quotationItems]);
+  const collectedTotal = useMemo(() => {
+    if (initialProject?.summaryTotals && collectionRecords === (initialProject.collectionRecords ?? [])) {
+      return initialProject.summaryTotals.collectedTotal;
+    }
+    return collectionRecords.reduce((sum, record) => sum + record.amount, 0);
+  }, [collectionRecords, initialProject?.collectionRecords, initialProject?.summaryTotals]);
+  const outstandingTotal = useMemo(() => {
+    if (initialProject?.summaryTotals
+      && collectionRecords === (initialProject.collectionRecords ?? [])
+      && state.quotationItems === seedResolvedProject.quotationItems
+      && state.quotationImport === seedResolvedProject.quotationImport) {
+      return initialProject.summaryTotals.outstandingTotal;
+    }
+    return Math.max(quotationTotal - collectedTotal, 0);
+  }, [collectionRecords, collectedTotal, initialProject?.collectionRecords, initialProject?.summaryTotals, quotationTotal, seedResolvedProject.quotationImport, seedResolvedProject.quotationItems, state.quotationImport, state.quotationItems]);
   const originalCostTotal = useMemo(() => getFormalOriginalCostTotal(state.costItems), [state.costItems]);
   const additionalManualCostTotal = useMemo(() => getAdditionalManualCostTotal(state.costItems), [state.costItems]);
-  const projectCostTotal = useMemo(() => originalCostTotal + additionalManualCostTotal, [originalCostTotal, additionalManualCostTotal]);
-  const grossProfit = useMemo(() => getGrossProfit(quotationTotal, projectCostTotal), [quotationTotal, projectCostTotal]);
+  const projectCostTotal = useMemo(() => {
+    if (initialProject?.summaryTotals && state.costItems === seedResolvedProject.costItems) {
+      return initialProject.summaryTotals.projectCostTotal;
+    }
+    return originalCostTotal + additionalManualCostTotal;
+  }, [additionalManualCostTotal, initialProject?.summaryTotals, originalCostTotal, seedResolvedProject.costItems, state.costItems]);
+  const grossProfit = useMemo(() => {
+    if (initialProject?.summaryTotals
+      && state.costItems === seedResolvedProject.costItems
+      && state.quotationItems === seedResolvedProject.quotationItems
+      && state.quotationImport === seedResolvedProject.quotationImport
+      && collectionRecords === (initialProject.collectionRecords ?? [])) {
+      return initialProject.summaryTotals.grossProfit;
+    }
+    return getGrossProfit(quotationTotal, projectCostTotal);
+  }, [collectionRecords, initialProject?.collectionRecords, initialProject?.summaryTotals, projectCostTotal, quotationTotal, seedResolvedProject.costItems, seedResolvedProject.quotationImport, seedResolvedProject.quotationItems, state.costItems, state.quotationImport, state.quotationItems]);
   const costSourceSummary = useMemo(() => getCostSourceSummary(state.costItems, state.id), [state.costItems, state.id]);
   const manualItems = useMemo(() => state.costItems.filter((item) => item.isManual), [state.costItems]);
   const visibleReconciliationGroups = useMemo(

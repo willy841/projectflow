@@ -1,8 +1,10 @@
 import { getCloseoutArchiveProjectById } from '@/lib/db/closeout-archive-source';
-import { createPhase1DbClient } from '@/lib/db/phase1-client';
 import type { CostLineItem } from '@/components/quote-cost-data';
 import type { QuoteCostProjectWithGroups } from '@/lib/db/financial-flow-adapter';
 import { getCloseoutRetainedSnapshot } from '@/lib/db/closeout-retained-snapshot';
+import { listProjectCollectionRecords } from '@/lib/db/collection-read-model';
+import type { ProjectFinancialSummaryTotals } from '@/lib/db/financial-summary-types';
+import { buildVendorPaymentSummaryRows, type VendorPaymentSummaryRow } from '@/lib/db/vendor-payment-summary-read-model';
 
 export type CloseoutArchiveCollectionRecord = {
   id: string;
@@ -11,62 +13,23 @@ export type CloseoutArchiveCollectionRecord = {
   note: string;
 };
 
-export type CloseoutArchiveVendorPaymentRecord = {
-  vendorName: string;
-  reconciledCount: number;
-  unreconciledCount: number;
-  payableAmount: number;
-};
-
-type RetainedReconciliationGroup = QuoteCostProjectWithGroups['reconciliationGroups'][number];
+export type CloseoutArchiveVendorPaymentRecord = VendorPaymentSummaryRow;
 
 
 export type CloseoutArchiveDetailReadModel = {
   archiveProject: QuoteCostProjectWithGroups;
   archiveCollections: CloseoutArchiveCollectionRecord[];
   archiveVendorPayments: CloseoutArchiveVendorPaymentRecord[];
-  summaryTotals: {
-    quotationTotal: number;
-    projectCostTotal: number;
-    grossProfit: number;
-  };
+  summaryTotals: ProjectFinancialSummaryTotals;
 };
 
-
-function buildArchiveVendorPaymentRows(reconciliationGroups: RetainedReconciliationGroup[]): CloseoutArchiveVendorPaymentRecord[] {
-  const vendorGroupMap = new Map<string, { reconciledCount: number; unreconciledCount: number; payableAmount: number }>();
-
-  for (const group of reconciliationGroups) {
-    const current = vendorGroupMap.get(group.vendorName) ?? { reconciledCount: 0, unreconciledCount: 0, payableAmount: 0 };
-    if (group.reconciliationStatus === '已對帳') {
-      current.reconciledCount += 1;
-      current.payableAmount += group.amountTotal;
-    } else {
-      current.unreconciledCount += 1;
-    }
-    vendorGroupMap.set(group.vendorName, current);
-  }
-
-  return Array.from(vendorGroupMap.entries()).map(([vendorName, summary]) => ({
-    vendorName,
-    reconciledCount: summary.reconciledCount,
-    unreconciledCount: summary.unreconciledCount,
-    payableAmount: summary.payableAmount,
-  }));
-}
 
 export async function getCloseoutArchiveDetailReadModel(projectId: string): Promise<CloseoutArchiveDetailReadModel | null> {
   const archiveProject = await getCloseoutArchiveProjectById(projectId);
   if (!archiveProject) return null;
 
   const retainedSnapshot = await getCloseoutRetainedSnapshot(projectId);
-  const db = createPhase1DbClient();
-  const collectionRows = await db.query<CloseoutArchiveCollectionRecord>(`
-      select id, to_char(collected_on, 'YYYY-MM-DD') as "collectedOn", amount::float8 as amount, coalesce(note, '') as note
-      from project_collection_records
-      where project_id = $1
-      order by collected_on desc, created_at desc
-    `, [projectId]);
+  const collectionRows = await listProjectCollectionRecords(projectId);
 
   if (!retainedSnapshot) {
     return {
@@ -78,7 +41,7 @@ export async function getCloseoutArchiveDetailReadModel(projectId: string): Prom
         reconciliationGroups: [],
         reconciliationStatus: '未開始',
       },
-      archiveCollections: collectionRows.rows,
+      archiveCollections: collectionRows,
       archiveVendorPayments: [],
       summaryTotals: {
         quotationTotal: 0,
@@ -107,8 +70,8 @@ export async function getCloseoutArchiveDetailReadModel(projectId: string): Prom
       reconciliationGroups: retainedReconciliationGroups,
       reconciliationStatus: retainedReconciliationGroups.length > 0 ? '已完成' : '未開始',
     },
-    archiveCollections: collectionRows.rows,
-    archiveVendorPayments: buildArchiveVendorPaymentRows(retainedReconciliationGroups),
+    archiveCollections: collectionRows,
+    archiveVendorPayments: buildVendorPaymentSummaryRows(retainedReconciliationGroups),
     summaryTotals,
   };
 }

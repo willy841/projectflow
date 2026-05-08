@@ -5,7 +5,7 @@ import * as XLSX from "xlsx";
 import {
   getExecutionTreeStorageKey,
   readStoredExecutionTreeState,
-} from "@/components/project-workflow-store";
+} from "@/components/workflow-local-storage";
 import {
   parseExecutionItemsFromExcelRows,
   type ParsedExcelImportPreview,
@@ -16,6 +16,12 @@ import {
 } from "@/components/project-data";
 import type { VendorBasicProfile } from "@/components/vendor-data";
 import { WorkspaceStatusNotice } from "@/components/workspace-ui";
+
+export const executionTreeBoundary = {
+  mode: "formal-project-detail-interactive-shell",
+  persistenceSource: "workflow-local-storage",
+  routeScope: "project-detail-main-ui",
+} as const;
 
 export type AssignmentReply = {
   id: string;

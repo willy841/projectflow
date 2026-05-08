@@ -9,6 +9,7 @@ type PackageSnapshotSeed = {
   confirmationId: string;
   confirmedAt: string;
   vendorTaskId: string;
+  sourceExecutionItemId: string | null;
   vendorTaskCreatedAt: string;
   vendorId: string;
   vendorName: string;
@@ -67,14 +68,15 @@ function getLatestConfirmation(confirmations: TaskConfirmationRow[]) {
   })[0] ?? null;
 }
 
-async function listLatestVendorConfirmationSeeds() {
+async function listLatestVendorConfirmationSeeds(projectIds?: string[]) {
   const repositories = createPhase1Repositories(createPhase1DbClient());
   const [projects, vendors] = await Promise.all([repositories.projects.list(), repositories.vendors.list()]);
-  const projectMap = new Map(projects.map((project) => [project.id, project]));
+  const scopedProjectIds = projectIds?.length ? new Set(projectIds) : null;
+  const scopedProjects = scopedProjectIds ? projects.filter((project) => scopedProjectIds.has(project.id)) : projects;
   const vendorMap = new Map(vendors.map((vendor) => [vendor.id, vendor]));
   const rows: PackageSnapshotSeed[] = [];
 
-  for (const project of projects) {
+  for (const project of scopedProjects) {
     const tasks = await repositories.vendorTasks.listByProject(project.id);
 
     for (const task of tasks) {
@@ -89,6 +91,7 @@ async function listLatestVendorConfirmationSeeds() {
         confirmationId: latestConfirmation.id,
         confirmedAt: formatDateTime(latestConfirmation.confirmed_at),
         vendorTaskId: task.id,
+        sourceExecutionItemId: task.source_execution_item_id ?? null,
         vendorTaskCreatedAt: formatDateTime(task.created_at),
         vendorId: vendor.id,
         vendorName: vendor.name,
@@ -110,8 +113,8 @@ async function listLatestVendorConfirmationSeeds() {
   });
 }
 
-async function buildVendorPackageGroups(): Promise<VendorPackageGroupSeed[]> {
-  const confirmationRows = await listLatestVendorConfirmationSeeds();
+async function buildVendorPackageGroups(projectIds?: string[]): Promise<VendorPackageGroupSeed[]> {
+  const confirmationRows = await listLatestVendorConfirmationSeeds(projectIds);
   const groups = new Map<string, VendorPackageGroupSeed>();
 
   for (const row of confirmationRows) {
@@ -178,8 +181,11 @@ export async function listDbVendorPackages(): Promise<VendorPackage[]> {
           return {
             id: snapshot.id,
             assignmentId: row.vendorTaskId,
+            sourceExecutionItemId: row.sourceExecutionItemId,
             itemName: line.itemName,
             requirementText: line.requirementText,
+            amountLabel: line.amountLabel,
+            amountValue: line.amountValue,
           };
         }),
       );
@@ -196,8 +202,10 @@ export async function listDbVendorPackages(): Promise<VendorPackage[]> {
         vendor_task_id: string | null;
         item_name: string | null;
         requirement_text: string | null;
+        amount_label: string | null;
+        amount_value: number | null;
       }>(
-        `select id, vendor_task_id, item_name, requirement_text
+        `select id, vendor_task_id, item_name, requirement_text, amount_label, amount_value
          from public.vendor_package_document_items
          where document_id = $1
          order by sort_order asc, created_at asc`,
@@ -211,6 +219,9 @@ export async function listDbVendorPackages(): Promise<VendorPackage[]> {
             assignmentId: row.vendor_task_id ?? '',
             itemName: row.item_name ?? '',
             requirementText: row.requirement_text ?? '',
+            amountLabel: row.amount_label ?? null,
+            amountValue: row.amount_value ?? null,
+            sourceExecutionItemId: null,
           }))
         : items;
 
@@ -233,6 +244,183 @@ export async function listDbVendorPackages(): Promise<VendorPackage[]> {
 
   console.log('[vendor-packages]', JSON.stringify({ groupCount: groups.length, packageCount: packages.length, groupsMs: Number(groupsMs.toFixed(1)), totalMs: Number((performance.now() - startedAt).toFixed(1)) }));
   return packages;
+}
+
+export async function listDbVendorPackagesByProject(projectId: string): Promise<VendorPackage[]> {
+  const startedAt = performance.now();
+  const db = createPhase1DbClient();
+  const repositories = createPhase1Repositories(db);
+  const groupsStartedAt = performance.now();
+  const groups = await buildVendorPackageGroups([projectId]);
+  const groupsMs = performance.now() - groupsStartedAt;
+
+  const packages = await Promise.all(
+    groups.map(async (group) => {
+      const itemGroups = await Promise.all(
+        group.rows.map(async (row) => ({
+          row,
+          snapshots: await repositories.taskConfirmations.listSnapshots(row.confirmationId),
+        })),
+      );
+
+      const sortedItemGroups = itemGroups.sort((a, b) => {
+        if (a.row.vendorTaskCreatedAt !== b.row.vendorTaskCreatedAt) {
+          return a.row.vendorTaskCreatedAt.localeCompare(b.row.vendorTaskCreatedAt);
+        }
+        if (a.row.confirmedAt !== b.row.confirmedAt) {
+          return a.row.confirmedAt.localeCompare(b.row.confirmedAt);
+        }
+        return a.row.vendorTaskId.localeCompare(b.row.vendorTaskId);
+      });
+
+      const items = sortedItemGroups.flatMap(({ row, snapshots }) =>
+        snapshots.map((snapshot, index) => {
+          const payload = snapshot.payload_json as VendorDocumentSnapshotPayload;
+          const line = mapVendorSnapshotToDocumentLine(payload, index);
+          return {
+            id: snapshot.id,
+            assignmentId: row.vendorTaskId,
+            sourceExecutionItemId: row.sourceExecutionItemId,
+            itemName: line.itemName,
+            requirementText: line.requirementText,
+            amountLabel: line.amountLabel,
+            amountValue: line.amountValue,
+          };
+        }),
+      );
+
+      const documentRows = await db.query<{
+        note: string | null;
+        document_status: string | null;
+      }>(
+        `select note, document_status from public.vendor_package_documents where id = $1 limit 1`,
+        [group.packageId],
+      ).catch(() => ({ rows: [] }));
+      const savedItemsRows = await db.query<{
+        id: string;
+        vendor_task_id: string | null;
+        item_name: string | null;
+        requirement_text: string | null;
+        amount_label: string | null;
+        amount_value: number | null;
+      }>(
+        `select id, vendor_task_id, item_name, requirement_text, amount_label, amount_value
+         from public.vendor_package_document_items
+         where document_id = $1
+         order by sort_order asc, created_at asc`,
+        [group.packageId],
+      ).catch(() => ({ rows: [] }));
+
+      const savedDocument = documentRows.rows[0];
+      const effectiveItems = savedItemsRows.rows.length
+        ? savedItemsRows.rows.map((row) => ({
+            id: row.id,
+            assignmentId: row.vendor_task_id ?? '',
+            itemName: row.item_name ?? '',
+            requirementText: row.requirement_text ?? '',
+            amountLabel: row.amount_label ?? null,
+            amountValue: row.amount_value ?? null,
+            sourceExecutionItemId: null,
+          }))
+        : items;
+
+      return {
+        id: group.packageId,
+        code: group.code,
+        projectId: group.projectId,
+        projectName: group.projectName,
+        vendorId: group.vendorId,
+        vendorName: group.vendorName,
+        eventDate: group.eventDate,
+        location: group.location,
+        loadInTime: group.loadInTime,
+        note: savedDocument?.note ?? '',
+        documentStatus: (savedDocument?.document_status as VendorPackage['documentStatus'] | undefined) ?? normalizeVendorDocumentStatus(effectiveItems.length),
+        items: effectiveItems,
+      } satisfies VendorPackage;
+    }),
+  );
+
+  console.log('[vendor-packages-by-project]', JSON.stringify({ projectId, groupCount: groups.length, packageCount: packages.length, groupsMs: Number(groupsMs.toFixed(1)), totalMs: Number((performance.now() - startedAt).toFixed(1)) }));
+  return packages;
+}
+
+export type VendorPackageSummary = {
+  id: string;
+  code: string;
+  projectId: string;
+  vendorId: string;
+  vendorName: string;
+  documentStatus: VendorPackage['documentStatus'];
+  itemCount: number;
+};
+
+export async function listDbVendorPackageSummariesByProjectIds(projectIds: string[]): Promise<VendorPackageSummary[]> {
+  if (!projectIds.length) return [];
+  const db = createPhase1DbClient();
+  const result = await db.query<{
+    packageId: string;
+    code: string;
+    projectId: string;
+    vendorId: string;
+    vendorName: string;
+    documentStatus: VendorPackage['documentStatus'] | null;
+    itemCount: number | null;
+  }>(`
+    with latest as (
+      select distinct on (vt.id)
+        vt.id as vendor_task_id,
+        vt.project_id as "projectId",
+        vt.vendor_id as "vendorId",
+        v.name as "vendorName",
+        tc.id as confirmation_id,
+        p.name as project_name,
+        p.event_date,
+        tc.confirmed_at,
+        vt.created_at
+      from vendor_tasks vt
+      join vendors v on v.id = vt.vendor_id
+      join projects p on p.id = vt.project_id
+      join task_confirmations tc on tc.task_id = vt.id and tc.flow_type = 'vendor' and tc.status = 'confirmed'
+      where vt.project_id = any($1::uuid[])
+      order by vt.id, tc.confirmation_no desc, tc.confirmed_at desc, tc.created_at desc, tc.id desc
+    ), grouped as (
+      select
+        concat('pkg-', "projectId", '-', "vendorId") as "packageId",
+        concat('PKG-', "projectId", '-', "vendorName") as code,
+        "projectId",
+        "vendorId",
+        "vendorName",
+        count(*)::int as "itemCount"
+      from latest
+      group by "projectId", "vendorId", "vendorName"
+    )
+    select
+      g."packageId",
+      g.code,
+      g."projectId",
+      g."vendorId",
+      g."vendorName",
+      vpd.document_status as "documentStatus",
+      coalesce(vpdi.item_count, g."itemCount")::int as "itemCount"
+    from grouped g
+    left join vendor_package_documents vpd on vpd.id = g."packageId"
+    left join (
+      select document_id, count(*)::int as item_count
+      from vendor_package_document_items
+      group by document_id
+    ) vpdi on vpdi.document_id = g."packageId"
+  `, [projectIds]).catch(() => ({ rows: [] }));
+
+  return result.rows.map((row) => ({
+    id: row.packageId,
+    code: row.code,
+    projectId: row.projectId,
+    vendorId: row.vendorId,
+    vendorName: row.vendorName,
+    documentStatus: row.documentStatus ?? normalizeVendorDocumentStatus(row.itemCount ?? 0),
+    itemCount: row.itemCount ?? 0,
+  }));
 }
 
 export async function getDbVendorPackageById(id: string): Promise<VendorPackage | null> {
