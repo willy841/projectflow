@@ -5,6 +5,7 @@ import {
 } from '@/components/quote-cost-data';
 import { createPhase1DbClient } from '@/lib/db/phase1-client';
 import { listProjectCollectionRecords } from '@/lib/db/collection-read-model';
+import type { ActiveProjectFinancialSummaryTotals } from '@/lib/db/financial-summary-types';
 import { buildProjectFinancialSummary } from '@/lib/db/project-financial-summary-read-model';
 import { buildVendorPaymentSummaryRows } from '@/lib/db/vendor-payment-summary-read-model';
 import { shouldUseDbDesignFlow } from '@/lib/db/design-flow-toggle';
@@ -645,13 +646,7 @@ export type QuoteCostDetailReadModel = {
   project: QuoteCostProjectWithGroups;
   collectionRecords: QuoteCostDetailCollectionRecord[];
   vendorPaymentRecords: QuoteCostDetailVendorPaymentRecord[];
-  summaryTotals: {
-    quotationTotal: number;
-    collectedTotal: number;
-    outstandingTotal: number;
-    projectCostTotal: number;
-    grossProfit: number;
-  };
+  summaryTotals: ActiveProjectFinancialSummaryTotals;
 };
 
 export async function getQuoteCostDetailReadModel(projectId: string): Promise<QuoteCostDetailReadModel | null> {

@@ -3,6 +3,7 @@ import type { CostLineItem } from '@/components/quote-cost-data';
 import type { QuoteCostProjectWithGroups } from '@/lib/db/financial-flow-adapter';
 import { getCloseoutRetainedSnapshot } from '@/lib/db/closeout-retained-snapshot';
 import { listProjectCollectionRecords } from '@/lib/db/collection-read-model';
+import type { ProjectFinancialSummaryTotals } from '@/lib/db/financial-summary-types';
 import { buildVendorPaymentSummaryRows, type VendorPaymentSummaryRow } from '@/lib/db/vendor-payment-summary-read-model';
 
 export type CloseoutArchiveCollectionRecord = {
@@ -19,11 +20,7 @@ export type CloseoutArchiveDetailReadModel = {
   archiveProject: QuoteCostProjectWithGroups;
   archiveCollections: CloseoutArchiveCollectionRecord[];
   archiveVendorPayments: CloseoutArchiveVendorPaymentRecord[];
-  summaryTotals: {
-    quotationTotal: number;
-    projectCostTotal: number;
-    grossProfit: number;
-  };
+  summaryTotals: ProjectFinancialSummaryTotals;
 };
 
 

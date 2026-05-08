@@ -16,6 +16,7 @@ import {
   type CostSourceType,
 } from "@/components/quote-cost-data";
 import { getQuoteCostDetailPresenter, type QuoteCostDetailPresenter } from "@/components/quote-cost-detail-presenter";
+import type { ActiveProjectFinancialSummaryTotals } from '@/lib/db/financial-summary-types';
 import {
   QuoteOverviewSection,
   VendorPaymentSummarySection,
@@ -56,13 +57,7 @@ type Props = {
     reconciliationGroups?: ReconciliationGroupView[];
     collectionRecords?: CollectionRecordView[];
     vendorPaymentRecords?: VendorPaymentView[];
-    summaryTotals?: {
-      quotationTotal: number;
-      collectedTotal: number;
-      outstandingTotal: number;
-      projectCostTotal: number;
-      grossProfit: number;
-    };
+    summaryTotals?: ActiveProjectFinancialSummaryTotals;
   };
 };
 
