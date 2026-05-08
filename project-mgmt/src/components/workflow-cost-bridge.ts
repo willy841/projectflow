@@ -1,5 +1,6 @@
 import type { CostLineItem, QuoteCostProject } from "@/components/quote-cost-data";
 import { quoteCostProjects } from "@/components/quote-cost-data";
+import type { ProjectFlowFormalReadbackRow } from "@/components/workflow-derived-board";
 import { getVendorPackagesForWorkflowProject } from "@/components/workflow-vendor-package-bridge";
 import { readStoredExecutionSectionState, readStoredExecutionTreeState } from "@/components/workflow-local-storage";
 import { parseCurrency, parseReplyMessage } from "@/components/workflow-reply-parser";
@@ -17,7 +18,47 @@ export const workflowCostBridgeBoundary = {
   retirementGate: "requires-local-execution-readback-chain-replacement-before-client-fallback-retirement",
   exitCondition: "requires-replacing-execution-tree-section-readback-vendor-package-readback-and-vendor-assignment-cost-readback-with-db-or-formal-read-model-sources",
   upstreamInputs: ["execution-section.replyOverrides", "execution-tree.saved-design-procurement-assignments", "vendor-package-bridge-or-assignment-fallback"],
+  formalizedSegments: ["design-cost-mapper", "procurement-cost-mapper"],
+  residualLegacySegment: "vendor-package-and-assignment-fallback",
 } as const;
+
+export function buildFormalDesignCostItems(rows: ProjectFlowFormalReadbackRow[]): CostLineItem[] {
+  return rows
+    .filter((row) => row.flowType === "design")
+    .filter((row) => row.confirmationStatus === "已確認")
+    .filter((row) => row.latestConfirmedAmountValue !== null)
+    .map((row) => ({
+      id: `formal-design-${row.projectId}-${row.taskId}-${row.latestConfirmationId ?? "no-confirmation"}`,
+      itemName: row.taskTitle,
+      sourceType: "設計",
+      sourceRef: `設計文件整理 / ${row.latestConfirmedVendorName ?? "未指定廠商"}`,
+      vendorId: null,
+      vendorName: row.latestConfirmedVendorName,
+      originalAmount: row.latestConfirmedAmountValue ?? 0,
+      adjustedAmount: row.latestConfirmedAmountValue ?? 0,
+      includedInCost: row.costLocked && row.confirmationStatus === "已確認",
+      isManual: false,
+    }));
+}
+
+export function buildFormalProcurementCostItems(rows: ProjectFlowFormalReadbackRow[]): CostLineItem[] {
+  return rows
+    .filter((row) => row.flowType === "procurement")
+    .filter((row) => row.confirmationStatus === "已確認")
+    .filter((row) => row.latestConfirmedAmountValue !== null)
+    .map((row) => ({
+      id: `formal-procurement-${row.projectId}-${row.taskId}-${row.latestConfirmationId ?? "no-confirmation"}`,
+      itemName: row.taskTitle,
+      sourceType: "備品",
+      sourceRef: `備品整理 / ${row.latestConfirmedVendorName ?? "未指定廠商"}`,
+      vendorId: null,
+      vendorName: row.latestConfirmedVendorName,
+      originalAmount: row.latestConfirmedAmountValue ?? 0,
+      adjustedAmount: row.latestConfirmedAmountValue ?? 0,
+      includedInCost: row.costLocked && row.confirmationStatus === "已確認",
+      isManual: false,
+    }));
+}
 
 function buildWorkflowCostItems(projectId: string): CostLineItem[] {
   if (typeof window === "undefined") return [];
@@ -108,4 +149,3 @@ export function getQuoteCostProjectsForClientFallback(): QuoteCostProject[] {
     };
   });
 }
-
