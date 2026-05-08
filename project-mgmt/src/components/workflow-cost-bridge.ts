@@ -11,10 +11,10 @@ export const workflowCostBridgeBoundary = {
   consumerScope: "legacy-local-workflow-cost-readback-only",
   formalQuoteCostRouteStatus: "retired-from-formal-quote-cost-route",
   formalClientConsumer: "none",
-  remainingCompatibilityConsumer: "legacy-vendor-financial-relations-helper-only",
+  remainingCompatibilityConsumer: "legacy-vendor-financial-relations-helper-via-client-fallback-only",
   formalAppSurfaceConsumer: "none",
-  legacyIslandStatus: "paired-with-legacy-vendor-financial-relations-helper",
-  retirementGate: "may-retire-after-legacy-vendor-financial-relations-helper-removal",
+  legacyIslandStatus: "paired-with-legacy-vendor-financial-relations-helper-via-client-fallback-only",
+  retirementGate: "may-retire-after-legacy-vendor-financial-relations-helper-removal-or-client-fallback-retirement",
 } as const;
 
 function buildWorkflowCostItems(projectId: string): CostLineItem[] {
@@ -107,6 +107,3 @@ export function getQuoteCostProjectsForClientFallback(): QuoteCostProject[] {
   });
 }
 
-export function getLegacyVendorFinancialProjects(): QuoteCostProject[] {
-  return getQuoteCostProjectsForClientFallback();
-}
