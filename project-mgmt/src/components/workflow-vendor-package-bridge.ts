@@ -8,7 +8,7 @@ export const workflowVendorPackageBridgeBoundary = {
   fallbackSource: "assignment-fallback",
   consumerScope: "workflow-cost-local-readback-only",
   formalVendorAssignmentsRouteStatus: "not-used-by-formal-vendor-assignments-route",
-  remainingConsumer: "workflow-cost-bridge-vendor-residual-only",
+  remainingConsumer: "legacy-string-mode-only",
   dependencyInputs: ["vendor-package-store", "execution-tree.savedVendorAssignments"],
   assignmentFallbackInputs: ["vendorName", "title", "requirement"],
   assignmentFallbackStatus: "draft-derived-package-like-fallback-not-formal-package-source",
@@ -18,7 +18,7 @@ export const workflowVendorPackageBridgeBoundary = {
   sourceProviderMode: "local-package-or-assignment-fallback-only",
   dbProviderInterfaceStatus: "removed-from-bridge-runtime-surface",
   dbProviderShapeStatus: "db-package-shape-consumed-upstream-before-bridge",
-  currentRuntimeShape: "local-provider-first-assignment-fallback-second",
+  currentRuntimeShape: "object-input-preload-only-string-mode-legacy-fallback",
   asyncAdoptionGate: "db-package-source-must-enter-through-upstream-preload-consumers-not-this-bridge",
 } as const;
 
@@ -126,16 +126,15 @@ function getLocalVendorPackagesForWorkflowProject(projectId: string): VendorPack
 }
 
 export function getVendorPackagesForWorkflowProject(input: string | WorkflowVendorPackageBridgeInput): WorkflowVendorPackageBridgeResult {
-  const resolved = typeof input === "string" ? { projectId: input } : input;
-
-  if (resolved.preloadedDbPackages?.length) {
+  if (typeof input !== "string") {
     return {
       source: "db-package-source",
-      packages: resolved.preloadedDbPackages.filter((pkg) => pkg.projectId === resolved.projectId),
+      packages: input.preloadedDbPackages?.filter((pkg) => pkg.projectId === input.projectId) ?? [],
     };
   }
 
-  const localPackages = getLocalVendorPackagesForWorkflowProject(resolved.projectId);
+  const projectId = input;
+  const localPackages = getLocalVendorPackagesForWorkflowProject(projectId);
   if (localPackages.length) {
     return {
       source: "local-package-store",
@@ -145,7 +144,7 @@ export function getVendorPackagesForWorkflowProject(input: string | WorkflowVend
 
   return {
     source: "assignment-fallback",
-    packages: getDraftFallbackPackagesForWorkflowProject(resolved.projectId),
+    packages: getDraftFallbackPackagesForWorkflowProject(projectId),
   };
 }
 
