@@ -9,6 +9,7 @@ type PackageSnapshotSeed = {
   confirmationId: string;
   confirmedAt: string;
   vendorTaskId: string;
+  sourceExecutionItemId: string | null;
   vendorTaskCreatedAt: string;
   vendorId: string;
   vendorName: string;
@@ -89,6 +90,7 @@ async function listLatestVendorConfirmationSeeds() {
         confirmationId: latestConfirmation.id,
         confirmedAt: formatDateTime(latestConfirmation.confirmed_at),
         vendorTaskId: task.id,
+        sourceExecutionItemId: task.source_execution_item_id ?? null,
         vendorTaskCreatedAt: formatDateTime(task.created_at),
         vendorId: vendor.id,
         vendorName: vendor.name,
@@ -178,6 +180,7 @@ export async function listDbVendorPackages(): Promise<VendorPackage[]> {
           return {
             id: snapshot.id,
             assignmentId: row.vendorTaskId,
+            sourceExecutionItemId: row.sourceExecutionItemId,
             itemName: line.itemName,
             requirementText: line.requirementText,
             amountLabel: line.amountLabel,
@@ -217,6 +220,7 @@ export async function listDbVendorPackages(): Promise<VendorPackage[]> {
             requirementText: row.requirement_text ?? '',
             amountLabel: row.amount_label ?? null,
             amountValue: row.amount_value ?? null,
+            sourceExecutionItemId: null,
           }))
         : items;
 

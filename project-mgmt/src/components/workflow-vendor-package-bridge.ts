@@ -80,6 +80,7 @@ function buildFallbackPackagesFromDraftRows(projectId: string, rows: VendorPacka
       existed.items.push({
         id: `${packageId}-${row.vendorTaskId}`,
         assignmentId: row.vendorTaskId,
+        sourceExecutionItemId: row.sourceExecutionItemId,
         itemName: row.itemTitle,
         requirementText: row.requirementText,
         amountLabel: null,
@@ -103,6 +104,7 @@ function buildFallbackPackagesFromDraftRows(projectId: string, rows: VendorPacka
         {
           id: `${packageId}-${row.vendorTaskId}`,
           assignmentId: row.vendorTaskId,
+          sourceExecutionItemId: row.sourceExecutionItemId,
           itemName: row.itemTitle,
           requirementText: row.requirementText,
           amountLabel: null,
