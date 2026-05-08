@@ -13,6 +13,17 @@ export const workflowLocalStorageBoundary = {
   storageScope: ["execution-tree", "execution-section"],
   consumerScope: ["local-workflow-readback", "legacy-derived-board", "legacy-cost-bridge"],
   retirementStatus: "surface-minimized-but-still-required-by-active-readback-chain",
+  dependencyMap: {
+    sectionReplyOverrides: ["workflow-cost-bridge", "workflow-derived-board"],
+    treeDesignProcurementAssignments: ["workflow-cost-bridge", "workflow-derived-board", "execution-tree"],
+    treeVendorAssignments: ["workflow-cost-bridge", "workflow-vendor-package-bridge", "execution-tree"],
+  },
+  recommendedReplacementOrder: [
+    "sectionReplyOverrides-and-design-procurement-readback",
+    "vendor-package-bridge-assignment-fallback",
+    "workflow-cost-bridge-client-fallback",
+  ],
+  firstReplacementCut: "sectionReplyOverrides-and-design-procurement-readback",
 } as const;
 
 export type StoredExecutionTreeState = {
