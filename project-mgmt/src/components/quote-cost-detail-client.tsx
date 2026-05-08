@@ -69,8 +69,8 @@ type EditableProjectState = QuoteCostProject;
 
 export const quoteCostDetailClientBoundary = {
   mode: "db-detail-client-with-vendor-package-preload-boundary",
-  vendorPackagePreloadStatus: "supplied-to-client-boundary",
-  vendorPackageRuntimeStatus: "fallback-project-overlay-enabled-when-preloaded-packages-exist",
+  vendorPackagePreloadStatus: "supplied-and-consumed-in-detail-client",
+  vendorPackageRuntimeStatus: "fallback-project-overlay-applied-to-resolved-project-cost-items-when-preloaded-packages-exist",
 } as const;
 
 export function QuoteCostDetailClient({ project, mode = "active", presenter = getQuoteCostDetailPresenter(mode), initialProject, preloadedDbPackages }: Props) {
