@@ -14,6 +14,7 @@ export const workflowVendorPackageBridgeBoundary = {
   assignmentFallbackStatus: "still-derived-from-vendor-assignment-draft-shape-not-formal-package-source",
   replacementOrder: ["assignment-fallback-replacement", "local-package-store-readback-replacement", "vendor-cost-readback-replacement"],
   exitCondition: "requires-replacing-both-local-package-store-readback-and-savedVendorAssignments-assignment-fallback-before-bridge-retirement",
+  transitionalFormalProviderStatus: "provider-shape-extracted-db-source-not-wired-in-client-bridge-yet",
 } as const;
 
 export type WorkflowVendorPackageSource = "local-package-store" | "assignment-fallback";
@@ -23,38 +24,62 @@ export type WorkflowVendorPackageBridgeResult = {
   packages: VendorPackage[];
 };
 
-function buildFallbackPackagesFromAssignments(projectId: string): VendorPackage[] {
-  const tree = readStoredExecutionTreeState(projectId);
-  const vendorAssignments = Object.entries(tree.savedVendorAssignments)
-    .map(([assignmentId, assignment]) => ({ assignmentId, assignment }))
-    .filter(({ assignment }) => Boolean(assignment?.vendorName?.trim()));
+export type VendorPackageFormalFallbackRow = {
+  projectId: string;
+  vendorTaskId: string;
+  sourceExecutionItemId: string | null;
+  vendorId: string | null;
+  vendorName: string;
+  itemTitle: string;
+  requirementText: string;
+  packageId: string | null;
+  packageCode: string | null;
+};
 
-  if (!vendorAssignments.length) {
+function getMockVendorPackageFormalRows(projectId: string): VendorPackageFormalFallbackRow[] {
+  const tree = readStoredExecutionTreeState(projectId);
+  return Object.entries(tree.savedVendorAssignments)
+    .map(([assignmentId, assignment]) => ({ assignmentId, assignment }))
+    .filter(({ assignment }) => Boolean(assignment?.vendorName?.trim()))
+    .map(({ assignmentId, assignment }) => ({
+      projectId,
+      vendorTaskId: assignmentId,
+      sourceExecutionItemId: assignmentId,
+      vendorId: null,
+      vendorName: assignment.vendorName.trim(),
+      itemTitle: assignment.title || "",
+      requirementText: assignment.requirement || "",
+      packageId: null,
+      packageCode: null,
+    }));
+}
+
+function buildFallbackPackagesFromFormalRows(projectId: string, rows: VendorPackageFormalFallbackRow[]): VendorPackage[] {
+  if (!rows.length) {
     return [];
   }
 
   const grouped = new Map<string, VendorPackage>();
 
-  vendorAssignments.forEach(({ assignmentId, assignment }) => {
-    const vendorName = assignment.vendorName.trim();
-    const packageId = `workflow-local-${projectId}-${vendorName}`;
+  rows.forEach((row) => {
+    const packageId = row.packageId ?? `workflow-local-${projectId}-${row.vendorName}`;
     const existed = grouped.get(packageId);
     if (existed) {
       existed.items.push({
-        id: `${packageId}-${assignmentId}`,
-        assignmentId,
-        itemName: assignment.title || "",
-        requirementText: assignment.requirement || "",
+        id: `${packageId}-${row.vendorTaskId}`,
+        assignmentId: row.vendorTaskId,
+        itemName: row.itemTitle,
+        requirementText: row.requirementText,
       });
       return;
     }
 
     grouped.set(packageId, {
       id: packageId,
-      code: packageId,
+      code: row.packageCode ?? packageId,
       projectId,
       projectName: projectId,
-      vendorName,
+      vendorName: row.vendorName,
       eventDate: "",
       location: "",
       loadInTime: "",
@@ -62,10 +87,10 @@ function buildFallbackPackagesFromAssignments(projectId: string): VendorPackage[
       documentStatus: "未生成",
       items: [
         {
-          id: `${packageId}-${assignmentId}`,
-          assignmentId,
-          itemName: assignment.title || "",
-          requirementText: assignment.requirement || "",
+          id: `${packageId}-${row.vendorTaskId}`,
+          assignmentId: row.vendorTaskId,
+          itemName: row.itemTitle,
+          requirementText: row.requirementText,
         },
       ],
     });
@@ -85,7 +110,7 @@ export function getVendorPackagesForWorkflowProject(projectId: string): Workflow
 
   return {
     source: "assignment-fallback",
-    packages: buildFallbackPackagesFromAssignments(projectId),
+    packages: buildFallbackPackagesFromFormalRows(projectId, getMockVendorPackageFormalRows(projectId)),
   };
 }
 
@@ -94,4 +119,3 @@ export function getVendorPackageSummariesForWorkflowProject(projectId: string): 
     (pkg) => `${pkg.code}：${pkg.items.length} 項 / 文件${pkg.documentStatus}`,
   );
 }
-
