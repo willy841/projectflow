@@ -11,6 +11,8 @@ export const legacyVendorFinancialRelationsBoundary = {
   helperStatus: "pending-removal-after-client-fallback-retirement-or-active-assemble-collapse",
   activeAssembleStatus: "still-assembles-active-relations-before-fallback-merge",
   fallbackCollapseReadiness: "not-ready-direct-fallback-only-collapse",
+  exitCondition: "requires-getQuoteCostProjectsForClientFallback-retirement-or-equivalent-db-read-model-replacement",
+  upstreamBlocker: "workflow-cost-bridge-local-execution-readback-chain",
 } as const;
 import { vendorPackages, vendorProfiles } from "@/components/vendor-data";
 import type { ProjectVendorFinancialRelation } from "@/components/vendor-financial-relation-types";
