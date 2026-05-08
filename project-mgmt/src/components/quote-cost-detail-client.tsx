@@ -16,7 +16,7 @@ import {
   type CostSourceType,
 } from "@/components/quote-cost-data";
 import type { DbVendorPackageShape } from "@/components/workflow-vendor-package-bridge";
-import { getQuoteCostProjectsForClientFallback } from "@/components/workflow-cost-bridge";
+import { getQuoteCostProjectCostItemsFromPreloadedSources } from "@/components/workflow-cost-bridge";
 import type { ProjectFlowFormalReadbackRow } from "@/components/workflow-derived-board";
 import { getQuoteCostDetailPresenter, type QuoteCostDetailPresenter } from "@/components/quote-cost-detail-presenter";
 import type { ActiveProjectFinancialSummaryTotals } from '@/lib/db/financial-summary-types';
@@ -77,18 +77,14 @@ export const quoteCostDetailClientBoundary = {
 
 export function QuoteCostDetailClient({ project, mode = "active", presenter = getQuoteCostDetailPresenter(mode), initialProject, preloadedDbPackages, preloadedFormalRows }: Props) {
   const router = useRouter();
-  const fallbackProjectFromPreloadedPackages = useMemo(() => {
-    if (!preloadedDbPackages?.length) return null;
-    return getQuoteCostProjectsForClientFallback(preloadedDbPackages, preloadedFormalRows).find((item) => item.id === project.id) ?? null;
-  }, [preloadedDbPackages, preloadedFormalRows, project.id]);
   const resolvedProject = {
     ...(initialProject ?? project),
-    costItems: fallbackProjectFromPreloadedPackages
-      ? [
-          ...(initialProject?.costItems ?? project.costItems).filter((item) => item.isManual),
-          ...fallbackProjectFromPreloadedPackages.costItems.filter((item) => !item.isManual),
-        ]
-      : (initialProject?.costItems ?? project.costItems),
+    costItems: getQuoteCostProjectCostItemsFromPreloadedSources({
+      projectId: project.id,
+      seedCostItems: initialProject?.costItems ?? project.costItems,
+      preloadedDbPackages,
+      preloadedFormalRows,
+    }),
   };
   const [reconciliationGroups, setReconciliationGroups] = useState<ReconciliationGroupView[]>(initialProject?.reconciliationGroups ?? []);
   const [state, setState] = useState<EditableProjectState>(() => ({

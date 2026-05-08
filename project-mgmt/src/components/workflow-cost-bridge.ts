@@ -143,3 +143,25 @@ export function getQuoteCostProjectsForClientFallback(preloadedDbPackages?: DbVe
     };
   });
 }
+
+export function getQuoteCostProjectCostItemsFromPreloadedSources(input: {
+  projectId: string;
+  seedCostItems: CostLineItem[];
+  preloadedDbPackages?: DbVendorPackageShape[] | null;
+  preloadedFormalRows?: ProjectFlowFormalReadbackRow[] | null;
+}): CostLineItem[] {
+  const workflowItems = buildWorkflowCostItems({
+    projectId: input.projectId,
+    preloadedDbPackages: input.preloadedDbPackages,
+    preloadedFormalRows: input.preloadedFormalRows?.filter((row) => row.projectId === input.projectId) ?? null,
+  });
+
+  if (!workflowItems.length) {
+    return input.seedCostItems;
+  }
+
+  const workflowSourceTypes = new Set(workflowItems.map((item) => item.sourceType));
+  const preservedSeedItems = input.seedCostItems.filter((item) => item.isManual || !workflowSourceTypes.has(item.sourceType));
+
+  return [...preservedSeedItems, ...workflowItems];
+}
