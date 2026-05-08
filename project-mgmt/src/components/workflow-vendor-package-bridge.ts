@@ -14,12 +14,12 @@ export const workflowVendorPackageBridgeBoundary = {
   assignmentFallbackStatus: "still-derived-from-vendor-assignment-draft-shape-not-formal-package-source",
   replacementOrder: ["assignment-fallback-replacement", "local-package-store-readback-replacement", "vendor-cost-readback-replacement"],
   exitCondition: "requires-replacing-both-local-package-store-readback-and-savedVendorAssignments-assignment-fallback-before-bridge-retirement",
-  transitionalFormalProviderStatus: "provider-shape-extracted-db-source-not-wired-in-client-bridge-yet",
-  sourceProviderMode: "switchable-local-package-or-formal-row-fallback",
-  dbProviderInterfaceStatus: "signature-extracted-awaiting-async-bridge-adoption",
-  dbProviderShapeStatus: "package-level-shape-aligned-with-vendor-package-adapter",
-  currentRuntimeShape: "local-provider-first-formal-row-fallback-second-db-provider-stub-third",
-  asyncAdoptionGate: "requires-server-side-or-loader-mediated-db-package-fetch-before-db-package-source-can-be-live",
+  transitionalFormalProviderStatus: "legacy-local-and-assignment-fallback-only-db-source-handled-upstream-via-preload",
+  sourceProviderMode: "local-package-or-assignment-fallback-only",
+  dbProviderInterfaceStatus: "removed-from-bridge-runtime-surface",
+  dbProviderShapeStatus: "db-package-shape-consumed-upstream-before-bridge",
+  currentRuntimeShape: "local-provider-first-assignment-fallback-second",
+  asyncAdoptionGate: "db-package-source-must-enter-through-upstream-preload-consumers-not-this-bridge",
 } as const;
 
 export type WorkflowVendorPackageSource = "local-package-store" | "assignment-fallback" | "db-package-source";
@@ -40,8 +40,6 @@ export type VendorPackageFormalFallbackRow = {
   packageId: string | null;
   packageCode: string | null;
 };
-
-export type VendorPackageSourceProvider = (projectId: string) => VendorPackage[];
 
 export type DbVendorPackageShape = VendorPackage;
 
@@ -112,10 +110,6 @@ function buildFallbackPackagesFromFormalRows(projectId: string, rows: VendorPack
   return Array.from(grouped.values());
 }
 
-function normalizeDbVendorPackagesForWorkflowProject(projectId: string, packages: DbVendorPackageShape[]): VendorPackage[] {
-  return packages.filter((pkg) => pkg.projectId === projectId);
-}
-
 function getFormalFallbackPackagesForWorkflowProject(projectId: string): VendorPackage[] {
   return buildFallbackPackagesFromFormalRows(projectId, getMockVendorPackageFormalRows(projectId));
 }
@@ -123,10 +117,6 @@ function getFormalFallbackPackagesForWorkflowProject(projectId: string): VendorP
 function getLocalVendorPackagesForWorkflowProject(projectId: string): VendorPackage[] {
   return getStoredPackagesByProjectId(projectId);
 }
-
-export const getDbVendorPackagesForWorkflowProject: VendorPackageSourceProvider = (projectId) => {
-  return normalizeDbVendorPackagesForWorkflowProject(projectId, []);
-};
 
 export function getVendorPackagesForWorkflowProject(projectId: string): WorkflowVendorPackageBridgeResult {
   const localPackages = getLocalVendorPackagesForWorkflowProject(projectId);
