@@ -20,6 +20,7 @@ export const workflowCostBridgeBoundary = {
   upstreamInputs: ["execution-section.replyOverrides", "execution-tree.saved-design-procurement-assignments", "vendor-package-bridge-or-assignment-fallback"],
   formalizedSegments: ["design-cost-mapper", "procurement-cost-mapper", "design-procurement-transitional-formal-row-provider"],
   residualLegacySegment: "vendor-package-and-assignment-fallback-only",
+  vendorResidualConsumerMode: "package-output-only-no-direct-savedVendorAssignments-read",
 } as const;
 
 export function buildFormalDesignCostItems(rows: ProjectFlowFormalReadbackRow[]): CostLineItem[] {
@@ -188,15 +189,11 @@ function buildWorkflowCostItems(projectId: string): CostLineItem[] {
     ...buildFormalProcurementCostItems(formalRows),
   ];
 
-  const tree = readStoredExecutionTreeState(projectId);
-  const vendorAssignments = tree.savedVendorAssignments;
   const vendorPackageBridge = getVendorPackagesForWorkflowProject(projectId);
   const vendorItems: CostLineItem[] = [];
 
   vendorPackageBridge.packages.forEach((pkg) => {
     pkg.items.forEach((item) => {
-      const assignment = vendorAssignments[item.assignmentId];
-      const amount = parseCurrency(assignment?.amount || "");
       vendorItems.push({
         id: `workflow-vendor-${pkg.id}-${item.assignmentId}`,
         itemName: item.itemName,
@@ -204,8 +201,8 @@ function buildWorkflowCostItems(projectId: string): CostLineItem[] {
         sourceRef: `廠商發包清單 / ${pkg.vendorName}`,
         vendorId: null,
         vendorName: pkg.vendorName || null,
-        originalAmount: amount,
-        adjustedAmount: amount,
+        originalAmount: 0,
+        adjustedAmount: 0,
         includedInCost: true,
         isManual: false,
       });
