@@ -12,7 +12,7 @@ export default async function QuoteCostDetailPage({ params }: { params: Promise<
     notFound();
   }
 
-  const { project, collectionRecords, vendorPaymentRecords, summaryTotals } = readModel;
+  const { project, initialPayload } = readModel;
 
-  return <QuoteCostDetailClient project={project} initialProject={{ ...project, collectionRecords, vendorPaymentRecords, summaryTotals }} mode="active" />;
+  return <QuoteCostDetailClient project={project} initialProject={initialPayload} mode="active" />;
 }

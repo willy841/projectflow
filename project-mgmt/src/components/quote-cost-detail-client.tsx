@@ -17,6 +17,7 @@ import {
 } from "@/components/quote-cost-data";
 import { getQuoteCostDetailPresenter, type QuoteCostDetailPresenter } from "@/components/quote-cost-detail-presenter";
 import type { ActiveProjectFinancialSummaryTotals } from '@/lib/db/financial-summary-types';
+import type { QuoteCostDetailInitialPayload } from '@/lib/db/quote-cost-detail-payload-types';
 import {
   QuoteOverviewSection,
   VendorPaymentSummarySection,
@@ -53,7 +54,7 @@ type Props = {
   project: QuoteCostProject;
   mode?: DetailMode;
   presenter?: QuoteCostDetailPresenter;
-  initialProject?: QuoteCostProject & {
+  initialProject?: Partial<QuoteCostDetailInitialPayload> & QuoteCostProject & {
     reconciliationGroups?: ReconciliationGroupView[];
     collectionRecords?: CollectionRecordView[];
     vendorPaymentRecords?: VendorPaymentView[];

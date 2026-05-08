@@ -6,6 +6,7 @@ import {
 import { createPhase1DbClient } from '@/lib/db/phase1-client';
 import { listProjectCollectionRecords } from '@/lib/db/collection-read-model';
 import type { ActiveProjectFinancialSummaryTotals } from '@/lib/db/financial-summary-types';
+import type { QuoteCostDetailInitialPayload } from '@/lib/db/quote-cost-detail-payload-types';
 import { buildProjectFinancialSummary } from '@/lib/db/project-financial-summary-read-model';
 import { buildVendorPaymentSummaryRows } from '@/lib/db/vendor-payment-summary-read-model';
 import { shouldUseDbDesignFlow } from '@/lib/db/design-flow-toggle';
@@ -644,9 +645,7 @@ export type QuoteCostDetailVendorPaymentRecord = import('@/lib/db/vendor-payment
 
 export type QuoteCostDetailReadModel = {
   project: QuoteCostProjectWithGroups;
-  collectionRecords: QuoteCostDetailCollectionRecord[];
-  vendorPaymentRecords: QuoteCostDetailVendorPaymentRecord[];
-  summaryTotals: ActiveProjectFinancialSummaryTotals;
+  initialPayload: QuoteCostDetailInitialPayload;
 };
 
 export async function getQuoteCostDetailReadModel(projectId: string): Promise<QuoteCostDetailReadModel | null> {
@@ -660,14 +659,17 @@ export async function getQuoteCostDetailReadModel(projectId: string): Promise<Qu
 
   return {
     project,
-    collectionRecords,
-    vendorPaymentRecords: buildVendorPaymentSummaryRows(project.reconciliationGroups),
-    summaryTotals: {
-      quotationTotal,
-      collectedTotal,
-      outstandingTotal,
-      projectCostTotal,
-      grossProfit,
+    initialPayload: {
+      ...project,
+      collectionRecords,
+      vendorPaymentRecords: buildVendorPaymentSummaryRows(project.reconciliationGroups),
+      summaryTotals: {
+        quotationTotal,
+        collectedTotal,
+        outstandingTotal,
+        projectCostTotal,
+        grossProfit,
+      },
     },
   };
 }
