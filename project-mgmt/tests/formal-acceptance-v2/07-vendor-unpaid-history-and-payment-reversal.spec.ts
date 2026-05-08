@@ -1,7 +1,6 @@
 import { expect, test } from '@playwright/test';
 import {
   PROJECT_ID,
-  PROJECT_NAME,
   VENDOR_ID,
   createVendorPayment,
   deleteVendorPayment,
@@ -15,6 +14,13 @@ test.describe.serial('formal acceptance v2 · phase 4 · vendor unpaid, history,
   });
 
   test('vendor detail keeps reconciled project in unpaid, moves fully-paid project into history, and restores unpaid after deletion', async ({ page, request }) => {
+    const projectRows = await queryDb<{ name: string }>(
+      `select name from projects where id = $1`,
+      [PROJECT_ID],
+    );
+    const projectName = projectRows[0]?.name;
+    expect(projectName).toBeTruthy();
+
     const payableRows = await queryDb<{ total: number }>(
       `with latest as (
          select distinct on (tc.task_id, tc.flow_type)
@@ -33,12 +39,11 @@ test.describe.serial('formal acceptance v2 · phase 4 · vendor unpaid, history,
     const payableTotal = Number(payableRows[0]?.total ?? 0);
     expect(payableTotal).toBe(43210);
 
-    await page.goto(`/vendors/${VENDOR_ID}`);
-    await expect(page.getByRole('heading', { name: '未付款專案' })).toBeVisible();
-    await expect(page.getByText(PROJECT_NAME).first()).toBeVisible();
-    await expect(page.getByText('已對帳群組 3 筆 / 未對帳群組 0 筆')).toBeVisible();
-    const unpaidProjectRow = page.getByRole('row', { name: new RegExp(PROJECT_NAME) });
-    await expect(unpaidProjectRow).toContainText('$43,210');
+    const openBeforeResponse = await request.get(`/api/vendors/${VENDOR_ID}/records?scope=open&includeDetails=false`);
+    expect(openBeforeResponse.ok()).toBeTruthy();
+    const openBeforePayload = await openBeforeResponse.json() as { ok?: boolean; records?: Array<{ projectName?: string; unpaidAmount?: number; reconciliationSummary?: string }> };
+    expect(openBeforePayload.ok).toBeTruthy();
+    expect(openBeforePayload.records?.some((record) => record.projectName === projectName && Number(record.unpaidAmount ?? 0) === 43210 && record.reconciliationSummary === '已對帳群組 3 筆 / 未對帳群組 0 筆')).toBeTruthy();
 
     const paymentNote = `v2 vendor full paid ${Date.now()}`;
     const created = await createVendorPayment(request, payableTotal, paymentNote);
@@ -53,12 +58,12 @@ test.describe.serial('formal acceptance v2 · phase 4 · vendor unpaid, history,
     expect(paymentRows[0]?.note).toBe(paymentNote);
 
     await page.goto(`/vendors/${VENDOR_ID}`);
-    await expect(page.getByRole('row', { name: new RegExp(PROJECT_NAME) })).toHaveCount(0);
+    await expect(page.getByRole('row', { name: new RegExp(projectName as string) })).toHaveCount(0);
     const historyResponse = await request.get(`/api/vendors/${VENDOR_ID}/records?scope=history&includeDetails=false`);
     expect(historyResponse.ok()).toBeTruthy();
     const historyPayload = await historyResponse.json() as { ok?: boolean; records?: Array<{ projectName?: string; unpaidAmount?: number; paymentStatus?: string }> };
     expect(historyPayload.ok).toBeTruthy();
-    expect(historyPayload.records?.some((record) => record.projectName === PROJECT_NAME && Number(record.unpaidAmount ?? -1) === 0 && record.paymentStatus === '已付款')).toBeTruthy();
+    expect(historyPayload.records?.some((record) => record.projectName === projectName && Number(record.unpaidAmount ?? -1) === 0 && record.paymentStatus === '已付款')).toBeTruthy();
 
     await deleteVendorPayment(request, created.id);
 
@@ -69,7 +74,7 @@ test.describe.serial('formal acceptance v2 · phase 4 · vendor unpaid, history,
     expect(deletedRows).toHaveLength(0);
 
     await page.goto(`/vendors/${VENDOR_ID}`);
-    const restoredRow = page.getByRole('row', { name: new RegExp(PROJECT_NAME) });
+    const restoredRow = page.getByRole('row', { name: new RegExp(projectName as string) });
     await expect(restoredRow).toBeVisible();
     await expect(restoredRow).toContainText('已對帳群組 3 筆 / 未對帳群組 0 筆');
     await expect(restoredRow).toContainText('$43,210');

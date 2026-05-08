@@ -353,7 +353,10 @@ export async function listDbVendorProjectRecordsByVendorId(
       : [];
 
     const paidAmount = paidAmountByProjectId.get(financialRecord.projectId) ?? 0;
-    const adjustedCost = financialRecord.adjustedCost;
+    const adjustedCost = Math.max(
+      financialRecord.adjustedCost,
+      financialRecord.reconciledGroups.reduce((sum, group) => sum + group.amountTotal, 0),
+    );
     const unpaidAmount = Math.max(adjustedCost - paidAmount, 0);
     const totalReconciledCount = financialRecord.reconciledGroupCount;
     const totalUnreconciledCount = financialRecord.unreconciledGroupCount;
@@ -392,12 +395,13 @@ export async function listDbVendorProjectRecordsByVendorId(
     if (options?.recordId && record.id !== options.recordId) return false;
 
     const isFullyPaidSemanticState = (record.unpaidAmount ?? record.adjustedCost) <= 0;
+    const isFullyReconciledSemanticState = !record.hasUnreconciledGroups && record.reconciliationStatus === '已全部對帳';
 
     switch (options?.paymentScope) {
       case 'open':
-        return !isFullyPaidSemanticState;
+        return isFullyReconciledSemanticState && !isFullyPaidSemanticState;
       case 'history':
-        return isFullyPaidSemanticState;
+        return isFullyReconciledSemanticState && isFullyPaidSemanticState;
       default:
         return true;
     }

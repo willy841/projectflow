@@ -9,15 +9,11 @@ delete from financial_manual_costs where project_id = '11111111-1111-4111-8111-1
 delete from financial_quotation_line_items where quotation_import_id = 'aaaaaaa1-aaaa-4aaa-8aaa-aaaaaaaaaaa1';
 delete from financial_quotation_imports where project_id = '11111111-1111-4111-8111-111111111111';
 delete from task_confirmation_plan_snapshots where task_confirmation_id in (
-  '55555555-5555-4555-8555-555555555551',
-  '55555555-5555-4555-8555-555555555552',
-  '55555555-5555-4555-8555-555555555553'
+  select id
+  from task_confirmations
+  where project_id = '11111111-1111-4111-8111-111111111111'
 );
-delete from task_confirmations where id in (
-  '55555555-5555-4555-8555-555555555551',
-  '55555555-5555-4555-8555-555555555552',
-  '55555555-5555-4555-8555-555555555553'
-);
+delete from task_confirmations where project_id = '11111111-1111-4111-8111-111111111111';
 delete from design_task_plans where design_task_id = '33333333-3333-4333-8333-333333333333';
 delete from procurement_task_plans where procurement_task_id = '33333333-3333-4333-8333-333333333334';
 delete from vendor_task_plans where vendor_task_id = '88888888-8888-4888-8888-888888888888';
@@ -255,7 +251,7 @@ insert into task_confirmation_plan_snapshots (
 );
 
 insert into financial_reconciliation_groups (
-  id, project_id, source_type, vendor_name, reconciliation_status, vendor_id
+  id, project_id, source_type, vendor_name, reconciliation_status, vendor_id, amount_total, item_count
 ) values
 (
   'bbbbbbb1-bbbb-4bbb-8bbb-bbbbbbbbbbb1',
@@ -263,7 +259,9 @@ insert into financial_reconciliation_groups (
   '設計',
   '驗收廠商C',
   '已對帳',
-  '77777777-7777-4777-8777-777777777777'
+  '77777777-7777-4777-8777-777777777777',
+  12000,
+  1
 ),
 (
   'bbbbbbb1-bbbb-4bbb-8bbb-bbbbbbbbbbb2',
@@ -271,7 +269,9 @@ insert into financial_reconciliation_groups (
   '備品',
   '驗收廠商C',
   '已對帳',
-  '77777777-7777-4777-8777-777777777777'
+  '77777777-7777-4777-8777-777777777777',
+  11000,
+  1
 ),
 (
   'bbbbbbb1-bbbb-4bbb-8bbb-bbbbbbbbbbb3',
@@ -279,7 +279,9 @@ insert into financial_reconciliation_groups (
   '廠商',
   '驗收廠商C',
   '已對帳',
-  '77777777-7777-4777-8777-777777777777'
+  '77777777-7777-4777-8777-777777777777',
+  20210,
+  1
 )
 on conflict (id) do update set
   project_id = excluded.project_id,
@@ -287,6 +289,8 @@ on conflict (id) do update set
   vendor_name = excluded.vendor_name,
   reconciliation_status = excluded.reconciliation_status,
   vendor_id = excluded.vendor_id,
+  amount_total = excluded.amount_total,
+  item_count = excluded.item_count,
   updated_at = now();
 
 insert into financial_quotation_imports (
