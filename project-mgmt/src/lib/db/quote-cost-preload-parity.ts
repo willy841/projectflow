@@ -23,16 +23,26 @@ export type QuoteCostPreloadParity = {
   }>;
 };
 
+function normalizeSourceType(sourceType: string) {
+  if (sourceType === 'design') return '設計';
+  if (sourceType === 'procurement') return '備品';
+  if (sourceType === 'vendor') return '廠商';
+  if (sourceType === 'manual') return '人工';
+  return sourceType;
+}
+
 function buildSourceCounts(items: Array<{ sourceType: string }>) {
   return items.reduce<Record<string, number>>((acc, item) => {
-    acc[item.sourceType] = (acc[item.sourceType] ?? 0) + 1;
+    const key = normalizeSourceType(item.sourceType);
+    acc[key] = (acc[key] ?? 0) + 1;
     return acc;
   }, {});
 }
 
 function buildSourceTotals(items: Array<{ sourceType: string; adjustedAmount: number }>) {
   return items.reduce<Record<string, number>>((acc, item) => {
-    acc[item.sourceType] = (acc[item.sourceType] ?? 0) + item.adjustedAmount;
+    const key = normalizeSourceType(item.sourceType);
+    acc[key] = (acc[key] ?? 0) + item.adjustedAmount;
     return acc;
   }, {});
 }
@@ -51,9 +61,19 @@ export async function compareQuoteCostPreloadParity(projectId: string): Promise<
     projectId,
     vendorPackages: preloadedDbPackages,
     formalRows,
-  }).filter((item) => item.includedInCost);
+  })
+    .filter((item) => item.includedInCost)
+    .map((item) => ({
+      ...item,
+      adjustedAmount: Number(item.adjustedAmount ?? 0),
+    }));
 
-  const dbItems = readModel.project.costItems.filter((item) => item.includedInCost);
+  const dbItems = readModel.project.costItems
+    .filter((item) => item.includedInCost)
+    .map((item) => ({
+      ...item,
+      adjustedAmount: Number(item.adjustedAmount ?? 0),
+    }));
 
   const dbSourceCounts = buildSourceCounts(dbItems);
   const preloadSourceCounts = buildSourceCounts(preloadItems);
