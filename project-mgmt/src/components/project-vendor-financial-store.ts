@@ -4,15 +4,15 @@ import type { ProjectVendorFinancialRelation } from "@/components/vendor-financi
 import { writeStoredProjectVendorFinancialPaymentStatus } from "@/components/workflow-vendor-financial-fallback";
 
 export const projectVendorFinancialStoreBoundary = {
-  mode: "legacy-vendor-financial-island",
+  mode: "legacy-vendor-financial-wrapper",
   primaryProjectSource: "legacy-vendor-financial-projects-bridge",
   sourceStatus: "legacy-compatibility-only-not-formal-source-of-truth",
   formalRouteConsumer: "none",
   formalVendorPagesStatus: "db-routes-detached",
   legacyUiConsumer: "none-detected",
-  islandStatus: "orphaned-legacy-island",
+  wrapperStatus: "pending-removal-no-external-consumer-detected",
   pairedLegacyDependency: "legacy-vendor-financial-relations-helper-only",
-  retirementGate: "may-retire-after-formal-vendor-financial-island-replacement-or-direct-island-removal",
+  retirementGate: "may-retire-after-direct-import-cut-or-full-legacy-vendor-financial-removal",
   dbReplacementRequires: "server-or-async-read-model",
 } as const;
 
