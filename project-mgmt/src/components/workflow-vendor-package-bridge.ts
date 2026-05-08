@@ -11,8 +11,8 @@ export const workflowVendorPackageBridgeBoundary = {
   remainingConsumer: "workflow-cost-bridge-vendor-residual-only",
   dependencyInputs: ["vendor-package-store", "execution-tree.savedVendorAssignments"],
   assignmentFallbackInputs: ["vendorName", "title", "requirement"],
-  assignmentFallbackStatus: "still-derived-from-vendor-assignment-draft-shape-not-formal-package-source",
-  replacementOrder: ["assignment-fallback-replacement", "local-package-store-readback-replacement", "vendor-cost-readback-replacement"],
+  assignmentFallbackStatus: "draft-derived-package-like-fallback-not-formal-package-source",
+  replacementOrder: ["draft-fallback-row-provider-replacement", "local-package-store-readback-replacement", "vendor-cost-readback-replacement"],
   exitCondition: "requires-replacing-both-local-package-store-readback-and-savedVendorAssignments-assignment-fallback-before-bridge-retirement",
   transitionalFormalProviderStatus: "legacy-local-and-assignment-fallback-only-db-source-handled-upstream-via-preload",
   sourceProviderMode: "local-package-or-assignment-fallback-only",
@@ -29,7 +29,7 @@ export type WorkflowVendorPackageBridgeResult = {
   packages: VendorPackage[];
 };
 
-export type VendorPackageFormalFallbackRow = {
+export type VendorPackageDraftFallbackRow = {
   projectId: string;
   vendorTaskId: string;
   sourceExecutionItemId: string | null;
@@ -43,7 +43,7 @@ export type VendorPackageFormalFallbackRow = {
 
 export type DbVendorPackageShape = VendorPackage;
 
-function getMockVendorPackageFormalRows(projectId: string): VendorPackageFormalFallbackRow[] {
+function getDraftFallbackRowsFromVendorAssignments(projectId: string): VendorPackageDraftFallbackRow[] {
   const tree = readStoredExecutionTreeState(projectId);
   return Object.entries(tree.savedVendorAssignments)
     .map(([assignmentId, assignment]) => ({ assignmentId, assignment }))
@@ -61,7 +61,7 @@ function getMockVendorPackageFormalRows(projectId: string): VendorPackageFormalF
     }));
 }
 
-function buildFallbackPackagesFromFormalRows(projectId: string, rows: VendorPackageFormalFallbackRow[]): VendorPackage[] {
+function buildFallbackPackagesFromDraftRows(projectId: string, rows: VendorPackageDraftFallbackRow[]): VendorPackage[] {
   if (!rows.length) {
     return [];
   }
@@ -110,8 +110,8 @@ function buildFallbackPackagesFromFormalRows(projectId: string, rows: VendorPack
   return Array.from(grouped.values());
 }
 
-function getFormalFallbackPackagesForWorkflowProject(projectId: string): VendorPackage[] {
-  return buildFallbackPackagesFromFormalRows(projectId, getMockVendorPackageFormalRows(projectId));
+function getDraftFallbackPackagesForWorkflowProject(projectId: string): VendorPackage[] {
+  return buildFallbackPackagesFromDraftRows(projectId, getDraftFallbackRowsFromVendorAssignments(projectId));
 }
 
 function getLocalVendorPackagesForWorkflowProject(projectId: string): VendorPackage[] {
@@ -129,7 +129,7 @@ export function getVendorPackagesForWorkflowProject(projectId: string): Workflow
 
   return {
     source: "assignment-fallback",
-    packages: getFormalFallbackPackagesForWorkflowProject(projectId),
+    packages: getDraftFallbackPackagesForWorkflowProject(projectId),
   };
 }
 
