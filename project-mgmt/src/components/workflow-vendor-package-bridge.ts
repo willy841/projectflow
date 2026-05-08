@@ -10,6 +10,8 @@ export const workflowVendorPackageBridgeBoundary = {
   formalVendorAssignmentsRouteStatus: "not-used-by-formal-vendor-assignments-route",
   remainingConsumer: "workflow-cost-bridge-vendor-residual-only",
   dependencyInputs: ["vendor-package-store", "execution-tree.savedVendorAssignments"],
+  assignmentFallbackInputs: ["vendorName", "title", "requirement"],
+  assignmentFallbackStatus: "still-derived-from-vendor-assignment-draft-shape-not-formal-package-source",
   replacementOrder: ["assignment-fallback-replacement", "local-package-store-readback-replacement", "vendor-cost-readback-replacement"],
   exitCondition: "requires-replacing-both-local-package-store-readback-and-savedVendorAssignments-assignment-fallback-before-bridge-retirement",
 } as const;
