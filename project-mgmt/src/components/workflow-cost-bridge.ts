@@ -11,10 +11,10 @@ export const workflowCostBridgeBoundary = {
   consumerScope: "legacy-local-workflow-cost-readback-only",
   formalQuoteCostRouteStatus: "retired-from-formal-quote-cost-route",
   formalClientConsumer: "none",
-  remainingCompatibilityConsumer: "project-vendor-financial-store-internal-only",
+  remainingCompatibilityConsumer: "legacy-vendor-financial-relations-helper-only",
   formalAppSurfaceConsumer: "none",
-  legacyIslandStatus: "paired-with-project-vendor-financial-store",
-  retirementGate: "may-retire-after-vendor-financial-legacy-island-replacement",
+  legacyIslandStatus: "paired-with-legacy-vendor-financial-relations-helper",
+  retirementGate: "may-retire-after-legacy-vendor-financial-relations-helper-removal",
 } as const;
 
 function buildWorkflowCostItems(projectId: string): CostLineItem[] {
