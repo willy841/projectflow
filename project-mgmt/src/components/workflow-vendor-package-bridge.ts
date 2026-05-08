@@ -18,6 +18,8 @@ export const workflowVendorPackageBridgeBoundary = {
   sourceProviderMode: "switchable-local-package-or-formal-row-fallback",
   dbProviderInterfaceStatus: "signature-extracted-awaiting-async-bridge-adoption",
   dbProviderShapeStatus: "package-level-shape-aligned-with-vendor-package-adapter",
+  currentRuntimeShape: "local-provider-first-formal-row-fallback-second-db-provider-stub-third",
+  asyncAdoptionGate: "requires-server-side-or-loader-mediated-db-package-fetch-before-db-package-source-can-be-live",
 } as const;
 
 export type WorkflowVendorPackageSource = "local-package-store" | "assignment-fallback" | "db-package-source";
