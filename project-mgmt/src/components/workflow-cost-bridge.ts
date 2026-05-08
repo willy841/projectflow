@@ -23,6 +23,8 @@ export const workflowCostBridgeBoundary = {
   residualLegacySegment: "vendor-package-and-assignment-fallback-only",
   vendorResidualConsumerMode: "package-output-only-no-direct-savedVendorAssignments-read",
   preloadReadyVendorPackageInput: true,
+  vendorPackagePreloadStatus: "input-ready-not-yet-supplied-by-runtime",
+  vendorPackageAdoptionGate: "requires-server-side-or-loader-mediated-db-package-preload-before-db-package-source-branch-becomes-live",
 } as const;
 
 export type WorkflowCostBridgeInput = {
