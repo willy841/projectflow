@@ -12,6 +12,8 @@ export const workflowCostBridgeBoundary = {
   formalQuoteCostRouteStatus: "retired-from-formal-quote-cost-route",
   formalClientConsumer: "none",
   remainingCompatibilityConsumer: "project-vendor-financial-store-only",
+  legacyIslandStatus: "paired-with-project-vendor-financial-store",
+  retirementGate: "may-retire-after-vendor-financial-legacy-island-replacement",
 } as const;
 
 function buildWorkflowCostItems(projectId: string): CostLineItem[] {
