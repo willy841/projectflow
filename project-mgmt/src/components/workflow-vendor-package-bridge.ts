@@ -15,6 +15,7 @@ export const workflowVendorPackageBridgeBoundary = {
   replacementOrder: ["assignment-fallback-replacement", "local-package-store-readback-replacement", "vendor-cost-readback-replacement"],
   exitCondition: "requires-replacing-both-local-package-store-readback-and-savedVendorAssignments-assignment-fallback-before-bridge-retirement",
   transitionalFormalProviderStatus: "provider-shape-extracted-db-source-not-wired-in-client-bridge-yet",
+  sourceProviderMode: "switchable-local-package-or-formal-row-fallback",
 } as const;
 
 export type WorkflowVendorPackageSource = "local-package-store" | "assignment-fallback";
@@ -99,18 +100,26 @@ function buildFallbackPackagesFromFormalRows(projectId: string, rows: VendorPack
   return Array.from(grouped.values());
 }
 
+function getFormalFallbackPackagesForWorkflowProject(projectId: string): VendorPackage[] {
+  return buildFallbackPackagesFromFormalRows(projectId, getMockVendorPackageFormalRows(projectId));
+}
+
+function getLocalVendorPackagesForWorkflowProject(projectId: string): VendorPackage[] {
+  return getStoredPackagesByProjectId(projectId);
+}
+
 export function getVendorPackagesForWorkflowProject(projectId: string): WorkflowVendorPackageBridgeResult {
-  const storedPackages = getStoredPackagesByProjectId(projectId);
-  if (storedPackages.length) {
+  const localPackages = getLocalVendorPackagesForWorkflowProject(projectId);
+  if (localPackages.length) {
     return {
       source: "local-package-store",
-      packages: storedPackages,
+      packages: localPackages,
     };
   }
 
   return {
     source: "assignment-fallback",
-    packages: buildFallbackPackagesFromFormalRows(projectId, getMockVendorPackageFormalRows(projectId)),
+    packages: getFormalFallbackPackagesForWorkflowProject(projectId),
   };
 }
 
