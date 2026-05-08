@@ -80,11 +80,8 @@ export async function getDbProjectById(id: string): Promise<DbBackedProject | nu
   const project = await repositories.projects.findById(id);
   if (!project) return null;
 
-  const [executionItems, designTasks, procurementTasks, vendorTasks, requirementRows] = await Promise.all([
+  const [executionItems, requirementRows] = await Promise.all([
     repositories.executionItems.listByProject(id),
-    repositories.designTasks.listByProject(id),
-    repositories.procurementTasks.listByProject(id),
-    repositories.vendorTasks.listByProject(id),
     db.query<{ id: string; title: string; updatedAt: string }>(`
       select id, title, to_char(updated_at, 'YYYY-MM-DD HH24:MI') as "updatedAt"
       from project_requirements
@@ -92,6 +89,10 @@ export async function getDbProjectById(id: string): Promise<DbBackedProject | nu
       order by updated_at desc, created_at desc
     `, [id]).catch(() => ({ rows: [] })),
   ]);
+
+  const designTasks: Array<Awaited<ReturnType<typeof repositories.designTasks.listByProject>>[number]> = [];
+  const procurementTasks: Array<Awaited<ReturnType<typeof repositories.procurementTasks.listByProject>>[number]> = [];
+  const vendorTasks: Array<Awaited<ReturnType<typeof repositories.vendorTasks.listByProject>>[number]> = [];
 
   const rootItems = executionItems.filter((item) => !item.parent_id).sort((a, b) => a.sort_order - b.sort_order);
   const childrenByParent = new Map<string, ProjectExecutionSubItem[]>();
@@ -110,10 +111,14 @@ export async function getDbProjectById(id: string): Promise<DbBackedProject | nu
     ...procurementTasks.map((task) => task.vendor_id).filter((value): value is string => Boolean(value)),
     ...vendorTasks.map((task) => task.vendor_id).filter((value): value is string => Boolean(value)),
   ]));
-  const vendors = vendorIds.length
-    ? await Promise.all(vendorIds.map((vendorId) => repositories.vendors.findById(vendorId)))
+  const vendorRows = vendorIds.length
+    ? await db.query<{ id: string; name: string }>(`
+        select id, name
+        from vendors
+        where id = any($1::uuid[])
+      `, [vendorIds]).then((result) => result.rows)
     : [];
-  const vendorNameById = new Map(vendors.filter((vendor): vendor is NonNullable<typeof vendor> => Boolean(vendor)).map((vendor) => [vendor.id, vendor.name]));
+  const vendorNameById = new Map(vendorRows.map((vendor) => [vendor.id, vendor.name]));
 
   return {
     id: project.id,
@@ -186,7 +191,15 @@ export async function resolveDbProjectIdByRouteId(routeId: string): Promise<stri
     return routeId;
   }
 
-  const projects = await listDbProjects();
-  const matched = projects.find((project) => getProjectRouteId(project) === routeId || slugifyProjectName(project.name) === routeId);
+  const db = createPhase1DbClient();
+  const result = await db.query<{ id: string; name: string }>(`
+    select id, name
+    from projects
+    order by created_at desc
+  `);
+  const matched = result.rows.find((project) => {
+    const route = `${slugifyProjectName(project.name)}-${project.id.slice(0, 8)}`;
+    return route === routeId || slugifyProjectName(project.name) === routeId;
+  });
   return matched?.id ?? null;
 }

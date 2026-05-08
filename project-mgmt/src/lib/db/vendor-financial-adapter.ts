@@ -46,7 +46,7 @@ type VendorGroupRow = {
   itemCount: number | null;
 };
 
-export async function getVendorFinancialSummary({ vendorId, vendorName }: { vendorId?: string; vendorName: string }): Promise<VendorFinancialSummary> {
+export async function getVendorFinancialSummary({ vendorId, vendorName, includeCostItems = true, includeFallbackGroups = true }: { vendorId?: string; vendorName: string; includeCostItems?: boolean; includeFallbackGroups?: boolean }): Promise<VendorFinancialSummary> {
   const startedAt = performance.now();
   try {
     const db = createPhase1DbClient();
@@ -91,7 +91,7 @@ export async function getVendorFinancialSummary({ vendorId, vendorName }: { vend
     }
 
     const fallbackGroupMap = new Map<string, { amountTotal: number; itemCount: number }>();
-    const needsFallback = groupRows.some((row) => row.amountTotal == null || row.itemCount == null);
+    const needsFallback = includeFallbackGroups && groupRows.some((row) => row.amountTotal == null || row.itemCount == null);
     if (needsFallback) {
       const fallbackProjects = await getQuoteCostProjectsWithDbFinancialsAndGroups();
       for (const project of fallbackProjects) {
@@ -130,23 +130,23 @@ export async function getVendorFinancialSummary({ vendorId, vendorName }: { vend
       const unreconciledCount = rows.filter((row) => row.reconciliationStatus !== '已對帳').length;
       const hasUnreconciledGroups = unreconciledCount > 0;
       const grossAdjustedCost = reconciledGroups.reduce((sum, row) => sum + row.amountTotal, 0);
-      const paidAmount = paidAmountByProjectId.get(projectId) ?? 0;
-      const adjustedCost = Math.max(grossAdjustedCost - paidAmount, 0);
       const reconciliationStatus = reconciledGroups.length > 0
         ? (hasUnreconciledGroups ? '待確認' : '已完成')
         : '未開始';
-      const costItems: CostLineItem[] = reconciledGroups.map((group, index) => ({
-        id: `vendor-group-${projectId}-${group.sourceType}-${index + 1}`,
-        itemName: `${group.sourceType} 對帳內容`,
-        sourceType: group.sourceType,
-        sourceRef: `${group.itemCount} 筆發包內容`,
-        vendorId: vendorId ?? null,
-        vendorName: group.vendorName,
-        originalAmount: group.amountTotal,
-        adjustedAmount: group.amountTotal,
-        includedInCost: true,
-        isManual: false,
-      }));
+      const costItems: CostLineItem[] = includeCostItems
+        ? reconciledGroups.map((group, index) => ({
+            id: `vendor-group-${projectId}-${group.sourceType}-${index + 1}`,
+            itemName: `${group.sourceType} 對帳內容`,
+            sourceType: group.sourceType,
+            sourceRef: `${group.itemCount} 筆發包內容`,
+            vendorId: vendorId ?? null,
+            vendorName: group.vendorName,
+            originalAmount: group.amountTotal,
+            adjustedAmount: group.amountTotal,
+            includedInCost: true,
+            isManual: false,
+          }))
+        : [];
 
       return {
         projectId,
@@ -154,8 +154,8 @@ export async function getVendorFinancialSummary({ vendorId, vendorName }: { vend
         projectName,
         projectStatus,
         reconciliationStatus,
-        adjustedCost,
-        adjustedCostLabel: `NT$ ${adjustedCost.toLocaleString('zh-TW')}`,
+        adjustedCost: grossAdjustedCost,
+        adjustedCostLabel: `NT$ ${grossAdjustedCost.toLocaleString('zh-TW')}`,
         costItems,
         reconciledGroups,
         hasUnreconciledGroups,

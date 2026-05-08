@@ -13,7 +13,7 @@ export type VendorPaymentRecord = {
   amount: number;
   note: string;
 };
-import { listDbVendorPackages } from '@/lib/db/vendor-package-adapter';
+import { listDbVendorPackageSummariesByProjectIds } from '@/lib/db/vendor-package-adapter';
 import { getVendorFinancialSummary } from '@/lib/db/vendor-financial-adapter';
 import { listDbVendorFinancialRelationsByVendorId } from '@/lib/db/vendor-financial-relation-adapter';
 
@@ -273,9 +273,13 @@ export async function listDbVendorProjectRecordsByVendorId(
 
   const fanoutStartedAt = performance.now();
   const includeDetails = options?.includeDetails ?? false;
-  const [relations, financial, paymentRecords, vendorTasks] = await Promise.all([
-    listDbVendorFinancialRelationsByVendorId(vendorId, vendor.name),
-    getVendorFinancialSummary({ vendorId, vendorName: vendor.name }),
+  const [financial, paymentRecords, vendorTasks] = await Promise.all([
+    getVendorFinancialSummary({
+      vendorId,
+      vendorName: vendor.name,
+      includeCostItems: includeDetails,
+      includeFallbackGroups: includeDetails,
+    }),
     options?.paymentRecords ? Promise.resolve(options.paymentRecords) : listDbVendorPaymentRecordsByVendorId(vendorId),
     includeDetails
       ? (async () => {
@@ -296,7 +300,7 @@ export async function listDbVendorProjectRecordsByVendorId(
 
   const fanoutMs = performance.now() - fanoutStartedAt;
 
-  if (!relations.length && !financial.records.length) {
+  if (!financial.records.length) {
     console.log('[vendor-project-records]', JSON.stringify({
       vendorId,
       vendorName: vendor.name,
@@ -318,8 +322,9 @@ export async function listDbVendorProjectRecordsByVendorId(
     return [];
   }
 
+  const packageProjectIds = financial.records.map((record) => record.projectId);
   const packagesStartedAt = performance.now();
-  const packages = await listDbVendorPackages();
+  const packages = await listDbVendorPackageSummariesByProjectIds(packageProjectIds);
   const packageMs = performance.now() - packagesStartedAt;
 
   const packageByProjectId = new Map(
@@ -337,10 +342,7 @@ export async function listDbVendorProjectRecordsByVendorId(
   }
 
   const mapStartedAt = performance.now();
-  const relationByProjectId = new Map(relations.map((relation) => [relation.projectId, relation]));
-
   const mapped = financial.records.map((financialRecord) => {
-    const relation = relationByProjectId.get(financialRecord.projectId);
     const pkg = packageByProjectId.get(financialRecord.projectId);
     const projectTasks = tasksByProjectId.get(financialRecord.projectId) ?? [];
     const sourceItemDetails = includeDetails
@@ -351,13 +353,12 @@ export async function listDbVendorProjectRecordsByVendorId(
       : [];
 
     const paidAmount = paidAmountByProjectId.get(financialRecord.projectId) ?? 0;
-    const adjustedCost = relation?.adjustedCostTotal ?? financialRecord.adjustedCost;
-    const unpaidAmount = relation?.unpaidAmount ?? Math.max(adjustedCost - paidAmount, 0);
+    const adjustedCost = financialRecord.adjustedCost;
+    const unpaidAmount = Math.max(adjustedCost - paidAmount, 0);
     const totalReconciledCount = financialRecord.reconciledGroupCount;
     const totalUnreconciledCount = financialRecord.unreconciledGroupCount;
-    const paymentStatus = relation?.paymentStatus ?? (!financialRecord.hasUnreconciledGroups && paidAmount >= adjustedCost
-      ? '已付款'
-      : '未付款');
+    const isFullyPaidSemanticState = unpaidAmount <= 0;
+    const paymentStatus = isFullyPaidSemanticState ? '已付款' : '未付款';
 
     return {
       id: pkg?.id ?? `vendor-record-${financialRecord.projectId}-${vendorId}`,
@@ -390,7 +391,7 @@ export async function listDbVendorProjectRecordsByVendorId(
   const filtered = mapped.filter((record) => {
     if (options?.recordId && record.id !== options.recordId) return false;
 
-    const isFullyPaidSemanticState = !record.hasUnreconciledGroups && (record.paidAmount ?? 0) >= record.adjustedCost;
+    const isFullyPaidSemanticState = (record.unpaidAmount ?? record.adjustedCost) <= 0;
 
     switch (options?.paymentScope) {
       case 'open':

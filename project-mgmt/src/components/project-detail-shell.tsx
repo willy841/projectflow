@@ -101,11 +101,17 @@ export function ProjectDetailShell({ project, entryContext }: { project: Project
   const isDbProject = isUuidLike(project.id);
   const [projectView, setProjectView] = useState<Project>(normalizedIncomingProject);
   const [projectForm, setProjectForm] = useState<ProjectFormState>(() => buildProjectForm(normalizedIncomingProject));
+  const [showExecutionSection, setShowExecutionSection] = useState(false);
 
   useEffect(() => {
     setProjectView(normalizedIncomingProject);
     setProjectForm(buildProjectForm(normalizedIncomingProject));
   }, [normalizedIncomingProject]);
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => setShowExecutionSection(true), 0);
+    return () => window.clearTimeout(timer);
+  }, [project.id]);
 
   function updateField(key: keyof ProjectFormState, value: string) {
     setProjectForm((prev) => ({ ...prev, [key]: value }));
@@ -357,7 +363,7 @@ export function ProjectDetailShell({ project, entryContext }: { project: Project
         <RequirementsPanel projectId={isDbProject ? project.id : undefined} initialItems={projectView.requirements} />
       </section>
 
-      <ExecutionTreeSection project={projectView} />
+      {showExecutionSection ? <ExecutionTreeSection project={projectView} /> : null}
     </>
   );
 }
