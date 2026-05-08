@@ -83,7 +83,12 @@ export function QuoteCostDetailClient({ project, mode = "active", presenter = ge
   }, [preloadedDbPackages, preloadedFormalRows, project.id]);
   const resolvedProject = {
     ...(initialProject ?? project),
-    costItems: fallbackProjectFromPreloadedPackages?.costItems ?? (initialProject?.costItems ?? project.costItems),
+    costItems: fallbackProjectFromPreloadedPackages
+      ? [
+          ...(initialProject?.costItems ?? project.costItems).filter((item) => item.isManual),
+          ...fallbackProjectFromPreloadedPackages.costItems.filter((item) => !item.isManual),
+        ]
+      : (initialProject?.costItems ?? project.costItems),
   };
   const [reconciliationGroups, setReconciliationGroups] = useState<ReconciliationGroupView[]>(initialProject?.reconciliationGroups ?? []);
   const [state, setState] = useState<EditableProjectState>(() => ({

@@ -57,7 +57,14 @@ export async function compareQuoteCostPreloadParity(projectId: string): Promise<
   if (!readModel) return null;
 
   const preloadedDbPackages = allDbVendorPackages.filter((pkg) => pkg.projectId === projectId);
-  const preloadItems = buildWorkflowCostItemsFromPreloadedSources({
+  const dbItems = readModel.project.costItems
+    .filter((item) => item.includedInCost)
+    .map((item) => ({
+      ...item,
+      adjustedAmount: Number(item.adjustedAmount ?? 0),
+    }));
+
+  const preloadWorkflowItems = buildWorkflowCostItemsFromPreloadedSources({
     projectId,
     vendorPackages: preloadedDbPackages,
     formalRows,
@@ -68,12 +75,10 @@ export async function compareQuoteCostPreloadParity(projectId: string): Promise<
       adjustedAmount: Number(item.adjustedAmount ?? 0),
     }));
 
-  const dbItems = readModel.project.costItems
-    .filter((item) => item.includedInCost)
-    .map((item) => ({
-      ...item,
-      adjustedAmount: Number(item.adjustedAmount ?? 0),
-    }));
+  const preloadItems = [
+    ...dbItems.filter((item) => item.isManual),
+    ...preloadWorkflowItems.filter((item) => !item.isManual),
+  ];
 
   const dbSourceCounts = buildSourceCounts(dbItems);
   const preloadSourceCounts = buildSourceCounts(preloadItems);
