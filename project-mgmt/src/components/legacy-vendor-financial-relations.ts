@@ -8,7 +8,9 @@ export const legacyVendorFinancialRelationsBoundary = {
   mode: "legacy-vendor-financial-relations-helper",
   formalRouteConsumer: "none",
   externalConsumerStatus: "none-detected",
-  helperStatus: "pending-removal-after-bridge-retirement-or-fallback-collapse",
+  helperStatus: "pending-removal-after-client-fallback-retirement-or-active-assemble-collapse",
+  activeAssembleStatus: "still-assembles-active-relations-before-fallback-merge",
+  fallbackCollapseReadiness: "not-ready-direct-fallback-only-collapse",
 } as const;
 import { vendorPackages, vendorProfiles } from "@/components/vendor-data";
 import type { ProjectVendorFinancialRelation } from "@/components/vendor-financial-relation-types";
