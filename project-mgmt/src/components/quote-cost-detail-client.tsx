@@ -17,6 +17,7 @@ import {
 } from "@/components/quote-cost-data";
 import type { DbVendorPackageShape } from "@/components/workflow-vendor-package-bridge";
 import { getQuoteCostProjectsForClientFallback } from "@/components/workflow-cost-bridge";
+import type { ProjectFlowFormalReadbackRow } from "@/components/workflow-derived-board";
 import { getQuoteCostDetailPresenter, type QuoteCostDetailPresenter } from "@/components/quote-cost-detail-presenter";
 import type { ActiveProjectFinancialSummaryTotals } from '@/lib/db/financial-summary-types';
 import type { QuoteCostDetailInitialPayload } from '@/lib/db/quote-cost-detail-payload-types';
@@ -57,6 +58,7 @@ type Props = {
   mode?: DetailMode;
   presenter?: QuoteCostDetailPresenter;
   preloadedDbPackages?: DbVendorPackageShape[];
+  preloadedFormalRows?: ProjectFlowFormalReadbackRow[];
   initialProject?: Partial<QuoteCostDetailInitialPayload> & QuoteCostProject & {
     reconciliationGroups?: ReconciliationGroupView[];
     collectionRecords?: CollectionRecordView[];
@@ -73,12 +75,12 @@ export const quoteCostDetailClientBoundary = {
   vendorPackageRuntimeStatus: "fallback-project-overlay-applied-to-resolved-project-cost-items-when-preloaded-packages-exist",
 } as const;
 
-export function QuoteCostDetailClient({ project, mode = "active", presenter = getQuoteCostDetailPresenter(mode), initialProject, preloadedDbPackages }: Props) {
+export function QuoteCostDetailClient({ project, mode = "active", presenter = getQuoteCostDetailPresenter(mode), initialProject, preloadedDbPackages, preloadedFormalRows }: Props) {
   const router = useRouter();
   const fallbackProjectFromPreloadedPackages = useMemo(() => {
     if (!preloadedDbPackages?.length) return null;
-    return getQuoteCostProjectsForClientFallback(preloadedDbPackages).find((item) => item.id === project.id) ?? null;
-  }, [preloadedDbPackages, project.id]);
+    return getQuoteCostProjectsForClientFallback(preloadedDbPackages, preloadedFormalRows).find((item) => item.id === project.id) ?? null;
+  }, [preloadedDbPackages, preloadedFormalRows, project.id]);
   const resolvedProject = {
     ...(initialProject ?? project),
     costItems: fallbackProjectFromPreloadedPackages?.costItems ?? (initialProject?.costItems ?? project.costItems),
