@@ -77,14 +77,10 @@ export function buildFormalProcurementCostItems(rows: ProjectFlowFormalReadbackR
 }
 
 function getVendorPackageBridgeResult(input: WorkflowCostBridgeInput): WorkflowVendorPackageBridgeResult {
-  if (input.preloadedDbPackages?.length) {
-    return {
-      source: "db-package-source",
-      packages: input.preloadedDbPackages.filter((pkg) => pkg.projectId === input.projectId),
-    };
-  }
-
-  return getVendorPackagesForWorkflowProject(input.projectId);
+  return getVendorPackagesForWorkflowProject({
+    projectId: input.projectId,
+    preloadedDbPackages: input.preloadedDbPackages,
+  });
 }
 
 export function buildWorkflowCostItemsFromPreloadedSources(input: WorkflowCostPreloadedSources): CostLineItem[] {

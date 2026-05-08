@@ -29,6 +29,11 @@ export type WorkflowVendorPackageBridgeResult = {
   packages: VendorPackage[];
 };
 
+export type WorkflowVendorPackageBridgeInput = {
+  projectId: string;
+  preloadedDbPackages?: DbVendorPackageShape[] | null;
+};
+
 export type VendorPackageDraftFallbackRow = {
   projectId: string;
   vendorTaskId: string;
@@ -118,8 +123,17 @@ function getLocalVendorPackagesForWorkflowProject(projectId: string): VendorPack
   return getStoredPackagesByProjectId(projectId);
 }
 
-export function getVendorPackagesForWorkflowProject(projectId: string): WorkflowVendorPackageBridgeResult {
-  const localPackages = getLocalVendorPackagesForWorkflowProject(projectId);
+export function getVendorPackagesForWorkflowProject(input: string | WorkflowVendorPackageBridgeInput): WorkflowVendorPackageBridgeResult {
+  const resolved = typeof input === "string" ? { projectId: input } : input;
+
+  if (resolved.preloadedDbPackages?.length) {
+    return {
+      source: "db-package-source",
+      packages: resolved.preloadedDbPackages.filter((pkg) => pkg.projectId === resolved.projectId),
+    };
+  }
+
+  const localPackages = getLocalVendorPackagesForWorkflowProject(resolved.projectId);
   if (localPackages.length) {
     return {
       source: "local-package-store",
@@ -129,7 +143,7 @@ export function getVendorPackagesForWorkflowProject(projectId: string): Workflow
 
   return {
     source: "assignment-fallback",
-    packages: getDraftFallbackPackagesForWorkflowProject(projectId),
+    packages: getDraftFallbackPackagesForWorkflowProject(resolved.projectId),
   };
 }
 
