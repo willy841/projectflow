@@ -60,62 +60,144 @@ export function buildFormalProcurementCostItems(rows: ProjectFlowFormalReadbackR
     }));
 }
 
-function buildWorkflowCostItems(projectId: string): CostLineItem[] {
+function getMockFormalReadbackRowsForCost(projectId: string): ProjectFlowFormalReadbackRow[] {
   if (typeof window === "undefined") return [];
+
+  const project = quoteCostProjects.find((item) => item.id === projectId);
+  if (!project) return [];
 
   const tree = readStoredExecutionTreeState(projectId);
   const section = readStoredExecutionSectionState(projectId);
-  const items: CostLineItem[] = [];
 
-  Object.entries(tree.savedDesignAssignments).forEach(([targetId, assignment]) => {
-    const replies = section.replyOverrides[targetId] ?? assignment.replies ?? [];
+  const designEntries = Object.entries(tree.savedDesignAssignments);
+  const procurementEntries = Object.entries(tree.savedProcurementAssignments);
+
+  const designConfirmedReplies = new Map<string, number>();
+  designEntries.forEach(([, assignment]) => {
+    const replies = assignment.replies ?? [];
     replies.forEach((reply) => {
       const parsed = parseReplyMessage(reply);
       if (!parsed.confirmed) return;
-      const amount = parseCurrency(parsed.amount);
-      items.push({
-        id: `workflow-design-${projectId}-${targetId}-${reply.id}`,
-        itemName: parsed.title,
-        sourceType: "設計",
-        sourceRef: `設計文件整理 / ${parsed.vendor}`,
-        vendorId: null,
-        vendorName: parsed.vendor === "未指定廠商" ? null : parsed.vendor,
-        originalAmount: amount,
-        adjustedAmount: amount,
-        includedInCost: true,
-        isManual: false,
-      });
+      const vendor = parsed.vendor || "未指定廠商";
+      designConfirmedReplies.set(vendor, (designConfirmedReplies.get(vendor) ?? 0) + 1);
     });
   });
 
-  Object.entries(tree.savedProcurementAssignments).forEach(([targetId, assignment]) => {
+  const designRows: ProjectFlowFormalReadbackRow[] = designEntries.map(([targetId, assignment]) => {
     const replies = section.replyOverrides[targetId] ?? assignment.replies ?? [];
-    replies.forEach((reply) => {
-      const parsed = parseReplyMessage(reply);
-      if (!parsed.confirmed) return;
-      const amount = parseCurrency(parsed.amount);
-      items.push({
-        id: `workflow-procurement-${projectId}-${targetId}-${reply.id}`,
-        itemName: parsed.title,
-        sourceType: "備品",
-        sourceRef: `備品整理 / ${parsed.vendor}`,
-        vendorId: null,
-        vendorName: parsed.vendor === "未指定廠商" ? null : parsed.vendor,
-        originalAmount: amount,
-        adjustedAmount: amount,
-        includedInCost: true,
-        isManual: false,
-      });
-    });
+    const confirmed = replies.filter((reply) => parseReplyMessage(reply).confirmed);
+    const latestConfirmed = confirmed[confirmed.length - 1];
+    const latestParsed = latestConfirmed ? parseReplyMessage(latestConfirmed) : null;
+    const confirmationStatus: ProjectFlowFormalReadbackRow["confirmationStatus"] = replies.length === 0 ? "尚無回覆" : confirmed.length > 0 ? "已確認" : "待確認";
+    const vendorName = latestParsed?.vendor || "未指定";
+    const generatedCount = section.generatedDesignDocuments[vendorName] ?? 0;
+    const expectedDocumentCount = designConfirmedReplies.get(vendorName) ?? 0;
+    const documentStatus: ProjectFlowFormalReadbackRow["documentStatus"] =
+      confirmationStatus !== "已確認"
+        ? "未生成"
+        : generatedCount === 0
+          ? "未生成"
+          : generatedCount === expectedDocumentCount
+            ? "已生成"
+            : "需更新";
+
+    return {
+      flowType: "design",
+      projectId,
+      taskId: targetId,
+      sourceExecutionItemId: targetId,
+      projectName: project.projectName,
+      taskTitle: assignment.requirement || assignment.assignee ? project.costItems.find((item) => item.id === targetId)?.itemName ?? targetId : targetId,
+      assignee: assignment.assignee || null,
+      requirementText: assignment.requirement || null,
+      quantityText: null,
+      sizeText: assignment.size || null,
+      materialText: assignment.material || null,
+      referenceUrl: null,
+      latestConfirmationId: latestConfirmed?.id ?? null,
+      latestConfirmationNo: confirmed.length || null,
+      confirmationStatus,
+      latestConfirmedVendorName: latestParsed?.vendor || null,
+      latestConfirmedAmountLabel: latestParsed?.amount || null,
+      latestConfirmedAmountValue: latestParsed ? parseCurrency(latestParsed.amount) : null,
+      confirmedReplyCount: confirmed.length,
+      totalReplyCount: replies.length,
+      documentStatus,
+      generatedDocumentCount: generatedCount,
+      expectedDocumentCount,
+      costLocked: confirmationStatus === "已確認",
+      includeInCost: confirmationStatus === "已確認",
+    };
   });
 
+  const procurementRows: ProjectFlowFormalReadbackRow[] = procurementEntries.map(([targetId, assignment]) => {
+    const replies = section.replyOverrides[targetId] ?? assignment.replies ?? [];
+    const confirmed = replies.filter((reply) => parseReplyMessage(reply).confirmed);
+    const latestConfirmed = confirmed[confirmed.length - 1];
+    const latestParsed = latestConfirmed ? parseReplyMessage(latestConfirmed) : null;
+    const confirmationStatus: ProjectFlowFormalReadbackRow["confirmationStatus"] = replies.length === 0 ? "尚無回覆" : confirmed.length > 0 ? "已確認" : "待確認";
+    const generatedCount = section.generatedProcurementDocuments[projectId] ?? 0;
+    const expectedDocumentCount = confirmed.length;
+    const documentStatus: ProjectFlowFormalReadbackRow["documentStatus"] =
+      confirmationStatus !== "已確認"
+        ? "未生成"
+        : generatedCount === 0
+          ? "未生成"
+          : generatedCount === expectedDocumentCount
+            ? "已生成"
+            : "需更新";
+
+    return {
+      flowType: "procurement",
+      projectId,
+      taskId: targetId,
+      sourceExecutionItemId: targetId,
+      projectName: project.projectName,
+      taskTitle: assignment.item || targetId,
+      assignee: null,
+      requirementText: assignment.requirement || null,
+      quantityText: assignment.quantity || null,
+      sizeText: assignment.size || null,
+      materialText: assignment.material || null,
+      referenceUrl: assignment.styleUrl || null,
+      latestConfirmationId: latestConfirmed?.id ?? null,
+      latestConfirmationNo: confirmed.length || null,
+      confirmationStatus,
+      latestConfirmedVendorName: latestParsed?.vendor || null,
+      latestConfirmedAmountLabel: latestParsed?.amount || null,
+      latestConfirmedAmountValue: latestParsed ? parseCurrency(latestParsed.amount) : null,
+      confirmedReplyCount: confirmed.length,
+      totalReplyCount: replies.length,
+      documentStatus,
+      generatedDocumentCount: generatedCount,
+      expectedDocumentCount,
+      costLocked: confirmationStatus === "已確認",
+      includeInCost: confirmationStatus === "已確認",
+    };
+  });
+
+  return [...designRows, ...procurementRows];
+}
+
+function buildWorkflowCostItems(projectId: string): CostLineItem[] {
+  if (typeof window === "undefined") return [];
+
+  const formalRows = getMockFormalReadbackRowsForCost(projectId);
+  const designAndProcurementItems = [
+    ...buildFormalDesignCostItems(formalRows),
+    ...buildFormalProcurementCostItems(formalRows),
+  ];
+
+  const tree = readStoredExecutionTreeState(projectId);
   const vendorAssignments = tree.savedVendorAssignments;
   const vendorPackageBridge = getVendorPackagesForWorkflowProject(projectId);
+  const vendorItems: CostLineItem[] = [];
+
   vendorPackageBridge.packages.forEach((pkg) => {
     pkg.items.forEach((item) => {
       const assignment = vendorAssignments[item.assignmentId];
       const amount = parseCurrency(assignment?.amount || "");
-      items.push({
+      vendorItems.push({
         id: `workflow-vendor-${pkg.id}-${item.assignmentId}`,
         itemName: item.itemName,
         sourceType: "廠商",
@@ -130,7 +212,7 @@ function buildWorkflowCostItems(projectId: string): CostLineItem[] {
     });
   });
 
-  return items;
+  return [...designAndProcurementItems, ...vendorItems];
 }
 
 export function getQuoteCostProjectsForClientFallback(): QuoteCostProject[] {
