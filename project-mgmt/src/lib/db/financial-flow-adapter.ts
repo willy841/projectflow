@@ -323,6 +323,7 @@ async function listDesignFinancialItems(): Promise<CostLineItem[]> {
 
   return rows.rows.map((row) => ({
     id: `db-design-${row.snapshotId}`,
+    projectId: row.projectId,
     itemName: row.title ?? '未命名設計項目',
     sourceType: '設計',
     sourceRef: '設計最終流程內容',
@@ -357,6 +358,7 @@ async function listProcurementFinancialItems(): Promise<CostLineItem[]> {
 
   return rows.rows.map((row) => ({
     id: `db-procurement-${row.snapshotId}`,
+    projectId: row.projectId,
     itemName: row.title ?? '未命名備品項目',
     sourceType: '備品',
     sourceRef: '備品最終流程內容',
@@ -394,6 +396,7 @@ async function listVendorFinancialItems(): Promise<CostLineItem[]> {
 
   return rows.rows.map((row) => ({
     id: `db-vendor-${row.snapshotId}`,
+    projectId: row.projectId,
     itemName: row.title ?? '未命名廠商項目',
     sourceType: '廠商',
     sourceRef: `廠商正式確認 / ${row.vendorName ?? '未指定廠商'}`,
@@ -650,17 +653,8 @@ async function getQuoteCostProjectByIdWithDbFinancialsDirect(projectId: string):
     loadFinancialItemsSafely('reconciliation', () => loadProjectReconciliationStatusIndex([projectId]), new Map<string, QuoteCostProject['reconciliationStatus']>()),
   ]);
 
-  const snapshotToProject = new Map<string, string>();
-  const allDbItems = [...designItems, ...procurementItems, ...vendorItems];
-  allDbItems.forEach((item) => {
-    const snapshotId = item.id.replace(/^db-(design|procurement|vendor)-/, '');
-    snapshotToProject.set(snapshotId, projectId);
-  });
-
-  const dbItems = allDbItems.filter((item) => {
-    const snapshotId = item.id.replace(/^db-(design|procurement|vendor)-/, '');
-    return snapshotToProject.get(snapshotId) === projectId;
-  });
+  const allDbItems = [...designItems, ...procurementItems, ...vendorItems] as Array<CostLineItem & { projectId?: string }>;
+  const dbItems = allDbItems.filter((item) => item.projectId === projectId);
 
   const manualProjectItems = manualItems.filter((entry) => entry.projectId === projectId).map((entry) => entry.item);
   const quotationReadModel = quotationReadModelIndex.get(projectId) ?? {

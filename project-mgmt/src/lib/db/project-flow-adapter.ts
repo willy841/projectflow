@@ -80,8 +80,11 @@ export async function getDbProjectById(id: string): Promise<DbBackedProject | nu
   const project = await repositories.projects.findById(id);
   if (!project) return null;
 
-  const [executionItems, requirementRows] = await Promise.all([
+  const [executionItems, designTasks, procurementTasks, vendorTasks, requirementRows] = await Promise.all([
     repositories.executionItems.listByProject(id),
+    repositories.designTasks.listByProject(id),
+    repositories.procurementTasks.listByProject(id),
+    repositories.vendorTasks.listByProject(id),
     db.query<{ id: string; title: string; updatedAt: string }>(`
       select id, title, to_char(updated_at, 'YYYY-MM-DD HH24:MI') as "updatedAt"
       from project_requirements
@@ -89,10 +92,6 @@ export async function getDbProjectById(id: string): Promise<DbBackedProject | nu
       order by updated_at desc, created_at desc
     `, [id]).catch(() => ({ rows: [] })),
   ]);
-
-  const designTasks: Array<Awaited<ReturnType<typeof repositories.designTasks.listByProject>>[number]> = [];
-  const procurementTasks: Array<Awaited<ReturnType<typeof repositories.procurementTasks.listByProject>>[number]> = [];
-  const vendorTasks: Array<Awaited<ReturnType<typeof repositories.vendorTasks.listByProject>>[number]> = [];
 
   const rootItems = executionItems.filter((item) => !item.parent_id).sort((a, b) => a.sort_order - b.sort_order);
   const childrenByParent = new Map<string, ProjectExecutionSubItem[]>();

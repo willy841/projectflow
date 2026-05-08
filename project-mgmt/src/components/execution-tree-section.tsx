@@ -217,16 +217,7 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
   }
 
   const designSummaryList = useMemo<ProjectTaskSummaryItem[]>(() => {
-    const fromAssignments = designAssignments.map((assignment) => ({
-      id: assignment.targetId,
-      summaryKey: assignment.targetId,
-      title: assignment.title,
-      href: assignment.boardPath || `/design-tasks?project=${encodeURIComponent(project.id)}`,
-      ctaLabel: assignment.boardPath ? "前往設計任務詳情" : "前往設計任務板",
-      onDelete: deletingSummaryKey ? undefined : () => void handleDeleteDispatchedTask('design', assignment.targetId),
-    }));
-
-    const fromLegacyTasks = project.designTasks.map((task, index) => ({
+    const fromDbTasks = project.designTasks.map((task, index) => ({
       id: task.id ?? `${task.sourceExecutionItemId ?? task.title}-design-${index}`,
       summaryKey: task.sourceExecutionItemId ?? task.id ?? `${task.title}-${index}`,
       title: task.title,
@@ -235,20 +226,23 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
       onDelete: task.sourceExecutionItemId && !deletingSummaryKey ? () => void handleDeleteDispatchedTask('design', task.sourceExecutionItemId as string) : undefined,
     }));
 
-    return dedupeProjectTaskSummaryItems([...fromAssignments, ...fromLegacyTasks]);
+    const existingSummaryKeys = new Set(fromDbTasks.map((item) => item.summaryKey ?? item.id));
+    const fromAssignments = designAssignments
+      .filter((assignment) => !existingSummaryKeys.has(assignment.targetId))
+      .map((assignment) => ({
+        id: assignment.targetId,
+        summaryKey: assignment.targetId,
+        title: assignment.title,
+        href: assignment.boardPath || `/design-tasks?project=${encodeURIComponent(project.id)}`,
+        ctaLabel: assignment.boardPath ? "前往設計任務詳情" : "前往設計任務板",
+        onDelete: deletingSummaryKey ? undefined : () => void handleDeleteDispatchedTask('design', assignment.targetId),
+      }));
+
+    return [...fromDbTasks, ...fromAssignments];
   }, [deletingSummaryKey, designAssignments, project.designTasks, project.id]);
 
   const procurementSummaryList = useMemo<ProjectTaskSummaryItem[]>(() => {
-    const fromAssignments = procurementAssignments.map((assignment) => ({
-      id: assignment.targetId,
-      summaryKey: assignment.targetId,
-      title: assignment.data.item || assignment.title,
-      href: assignment.boardPath || `/procurement-tasks?project=${encodeURIComponent(project.id)}`,
-      ctaLabel: assignment.boardPath ? "前往備品任務詳情" : "前往採購備品板",
-      onDelete: deletingSummaryKey ? undefined : () => void handleDeleteDispatchedTask('procurement', assignment.targetId),
-    }));
-
-    const fromLegacyTasks = project.procurementTasks.map((task, index) => ({
+    const fromDbTasks = project.procurementTasks.map((task, index) => ({
       id: task.id ?? `${task.sourceExecutionItemId ?? task.title}-procurement-${index}`,
       summaryKey: task.sourceExecutionItemId ?? task.id ?? `${task.title}-${index}`,
       title: task.title,
@@ -257,29 +251,45 @@ export function ExecutionTreeSection({ project }: { project: Project }) {
       onDelete: task.sourceExecutionItemId && !deletingSummaryKey ? () => void handleDeleteDispatchedTask('procurement', task.sourceExecutionItemId as string) : undefined,
     }));
 
-    return dedupeProjectTaskSummaryItems([...fromAssignments, ...fromLegacyTasks]);
+    const existingSummaryKeys = new Set(fromDbTasks.map((item) => item.summaryKey ?? item.id));
+    const fromAssignments = procurementAssignments
+      .filter((assignment) => !existingSummaryKeys.has(assignment.targetId))
+      .map((assignment) => ({
+        id: assignment.targetId,
+        summaryKey: assignment.targetId,
+        title: assignment.data.item || assignment.title,
+        href: assignment.boardPath || `/procurement-tasks?project=${encodeURIComponent(project.id)}`,
+        ctaLabel: assignment.boardPath ? "前往備品任務詳情" : "前往採購備品板",
+        onDelete: deletingSummaryKey ? undefined : () => void handleDeleteDispatchedTask('procurement', assignment.targetId),
+      }));
+
+    return [...fromDbTasks, ...fromAssignments];
   }, [deletingSummaryKey, procurementAssignments, project.procurementTasks, project.id]);
 
   const vendorSummaryList = useMemo<ProjectTaskSummaryItem[]>(
     () => {
-      return dedupeProjectTaskSummaryItems([
-        ...vendorAssignments.map((assignment) => ({
+      const fromDbTasks = (project.vendorTasks ?? []).map((task, index) => ({
+        id: task.id ?? `${task.sourceExecutionItemId ?? task.title}-vendor-${index}`,
+        summaryKey: task.sourceExecutionItemId ?? task.id ?? `${task.title}-${index}`,
+        title: task.title,
+        href: task.id ? `/vendor-assignments/${task.id}` : `/vendor-assignments?project=${encodeURIComponent(project.id)}`,
+        ctaLabel: task.id ? "前往廠商任務詳情" : "前往廠商發包板",
+        onDelete: task.sourceExecutionItemId && !deletingSummaryKey ? () => void handleDeleteDispatchedTask('vendor', task.sourceExecutionItemId as string) : undefined,
+      }));
+
+      const existingSummaryKeys = new Set(fromDbTasks.map((item) => item.summaryKey ?? item.id));
+      const fromAssignments = vendorAssignments
+        .filter((assignment) => !existingSummaryKeys.has(assignment.targetId))
+        .map((assignment) => ({
           id: assignment.targetId,
           summaryKey: assignment.targetId,
           title: assignment.data.title || assignment.title,
           href: assignment.boardPath || `/vendor-assignments?project=${encodeURIComponent(project.id)}`,
           ctaLabel: assignment.boardPath ? "前往廠商任務詳情" : "前往廠商發包板",
           onDelete: deletingSummaryKey ? undefined : () => void handleDeleteDispatchedTask('vendor', assignment.targetId),
-        })),
-        ...(project.vendorTasks ?? []).map((task, index) => ({
-          id: task.id ?? `${task.sourceExecutionItemId ?? task.title}-vendor-${index}`,
-          summaryKey: task.sourceExecutionItemId ?? task.id ?? `${task.title}-${index}`,
-          title: task.title,
-          href: task.id ? `/vendor-assignments/${task.id}` : `/vendor-assignments?project=${encodeURIComponent(project.id)}`,
-          ctaLabel: task.id ? "前往廠商任務詳情" : "前往廠商發包板",
-          onDelete: task.sourceExecutionItemId && !deletingSummaryKey ? () => void handleDeleteDispatchedTask('vendor', task.sourceExecutionItemId as string) : undefined,
-        })),
-      ]);
+        }));
+
+      return [...fromDbTasks, ...fromAssignments];
     },
     [deletingSummaryKey, project.id, project.vendorTasks, vendorAssignments],
   );

@@ -46,7 +46,7 @@ type VendorGroupRow = {
   itemCount: number | null;
 };
 
-export async function getVendorFinancialSummary({ vendorId, vendorName, includeCostItems = true, includeFallbackGroups = true }: { vendorId?: string; vendorName: string; includeCostItems?: boolean; includeFallbackGroups?: boolean }): Promise<VendorFinancialSummary> {
+export async function getVendorFinancialSummary({ vendorId, vendorName, includeCostItems = true, includeFallbackGroups = true, includeProjectStatus = true }: { vendorId?: string; vendorName: string; includeCostItems?: boolean; includeFallbackGroups?: boolean; includeProjectStatus?: boolean }): Promise<VendorFinancialSummary> {
   const startedAt = performance.now();
   try {
     const db = createPhase1DbClient();
@@ -127,7 +127,8 @@ export async function getVendorFinancialSummary({ vendorId, vendorName, includeC
             itemCount: row.itemCount ?? fallback?.itemCount ?? 0,
           };
         });
-      const unreconciledCount = rows.filter((row) => row.reconciliationStatus !== '已對帳').length;
+      const unreconciledRows = rows.filter((row) => row.reconciliationStatus !== '已對帳');
+      const unreconciledCount = unreconciledRows.length;
       const hasUnreconciledGroups = unreconciledCount > 0;
       const grossAdjustedCost = reconciledGroups.reduce((sum, row) => sum + row.amountTotal, 0);
       const reconciliationStatus = reconciledGroups.length > 0
@@ -162,7 +163,7 @@ export async function getVendorFinancialSummary({ vendorId, vendorName, includeC
         reconciledGroupCount: reconciledGroups.length,
         unreconciledGroupCount: unreconciledCount,
       };
-    }).filter((record) => !record.hasUnreconciledGroups && record.reconciledGroups.length > 0);
+    }).filter((record) => record.reconciledGroups.length > 0 || record.unreconciledGroupCount > 0);
 
     const totalMs = performance.now() - startedAt;
     console.log('[vendor-financial-summary]', JSON.stringify({

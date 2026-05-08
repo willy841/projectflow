@@ -24,6 +24,7 @@ test('perf baseline for vendor / quote / project detail', async ({ page }) => {
   console.log('[perf-baseline]', JSON.stringify({ vendor, quote, project }));
 
   const reportDir = test.info().outputDir;
+  fs.mkdirSync(reportDir, { recursive: true });
   const perfLogPath = path.join(reportDir, 'perf-baseline.json');
   fs.writeFileSync(perfLogPath, JSON.stringify({ vendor, quote, project }, null, 2));
 });

@@ -15,7 +15,6 @@ export type VendorPaymentRecord = {
 };
 import { listDbVendorPackageSummariesByProjectIds } from '@/lib/db/vendor-package-adapter';
 import { getVendorFinancialSummary } from '@/lib/db/vendor-financial-adapter';
-import { listDbVendorFinancialRelationsByVendorId } from '@/lib/db/vendor-financial-relation-adapter';
 
 function normalizeVendorName(name: string) {
   return name.trim().toLowerCase().replace(/\s+/g, ' ');
@@ -212,7 +211,7 @@ export async function listDbVendors(): Promise<VendorBasicProfile[]> {
     vendors.map(async (vendor) => {
       const [financial, paymentRecords] = await Promise.all([
         getVendorFinancialSummary({ vendorId: vendor.id, vendorName: vendor.name }),
-        listDbVendorPaymentRecordsByVendorId(vendor.id),
+        listDbVendorPaymentRecordsByVendorId(vendor.id, { vendorName: vendor.name }),
       ]);
 
       const outstandingTotal = financial.records.reduce((sum, record) => sum + record.adjustedCost, 0);
@@ -237,10 +236,11 @@ export async function getDbVendorById(id: string): Promise<VendorBasicProfile | 
   return mapVendorRowToProfile(vendor);
 }
 
-export async function listDbVendorPaymentRecordsByVendorId(vendorId: string): Promise<VendorPaymentRecord[]> {
+export async function listDbVendorPaymentRecordsByVendorId(vendorId: string, options?: { vendorName?: string }): Promise<VendorPaymentRecord[]> {
   const startedAt = performance.now();
   const vendorLookupStartedAt = performance.now();
-  const vendor = await getDbVendorById(vendorId);
+  const resolvedVendorName = options?.vendorName;
+  const vendor = resolvedVendorName ? { id: vendorId, name: resolvedVendorName } : await getDbVendorById(vendorId);
   const vendorLookupMs = performance.now() - vendorLookupStartedAt;
   if (!vendor) return [];
   const db = createPhase1DbClient();
@@ -280,7 +280,7 @@ export async function listDbVendorProjectRecordsByVendorId(
       includeCostItems: includeDetails,
       includeFallbackGroups: includeDetails,
     }),
-    options?.paymentRecords ? Promise.resolve(options.paymentRecords) : listDbVendorPaymentRecordsByVendorId(vendorId),
+    options?.paymentRecords ? Promise.resolve(options.paymentRecords) : listDbVendorPaymentRecordsByVendorId(vendorId, { vendorName: vendor.name }),
     includeDetails
       ? (async () => {
           const db = createPhase1DbClient();
@@ -324,7 +324,7 @@ export async function listDbVendorProjectRecordsByVendorId(
 
   const packageProjectIds = financial.records.map((record) => record.projectId);
   const packagesStartedAt = performance.now();
-  const packages = await listDbVendorPackageSummariesByProjectIds(packageProjectIds);
+  const packages = includeDetails ? await listDbVendorPackageSummariesByProjectIds(packageProjectIds) : [];
   const packageMs = performance.now() - packagesStartedAt;
 
   const packageByProjectId = new Map(
