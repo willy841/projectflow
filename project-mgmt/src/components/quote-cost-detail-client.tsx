@@ -15,6 +15,7 @@ import {
   type CostLineItem,
   type CostSourceType,
 } from "@/components/quote-cost-data";
+import type { DbVendorPackageShape } from "@/components/workflow-vendor-package-bridge";
 import { getQuoteCostDetailPresenter, type QuoteCostDetailPresenter } from "@/components/quote-cost-detail-presenter";
 import type { ActiveProjectFinancialSummaryTotals } from '@/lib/db/financial-summary-types';
 import type { QuoteCostDetailInitialPayload } from '@/lib/db/quote-cost-detail-payload-types';
@@ -54,6 +55,7 @@ type Props = {
   project: QuoteCostProject;
   mode?: DetailMode;
   presenter?: QuoteCostDetailPresenter;
+  preloadedDbPackages?: DbVendorPackageShape[];
   initialProject?: Partial<QuoteCostDetailInitialPayload> & QuoteCostProject & {
     reconciliationGroups?: ReconciliationGroupView[];
     collectionRecords?: CollectionRecordView[];
@@ -64,7 +66,7 @@ type Props = {
 
 type EditableProjectState = QuoteCostProject;
 
-export function QuoteCostDetailClient({ project, mode = "active", presenter = getQuoteCostDetailPresenter(mode), initialProject }: Props) {
+export function QuoteCostDetailClient({ project, mode = "active", presenter = getQuoteCostDetailPresenter(mode), initialProject, preloadedDbPackages }: Props) {
   const router = useRouter();
   const resolvedProject = initialProject ?? project;
   const [reconciliationGroups, setReconciliationGroups] = useState<ReconciliationGroupView[]>(initialProject?.reconciliationGroups ?? []);
