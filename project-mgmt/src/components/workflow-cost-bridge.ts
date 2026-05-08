@@ -14,12 +14,12 @@ export const workflowCostBridgeBoundary = {
   formalClientConsumer: "none",
   remainingCompatibilityConsumer: "legacy-vendor-financial-relations-helper-via-client-fallback-only",
   formalAppSurfaceConsumer: "none",
-  legacyIslandStatus: "paired-with-legacy-vendor-financial-relations-helper-via-client-fallback-only",
-  retirementGate: "requires-local-execution-readback-chain-replacement-before-client-fallback-retirement",
-  exitCondition: "requires-replacing-execution-tree-section-readback-vendor-package-readback-and-vendor-assignment-cost-readback-with-db-or-formal-read-model-sources",
+  legacyIslandStatus: "design-procurement-via-transitional-formal-rows-plus-vendor-residual-legacy",
+  retirementGate: "requires-vendor-residual-replacement-and-local-execution-readback-chain-replacement-before-client-fallback-retirement",
+  exitCondition: "design-procurement-segment-now-routes-via-transitional-formal-rows-but-full-retirement-still-requires-replacing-vendor-package-readback-and-vendor-assignment-cost-readback-with-db-or-formal-read-model-sources",
   upstreamInputs: ["execution-section.replyOverrides", "execution-tree.saved-design-procurement-assignments", "vendor-package-bridge-or-assignment-fallback"],
-  formalizedSegments: ["design-cost-mapper", "procurement-cost-mapper"],
-  residualLegacySegment: "vendor-package-and-assignment-fallback",
+  formalizedSegments: ["design-cost-mapper", "procurement-cost-mapper", "design-procurement-transitional-formal-row-provider"],
+  residualLegacySegment: "vendor-package-and-assignment-fallback-only",
 } as const;
 
 export function buildFormalDesignCostItems(rows: ProjectFlowFormalReadbackRow[]): CostLineItem[] {
