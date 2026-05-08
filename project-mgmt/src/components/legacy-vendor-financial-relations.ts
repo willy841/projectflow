@@ -3,6 +3,13 @@ import {
   type CostLineItem,
   type QuoteCostProject,
 } from "@/components/quote-cost-data";
+
+export const legacyVendorFinancialRelationsBoundary = {
+  mode: "legacy-vendor-financial-relations-helper",
+  formalRouteConsumer: "none",
+  externalConsumerStatus: "none-detected",
+  helperStatus: "pending-removal-after-bridge-retirement-or-fallback-collapse",
+} as const;
 import { vendorPackages, vendorProfiles } from "@/components/vendor-data";
 import type { ProjectVendorFinancialRelation } from "@/components/vendor-financial-relation-types";
 import { getStoredPackagesByProjectId } from "@/components/vendor-package-store";
