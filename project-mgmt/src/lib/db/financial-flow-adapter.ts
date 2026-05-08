@@ -1,13 +1,11 @@
 import {
-  getGrossProfit,
-  getProjectCostTotal,
-  getQuotationTotal,
   type CostLineItem,
   type CostSourceType,
   type QuoteCostProject,
 } from '@/components/quote-cost-data';
 import { createPhase1DbClient } from '@/lib/db/phase1-client';
 import { listProjectCollectionRecords } from '@/lib/db/collection-read-model';
+import { buildProjectFinancialSummary } from '@/lib/db/project-financial-summary-read-model';
 import { buildVendorPaymentSummaryRows } from '@/lib/db/vendor-payment-summary-read-model';
 import { shouldUseDbDesignFlow } from '@/lib/db/design-flow-toggle';
 import { shouldUseDbProcurementFlow } from '@/lib/db/procurement-flow-toggle';
@@ -661,11 +659,9 @@ export async function getQuoteCostDetailReadModel(projectId: string): Promise<Qu
   if (!project) return null;
 
   const collectionRecords = await listProjectCollectionRecords(projectId);
-  const quotationTotal = getQuotationTotal(project.quotationItems, project.quotationImport);
+  const { quotationTotal, projectCostTotal, grossProfit } = buildProjectFinancialSummary(project);
   const collectedTotal = collectionRecords.reduce((sum, record) => sum + record.amount, 0);
   const outstandingTotal = Math.max(quotationTotal - collectedTotal, 0);
-  const projectCostTotal = getProjectCostTotal(project.costItems);
-  const grossProfit = getGrossProfit(quotationTotal, projectCostTotal);
 
   return {
     project,
