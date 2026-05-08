@@ -14,7 +14,9 @@ export const workflowCostBridgeBoundary = {
   remainingCompatibilityConsumer: "legacy-vendor-financial-relations-helper-via-client-fallback-only",
   formalAppSurfaceConsumer: "none",
   legacyIslandStatus: "paired-with-legacy-vendor-financial-relations-helper-via-client-fallback-only",
-  retirementGate: "may-retire-after-legacy-vendor-financial-relations-helper-removal-or-client-fallback-retirement",
+  retirementGate: "requires-local-execution-readback-chain-replacement-before-client-fallback-retirement",
+  exitCondition: "requires-replacing-execution-tree-section-readback-vendor-package-readback-and-vendor-assignment-cost-readback-with-db-or-formal-read-model-sources",
+  upstreamInputs: ["execution-section.replyOverrides", "execution-tree.saved-design-procurement-assignments", "vendor-package-bridge-or-assignment-fallback"],
 } as const;
 
 function buildWorkflowCostItems(projectId: string): CostLineItem[] {
