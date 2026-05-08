@@ -25,6 +25,7 @@ export const workflowCostBridgeBoundary = {
   preloadReadyVendorPackageInput: true,
   vendorPackagePreloadStatus: "input-ready-not-yet-supplied-by-runtime",
   vendorPackageAdoptionGate: "requires-server-side-or-loader-mediated-db-package-preload-before-db-package-source-branch-becomes-live",
+  vendorAmountFormalizationStatus: "blocked-by-package-shape-without-item-level-amount",
 } as const;
 
 export type WorkflowCostBridgeInput = {
