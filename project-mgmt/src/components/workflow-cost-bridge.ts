@@ -1,21 +1,20 @@
-import type { CostLineItem, QuoteCostProject } from "@/components/quote-cost-data";
-import { quoteCostProjects } from "@/components/quote-cost-data";
+import type { CostLineItem } from "@/components/quote-cost-data";
 import type { ProjectFlowFormalReadbackRow } from "@/components/workflow-derived-board";
 import type { DbVendorPackageShape, WorkflowVendorPackageBridgeResult } from "@/components/workflow-vendor-package-bridge";
 import { getVendorPackagesForWorkflowProject } from "@/components/workflow-vendor-package-bridge";
 
 export const workflowCostBridgeBoundary = {
-  mode: "legacy-readback-compatibility-bridge",
-  baseProjectSource: "quote-cost-fixture-only",
-  vendorPackageSource: "workflow-vendor-package-legacy-bridge",
-  consumerScope: "legacy-local-workflow-cost-readback-only",
+  mode: "preload-based-active-cost-assembler",
+  baseProjectSource: "seed-cost-items-plus-preloaded-sources",
+  vendorPackageSource: "workflow-vendor-package-preload-first-bridge",
+  consumerScope: "active-detail-preloaded-cost-assembly-only",
   formalQuoteCostRouteStatus: "retired-from-formal-quote-cost-route",
   formalClientConsumer: "none",
   remainingCompatibilityConsumer: "none-detected",
   formalAppSurfaceConsumer: "none",
-  legacyIslandStatus: "design-procurement-preload-ready-plus-vendor-residual-legacy",
-  retirementGate: "requires-vendor-residual-replacement-and-local-execution-readback-chain-replacement-before-client-fallback-retirement",
-  exitCondition: "active-mainline-retired-to-preload-based-chain; remaining helper can be removed once no compatibility callers remain",
+  legacyIslandStatus: "active-mainline-closed-no-compatibility-consumer-detected",
+  retirementGate: "none-for-active-mainline",
+  exitCondition: "active-mainline-closure-complete",
   upstreamInputs: ["preloaded-formal-rows", "vendor-package-bridge-or-assignment-fallback"],
   formalizedSegments: ["design-cost-mapper", "procurement-cost-mapper", "design-procurement-preloaded-formal-row-provider"],
   residualLegacySegment: "vendor-package-and-assignment-fallback-only",
@@ -120,27 +119,6 @@ function buildWorkflowCostItems(input: WorkflowCostBridgeInput): CostLineItem[] 
     projectId: input.projectId,
     formalRows: input.preloadedFormalRows ?? [],
     vendorPackages: vendorPackageBridge.packages,
-  });
-}
-
-export function getQuoteCostProjectsForClientFallback(preloadedDbPackages?: DbVendorPackageShape[] | null, preloadedFormalRows?: ProjectFlowFormalReadbackRow[] | null): QuoteCostProject[] {
-  if (typeof window === "undefined") return quoteCostProjects;
-
-  return quoteCostProjects.map((project) => {
-    const workflowItems = buildWorkflowCostItems({
-      projectId: project.id,
-      preloadedDbPackages,
-      preloadedFormalRows: preloadedFormalRows?.filter((row) => row.projectId === project.id) ?? null,
-    });
-    if (!workflowItems.length) return project;
-
-    const workflowSourceTypes = new Set(workflowItems.map((item) => item.sourceType));
-    const preservedSeedItems = project.costItems.filter((item) => item.isManual || !workflowSourceTypes.has(item.sourceType));
-
-    return {
-      ...project,
-      costItems: [...preservedSeedItems, ...workflowItems],
-    };
   });
 }
 
