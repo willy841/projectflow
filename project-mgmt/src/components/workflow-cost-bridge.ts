@@ -11,7 +11,8 @@ export const workflowCostBridgeBoundary = {
   consumerScope: "legacy-local-workflow-cost-readback-only",
   formalQuoteCostRouteStatus: "retired-from-formal-quote-cost-route",
   formalClientConsumer: "none",
-  remainingCompatibilityConsumer: "project-vendor-financial-store-only",
+  remainingCompatibilityConsumer: "project-vendor-financial-store-internal-only",
+  formalAppSurfaceConsumer: "none",
   legacyIslandStatus: "paired-with-project-vendor-financial-store",
   retirementGate: "may-retire-after-vendor-financial-legacy-island-replacement",
 } as const;

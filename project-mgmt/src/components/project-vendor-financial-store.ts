@@ -22,8 +22,10 @@ export const projectVendorFinancialStoreBoundary = {
   sourceStatus: "legacy-compatibility-only-not-formal-source-of-truth",
   formalRouteConsumer: "none",
   formalVendorPagesStatus: "db-routes-detached",
+  legacyUiConsumer: "none-detected",
+  islandStatus: "orphaned-legacy-island",
   pairedLegacyDependency: "workflow-cost-bridge-only",
-  retirementGate: "may-retire-after-formal-vendor-financial-island-replacement",
+  retirementGate: "may-retire-after-formal-vendor-financial-island-replacement-or-direct-island-removal",
   dbReplacementRequires: "server-or-async-read-model",
 } as const;
 
