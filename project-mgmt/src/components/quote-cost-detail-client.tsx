@@ -16,6 +16,7 @@ import {
   type CostSourceType,
 } from "@/components/quote-cost-data";
 import type { DbVendorPackageShape } from "@/components/workflow-vendor-package-bridge";
+import { getQuoteCostProjectsForClientFallback } from "@/components/workflow-cost-bridge";
 import { getQuoteCostDetailPresenter, type QuoteCostDetailPresenter } from "@/components/quote-cost-detail-presenter";
 import type { ActiveProjectFinancialSummaryTotals } from '@/lib/db/financial-summary-types';
 import type { QuoteCostDetailInitialPayload } from '@/lib/db/quote-cost-detail-payload-types';
@@ -66,9 +67,22 @@ type Props = {
 
 type EditableProjectState = QuoteCostProject;
 
+export const quoteCostDetailClientBoundary = {
+  mode: "db-detail-client-with-vendor-package-preload-boundary",
+  vendorPackagePreloadStatus: "supplied-to-client-boundary",
+  vendorPackageRuntimeStatus: "fallback-project-overlay-enabled-when-preloaded-packages-exist",
+} as const;
+
 export function QuoteCostDetailClient({ project, mode = "active", presenter = getQuoteCostDetailPresenter(mode), initialProject, preloadedDbPackages }: Props) {
   const router = useRouter();
-  const resolvedProject = initialProject ?? project;
+  const fallbackProjectFromPreloadedPackages = useMemo(() => {
+    if (!preloadedDbPackages?.length) return null;
+    return getQuoteCostProjectsForClientFallback(preloadedDbPackages).find((item) => item.id === project.id) ?? null;
+  }, [preloadedDbPackages, project.id]);
+  const resolvedProject = initialProject ?? {
+    ...project,
+    costItems: fallbackProjectFromPreloadedPackages?.costItems ?? project.costItems,
+  };
   const [reconciliationGroups, setReconciliationGroups] = useState<ReconciliationGroupView[]>(initialProject?.reconciliationGroups ?? []);
   const [state, setState] = useState<EditableProjectState>(() => ({
     ...resolvedProject,
