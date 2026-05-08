@@ -17,6 +17,7 @@ export const workflowVendorPackageBridgeBoundary = {
   transitionalFormalProviderStatus: "provider-shape-extracted-db-source-not-wired-in-client-bridge-yet",
   sourceProviderMode: "switchable-local-package-or-formal-row-fallback",
   dbProviderInterfaceStatus: "signature-extracted-awaiting-async-bridge-adoption",
+  dbProviderShapeStatus: "package-level-shape-aligned-with-vendor-package-adapter",
 } as const;
 
 export type WorkflowVendorPackageSource = "local-package-store" | "assignment-fallback" | "db-package-source";
@@ -39,6 +40,8 @@ export type VendorPackageFormalFallbackRow = {
 };
 
 export type VendorPackageSourceProvider = (projectId: string) => VendorPackage[];
+
+export type DbVendorPackageShape = VendorPackage;
 
 function getMockVendorPackageFormalRows(projectId: string): VendorPackageFormalFallbackRow[] {
   const tree = readStoredExecutionTreeState(projectId);
@@ -103,6 +106,10 @@ function buildFallbackPackagesFromFormalRows(projectId: string, rows: VendorPack
   return Array.from(grouped.values());
 }
 
+function normalizeDbVendorPackagesForWorkflowProject(projectId: string, packages: DbVendorPackageShape[]): VendorPackage[] {
+  return packages.filter((pkg) => pkg.projectId === projectId);
+}
+
 function getFormalFallbackPackagesForWorkflowProject(projectId: string): VendorPackage[] {
   return buildFallbackPackagesFromFormalRows(projectId, getMockVendorPackageFormalRows(projectId));
 }
@@ -111,8 +118,8 @@ function getLocalVendorPackagesForWorkflowProject(projectId: string): VendorPack
   return getStoredPackagesByProjectId(projectId);
 }
 
-export const getDbVendorPackagesForWorkflowProject: VendorPackageSourceProvider = () => {
-  return [];
+export const getDbVendorPackagesForWorkflowProject: VendorPackageSourceProvider = (projectId) => {
+  return normalizeDbVendorPackagesForWorkflowProject(projectId, []);
 };
 
 export function getVendorPackagesForWorkflowProject(projectId: string): WorkflowVendorPackageBridgeResult {
