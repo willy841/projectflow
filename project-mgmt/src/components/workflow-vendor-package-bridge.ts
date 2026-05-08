@@ -16,9 +16,10 @@ export const workflowVendorPackageBridgeBoundary = {
   exitCondition: "requires-replacing-both-local-package-store-readback-and-savedVendorAssignments-assignment-fallback-before-bridge-retirement",
   transitionalFormalProviderStatus: "provider-shape-extracted-db-source-not-wired-in-client-bridge-yet",
   sourceProviderMode: "switchable-local-package-or-formal-row-fallback",
+  dbProviderInterfaceStatus: "signature-extracted-awaiting-async-bridge-adoption",
 } as const;
 
-export type WorkflowVendorPackageSource = "local-package-store" | "assignment-fallback";
+export type WorkflowVendorPackageSource = "local-package-store" | "assignment-fallback" | "db-package-source";
 
 export type WorkflowVendorPackageBridgeResult = {
   source: WorkflowVendorPackageSource;
@@ -36,6 +37,8 @@ export type VendorPackageFormalFallbackRow = {
   packageId: string | null;
   packageCode: string | null;
 };
+
+export type VendorPackageSourceProvider = (projectId: string) => VendorPackage[];
 
 function getMockVendorPackageFormalRows(projectId: string): VendorPackageFormalFallbackRow[] {
   const tree = readStoredExecutionTreeState(projectId);
@@ -107,6 +110,10 @@ function getFormalFallbackPackagesForWorkflowProject(projectId: string): VendorP
 function getLocalVendorPackagesForWorkflowProject(projectId: string): VendorPackage[] {
   return getStoredPackagesByProjectId(projectId);
 }
+
+export const getDbVendorPackagesForWorkflowProject: VendorPackageSourceProvider = () => {
+  return [];
+};
 
 export function getVendorPackagesForWorkflowProject(projectId: string): WorkflowVendorPackageBridgeResult {
   const localPackages = getLocalVendorPackagesForWorkflowProject(projectId);
