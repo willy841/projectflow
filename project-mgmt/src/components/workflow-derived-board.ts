@@ -24,6 +24,9 @@ export const workflowDerivedBoardBoundary = {
     "mapFormalRowsToDesignBoardRecords",
     "mapFormalRowsToProcurementBoardRecords",
   ],
+  formalMapperStatus: "extracted-and-active",
+  runtimeSourceStatus: "still-transitional-formal-rows-derived-from-local-execution-readback",
+  liveDbAdoptionStatus: "not-yet-adopted",
 } as const;
 
 export type ProjectFlowFormalReadbackRow = {
