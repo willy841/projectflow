@@ -110,3 +110,7 @@ export function getQuoteCostProjectsForClientFallback(): QuoteCostProject[] {
 export function getQuoteCostProjectsWithWorkflow(): QuoteCostProject[] {
   return getQuoteCostProjectsForClientFallback();
 }
+
+export function getLegacyVendorFinancialProjects(): QuoteCostProject[] {
+  return getQuoteCostProjectsForClientFallback();
+}

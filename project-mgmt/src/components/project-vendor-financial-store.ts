@@ -10,7 +10,7 @@ import {
 } from "@/components/vendor-data";
 import type { ProjectVendorFinancialRelation } from "@/components/vendor-financial-relation-types";
 import { getStoredPackagesByProjectId } from "@/components/vendor-package-store";
-import { getQuoteCostProjectsWithWorkflow } from "@/components/workflow-cost-bridge";
+import { getLegacyVendorFinancialProjects } from "@/components/workflow-cost-bridge";
 import {
   applyStoredProjectVendorFinancialOverrides,
   buildProjectVendorFinancialFallbackRelations,
@@ -19,7 +19,7 @@ import {
 
 export const projectVendorFinancialStoreBoundary = {
   mode: "legacy-vendor-financial-island",
-  primaryProjectSource: "workflow-fallback-bridge",
+  primaryProjectSource: "legacy-vendor-financial-projects-bridge",
   sourceStatus: "legacy-compatibility-only-not-formal-source-of-truth",
   formalRouteConsumer: "none",
   formalVendorPagesStatus: "db-routes-detached",
@@ -118,7 +118,7 @@ function buildQuoteCostRelations(projects: QuoteCostProject[]) {
 }
 
 export function getProjectVendorFinancialRelations() {
-  const merged = buildQuoteCostRelations(getQuoteCostProjectsWithWorkflow());
+  const merged = buildQuoteCostRelations(getLegacyVendorFinancialProjects());
   applyStoredProjectVendorFinancialOverrides(merged);
 
   if (!merged.size) {
