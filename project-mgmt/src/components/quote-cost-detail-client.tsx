@@ -79,9 +79,9 @@ export function QuoteCostDetailClient({ project, mode = "active", presenter = ge
     if (!preloadedDbPackages?.length) return null;
     return getQuoteCostProjectsForClientFallback(preloadedDbPackages).find((item) => item.id === project.id) ?? null;
   }, [preloadedDbPackages, project.id]);
-  const resolvedProject = initialProject ?? {
-    ...project,
-    costItems: fallbackProjectFromPreloadedPackages?.costItems ?? project.costItems,
+  const resolvedProject = {
+    ...(initialProject ?? project),
+    costItems: fallbackProjectFromPreloadedPackages?.costItems ?? (initialProject?.costItems ?? project.costItems),
   };
   const [reconciliationGroups, setReconciliationGroups] = useState<ReconciliationGroupView[]>(initialProject?.reconciliationGroups ?? []);
   const [state, setState] = useState<EditableProjectState>(() => ({
