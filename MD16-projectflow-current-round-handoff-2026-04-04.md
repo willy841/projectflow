@@ -1,16 +1,16 @@
 # MD16 - projectflow 本輪完成事項與續接 handoff（2026-04-04）
 
-> **狀態註記（2026-04-24 更新）：本檔已降級為歷史 handoff。**
-> 本檔反映的是 2026-04-04 當下完成事項與判斷；其後 `project detail` 責任、三條主線承接位置、成本成立點、前端 mock 閉環版策略，以及測試站最新文件承接 / dispatch 工種規則，已被後續文件更新覆蓋：
-> - `MD21-projectflow-project-detail-responsibility-redistribution-spec-2026-04-05.md`
-> - `MD22-projectflow-mock-closed-loop-frontend-execution-brief-2026-04-05.md`
-> - `MD155-projectflow-single-track-acceptance-first-and-production-freeze-rule-2026-04-20.md`
-> - `MD156-projectflow-project-document-routing-and-dispatch-trade-linkage-rules-2026-04-24.md`
+> **狀態註記（2026-05-11 更新）：本檔已降級為 Historical / 歷史回查層，不可再當新 session 的主要入口。**
+> 本檔反映的是 2026-04-04 當下完成事項與判斷；其後 `projectflow` 已進一步升級為成熟系統治理主線，並新增：現行規則層、成熟度判讀層、全站 source-of-truth / cross-page consistency 驗收體系，以及 200 多號正式 truth 收斂工程主線。
 >
-> 後續若要續接目前最新主線：
+> 補充：本檔內曾引用的部分舊文件（例如 `MD22`）在目前 workspace 不一定有對應實體檔，故更不可再依本檔舊引用鏈直接續接現在主線。
+>
+> 後續若要續接現在主線：
 > - 不可只讀 MD16
-> - 應先讀 `MD-MASTER`
-> - 再讀目前測試站主線文件（至少 `MD155`、`MD156`）
+> - 應先讀 `MD-MASTER-projectflow-system-source-of-truth.md`
+> - 再讀 `MD-INDEX-projectflow-governing-document-architecture-2026-05-11.md`
+> - 再讀 `MD-INDEX-projectflow-active-secondary-historical-map-2026-05-11.md`
+> - 現行規則至少讀 `MD155`、`MD156`、`MD157`
 
 > 用途：整理本輪已完成項目、目前狀態、已停用背景排程、以及下一輪若要續接時的正確入口。
 > 適用情境：
