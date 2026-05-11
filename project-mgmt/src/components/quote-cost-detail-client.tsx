@@ -586,7 +586,7 @@ export function QuoteCostDetailClient({ project, mode = "active", presenter = ge
             </div>
             <div className="mt-4 space-y-3">
               {visibleReconciliationGroups.map((group) => (
-                <div key={group.key} className={`rounded-2xl border p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] ${isClosedView ? 'border-white/10 bg-[linear-gradient(180deg,rgba(26,40,66,0.76),rgba(11,18,32,0.7))]' : 'border-white/10 bg-[linear-gradient(180deg,rgba(20,31,51,0.8),rgba(10,18,33,0.72))]'}`}>
+                <div key={group.key}>
                   <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
                     <div className="min-w-0 flex-1">
                       <div className="flex flex-wrap items-center gap-2">
