@@ -109,10 +109,10 @@ export function CollectionSection({
         <table className="pf-table table-fixed">
           <thead>
             <tr>
-              <th className="w-[22%] px-4 py-3 font-medium">收款日期</th>
-              <th className="w-[22%] px-4 py-3 font-medium">收款金額</th>
-              <th className="w-[40%] px-4 py-3 font-medium">備註</th>
-              <th className="w-[16%] px-4 py-3 font-medium text-center">刪除</th>
+              <th className="w-[32%] px-4 py-3 font-medium">收款日期</th>
+              <th className="w-[18%] px-4 py-3 font-medium">收款金額</th>
+              <th className="w-[18%] px-4 py-3 font-medium">備註</th>
+              <th className="w-[32%] px-4 py-3 font-medium text-center">刪除</th>
             </tr>
           </thead>
           <tbody>
