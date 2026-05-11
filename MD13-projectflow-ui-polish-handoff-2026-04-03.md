@@ -1,5 +1,15 @@
 # MD13 - projectflow UI Polish Handoff - 2026-04-03
 
+> **狀態註記（2026-05-11 更新）：本檔已降級為 Historical / 歷史回查層，不可再當新 session 的主要入口。**
+> 本檔保留的是 2026-04-03 當下前端 UI polish / interaction 收斂工作的交接內容；其後 `projectflow` 已進一步升級為成熟系統治理主線，並新增現行規則、成熟度判讀、全站驗收體系與正式 truth 收斂工程主線，不應再由本檔主導現在判讀。
+>
+> 後續若要續接現在主線：
+> - 不可只讀 MD13
+> - 應先讀 `MD-MASTER-projectflow-system-source-of-truth.md`
+> - 再讀 `MD-INDEX-projectflow-governing-document-architecture-2026-05-11.md`
+> - 再讀 `MD-INDEX-projectflow-active-secondary-historical-map-2026-05-11.md`
+> - 現行規則至少讀 `MD155`、`MD156`、`MD157`
+
 本檔為本輪 `projectflow` 前端 UI 收斂工作的正式交接檔。
 用途：讓下一個對話 / 下一個 agent 可以直接續接，不必重新猜目前做到哪裡。
 

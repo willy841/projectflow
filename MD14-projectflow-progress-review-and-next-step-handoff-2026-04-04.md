@@ -1,11 +1,14 @@
 # MD14 - projectflow 進度總盤點與下一步建議交接（2026-04-04）
 
-> **狀態註記（2026-04-06 更新）：本檔已降級為歷史回查。**
-> 本檔反映的是 2026-04-04 當下的進度盤點；其後 `project detail` 責任重切、三條主線正式資料閉環、DB Phase 1、以及 vendor package / 最終文件承接層，已由 `MD20`～`MD26` 更新覆蓋。
+> **狀態註記（2026-05-11 更新）：本檔已降級為 Historical / 歷史回查層，不可再當新 session 的主要入口。**
+> 本檔反映的是 2026-04-04 當下的進度盤點；其後 `projectflow` 已歷經現行規則正式化、成熟度判讀、全站 source-of-truth / cross-page consistency 驗收體系建立，以及 200 多號正式 truth 收斂工程主線，不應再由本檔主導現在判讀。
 >
-> 後續若要續接最新主線：
+> 後續若要續接現在主線：
 > - 不可只讀 MD14
-> - 應先讀 `MD-MASTER`，再讀 `MD20`～`MD26`
+> - 應先讀 `MD-MASTER-projectflow-system-source-of-truth.md`
+> - 再讀 `MD-INDEX-projectflow-governing-document-architecture-2026-05-11.md`
+> - 再讀 `MD-INDEX-projectflow-active-secondary-historical-map-2026-05-11.md`
+> - 現行規則至少讀 `MD155`、`MD156`、`MD157`
 
 
 > 用途：把目前 `projectflow` 的整體進度、成熟度判斷、以及後續最合理的處理方向整理成一份可直接續接的 handoff。

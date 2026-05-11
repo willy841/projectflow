@@ -1,13 +1,16 @@
-> ⚠️ **歷史回查文件 / 已非主入口**
+> ⚠️ **歷史回查文件 / 已非主入口（2026-05-11 更新）**
 >
-> 本檔已被以下主幹文件大幅吸收或覆蓋：
-> - `MD-MASTER-projectflow-system-source-of-truth.md`
-> - `MD14-projectflow-progress-review-and-next-step-handoff-2026-04-04.md`
-> - `MD15-projectflow-repo-audit-summary-v1-2026-04-04.md`
-> - `MD16-projectflow-current-round-handoff-2026-04-04.md`
+> 本檔已降級為 Historical / 歷史回查層，不可再當新 session 的主要入口。
+>
+> 本檔保留的是 `projectflow` 非常早期的交接背景，對理解系統起點與最初專案脈絡仍有參考價值；但其後治理入口、現行規則、成熟度判讀、全站驗收體系與正式 truth 收斂工程主線都已大幅升級，不應再由本檔主導現在判讀。
 >
 > **新續接請不要先讀本檔。**
-> 正確順序是先讀：`MD16 -> MD15 -> MD14 -> MD-MASTER`。
+> 後續若要續接現在主線，應先讀：
+> - `MD-MASTER-projectflow-system-source-of-truth.md`
+> - `MD-INDEX-projectflow-governing-document-architecture-2026-05-11.md`
+> - `MD-INDEX-projectflow-active-secondary-historical-map-2026-05-11.md`
+> - `MD155`、`MD156`、`MD157`
+>
 > 本檔僅保留作為歷史脈絡 / 細節回查用途。
 
 ---
