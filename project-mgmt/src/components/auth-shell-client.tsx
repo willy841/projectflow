@@ -40,8 +40,8 @@ export function AuthShellClient({
 }) {
   return (
     <main className="min-h-screen text-slate-100">
-      <div className="mx-auto flex min-h-screen w-full max-w-[1600px] gap-5 px-4 py-6 lg:px-6 xl:px-8">
-        <aside className="hidden w-56 shrink-0 rounded-3xl border border-white/10 bg-[linear-gradient(180deg,rgba(18,30,50,0.76),rgba(10,18,33,0.66))] p-6 text-white shadow-[0_34px_84px_-30px_rgba(0,0,0,0.72),0_10px_18px_-12px_rgba(15,23,42,0.5),inset_0_1px_0_rgba(255,255,255,0.1),inset_0_18px_28px_-20px_rgba(255,255,255,0.05),inset_0_-28px_44px_-24px_rgba(2,6,23,0.98)] backdrop-blur-[28px] lg:flex lg:min-h-[calc(100vh-3rem)] lg:flex-col xl:w-60">
+      <div className="mx-auto flex min-h-screen w-full max-w-[1600px] items-stretch gap-5 px-4 py-6 lg:px-6 xl:px-8">
+        <aside className="hidden w-56 shrink-0 rounded-3xl border border-white/10 bg-[linear-gradient(180deg,rgba(18,30,50,0.76),rgba(10,18,33,0.76))] p-6 text-white shadow-[0_24px_60px_-36px_rgba(0,0,0,0.52),inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur-[28px] lg:flex lg:min-h-[calc(100vh-3rem)] lg:flex-col xl:w-60">
           <div className="mb-6 flex min-h-10 items-center justify-center text-center">
             <h1 className="text-2xl font-semibold tracking-wide text-white/96">任務版</h1>
           </div>
@@ -87,7 +87,7 @@ export function AuthShellClient({
           ) : null}
         </aside>
 
-        <section className="flex-1 space-y-4 rounded-[32px] bg-[linear-gradient(180deg,rgba(6,12,24,0.78),rgba(6,12,24,0.78))] p-5 ring-2 ring-red-400/80">{children}</section>
+        <section className="flex-1 space-y-4 self-stretch rounded-[32px] bg-[linear-gradient(180deg,rgba(6,12,24,0.82),rgba(6,12,24,0.82))] p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">{children}</section>
       </div>
     </main>
   );
