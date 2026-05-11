@@ -144,11 +144,11 @@ export function ProjectsPageClient({ initialProjects }: { initialProjects: Proje
 
         {visibleProjects.length ? (
           <div className="pf-table-shell rounded-[28px]">
-            <table className="pf-table min-w-[1280px] xl:min-w-full">
+            <table className="pf-table min-w-[1100px] xl:min-w-full table-fixed">
               <thead>
                 <tr>
-                  <th className="px-4 py-3 font-medium">專案名稱</th>
-                  <th className="px-4 py-3 font-medium">客戶</th>
+                  <th className="w-[20%] px-4 py-3 font-medium">專案名稱</th>
+                  <th className="w-[14%] px-4 py-3 font-medium">客戶</th>
                   <th className="px-4 py-3 font-medium">
                     <button
                       type="button"
@@ -165,11 +165,11 @@ export function ProjectsPageClient({ initialProjects }: { initialProjects: Proje
                       </span>
                     </button>
                   </th>
-                  <th className="px-4 py-3 font-medium">地點</th>
-                  <th className="px-4 py-3 font-medium">預算</th>
-                  <th className="px-4 py-3 font-medium">成本</th>
-                  <th className="px-4 py-3 font-medium">負責人</th>
-                  <th className="px-4 py-3 font-medium text-center">操作</th>
+                  <th className="w-[16%] px-4 py-3 font-medium">地點</th>
+                  <th className="w-[10%] px-4 py-3 font-medium">預算</th>
+                  <th className="w-[10%] px-4 py-3 font-medium">成本</th>
+                  <th className="w-[10%] px-4 py-3 font-medium">負責人</th>
+                  <th className="w-[10%] px-4 py-3 font-medium text-center">操作</th>
                 </tr>
               </thead>
               <tbody className="bg-transparent">
@@ -180,16 +180,16 @@ export function ProjectsPageClient({ initialProjects }: { initialProjects: Proje
                   return (
                     <tr key={project.id} className="align-middle">
                       <td className="px-4 py-4 align-middle">
-                        <Link href={`/projects/${getProjectRouteId(project)}`} className="font-medium text-slate-100 underline-offset-4 hover:underline">
+                        <Link href={`/projects/${getProjectRouteId(project)}`} className="block truncate font-medium text-slate-100 underline-offset-4 hover:underline" title={project.name}>
                           {project.name}
                         </Link>
                       </td>
-                      <td className="px-4 py-4 align-middle text-slate-300">{project.client}</td>
-                      <td className="px-4 py-4 align-middle text-slate-300">{project.eventDate}</td>
-                      <td className="px-4 py-4 align-middle text-slate-300">{project.location}</td>
-                      <td className="px-4 py-4 align-middle text-slate-300">{project.budget}</td>
-                      <td className="px-4 py-4 align-middle text-slate-300">{project.cost}</td>
-                      <td className="px-4 py-4 align-middle text-slate-300">{project.owner}</td>
+                      <td className="px-4 py-4 align-middle text-slate-300"><span className="block truncate" title={project.client}>{project.client}</span></td>
+                      <td className="whitespace-nowrap px-4 py-4 align-middle text-slate-300">{project.eventDate}</td>
+                      <td className="px-4 py-4 align-middle text-slate-300"><span className="block truncate" title={project.location}>{project.location}</span></td>
+                      <td className="whitespace-nowrap px-4 py-4 align-middle text-slate-300">{project.budget}</td>
+                      <td className="whitespace-nowrap px-4 py-4 align-middle text-slate-300">{project.cost}</td>
+                      <td className="px-4 py-4 align-middle text-slate-300"><span className="block truncate" title={project.owner}>{project.owner}</span></td>
                       <td className="px-4 py-4 align-middle text-center">
                         {isDbProject ? (
                           <button
