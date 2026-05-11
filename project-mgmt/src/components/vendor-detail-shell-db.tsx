@@ -414,7 +414,7 @@ export function VendorDetailShellDb({ vendor, initialOpenRecords, tradeOptions =
         ) : null}
       </header>
 
-      <section className="space-y-6">
+      <section className="rounded-[32px] border border-white/10 bg-[linear-gradient(180deg,rgba(18,30,50,0.76),rgba(10,18,33,0.66))] p-5 shadow-[0_34px_84px_-30px_rgba(0,0,0,0.72),0_10px_18px_-12px_rgba(15,23,42,0.5),inset_0_1px_0_rgba(255,255,255,0.1),inset_0_18px_28px_-20px_rgba(255,255,255,0.05),inset_0_-28px_44px_-24px_rgba(2,6,23,0.98)] backdrop-blur-[28px] space-y-6">
 
         <div className="space-y-4">
         <div className="flex flex-wrap items-center gap-2 p-1">
