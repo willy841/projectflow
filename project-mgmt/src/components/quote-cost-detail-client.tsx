@@ -535,7 +535,7 @@ export function QuoteCostDetailClient({ project, mode = "active", presenter = ge
           </div>
         </div>
 
-        <div className="mt-5 grid gap-4 xl:grid-cols-4">
+        <div className="mt-5 grid gap-3 xl:grid-cols-4 xl:items-stretch">
           {costSourceSummary.map((item) => {
             const isActiveArchiveSource = activeArchiveSource === item.label;
             return (
@@ -543,7 +543,7 @@ export function QuoteCostDetailClient({ project, mode = "active", presenter = ge
                 key={item.label}
                 type="button"
                 onClick={() => setActiveArchiveSource(item.label)}
-                className={`rounded-3xl border bg-white/[0.04] p-4 text-left shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] transition ${isActiveArchiveSource ? "border-sky-400/35 ring-2 ring-sky-400/20" : "border-white/10 hover:border-white/20"}`}
+                className={`rounded-3xl border bg-[rgba(10,18,33,0.72)] p-4 text-left shadow-[inset_0_1px_0_rgba(255,255,255,0.03)] transition ${isActiveArchiveSource ? "border-sky-400/35 ring-2 ring-sky-400/20" : "border-white/10 hover:border-white/20"}`}
               >
                 <div className="flex items-center justify-between gap-4">
                   <span className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ring-1 ${item.badgeClass}`}>{item.label}</span>
@@ -557,7 +557,7 @@ export function QuoteCostDetailClient({ project, mode = "active", presenter = ge
           <button
             type="button"
             onClick={() => setActiveArchiveSource("人工")}
-            className={`rounded-3xl border bg-white/[0.04] p-4 text-left shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] transition ${activeArchiveSource === "人工" ? "border-sky-400/35 ring-2 ring-sky-400/20" : "border-white/10 hover:border-white/20"}`}
+            className={`rounded-3xl border bg-[rgba(10,18,33,0.72)] p-4 text-left shadow-[inset_0_1px_0_rgba(255,255,255,0.03)] transition ${activeArchiveSource === "人工" ? "border-sky-400/35 ring-2 ring-sky-400/20" : "border-white/10 hover:border-white/20"}`}
           >
             <div className="flex items-center justify-between gap-4">
               <span className="inline-flex rounded-full px-3 py-1 text-xs font-semibold ring-1 bg-white/[0.07] text-slate-200 ring-white/10">人工</span>
