@@ -238,6 +238,7 @@
 
 - `MD-INDEX-projectflow-governing-document-architecture-2026-05-11.md`
 - `MD-INDEX-projectflow-active-secondary-historical-map-2026-05-11.md`
+- `MD-SUMMARY-projectflow-current-system-one-page-2026-05-11.md`
 
 這份索引的角色不是取代本母檔，而是把目前分散的：
 - 現行有效規則
