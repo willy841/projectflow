@@ -320,7 +320,7 @@ export function VendorDetailShellDb({ vendor, initialOpenRecords, tradeOptions =
 
   return (
     <div className="space-y-6">
-      <header className="rounded-[30px] border border-white/10 bg-white/[0.03] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]">
+      <header className="rounded-[30px] border border-fuchsia-400 bg-fuchsia-500/20 p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]">
         <div className="flex flex-col gap-5 xl:flex-row xl:items-center xl:justify-between">
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-3">
@@ -414,9 +414,9 @@ export function VendorDetailShellDb({ vendor, initialOpenRecords, tradeOptions =
         ) : null}
       </header>
 
-      <section className="space-y-6 min-h-0">
+      <section className="space-y-6 min-h-0 bg-emerald-500/15 ring-1 ring-emerald-400">
 
-        <div className="space-y-4 pb-1">
+        <div className="space-y-4 pb-1 bg-cyan-500/15 ring-1 ring-cyan-400">
         <div className="flex flex-wrap items-center gap-2 p-1">
           <button
             type="button"
@@ -435,7 +435,7 @@ export function VendorDetailShellDb({ vendor, initialOpenRecords, tradeOptions =
         </div>
 
         {detailSectionTab === 'unpaid' ? (
-      <article className="p-1">
+      <article className="p-1 bg-amber-500/15 ring-1 ring-amber-400">
           <div className="mb-5 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
             <div>
               <h3 className="text-xl font-semibold text-slate-100">• 未付款專案</h3>
@@ -561,7 +561,7 @@ export function VendorDetailShellDb({ vendor, initialOpenRecords, tradeOptions =
         ) : null}
 
         {detailSectionTab === 'history' ? (
-      <article className="p-1">
+      <article className="p-1 bg-rose-500/15 ring-1 ring-rose-400">
         <div className="mb-5 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
           <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
             <h3 className="text-xl font-semibold text-slate-100">• 往來紀錄</h3>

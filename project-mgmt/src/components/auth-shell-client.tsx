@@ -87,7 +87,7 @@ export function AuthShellClient({
           ) : null}
         </aside>
 
-        <section className="flex-1 space-y-4 rounded-[32px] bg-[linear-gradient(180deg,rgba(6,12,24,0.78),rgba(6,12,24,0.78))] p-5">{children}</section>
+        <section className="flex-1 space-y-4 rounded-[32px] bg-[linear-gradient(180deg,rgba(6,12,24,0.78),rgba(6,12,24,0.78))] p-5 ring-2 ring-red-400/80">{children}</section>
       </div>
     </main>
   );
