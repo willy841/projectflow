@@ -129,9 +129,10 @@ export default async function ProcurementTasksPage({
                 <thead>
                   <tr>
                     <th className="w-[52%] px-4 py-3 font-medium align-middle">任務標題</th>
-                    <th className="w-[14%] px-4 py-3 font-medium align-middle">數量</th>
-                    <th className="w-[16%] px-4 py-3 font-medium align-middle">預算</th>
-                    <th className="w-[18%] px-4 py-3 font-medium text-center align-middle">操作</th>
+                    <th className="w-[12%] px-4 py-3 font-medium align-middle">數量</th>
+                    <th className="w-[14%] px-4 py-3 font-medium align-middle">預算</th>
+                    <th className="w-[14%] px-4 py-3 font-medium align-middle">執行回覆</th>
+                    <th className="w-[16%] px-4 py-3 font-medium text-center align-middle">操作</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-white/10 bg-transparent">
@@ -140,6 +141,7 @@ export default async function ProcurementTasksPage({
                       <td className="px-4 py-4 font-medium text-slate-100">{task.title}</td>
                       <td className="px-4 py-4 text-slate-300">{task.quantity}</td>
                       <td className="px-4 py-4 text-slate-300">{task.costLabel}</td>
+                      <td className="px-4 py-4 text-slate-300">共 {task.replyCount ?? 0} 筆</td>
                       <td className="px-4 py-4 text-center">
                         <Link href={`/procurement-tasks/${task.id}`} className={workspacePrimaryButtonClass}>進入任務</Link>
                       </td>
