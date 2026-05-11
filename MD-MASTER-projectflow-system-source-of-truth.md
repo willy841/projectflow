@@ -237,6 +237,7 @@
 自 2026-05-11 起，`projectflow` 文件庫的正式治理入口，除本母檔外，新增：
 
 - `MD-INDEX-projectflow-governing-document-architecture-2026-05-11.md`
+- `MD-INDEX-projectflow-active-secondary-historical-map-2026-05-11.md`
 
 這份索引的角色不是取代本母檔，而是把目前分散的：
 - 現行有效規則
