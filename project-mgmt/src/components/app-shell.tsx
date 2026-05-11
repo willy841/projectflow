@@ -27,9 +27,9 @@ export function AppShell({
   const isDarkGlass = variant === "dark-glass";
 
   return (
-    <main className={isDarkGlass ? "min-h-screen text-slate-100" : "min-h-screen bg-[#f4f7fb] text-slate-900"}>
-      <div className="mx-auto flex min-h-screen w-full max-w-[1600px] gap-5 px-4 py-6 lg:px-6 xl:px-8">
-        <aside className={isDarkGlass ? "hidden w-56 shrink-0 rounded-3xl border border-white/10 bg-[linear-gradient(180deg,rgba(15,23,42,0.52),rgba(15,23,42,0.34))] p-6 text-white shadow-[0_32px_80px_-44px_rgba(0,0,0,0.7)] backdrop-blur-2xl lg:block lg:min-h-[calc(100vh-3rem)] xl:w-60" : "hidden w-56 shrink-0 rounded-3xl bg-slate-950 p-6 text-white lg:block xl:w-60"}>
+    <main className={isDarkGlass ? "min-h-screen bg-slate-950 text-slate-100" : "min-h-screen bg-[#f4f7fb] text-slate-900"}>
+      <div className={isDarkGlass ? "mx-auto flex min-h-screen w-full max-w-[1600px] gap-5 bg-slate-950 px-4 py-6 lg:px-6 xl:px-8" : "mx-auto flex min-h-screen w-full max-w-[1600px] gap-5 px-4 py-6 lg:px-6 xl:px-8"}>
+        <aside className={isDarkGlass ? "hidden w-56 shrink-0 self-stretch rounded-3xl border border-white/10 bg-[linear-gradient(180deg,rgba(8,16,30,0.92),rgba(8,16,30,0.92))] p-6 text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] lg:block lg:min-h-[calc(100vh-3rem)] xl:w-60" : "hidden w-56 shrink-0 rounded-3xl bg-slate-950 p-6 text-white lg:block xl:w-60"}>
           <div className="mb-6 flex min-h-10 items-center justify-center text-center">
             <h1 className={isDarkGlass ? "text-2xl font-semibold tracking-wide text-white/96" : "text-2xl font-semibold"}>任務版</h1>
           </div>
@@ -61,7 +61,9 @@ export function AppShell({
           </nav>
         </aside>
 
-        <section className={isDarkGlass ? "flex-1 space-y-4" : "flex-1 space-y-6"}>{children}</section>
+        <section className={isDarkGlass ? "flex-1 min-h-[calc(100vh-3rem)] self-stretch rounded-[32px] border border-white/10 bg-slate-950 shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]" : "flex-1 space-y-6"}>
+          {isDarkGlass ? <div className="min-h-[calc(100vh-3rem)] space-y-4 overflow-hidden rounded-[32px] bg-slate-950/95 p-5">{children}</div> : children}
+        </section>
       </div>
     </main>
   );
