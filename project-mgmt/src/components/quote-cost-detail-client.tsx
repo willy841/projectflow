@@ -22,7 +22,6 @@ import { getQuoteCostDetailPresenter, type QuoteCostDetailPresenter } from "@/co
 import type { ActiveProjectFinancialSummaryTotals } from '@/lib/db/financial-summary-types';
 import type { QuoteCostDetailInitialPayload } from '@/lib/db/quote-cost-detail-payload-types';
 import {
-  QuoteOverviewSection,
   VendorPaymentSummarySection,
   CollectionSection,
   CostManagementSection,
@@ -494,22 +493,13 @@ export function QuoteCostDetailClient({ project, mode = "active", presenter = ge
 
       {!isClosedView ? (
         <section className="space-y-6">
-          <div className="grid gap-6 xl:grid-cols-[minmax(0,1.08fr)_minmax(0,0.92fr)] xl:items-start">
-            <QuoteOverviewSection
-              quoteImportRecord={quoteImportRecord}
-              quotationItems={state.quotationItems}
-              quotationTotal={quotationTotal}
-              onOpenQuoteDetail={() => setIsQuoteDetailModalOpen(true)}
-              onImportExcel={() => quoteImportInputRef.current?.click()}
-            />
-            <CollectionSection
-              presenter={presenter}
-              eventDate={state.eventDate}
-              collectionRecords={collectionRecords}
-              onCreate={() => setCollectionForm({ collectedOn: state.eventDate, amount: '', note: '' })}
-              onDelete={handleDeleteCollectionRecord}
-            />
-          </div>
+          <CollectionSection
+            presenter={presenter}
+            eventDate={state.eventDate}
+            collectionRecords={collectionRecords}
+            onCreate={() => setCollectionForm({ collectedOn: state.eventDate, amount: '', note: '' })}
+            onDelete={handleDeleteCollectionRecord}
+          />
           <VendorPaymentSummarySection
             vendorPaymentRecords={vendorPaymentRecords}
           />
