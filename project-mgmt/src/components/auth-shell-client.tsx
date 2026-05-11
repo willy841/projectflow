@@ -39,9 +39,9 @@ export function AuthShellClient({
   user: AuthShellUser | null;
 }) {
   return (
-    <main className="min-h-screen text-slate-100">
+    <main className="min-h-screen bg-[linear-gradient(180deg,rgba(6,12,24,0.82),rgba(6,12,24,0.82))] text-slate-100">
       <div className="mx-auto flex min-h-screen w-full max-w-[1600px] items-stretch gap-5 px-4 py-6 lg:px-6 xl:px-8">
-        <aside className="hidden w-56 shrink-0 rounded-3xl border border-white/10 bg-[linear-gradient(180deg,rgba(18,30,50,0.76),rgba(10,18,33,0.76))] p-6 text-white shadow-[0_24px_60px_-36px_rgba(0,0,0,0.52),inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur-[28px] lg:flex lg:min-h-[calc(100vh-3rem)] lg:flex-col xl:w-60">
+        <aside className="hidden w-56 shrink-0 self-stretch rounded-3xl border border-white/10 bg-[linear-gradient(180deg,rgba(8,16,30,0.88),rgba(8,16,30,0.88))] p-6 text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] lg:flex lg:min-h-[calc(100vh-3rem)] lg:flex-col xl:w-60">
           <div className="mb-6 flex min-h-10 items-center justify-center text-center">
             <h1 className="text-2xl font-semibold tracking-wide text-white/96">任務版</h1>
           </div>
@@ -87,7 +87,7 @@ export function AuthShellClient({
           ) : null}
         </aside>
 
-        <section className="flex-1 space-y-4 self-stretch rounded-[32px] bg-[linear-gradient(180deg,rgba(6,12,24,0.82),rgba(6,12,24,0.82))] p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">{children}</section>
+        <section className="flex-1 space-y-4 self-stretch rounded-[32px] bg-[linear-gradient(180deg,rgba(8,16,30,0.88),rgba(8,16,30,0.88))] p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">{children}</section>
       </div>
     </main>
   );
