@@ -215,7 +215,7 @@ export function CostManagementSection({
   children: ReactNode;
 }) {
   return (
-    <section className="space-y-5 px-1 bg-emerald-500/20 ring-2 ring-emerald-400">
+    <section className="space-y-5 px-0">
       {children}
     </section>
   );
