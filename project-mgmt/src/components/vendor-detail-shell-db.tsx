@@ -414,9 +414,9 @@ export function VendorDetailShellDb({ vendor, initialOpenRecords, tradeOptions =
         ) : null}
       </header>
 
-      <section className="space-y-6">
+      <section className="space-y-6 min-h-0">
 
-        <div className="space-y-4">
+        <div className="space-y-4 pb-1">
         <div className="flex flex-wrap items-center gap-2 p-1">
           <button
             type="button"
@@ -653,7 +653,7 @@ export function VendorDetailShellDb({ vendor, initialOpenRecords, tradeOptions =
         </div>
       </article>
         ) : null}
-      </div>
+        </div>
       </section>
 
       {paymentForm ? (
