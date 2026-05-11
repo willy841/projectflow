@@ -20,7 +20,7 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     for (const group of groups) {
       const amountTotal = Number(group.amountTotal ?? 0);
       const itemCount = Number(group.itemCount ?? 0);
-      if (group.reconciliationStatus === '已對帳' && (amountTotal <= 0 || itemCount <= 0)) {
+      if (group.reconciliationStatus === '已對帳' && (amountTotal < 0 || itemCount <= 0)) {
         return NextResponse.json(
           { ok: false, error: `對帳群組缺少有效金額或筆數：${group.vendorName} / ${group.sourceType}` },
           { status: 400 },
