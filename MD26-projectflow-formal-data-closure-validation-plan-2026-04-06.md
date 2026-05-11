@@ -1,5 +1,17 @@
 # MD26 - projectflow 正式資料閉環驗收主線與工作排程（2026-04-06）
 
+> **狀態註記（2026-05-11 更新）：本檔已降級為 Historical / 歷史回查層，不可再當新 session 的主要入口。**
+> 本檔保留的是 2026-04-06 當下對「三條主線前端不再吃假資料，並接到正式文件產出」的正式資料閉環驗收主線定義；但其後系統已進一步成熟，並新增現行規則層、成熟度判讀層、全站 source-of-truth / cross-page consistency 驗收體系，以及 200 多號正式 truth 收斂工程主線。
+>
+> 後續若要續接現在主線：
+> - 不可只讀 MD26
+> - 應先讀 `MD-MASTER-projectflow-system-source-of-truth.md`
+> - 再讀 `MD-INDEX-projectflow-governing-document-architecture-2026-05-11.md`
+> - 再讀 `MD-INDEX-projectflow-active-secondary-historical-map-2026-05-11.md`
+> - 現行規則至少讀 `MD155`、`MD156`、`MD157`
+> - 若要判讀系統成熟度與現在怎麼驗，需再讀 `MD158`、`MD163`、`MD164`、`MD167`、`MD168`、`MD171~173`
+> - 若要接最新工程主線，需再讀 `MD203~210`
+
 > 目的：把使用者最新指定的驗收情境，轉成後續每次續接 `projectflow` 時都應優先承接的正式工作主線。
 
 ---

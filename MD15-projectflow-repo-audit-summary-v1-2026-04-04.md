@@ -1,5 +1,14 @@
 # MD15 - projectflow repo audit 總表 v1（2026-04-04）
 
+> **狀態註記（2026-05-11 更新）：本檔已降級為 Historical / 歷史回查層，不可再當新 session 的主要入口。**
+> 本檔保留的是 2026-04-04 當下從 repo audit 視角出發的現況總表，對理解早期「已落地 vs 僅規格」判斷仍有參考價值；但其後系統已進一步成熟，治理入口、現行規則、驗收體系與最新工程主線都已升級，不應再由本檔主導現在判讀。
+>
+> 後續若要續接現在主線：
+> - 不可只讀 MD15
+> - 應先讀 `MD-MASTER-projectflow-system-source-of-truth.md`
+> - 再讀 `MD-INDEX-projectflow-governing-document-architecture-2026-05-11.md`
+> - 再讀 `MD-INDEX-projectflow-active-secondary-historical-map-2026-05-11.md`
+
 > 用途：這份文件是以 **目前 repo 真實落地狀態** 為基礎的盤點總表。
 > 與單純依靠母檔 / handoff 的進度判斷不同，本檔重點是：
 > - 目前 repo 已有哪些 routes / components / stores

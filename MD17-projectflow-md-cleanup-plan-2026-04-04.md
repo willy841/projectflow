@@ -1,5 +1,14 @@
 # MD17 - projectflow MD 文件整理清單（2026-04-04）
 
+> **狀態註記（2026-05-11 更新）：本檔已降級為 Historical / 歷史回查層，不可再當新 session 的主要入口。**
+> 本檔保留的是 2026-04-04 當時對 `projectflow` 文件整理的中期判斷；其價值在於保留早期文件收斂思路，但現在已被 2026-05-11 的治理架構、分類地圖與成熟系統判讀所覆蓋，不應再由本檔定義現在的文件治理入口。
+>
+> 後續若要續接現在主線：
+> - 不可只讀 MD17
+> - 應先讀 `MD-MASTER-projectflow-system-source-of-truth.md`
+> - 再讀 `MD-INDEX-projectflow-governing-document-architecture-2026-05-11.md`
+> - 再讀 `MD-INDEX-projectflow-active-secondary-historical-map-2026-05-11.md`
+
 > 用途：整理目前 `projectflow` 相關 MD 文件的角色、優先級與處理建議。
 > 目標不是立刻刪檔，而是先把：
 > - 哪些文件應保留為主幹

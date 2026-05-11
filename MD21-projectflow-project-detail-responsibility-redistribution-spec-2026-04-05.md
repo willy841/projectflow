@@ -1,5 +1,16 @@
 # MD21 - projectflow Project Detail 責任重切定稿（2026-04-05）
 
+> **狀態註記（2026-05-11 更新）：本檔已降級為 Historical / 歷史回查層，不可再當新 session 的主要入口。**
+> 本檔保留的是 2026-04-05 當下對 `project detail` 責任切分與三條工作流承接位置的正式定稿，作為產品語意來源仍有價值；但其後 `projectflow` 已進一步升級為成熟系統治理主線，並新增：現行規則層、成熟度判讀層、全站驗收體系層，以及 200 多號正式 truth 收斂工程主線。
+>
+> 後續若要續接現在主線：
+> - 不可只讀 MD21
+> - 應先讀 `MD-MASTER-projectflow-system-source-of-truth.md`
+> - 再讀 `MD-INDEX-projectflow-governing-document-architecture-2026-05-11.md`
+> - 再讀 `MD-INDEX-projectflow-active-secondary-historical-map-2026-05-11.md`
+> - 現行規則至少讀 `MD155`、`MD156`、`MD157`
+> - 若碰成熟系統治理 / 驗收 / 正式 truth 收斂，需再讀 `MD158`、`MD163`、`MD164`、`MD171~173`、`MD203~210`
+
 > 目的：記錄 2026-04-05 與使用者討論後，對 `project detail`、左選單三條主控版面、以及 `vendor-packages` 邊界的正式收斂結果。
 >
 > 本文件不是一般 UI 微調筆記，而是：
