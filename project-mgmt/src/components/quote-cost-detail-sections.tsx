@@ -152,32 +152,22 @@ export function QuoteOverviewSection({
 }) {
   return (
     <section className="p-1">
-        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+      <div className="rounded-3xl border border-white/10 bg-[linear-gradient(180deg,rgba(8,47,73,0.88),rgba(15,23,42,0.92))] px-5 py-4 text-white shadow-[0_24px_48px_-28px_rgba(14,165,233,0.35),inset_0_1px_0_rgba(255,255,255,0.08)]">
+        <div className="flex items-center justify-between gap-3">
           <SimpleSectionTitle title="• 對外報價單" />
-          <div className="flex flex-wrap gap-2">
-            <button
-              type="button"
-              onClick={onImportExcel}
-              className="pf-btn-secondary min-h-11 px-4 py-2.5"
-            >
-              匯入 Excel
-            </button>
-            <button
-              type="button"
-              onClick={onOpenQuoteDetail}
-              disabled={!quotationItems.length && !quoteImportRecord}
-              className="pf-btn-create min-h-11 px-4 py-2.5 disabled:border-white/10 disabled:bg-white/10"
-            >
-              查看明細
-            </button>
-          </div>
+          <button
+            type="button"
+            onClick={onOpenQuoteDetail}
+            disabled={!quotationItems.length && !quoteImportRecord}
+            className="pf-btn-secondary h-9 px-3 py-0 text-xs disabled:bg-white/10 disabled:text-slate-500"
+          >
+            查看明細
+          </button>
         </div>
-
-        <div className="mt-4 rounded-3xl border border-white/10 bg-[linear-gradient(180deg,rgba(8,47,73,0.88),rgba(15,23,42,0.92))] px-5 py-4 text-white shadow-[0_24px_48px_-28px_rgba(14,165,233,0.35),inset_0_1px_0_rgba(255,255,255,0.08)]">
-          <p className="text-sm text-slate-300">報價總金額</p>
-          <p className="mt-2 text-3xl font-semibold tracking-tight">{formatCurrency(quotationTotal)}</p>
-        </div>
-      </section>
+        <p className="mt-4 text-sm text-slate-300">報價總金額</p>
+        <p className="mt-2 text-3xl font-semibold tracking-tight">{formatCurrency(quotationTotal)}</p>
+      </div>
+    </section>
   );
 }
 

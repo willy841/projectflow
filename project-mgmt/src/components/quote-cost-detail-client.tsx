@@ -478,7 +478,14 @@ export function QuoteCostDetailClient({ project, mode = "active", presenter = ge
         closeStatus={state.closeStatus}
       />
 
-      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
+        <QuoteSummaryActionCard
+          value={formatCurrency(quotationTotal)}
+          hasDetail={Boolean(state.quotationItems.length || quoteImportRecord)}
+          onImportExcel={() => quoteImportInputRef.current?.click()}
+          onOpenQuoteDetail={() => setIsQuoteDetailModalOpen(true)}
+          archived={isClosedView}
+        />
         <SummaryCard title="應收總金額" value={formatCurrency(quotationTotal)} mode={mode} />
         <SummaryCard title="已收款" value={formatCurrency(collectedTotal)} mode={mode} />
         <SummaryCard title="未收款" value={formatCurrency(outstandingTotal)} mode={mode} highlight={!isClosedView} />
@@ -853,6 +860,35 @@ function SummaryCard({ title, value, mode, highlight = false }: { title: string;
     <article className={`rounded-[32px] border p-5 shadow-[0_34px_84px_-30px_rgba(0,0,0,0.72),0_10px_18px_-12px_rgba(15,23,42,0.5),inset_0_1px_0_rgba(255,255,255,0.1),inset_0_18px_28px_-20px_rgba(255,255,255,0.05),inset_0_-28px_44px_-24px_rgba(2,6,23,0.98)] backdrop-blur-[28px] ${isClosedView ? "border-white/10 bg-[linear-gradient(180deg,rgba(24,38,63,0.76),rgba(9,16,30,0.66))] text-slate-100" : highlight ? "border-sky-400/24 bg-[linear-gradient(180deg,rgba(8,47,73,0.9),rgba(15,23,42,0.92))] text-white" : "border-white/10 bg-[linear-gradient(180deg,rgba(18,30,50,0.76),rgba(10,18,33,0.66))] text-slate-100"}`}>
       <p className={`text-sm ${isClosedView ? "text-slate-400" : highlight ? "text-slate-300" : "text-slate-400"}`}>{title}</p>
       <p className="mt-3 text-3xl font-semibold tracking-tight">{value}</p>
+    </article>
+  );
+}
+
+function QuoteSummaryActionCard({
+  value,
+  hasDetail,
+  onImportExcel,
+  onOpenQuoteDetail,
+  archived,
+}: {
+  value: string;
+  hasDetail: boolean;
+  onImportExcel: () => void;
+  onOpenQuoteDetail: () => void;
+  archived: boolean;
+}) {
+  return (
+    <article className={`rounded-[32px] border p-5 shadow-[0_34px_84px_-30px_rgba(0,0,0,0.72),0_10px_18px_-12px_rgba(15,23,42,0.5),inset_0_1px_0_rgba(255,255,255,0.1),inset_0_18px_28px_-20px_rgba(255,255,255,0.05),inset_0_-28px_44px_-24px_rgba(2,6,23,0.98)] backdrop-blur-[28px] ${archived ? "border-white/10 bg-[linear-gradient(180deg,rgba(24,38,63,0.76),rgba(9,16,30,0.66))] text-slate-100" : "border-white/10 bg-[linear-gradient(180deg,rgba(18,30,50,0.76),rgba(10,18,33,0.66))] text-slate-100"}`}>
+      <p className="text-sm text-slate-400">對外報價單</p>
+      <p className="mt-3 text-3xl font-semibold tracking-tight">{value}</p>
+      <div className="mt-4 flex gap-2">
+        <button type="button" onClick={onImportExcel} className="inline-flex h-9 flex-1 items-center justify-center rounded-xl border border-white/10 bg-white/[0.05] px-3 text-xs font-semibold text-slate-100 transition hover:bg-white/[0.08]">
+          匯入
+        </button>
+        <button type="button" onClick={onOpenQuoteDetail} disabled={!hasDetail} className="inline-flex h-9 flex-1 items-center justify-center rounded-xl border border-sky-400/20 bg-[linear-gradient(180deg,rgba(59,130,246,0.34),rgba(37,99,235,0.22))] px-3 text-xs font-semibold text-white transition hover:brightness-105 disabled:border-white/10 disabled:bg-white/10 disabled:text-slate-400">
+          明細
+        </button>
+      </div>
     </article>
   );
 }
