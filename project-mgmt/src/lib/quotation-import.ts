@@ -100,6 +100,12 @@ function findTotalAmount(rows: unknown[][]) {
   throw new QuotationImportValidationError('找不到名為「總金額」的欄位，無法匯入這份 Excel。');
 }
 
+function stripQuotationItemPrefix(value: string) {
+  const trimmed = value.trim();
+  const withoutPrefix = trimmed.replace(/^\s*\d+(?:[.-]\d+)*[.)．、\-\s]+/, '').trim();
+  return withoutPrefix || trimmed;
+}
+
 export function parseQuotationWorkbook(buffer: ArrayBuffer, fileName: string): ImportedQuotationPayload {
   let workbook: XLSX.WorkBook;
   try {
@@ -131,17 +137,18 @@ export function parseQuotationWorkbook(buffer: ArrayBuffer, fileName: string): I
   for (let rowIndex = headerMatch.rowIndex + 1; rowIndex < rows.length; rowIndex += 1) {
     const row = rows[rowIndex] ?? [];
     const itemNameIndex = headerMatch.headerIndexMap.get('商品名稱') ?? 1;
-    const itemName = String(row[itemNameIndex] ?? '').trim();
+    const rawItemName = String(row[itemNameIndex] ?? '').trim();
+    const itemName = stripQuotationItemPrefix(rawItemName);
     const unitPriceRaw = row[headerMatch.headerIndexMap.get('單價') ?? 2];
     const quantityRaw = row[headerMatch.headerIndexMap.get('數量') ?? 3];
     const unit = String(row[headerMatch.headerIndexMap.get('單位') ?? 4] ?? '').trim();
     const amountRaw = row[headerMatch.headerIndexMap.get('金額') ?? 5];
     const remark = String(row[headerMatch.headerIndexMap.get('備註') ?? 6] ?? '');
 
-    const rowValues = [itemName, unitPriceRaw, quantityRaw, unit, amountRaw, remark].map((value) => normalizeCell(value));
+    const rowValues = [rawItemName, unitPriceRaw, quantityRaw, unit, amountRaw, remark].map((value) => normalizeCell(value));
     if (rowValues.every((value) => value === '')) continue;
-    if (isTotalAmountLabel(itemName)) continue;
-    if (itemName === '備註') break;
+    if (isTotalAmountLabel(rawItemName)) continue;
+    if (rawItemName === '備註') break;
 
     items.push({
       sortOrder: items.length + 1,
