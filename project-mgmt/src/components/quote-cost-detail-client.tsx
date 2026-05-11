@@ -527,15 +527,6 @@ export function QuoteCostDetailClient({ project, mode = "active", presenter = ge
                 + 新增人工成本
               </button>
             )}
-            {presenter.canConfirmReconciliationGroup && reconciliationGroups.length === 0 ? (
-              <button
-                type="button"
-                disabled
-                className="inline-flex items-center justify-center rounded-2xl border border-white/10 bg-white/10 px-4 py-2.5 text-sm font-semibold text-slate-300"
-              >
-                尚無可對帳群組
-              </button>
-            ) : null}
             {isClosedView && (
               <span className="inline-flex items-center rounded-2xl border border-white/10 bg-white/[0.05] px-4 py-2 text-sm font-semibold text-slate-200">
                 {presenter.costSectionLockedLabel}
@@ -580,8 +571,15 @@ export function QuoteCostDetailClient({ project, mode = "active", presenter = ge
           <div className="mt-6 space-y-4">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <SecondarySectionTitle title="對帳群組" />
-              <div className="rounded-2xl border border-white/10 bg-white/[0.05] px-4 py-3 text-sm text-slate-300">
-                共 {visibleReconciliationGroups.length} 組
+              <div className="flex flex-wrap items-center gap-2">
+                {presenter.canConfirmReconciliationGroup && reconciliationGroups.length === 0 ? (
+                  <span className="inline-flex items-center justify-center rounded-2xl border border-white/10 bg-white/10 px-4 py-2.5 text-sm font-semibold text-slate-300">
+                    尚無可對帳群組
+                  </span>
+                ) : null}
+                <div className="rounded-2xl border border-white/10 bg-white/[0.05] px-4 py-3 text-sm text-slate-300">
+                  共 {visibleReconciliationGroups.length} 組
+                </div>
               </div>
             </div>
             <div className="mt-4 space-y-3">
