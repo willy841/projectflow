@@ -535,7 +535,7 @@ export function QuoteCostDetailClient({ project, mode = "active", presenter = ge
           </div>
         </div>
 
-        <div className="mt-5 grid gap-3 xl:grid-cols-4 xl:items-stretch">
+        <div className="mt-5 grid gap-3 bg-fuchsia-500/20 ring-2 ring-fuchsia-400 xl:grid-cols-4 xl:items-stretch">
           {costSourceSummary.map((item) => {
             const isActiveArchiveSource = activeArchiveSource === item.label;
             return (
@@ -568,7 +568,7 @@ export function QuoteCostDetailClient({ project, mode = "active", presenter = ge
         </div>
 
         {visibleReconciliationGroups.length ? (
-          <div className="mt-6 space-y-4">
+          <div className="mt-6 space-y-4 bg-cyan-500/20 ring-2 ring-cyan-400">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <SecondarySectionTitle title="對帳群組" />
               <div className="flex flex-wrap items-center gap-2">
@@ -648,7 +648,7 @@ export function QuoteCostDetailClient({ project, mode = "active", presenter = ge
           </div>
         ) : null}
 
-        <div className="mt-6 space-y-5">
+        <div className="mt-6 space-y-5 bg-amber-500/20 ring-2 ring-amber-400">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <SecondarySectionTitle title="項目明細" />
             <div className="flex flex-wrap items-center justify-end gap-2">
