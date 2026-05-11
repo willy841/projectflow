@@ -54,6 +54,7 @@ export type ProcurementAssignmentDraft = {
   size: string;
   material: string;
   quantity: string;
+  budgetNote: string;
   styleUrl: string;
   requirement: string;
   replies?: AssignmentReply[];
@@ -105,6 +106,7 @@ const defaultProcurementAssignmentDraft: ProcurementAssignmentDraft = {
   size: "",
   material: "",
   quantity: "",
+  budgetNote: "",
   styleUrl: "",
   requirement: "",
 };
@@ -143,6 +145,7 @@ function normalizeProcurementAssignmentDraft(
     size: draft?.size ?? "",
     material: draft?.material ?? "",
     quantity: draft?.quantity ?? "",
+    budgetNote: draft?.budgetNote ?? "",
     styleUrl: draft?.styleUrl ?? "",
     requirement: draft?.requirement ?? "",
     replies: draft?.replies ? [...draft.replies] : undefined,
@@ -497,6 +500,7 @@ function ProcurementAssignmentForm({
             saved.size ? `尺寸：${saved.size}` : null,
             saved.material ? `材質：${saved.material}` : null,
             saved.quantity ? `數量：${saved.quantity}` : null,
+            saved.budgetNote ? `預算：${saved.budgetNote}` : null,
           ].filter((item): item is string => Boolean(item))}
           fields={[
             { label: "來源項目 / 次項目", value: title },
@@ -504,6 +508,7 @@ function ProcurementAssignmentForm({
             { label: "尺寸", value: saved.size || "未填寫" },
             { label: "材質", value: saved.material || "未填寫" },
             { label: "數量", value: saved.quantity || "未填寫" },
+            { label: "預算", value: saved.budgetNote || "未填寫" },
             { label: "需求說明", value: saved.requirement || "未填寫" },
             { label: "參考連結", value: saved.styleUrl || "未填寫" },
             { label: "負責人", value: saved.assignee || "未指定" },
@@ -555,6 +560,15 @@ function ProcurementAssignmentForm({
                 value={draft.material}
                 onChange={(e) => onChange("material", e.target.value)}
                 placeholder="例如：透明壓克力"
+                className="h-11 rounded-2xl border border-white/10 bg-slate-900/55 px-4 text-sm outline-none transition focus:border-slate-400"
+              />
+            </label>
+            <label className="flex flex-col gap-2">
+              <span className="text-sm font-medium text-slate-200">預算</span>
+              <input
+                value={draft.budgetNote}
+                onChange={(e) => onChange("budgetNote", e.target.value)}
+                placeholder="例如：NT$ 12,000"
                 className="h-11 rounded-2xl border border-white/10 bg-slate-900/55 px-4 text-sm outline-none transition focus:border-slate-400"
               />
             </label>
