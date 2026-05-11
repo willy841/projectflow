@@ -1,5 +1,11 @@
 import type { ReactNode } from "react";
 
+export type WorkspaceInfoTableRow = {
+  label: string;
+  value: ReactNode;
+  emptyText?: string;
+};
+
 export const workspacePrimaryButtonClass =
   "inline-flex min-h-11 items-center justify-center rounded-2xl border border-white/10 bg-slate-900/50 px-4 py-2.5 text-sm font-semibold tracking-[0.01em] text-slate-100 shadow-[0_22px_46px_-28px_rgba(0,0,0,0.45),inset_0_1px_0_rgba(255,255,255,0.04)] backdrop-blur-xl transition hover:bg-slate-900/70 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2";
 
@@ -82,6 +88,26 @@ export function WorkspaceStat({ label, value }: { label: string; value: ReactNod
     <div className="rounded-[30px] border border-white/10 bg-[linear-gradient(180deg,rgba(36,48,72,0.76),rgba(14,22,39,0.52))] px-4 py-3.5 shadow-[0_34px_84px_-30px_rgba(0,0,0,0.72),0_10px_18px_-12px_rgba(15,23,42,0.5),inset_0_1px_0_rgba(255,255,255,0.1),inset_0_18px_28px_-20px_rgba(255,255,255,0.05),inset_0_-28px_44px_-24px_rgba(2,6,23,0.98)] backdrop-blur-[28px]">
       <p className="text-xs font-medium tracking-wide text-slate-500">{label}</p>
       <div className="mt-2 text-sm font-medium text-slate-100">{value}</div>
+    </div>
+  );
+}
+
+export function WorkspaceInfoTable({ rows }: { rows: WorkspaceInfoTableRow[] }) {
+  return (
+    <div className="overflow-hidden rounded-[30px] border border-white/10 bg-[linear-gradient(180deg,rgba(36,48,72,0.76),rgba(14,22,39,0.52))] shadow-[0_34px_84px_-30px_rgba(0,0,0,0.72),0_10px_18px_-12px_rgba(15,23,42,0.5),inset_0_1px_0_rgba(255,255,255,0.1),inset_0_18px_28px_-20px_rgba(255,255,255,0.05),inset_0_-28px_44px_-24px_rgba(2,6,23,0.98)] backdrop-blur-[28px]">
+      <div className="divide-y divide-white/10">
+        {rows.map((row) => {
+          const isEmpty = row.value === null || row.value === undefined || row.value === "";
+          return (
+            <div key={row.label} className="grid gap-2 px-4 py-3.5 md:grid-cols-[180px_minmax(0,1fr)] md:gap-4">
+              <div className="text-xs font-medium tracking-wide text-slate-500">{row.label}</div>
+              <div className="min-w-0 text-sm font-medium text-slate-100 break-words">
+                {isEmpty ? row.emptyText ?? '未填寫' : row.value}
+              </div>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }

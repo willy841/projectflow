@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { AppShellAuth } from "@/components/app-shell-auth";
 import { VendorGroupConfirmClient } from "@/components/vendor-group-confirm-client";
 import { VendorPlanEditorClient } from "@/components/vendor-plan-editor-client";
-import { WorkspaceHeader, WorkspaceSection, WorkspaceStat } from "@/components/workspace-ui";
+import { WorkspaceHeader, WorkspaceInfoTable, WorkspaceSection, WorkspaceStat } from "@/components/workspace-ui";
 import { buildVendorPackageId } from "@/lib/db/vendor-package-adapter";
 import { getDbVendorGroupDetail, getDbVendorTaskById } from "@/lib/db/vendor-flow-adapter";
 import { parseVendorGroupRouteId } from "@/lib/db/vendor-group-route";
@@ -60,11 +60,13 @@ export default async function VendorAssignmentTaskPage({ params }: { params: Pro
             meta={undefined}
             className="shell-none"
           >
-            <div className="grid gap-3 md:grid-cols-2">
-              <WorkspaceStat label="任務標題" value={task.title} />
-              <WorkspaceStat label="需求說明" value={task.requirementText || "未填寫"} />
-            </div>
-
+            <WorkspaceInfoTable
+              rows={[
+                { label: '任務標題', value: task.title },
+                { label: '需求說明', value: task.requirementText || '未填寫' },
+                { label: '狀態', value: task.status },
+              ]}
+            />
 
             <div className="mt-5">
               <VendorPlanEditorClient
