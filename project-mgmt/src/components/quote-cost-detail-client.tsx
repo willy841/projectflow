@@ -689,16 +689,8 @@ export function QuoteCostDetailClient({ project, mode = "active", presenter = ge
               ) : null}
             </div>
           </div>
-          {presenter.canPersistManualCosts && activeArchiveSource === "人工" ? (
-            <div className={`mb-4 text-xs ${manualSyncError ? "text-rose-300" : manualSyncSuccess ? "text-emerald-300" : hasUnsavedManualChanges ? "text-amber-300" : "text-slate-400"}`}>
-              {manualSyncError
-                ?? manualSyncSuccess
-                ?? (isManualSyncing
-                  ? "人工新增費用儲存中..."
-                  : hasUnsavedManualChanges
-                    ? "你目前有尚未儲存的人工新增費用;按下「儲存」後才會同步到 list / detail / closeout。"
-                    : "目前人工新增費用已與正式資料同步。")}
-            </div>
+          {presenter.canPersistManualCosts && activeArchiveSource === "人工" && manualSyncError ? (
+            <div className="mb-4 text-xs text-rose-300">{manualSyncError}</div>
           ) : null}
           {presenter.canCloseProject && closeoutError ? (
             <div className="mb-4 text-xs text-rose-300">{closeoutError}</div>
