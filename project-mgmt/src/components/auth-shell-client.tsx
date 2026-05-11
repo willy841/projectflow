@@ -87,7 +87,7 @@ export function AuthShellClient({
           ) : null}
         </aside>
 
-        <section className="flex-1 space-y-4 rounded-[36px] bg-[linear-gradient(180deg,rgba(18,30,50,0.74),rgba(10,18,33,0.68))] p-5 shadow-[0_18px_40px_-28px_rgba(0,0,0,0.42),inset_0_1px_0_rgba(255,255,255,0.05)] backdrop-blur-[28px]">{children}</section>
+        <section className="flex-1 space-y-4 rounded-[32px] bg-[linear-gradient(180deg,rgba(6,12,24,0.78),rgba(6,12,24,0.78))] p-5">{children}</section>
       </div>
     </main>
   );
