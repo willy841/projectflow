@@ -5,6 +5,26 @@
 
 ---
 
+## 0. 2026-05-09 新增：GitHub main 驗收安全回退點
+
+- 2026-05-09 已在 `project-mgmt` 建立一個可安全回退的全量版本封存點，用於後續 Vendor Detail 性能實驗前的基線保護。
+- 這個安全點的定義是：
+  - `npm run test:formal-acceptance:v2` → `23 / 23 passed`
+  - `npm run test:formal-acceptance:full` → `49 / 49 passed`
+- 對應封存 commit：`SAFE_FULL_GREEN_BASELINE_COMMIT = c1db1ca`
+- 用途：
+  1. 作為後續 Vendor Detail summary-only path / 性能實驗的可退回點
+  2. 若後續性能改動破壞 correctness，必須可直接回退到這個安全點
+  3. 之後任何實驗性優化，不可把這個安全點與實驗中工作樹混在一起
+- 2026-05-09 性能盤點結論（供未來續接）：
+  - Vendor Detail 遠端性能小刀型優化已試過：
+    - 拿掉首屏 package summary fanout
+    - 去掉 payment records 重複 vendor lookup
+  - 結果：只有小幅或不穩定收益，未證明是主瓶頸。
+  - 目前較可信的判斷是：Vendor Detail 首屏真正瓶頸在 `getVendorFinancialSummary()` 這條完整聚合鏈，而不是外圍小查詢。
+  - 未來若要再優化，建議走 **方案 A**：新增 `/vendors/[id]` 首屏 open unpaid 專用的 summary-only path，僅輸出首屏必要欄位；不要先直接重構整個 `getVendorFinancialSummary()` 本體。
+  - 這條未來優化線在動刀前，必須先以 `c1db1ca` 安全回退點為基線，並至少回歸驗證：`07`、`09`、`10`、`11`、`28`、`29`。
+
 ## 0. 2026-04-26 起的最新補充（Phase 1 技術收尾 / 正式站前主線）
 
 ### 2026-05-05 新增：全站驗收體系 / cross-page consistency / source-of-truth 正式入口
@@ -212,6 +232,62 @@
 
 ---
 
-## 7. 一句話總結
+## 7. 2026-05-11 新增：文件治理架構與成熟系統判讀
 
-> **`projectflow` 目前的續接入口，已正式升級為：`MD-MASTER` → `MD155` → `MD156`；`MD21` / `MD22` 等早期文件已降級為歷史回查材料，不可再當作新 session 的主要入口。**
+自 2026-05-11 起，`projectflow` 文件庫的正式治理入口，除本母檔外，新增：
+
+- `MD-INDEX-projectflow-governing-document-architecture-2026-05-11.md`
+
+這份索引的角色不是取代本母檔，而是把目前分散的：
+- 現行有效規則
+- 成熟度 / 管理判讀
+- 全站驗收體系
+- 最新工程主線（含 200 多號 MD）
+- 歷史回查層
+
+整理成正式分層架構。
+
+### 2026-05-11 的正式判讀（重要）
+
+`projectflow` 現在不應再被理解成早期探索期系統，也不應只用舊 handoff / 單頁 UI spec 來判讀。
+
+正式判讀應更新為：
+
+> **`projectflow` 已進入正式成熟系統階段。**
+> **其主線已從早期頁面與流程規劃，升級為：正式來源治理、cross-page consistency 驗收、正式資料閉環，以及 local / fallback / bridge 殘留鏈退休。**
+
+對應文件分層如下：
+
+1. **現行規則層**
+   - `MD155`
+   - `MD156`
+   - `MD157`
+
+2. **成熟度 / 管理判讀層**
+   - `MD158`
+   - `MD163`
+   - `MD164`
+
+3. **全站驗收體系層**
+   - `MD171`
+   - `MD172`
+   - `MD173`
+
+4. **最新工程主線 / 正式 truth 收斂層**
+   - `MD203`
+   - `MD204`
+   - `MD205`
+   - `MD206`
+   - `MD207`
+   - `MD208`
+   - `MD209`
+   - `MD210`
+
+補充判讀：
+- `MD171~173` 代表系統已建立全站 source-of-truth / cross-page consistency 驗收框架
+- `MD203~210` 代表系統現階段工程主線，已進入退休 local/fallback/bridge 假扮正式 truth 的成熟收斂階段
+- 因此，200 多號 MD 不是旁支雜訊，而是目前成熟系統主線的重要組成
+
+## 8. 一句話總結
+
+> **`projectflow` 目前的正式治理入口，已升級為：`MD-MASTER` + `MD-INDEX-projectflow-governing-document-architecture-2026-05-11.md`；現行規則以 `MD155~157` 為準，成熟度判讀以 `MD158/163/164` 為準，全站驗收體系以 `MD171~173` 為準，最新正式 truth 收斂工程主線以 `MD203~210` 為準；`MD21` / `MD22` / `MD26` 等早期文件已降級為歷史回查層，不可再當作新 session 的主要入口。**
