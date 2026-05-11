@@ -57,7 +57,7 @@ export async function listDbProcurementTasksByProject(projectId: string): Promis
       from procurement_tasks pt
       inner join projects p on p.id = pt.project_id
       left join task_confirmations tc
-        on tc.task_type = 'procurement'
+        on tc.flow_type = 'procurement'
        and tc.task_id = pt.id
       where pt.project_id = $1
       group by pt.id, pt.project_id, p.name, pt.title, pt.quantity, pt.budget_note, pt.created_at
