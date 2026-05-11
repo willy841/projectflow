@@ -59,6 +59,10 @@ function findHeaderRow(rows: unknown[][]) {
 
       for (const header of REQUIRED_HEADERS) {
         if (HEADER_ALIASES[header].includes(normalized)) {
+          if (header === '商品名稱') {
+            headerIndexMap.set(header, index + 1);
+            continue;
+          }
           headerIndexMap.set(header, index);
         }
       }
