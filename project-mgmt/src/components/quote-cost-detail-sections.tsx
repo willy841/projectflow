@@ -181,34 +181,28 @@ export function VendorPaymentSummarySection({
       <div className="flex items-center justify-between gap-3">
         <SimpleSectionTitle title="• 廠商對帳摘要" />
       </div>
-      {vendorPaymentRecords.length ? (
-        <div className="pf-table-shell mt-4">
-          <table className="pf-table">
-            <thead>
-              <tr>
-                <th className="px-4 py-3 font-medium">廠商</th>
-                <th className="px-4 py-3 font-medium">已對帳</th>
-                <th className="px-4 py-3 font-medium">未對帳</th>
-                <th className="px-4 py-3 font-medium">目前應付總額</th>
+      <div className="pf-table-shell mt-4">
+        <table className="pf-table">
+          <thead>
+            <tr>
+              <th className="px-4 py-3 font-medium">廠商</th>
+              <th className="px-4 py-3 font-medium">已對帳</th>
+              <th className="px-4 py-3 font-medium">未對帳</th>
+              <th className="px-4 py-3 font-medium">目前應付總額</th>
+            </tr>
+          </thead>
+          <tbody>
+            {vendorPaymentRecords.map((record) => (
+              <tr key={record.vendorName}>
+                <td className="font-medium text-slate-100">{record.vendorName}</td>
+                <td className="text-slate-300">{record.reconciledCount} 筆</td>
+                <td className="text-slate-300">{record.unreconciledCount} 筆</td>
+                <td className="font-semibold text-slate-100">{formatCurrency(record.payableAmount)}</td>
               </tr>
-            </thead>
-            <tbody>
-              {vendorPaymentRecords.map((record) => (
-                <tr key={record.vendorName}>
-                  <td className="font-medium text-slate-100">{record.vendorName}</td>
-                  <td className="text-slate-300">{record.reconciledCount} 筆</td>
-                  <td className="text-slate-300">{record.unreconciledCount} 筆</td>
-                  <td className="font-semibold text-slate-100">{formatCurrency(record.payableAmount)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      ) : (
-        <div className="mt-4 rounded-2xl border border-dashed border-white/10 bg-white/[0.03] p-5 text-sm text-slate-400">
-          目前尚無資料。
-        </div>
-      )}
+            ))}
+          </tbody>
+        </table>
+      </div>
     </section>
   );
 }

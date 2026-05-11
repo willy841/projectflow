@@ -645,7 +645,11 @@ export function QuoteCostDetailClient({ project, mode = "active", presenter = ge
                 </div>
               ))}
             </div>
-          ) : null}
+          ) : (
+            <div className="rounded-2xl border border-dashed border-white/10 bg-white/[0.03] p-5 text-sm text-slate-400">
+              目前尚無可對帳群組。
+            </div>
+          )}
         </div>
 
         <div className="mt-6 space-y-5">
