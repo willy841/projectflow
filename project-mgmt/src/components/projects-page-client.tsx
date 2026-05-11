@@ -33,7 +33,9 @@ export function ProjectsPageClient({ initialProjects }: { initialProjects: Proje
 
     const filteredProjects = projects.filter((project) => {
       const matchesKeyword =
-        !keyword || [project.name, project.client, project.location, project.code, project.owner].some((value) => value.toLowerCase().includes(keyword));
+        !keyword || [project.name, project.client, project.location, project.code, project.owner]
+          .map((value) => String(value ?? '').toLowerCase())
+          .some((value) => value.includes(keyword));
       const matchesStatus = statusFilter === "全部" || project.status === statusFilter;
       return matchesKeyword && matchesStatus;
     });
