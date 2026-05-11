@@ -106,13 +106,13 @@ export function CollectionSection({
         ) : null}
       </div>
       <div className="pf-table-shell mt-5">
-        <table className="pf-table">
+        <table className="pf-table table-fixed">
           <thead>
             <tr>
-              <th className="px-4 py-3 font-medium">收款日期</th>
-              <th className="px-4 py-3 font-medium">收款金額</th>
-              <th className="px-4 py-3 font-medium">備註</th>
-              <th className="px-4 py-3 font-medium">刪除</th>
+              <th className="w-[22%] px-4 py-3 font-medium">收款日期</th>
+              <th className="w-[22%] px-4 py-3 font-medium">收款金額</th>
+              <th className="w-[40%] px-4 py-3 font-medium">備註</th>
+              <th className="w-[16%] px-4 py-3 font-medium text-center">刪除</th>
             </tr>
           </thead>
           <tbody>
@@ -121,7 +121,7 @@ export function CollectionSection({
                 <td className="text-slate-300">{record.collectedOn || eventDate}</td>
                 <td className="font-semibold text-slate-100">{formatCurrency(record.amount)}</td>
                 <td className="text-slate-300">{record.note || '-'}</td>
-                <td>
+                <td className="text-center">
                   {presenter.canDeleteCollectionRecord ? (
                     <button type="button" onClick={() => onDelete?.(record.id)} className="pf-btn-danger px-3 py-2 text-sm">
                       刪除
@@ -182,13 +182,13 @@ export function VendorPaymentSummarySection({
         <SimpleSectionTitle title="• 廠商對帳摘要" />
       </div>
       <div className="pf-table-shell mt-4">
-        <table className="pf-table">
+        <table className="pf-table table-fixed">
           <thead>
             <tr>
-              <th className="px-4 py-3 font-medium">廠商</th>
-              <th className="px-4 py-3 font-medium">已對帳</th>
-              <th className="px-4 py-3 font-medium">未對帳</th>
-              <th className="px-4 py-3 font-medium">目前應付總額</th>
+              <th className="w-[32%] px-4 py-3 font-medium">廠商</th>
+              <th className="w-[18%] px-4 py-3 font-medium">已對帳</th>
+              <th className="w-[18%] px-4 py-3 font-medium">未對帳</th>
+              <th className="w-[32%] px-4 py-3 font-medium">目前應付總額</th>
             </tr>
           </thead>
           <tbody>
