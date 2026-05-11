@@ -20,6 +20,7 @@ type ProjectTaskEntry = {
   title: string;
   quantity: string;
   costLabel: string;
+  replyCount?: number;
 };
 
 export default async function ProcurementTasksPage({
@@ -60,6 +61,7 @@ export default async function ProcurementTasksPage({
             title: task.title,
             quantity: task.quantity,
             costLabel: task.costLabel,
+            replyCount: task.replyCount,
           }))
       : [];
   }
