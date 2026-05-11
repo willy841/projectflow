@@ -96,8 +96,8 @@ export function ProjectForm() {
           <button type="submit" disabled={isSubmitting} className="pf-btn-primary px-5 py-3 disabled:opacity-50">
             {isSubmitting ? "建立中..." : "儲存專案"}
           </button>
-          <button type="button" className="pf-btn-secondary px-5 py-3 text-slate-200">
-            清空表單
+          <button type="button" onClick={() => router.push('/projects')} className="pf-btn-secondary px-5 py-3 text-slate-200">
+            取消
           </button>
         </div>
       </form>
