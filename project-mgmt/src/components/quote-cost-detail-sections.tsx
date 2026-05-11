@@ -215,7 +215,7 @@ export function CostManagementSection({
   children: ReactNode;
 }) {
   return (
-    <section className="space-y-5 px-1">
+    <section className={`space-y-5 rounded-[32px] border px-5 py-5 shadow-[0_34px_84px_-30px_rgba(0,0,0,0.72),0_10px_18px_-12px_rgba(15,23,42,0.5),inset_0_1px_0_rgba(255,255,255,0.08)] ${archived ? 'border-white/10 bg-[linear-gradient(180deg,rgba(24,38,63,0.76),rgba(9,16,30,0.66))]' : 'border-white/10 bg-[linear-gradient(180deg,rgba(18,30,50,0.78),rgba(10,18,33,0.7))]'}`}>
       {children}
     </section>
   );
