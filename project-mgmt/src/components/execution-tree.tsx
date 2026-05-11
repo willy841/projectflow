@@ -1240,21 +1240,51 @@ export function ExecutionTree({
   }, [projectId, serverHandlers]);
 
   useEffect(() => {
-    setSavedDesignAssignments(
-      Object.fromEntries(
-        Object.entries(initialDesignAssignments).map(([targetId, data]) => [targetId, { data: normalizeDesignAssignmentDraft(data) }]),
+    setSavedDesignAssignments((prev) => ({
+      ...prev,
+      ...Object.fromEntries(
+        Object.entries(initialDesignAssignments).map(([targetId, data]) => {
+          const existing = prev[targetId];
+          return [
+            targetId,
+            {
+              ...existing,
+              data: normalizeDesignAssignmentDraft(data),
+            },
+          ];
+        }),
       ),
-    );
-    setSavedProcurementAssignments(
-      Object.fromEntries(
-        Object.entries(initialProcurementAssignments).map(([targetId, data]) => [targetId, { data: normalizeProcurementAssignmentDraft(data) }]),
+    }));
+    setSavedProcurementAssignments((prev) => ({
+      ...prev,
+      ...Object.fromEntries(
+        Object.entries(initialProcurementAssignments).map(([targetId, data]) => {
+          const existing = prev[targetId];
+          return [
+            targetId,
+            {
+              ...existing,
+              data: normalizeProcurementAssignmentDraft(data),
+            },
+          ];
+        }),
       ),
-    );
-    setSavedVendorAssignments(
-      Object.fromEntries(
-        Object.entries(initialVendorAssignments).map(([targetId, data]) => [targetId, { data }]),
+    }));
+    setSavedVendorAssignments((prev) => ({
+      ...prev,
+      ...Object.fromEntries(
+        Object.entries(initialVendorAssignments).map(([targetId, data]) => {
+          const existing = prev[targetId];
+          return [
+            targetId,
+            {
+              ...existing,
+              data,
+            },
+          ];
+        }),
       ),
-    );
+    }));
   }, [initialDesignAssignments, initialProcurementAssignments, initialVendorAssignments]);
 
   useEffect(() => {
