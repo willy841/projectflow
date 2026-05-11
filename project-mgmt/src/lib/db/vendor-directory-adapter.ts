@@ -214,7 +214,17 @@ export async function listDbVendors(): Promise<VendorBasicProfile[]> {
         listDbVendorPaymentRecordsByVendorId(vendor.id, { vendorName: vendor.name }),
       ]);
 
-      const outstandingTotal = financial.records.reduce((sum, record) => sum + record.adjustedCost, 0);
+      const outstandingTotal = financial.records.reduce((sum, record) => {
+        const paidAmount = paymentRecords
+          .filter((payment) => payment.projectId === record.projectId)
+          .reduce((projectSum, payment) => projectSum + payment.amount, 0);
+        const adjustedCost = Math.max(
+          record.adjustedCost,
+          record.reconciledGroups.reduce((groupSum, group) => groupSum + group.amountTotal, 0),
+        );
+        const unpaidAmount = Math.max(adjustedCost - paidAmount, 0);
+        return sum + unpaidAmount;
+      }, 0);
 
       return {
         ...mapVendorRowToProfile(vendor),
