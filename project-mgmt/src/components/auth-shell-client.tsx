@@ -87,7 +87,7 @@ export function AuthShellClient({
           ) : null}
         </aside>
 
-        <section className="flex-1 space-y-4 self-stretch rounded-[32px] bg-[linear-gradient(180deg,rgba(8,16,30,0.88),rgba(8,16,30,0.88))] p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">{children}</section>
+        <section className="flex-1 min-h-[calc(100vh-3rem)] space-y-4 self-stretch rounded-[32px] bg-[rgba(8,16,30,0.96)] p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]">{children}</section>
       </div>
     </main>
   );
