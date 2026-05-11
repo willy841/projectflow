@@ -153,14 +153,14 @@ export function ProjectsPageClient({ initialProjects }: { initialProjects: Proje
                     <button
                       type="button"
                       onClick={() => setDateSortOrder((current) => (current === "asc" ? "desc" : "asc"))}
-                      className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-left transition ${
+                      className={`inline-flex min-w-[116px] items-center justify-between gap-2 rounded-full px-2 py-1 text-left whitespace-nowrap transition ${
                         dateSortOrder === "asc" || dateSortOrder === "desc"
                           ? "bg-white/10 text-slate-100 shadow-sm"
                           : "text-slate-400"
                       } hover:bg-white/12 hover:text-white`}
                     >
-                      <span>活動日期</span>
-                      <span className={`text-xs ${dateSortOrder === "asc" || dateSortOrder === "desc" ? "text-slate-200" : "text-slate-400"}`}>
+                      <span className="whitespace-nowrap">活動日期</span>
+                      <span className={`shrink-0 text-xs whitespace-nowrap ${dateSortOrder === "asc" || dateSortOrder === "desc" ? "text-slate-200" : "text-slate-400"}`}>
                         {dateSortOrder === "asc" ? "↑ 最舊" : "↓ 最新"}
                       </span>
                     </button>
