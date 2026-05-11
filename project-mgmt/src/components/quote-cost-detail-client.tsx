@@ -811,7 +811,7 @@ function ManualArchiveTable({
               </div>
               <div>
                 <label className="text-xs font-medium text-slate-400">金額</label>
-                <input type="number" value={item.adjustedAmount} onChange={(event) => onManualItemChange(item.id, "adjustedAmount", event.target.value)} readOnly={isClosedView} className="pf-input mt-2 h-11 px-3 read-only:bg-white/[0.03] read-only:text-slate-400" />
+                <input type="text" inputMode="numeric" value={item.adjustedAmount} onChange={(event) => onManualItemChange(item.id, "adjustedAmount", event.target.value)} readOnly={isClosedView} className="pf-input mt-2 h-11 px-3 read-only:bg-white/[0.03] read-only:text-slate-400" />
               </div>
             </div>
           </div>
