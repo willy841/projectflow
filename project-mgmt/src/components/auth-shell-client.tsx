@@ -87,7 +87,11 @@ export function AuthShellClient({
           ) : null}
         </aside>
 
-        <section className="flex-1 min-h-[calc(100vh-3rem)] space-y-4 self-stretch overflow-hidden rounded-[32px] bg-slate-950/95 p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]">{children}</section>
+        <section className="flex-1 min-h-[calc(100vh-3rem)] self-stretch rounded-[32px] border border-white/10 bg-slate-950 shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]">
+          <div className="min-h-[calc(100vh-3rem)] space-y-4 overflow-hidden rounded-[32px] bg-slate-950/95 p-5">
+            {children}
+          </div>
+        </section>
       </div>
     </main>
   );
