@@ -67,10 +67,10 @@ export function VendorDetailShellDb({ vendor, initialOpenRecords, tradeOptions =
   const [profileSaving, setProfileSaving] = useState(false);
   const [profileMessage, setProfileMessage] = useState('');
   const [expandedRecordIds, setExpandedRecordIds] = useState<string[]>([]);
-  const [historyTab, setHistoryTab] = useState<'open' | 'history'>('open');
+  const [historyTab, setHistoryTab] = useState<'history'>('history');
   const [detailSectionTab, setDetailSectionTab] = useState<'unpaid' | 'history'>('unpaid');
   const [historyKeyword, setHistoryKeyword] = useState('');
-  const [historySort, setHistorySort] = useState<'project-asc' | 'project-desc' | 'amount-desc' | 'amount-asc'>('project-asc');
+  const [historySort, setHistorySort] = useState<'project-asc' | 'project-desc' | 'amount-desc' | 'amount-asc'>('project-desc');
   const [selectedRecordIds, setSelectedRecordIds] = useState<string[]>([]);
   const [batchPaymentMessage, setBatchPaymentMessage] = useState('');
   const [batchPaying, setBatchPaying] = useState(false);
@@ -93,11 +93,8 @@ export function VendorDetailShellDb({ vendor, initialOpenRecords, tradeOptions =
 
   const filteredHistoryRecords = useMemo(() => {
     const keyword = historyKeyword.trim().toLowerCase();
-    const sourceRecords = historyTab === 'open' ? openRecords : (historyRecords ?? []);
+    const sourceRecords = historyRecords ?? [];
     const next = sourceRecords.filter((record) => {
-      const unpaidAmount = record.unpaidAmount ?? record.adjustedCost;
-      const matchesTab = historyTab === 'open' ? unpaidAmount > 0 : unpaidAmount <= 0;
-      if (!matchesTab) return false;
       if (!keyword) return true;
       return [record.projectName, record.reconciliationSummary, ...record.sourceItemDetails].join(' ').toLowerCase().includes(keyword);
     });
@@ -117,16 +114,16 @@ export function VendorDetailShellDb({ vendor, initialOpenRecords, tradeOptions =
     });
 
     return next;
-  }, [historyKeyword, historySort, historyTab, openRecords, historyRecords]);
+  }, [historyKeyword, historySort, historyRecords]);
 
   useEffect(() => {
-    if (detailSectionTab !== 'history' || historyRecords !== null || historyLoading) return;
+    if (detailSectionTab !== 'history') return;
 
     let cancelled = false;
     const requestStartedAt = performance.now();
     setHistoryLoading(true);
     setHistoryError('');
-    fetch(`/api/vendors/${vendor.id}/records?scope=history&includeDetails=false`)
+    fetch(`/api/vendors/${vendor.id}/records?scope=history&includeDetails=false`, { cache: 'no-store' })
       .then(async (response) => {
         const result = await response.json();
         if (!response.ok || !result?.ok || !Array.isArray(result?.records)) {
@@ -151,7 +148,7 @@ export function VendorDetailShellDb({ vendor, initialOpenRecords, tradeOptions =
     return () => {
       cancelled = true;
     };
-  }, [detailSectionTab, historyRecords, historyLoading, vendor.id]);
+  }, [detailSectionTab, vendor.id]);
 
   function updateRecordCollection(record: VendorProjectRecord) {
     setOpenRecords((current) => current.map((item) => (item.id === record.id ? record : item)));
@@ -159,7 +156,7 @@ export function VendorDetailShellDb({ vendor, initialOpenRecords, tradeOptions =
   }
 
   async function refreshVendorRecords(scope: 'open' | 'history') {
-    const response = await fetch(`/api/vendors/${vendor.id}/records?scope=${scope}&includeDetails=false`);
+    const response = await fetch(`/api/vendors/${vendor.id}/records?scope=${scope}&includeDetails=false`, { cache: 'no-store' });
     const result = await response.json();
     if (!response.ok || !result?.ok || !Array.isArray(result?.records)) {
       throw new Error(result?.error ?? '載入廠商紀錄失敗');
@@ -565,20 +562,6 @@ export function VendorDetailShellDb({ vendor, initialOpenRecords, tradeOptions =
         <div className="mb-5 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
           <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
             <h3 className="text-xl font-semibold text-slate-100">• 往來紀錄</h3>
-            <button
-              type="button"
-              onClick={() => setHistoryTab('open')}
-              className={`pf-pill inline-flex h-10 items-center justify-center px-4 text-sm ${historyTab === 'open' ? 'pf-pill-active text-white' : 'pf-pill-muted'}`}
-            >
-              未結帳
-            </button>
-            <button
-              type="button"
-              onClick={() => setHistoryTab('history')}
-              className={`pf-pill inline-flex h-10 items-center justify-center px-4 text-sm ${historyTab === 'history' ? 'pf-pill-active text-white' : 'pf-pill-muted'}`}
-            >
-              過往紀錄
-            </button>
             <label className="min-w-[260px] flex-1 lg:max-w-md">
               <input type="search" value={historyKeyword} onChange={(event) => setHistoryKeyword(event.target.value)} placeholder="搜尋專案名稱、摘要或發包內容" className="pf-input h-10 w-full" />
             </label>
@@ -586,8 +569,8 @@ export function VendorDetailShellDb({ vendor, initialOpenRecords, tradeOptions =
               <select value={historySort} onChange={(event) => setHistorySort(event.target.value as typeof historySort)} className="pf-select h-10 w-full">
                 <option value="project-asc">專案名稱 A → Z</option>
                 <option value="project-desc">專案名稱 Z → A</option>
-                <option value="amount-desc">未付款金額高 → 低</option>
-                <option value="amount-asc">未付款金額低 → 高</option>
+                <option value="amount-desc">付款金額高 → 低</option>
+                <option value="amount-asc">付款金額低 → 高</option>
               </select>
             </label>
           </div>
@@ -597,9 +580,9 @@ export function VendorDetailShellDb({ vendor, initialOpenRecords, tradeOptions =
         </div>
 
         <div className="space-y-4">
-          {historyLoading && historyTab === 'history' ? <div className="rounded-2xl border border-dashed border-white/10 bg-white/[0.04] px-5 py-6 text-sm text-slate-400">往來紀錄載入中…</div> : null}
-          {historyError && historyTab === 'history' ? <div className="rounded-2xl border border-rose-400/20 bg-rose-950/20 px-5 py-6 text-sm text-rose-200">{historyError}</div> : null}
-          {(!historyLoading || historyTab === 'open') && filteredHistoryRecords.length ? filteredHistoryRecords.map((record) => {
+          {historyLoading ? <div className="rounded-2xl border border-dashed border-white/10 bg-white/[0.04] px-5 py-6 text-sm text-slate-400">往來紀錄載入中…</div> : null}
+          {historyError ? <div className="rounded-2xl border border-rose-400/20 bg-rose-950/20 px-5 py-6 text-sm text-rose-200">{historyError}</div> : null}
+          {!historyLoading && filteredHistoryRecords.length ? filteredHistoryRecords.map((record) => {
             const isExpanded = expandedRecordIds.includes(record.id);
             const isDetailLoading = detailLoadingIds.includes(record.id);
             return (
@@ -613,8 +596,8 @@ export function VendorDetailShellDb({ vendor, initialOpenRecords, tradeOptions =
                   </div>
                   <div className="flex flex-wrap items-center gap-3 xl:justify-end">
                     <div className="text-left xl:text-right">
-                      <p className="text-sm text-slate-400">未付金額</p>
-                      <p className="text-2xl font-semibold tracking-tight text-slate-100">{formatCurrency(record.unpaidAmount ?? record.adjustedCost)}</p>
+                      <p className="text-sm text-slate-400">付款狀態</p>
+                      <p className="text-2xl font-semibold tracking-tight text-slate-100">{record.paymentStatus}</p>
                     </div>
                     <button type="button" onClick={() => toggleExpandedRecord(record)} className="pf-btn-secondary px-4 py-2.5">{isExpanded ? (isDetailLoading ? '載入明細中…' : '收合明細') : '查看明細'}</button>
                   </div>
