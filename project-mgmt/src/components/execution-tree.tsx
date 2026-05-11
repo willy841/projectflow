@@ -773,7 +773,7 @@ function VendorAssignmentForm({
               type="button"
               onClick={actions.onSave}
               disabled={actions.isSaving}
-              className="inline-flex items-center justify-center rounded-2xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-400"
+              className="pf-btn-create px-4 py-2.5 disabled:opacity-60"
             >
               {actions.saveLabel ?? "儲存廠商交辦"}
             </button>
@@ -1997,7 +1997,7 @@ export function ExecutionTree({
                 <button
                   type="button"
                   onClick={confirmExcelImport}
-                  className="inline-flex items-center justify-center rounded-2xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800"
+                  className="pf-btn-create px-4 py-2.5"
                 >
                   確認匯入
                 </button>
