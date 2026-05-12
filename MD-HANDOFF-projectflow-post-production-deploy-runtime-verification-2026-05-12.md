@@ -77,10 +77,12 @@ Repo 內可用腳本：
 本輪已新增：
 
 - `project-mgmt/docs/projectflow-production-runtime-verification-and-clean-start-playbook-2026-05-12.md`
+- `project-mgmt/docs/projectflow-admin-account-recovery-and-verification-sop-2026-05-12.md`
 
 用途：
 - 正式 runtime 驗證操作稿
 - admin 帳號處理說明
+- admin 重設 / 驗證 SOP
 - clean-start / schema-only 初始化流程
 - project-scoped cleanup 與 full reset 的邊界說明
 

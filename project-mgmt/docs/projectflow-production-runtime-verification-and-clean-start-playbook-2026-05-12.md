@@ -18,6 +18,7 @@ It is about:
 2. admin account validation / recovery
 3. clean-start / schema-only initialization posture
 4. what to do later if the local official DB needs to be reset without importing acceptance sample data
+5. how admin recovery and authenticated verification should be handled operationally
 
 ---
 
@@ -130,6 +131,16 @@ Preferred later improvement:
 - then force `must_change_password = true`
 
 That is an improvement scope, not a blocker for current production validation.
+
+### 3.4 Related SOP
+
+See also:
+- `projectflow-admin-account-recovery-and-verification-sop-2026-05-12.md`
+
+Use that SOP when the task is specifically:
+- confirming admin presence
+- recovering admin credentials
+- proving authenticated runtime is operational after deploy and DB alignment
 
 ---
 
