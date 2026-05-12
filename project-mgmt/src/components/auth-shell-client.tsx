@@ -45,7 +45,7 @@ export function AuthShellClient({
         <aside className="hidden w-56 shrink-0 self-stretch rounded-3xl border border-white/10 bg-[linear-gradient(180deg,rgba(8,16,30,0.92),rgba(8,16,30,0.92))] p-6 text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] lg:flex lg:min-h-[calc(100vh-3rem)] lg:flex-col xl:w-60">
           <div className="mb-6 flex min-h-10 items-center justify-center gap-3 text-center">
             <div className="relative h-12 w-5 shrink-0 overflow-hidden rounded-sm">
-              <Image src="/company-logo.jpg" alt="公司 Logo" fill sizes="20px" className="object-contain" priority />
+              <Image src="/company-logo.png" alt="公司 Logo" fill sizes="20px" className="object-contain" priority />
             </div>
             <h1 className="text-2xl font-semibold tracking-wide text-white/96">任務版</h1>
           </div>
