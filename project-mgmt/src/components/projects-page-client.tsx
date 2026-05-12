@@ -187,7 +187,7 @@ export function ProjectsPageClient({ initialProjects }: { initialProjects: Proje
                               setDeleteConfirmName("");
                               setPendingDeleteProject(project);
                             }}
-                            className="pf-btn-danger px-3 py-2 text-xs"
+                            className="pf-btn-danger px-3 py-2 text-xs whitespace-nowrap"
                           >
                             {isDeleting ? "刪除中..." : "刪除"}
                           </button>
