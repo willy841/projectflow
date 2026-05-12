@@ -190,6 +190,11 @@ export async function listDbVendorPackages(): Promise<VendorPackage[]> {
         }),
       );
 
+      await db.query(`
+        alter table if exists public.vendor_package_document_items
+        add column if not exists amount_label text,
+        add column if not exists amount_value numeric
+      `).catch(() => undefined);
       const documentRows = await db.query<{
         note: string | null;
         document_status: string | null;
@@ -289,6 +294,11 @@ export async function listDbVendorPackagesByProject(projectId: string): Promise<
         }),
       );
 
+      await db.query(`
+        alter table if exists public.vendor_package_document_items
+        add column if not exists amount_label text,
+        add column if not exists amount_value numeric
+      `).catch(() => undefined);
       const documentRows = await db.query<{
         note: string | null;
         document_status: string | null;

@@ -38,6 +38,12 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     const db = createPhase1DbClient();
     const documentId = buildVendorPackageId(parsed.projectId, parsed.vendorId);
 
+    await db.query(`
+      alter table if exists public.vendor_package_document_items
+      add column if not exists amount_label text,
+      add column if not exists amount_value numeric
+    `);
+
     await db.query(
       `insert into public.vendor_package_documents (id, project_id, vendor_id, note, document_status, generated_at, updated_at)
        values ($1, $2, $3, $4, $5, case when $5 = '已生成' then now() else null end, now())
