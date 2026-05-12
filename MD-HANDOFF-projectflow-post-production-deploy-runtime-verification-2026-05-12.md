@@ -33,39 +33,36 @@
 
 ---
 
-## 3. 現在真正該做的事
+## 3. 目前已完成的 runtime 驗證結果
 
-### A. 驗證 admin 登入後主要頁面
-至少驗：
+以下驗證已完成：
+
+### A. Admin 登入後主要頁面
+已驗證正常：
 - `/`
 - `/projects`
 - `/vendors`
 - `/quote-costs`
 - `/accounting-center`
-- 視需要補 `/system-settings`
 
-### B. 若需要，處理 admin 密碼確認或重設
+### B. Admin credential 驗證
 目前已知 admin：
 - `willy@kuya.tw`
 
-Repo 內可用腳本：
+admin 登入已成功。
+若未來需要重設，repo 內可用腳本仍為：
 - `project-mgmt/scripts/init-system-owner.js`
 
-用途：
-- 確保 admin owner 存在
-- 重設 password hash
-- 保持 `role=admin` / `is_owner=true` / `is_active=true`
+### C. 對外 HTTPS 驗證
+已透過 ngrok tunnel 驗證外部 HTTPS 入口可用。
 
-### C. 補正式 runtime 驗證結論
-回報時需清楚分開：
-1. anonymous route 驗證
-2. authenticated route 驗證
-3. admin credential 狀態
-4. clean-start readiness
+### D. 正式 runtime 驗證結論
+本輪已新增正式結論文件：
+- `project-mgmt/docs/projectflow-production-runtime-verification-conclusion-2026-05-12.md`
 
-### D. 整理 clean-start / schema-only 初始化流程
-正式站之後若要 clean-start，不應再依賴 acceptance sample data。
-需保留的是：
+### E. Clean-start / schema-only 初始化整理
+本輪已完成文件整理；正式站之後若要 clean-start，不應再依賴 acceptance sample data。
+保留的正式操作路徑應為：
 - schema-only 初始化路徑
 - admin 初始化路徑
 - project-scoped 測試資料 cleanup 路徑
@@ -78,11 +75,13 @@ Repo 內可用腳本：
 
 - `project-mgmt/docs/projectflow-production-runtime-verification-and-clean-start-playbook-2026-05-12.md`
 - `project-mgmt/docs/projectflow-admin-account-recovery-and-verification-sop-2026-05-12.md`
+- `project-mgmt/docs/projectflow-production-runtime-verification-conclusion-2026-05-12.md`
 
 用途：
 - 正式 runtime 驗證操作稿
 - admin 帳號處理說明
 - admin 重設 / 驗證 SOP
+- 正式 runtime 驗證結論
 - clean-start / schema-only 初始化流程
 - project-scoped cleanup 與 full reset 的邊界說明
 
