@@ -9,9 +9,16 @@ This runbook exists to prevent confusion between:
 - deployment package updated locally inside the container workspace
 - actual host-side redeploy into the real `webapp-platform` runtime
 
-The current known issue is that root-route fixes for `/` were committed locally, but the live official runtime behind `pmis.kuya.tw` was still serving an older deployed version.
+The current known issue was initially suspected to be an app-version mismatch, but later live investigation clarified an additional concrete factor:
 
-Therefore the correct deployment path for pushing the latest fixes into the official runtime is the **host-side deploy chain**, not the container-side default-token assumption.
+- the live official DB schema was missing `projects.owner`
+- the live error was `column p.owner does not exist`
+
+That live DB issue was the direct runtime cause for the broken `/` root route at that time.
+
+Therefore two things must both be kept correct:
+1. the real official runtime must be updated through the **host-side deploy chain**, not the container-side default-token assumption
+2. the schema fix must be preserved in repo migration history so future clean-start / rebuild / redeploy flows do not regress
 
 ---
 

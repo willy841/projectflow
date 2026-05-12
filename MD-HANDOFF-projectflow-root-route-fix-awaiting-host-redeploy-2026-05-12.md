@@ -11,15 +11,19 @@ The current task is:
 
 ## 2. Critical corrected understanding
 
-The public official hostname `pmis.kuya.tw` was still serving an older deployed version even after several local code fixes were committed.
+The public official hostname `pmis.kuya.tw` root-route problem was **not** explained only by local-vs-live version mismatch.
 
-This means:
-- local repo changes were real
-- local build success was real
-- local deployment package updates were real
-- but the live official runtime had **not yet been proven updated**
+Later live investigation confirmed the direct production error:
+- `column p.owner does not exist`
 
-Do not claim the root-route fix is live until the host-side redeploy has run successfully.
+Meaning:
+- live official DB schema was missing `projects.owner`
+- the root-route failure at that moment was a live schema problem
+- local code / package / redeploy mismatch was still a valid deployment-state concern, but it was not the sole root cause of the `/` failure
+
+Therefore the durable fix has two parts:
+1. keep the schema fix in repo migration history
+2. use the host-side deploy chain whenever official runtime code truly must be refreshed
 
 ---
 

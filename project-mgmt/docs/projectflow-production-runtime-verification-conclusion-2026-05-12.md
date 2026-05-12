@@ -66,16 +66,25 @@ Conclusion:
 
 ---
 
-## 2. Interpretation of the transient post-login error observation
+## 2. Root-route incident clarification
 
-A post-login server-component render error was observed during one point of interactive use.
-However, subsequent direct verification of the authenticated major routes succeeded.
+A server-component render error was repeatedly observed on the public root route `/`.
+Later live investigation identified the concrete production cause:
 
-Therefore the current management interpretation is:
-- this is **not yet sufficient** to classify the official runtime as blocked
-- it is more consistent with a transient / single-request / navigation-time issue
-- if it repeats later, it should be investigated as a focused rendering/runtime bug
-- but as of this verification conclusion, it is **not** treated as the mainline deployment blocker
+- live official DB schema was missing `projects.owner`
+- the live error was:
+  - `column p.owner does not exist`
+
+Meaning:
+- the fault was not primarily caused by DNS
+- not primarily caused by tunnel wiring
+- not primarily caused by public hostname exposure itself
+- and not primarily caused by a generic deploy-path failure
+
+The immediate live runtime issue was resolved by fixing the live DB schema.
+
+Follow-up requirement:
+- this schema fix must also exist in repo migration history so future clean-start / rebuild / redeploy flows do not regress and omit `projects.owner` again
 
 ---
 
