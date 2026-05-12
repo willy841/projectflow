@@ -59,7 +59,7 @@ export function QuoteCostListClient({ mode = "active", initialProjects }: { mode
 
   return (
     <>
-      <header className="p-1 xl:p-1">
+      <header className="p-1">
         <div className="flex flex-col gap-5 2xl:flex-row 2xl:items-center 2xl:justify-between">
           <div className="min-w-0">
             <div className="flex min-h-11 flex-wrap items-center gap-3">
@@ -73,23 +73,25 @@ export function QuoteCostListClient({ mode = "active", initialProjects }: { mode
             </div>
           </div>
 
-          <input
-            value={searchKeyword}
-            onChange={(event) => {
-              setSearchKeyword(event.target.value);
-              setPage(1);
-            }}
-            placeholder="搜尋專案名稱 / 客戶"
-            className="pf-input h-11 lg:max-w-sm"
-          />
+          <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-center 2xl:w-auto">
+            <input
+              value={searchKeyword}
+              onChange={(event) => {
+                setSearchKeyword(event.target.value);
+                setPage(1);
+              }}
+              placeholder="搜尋專案名稱 / 客戶"
+              className="pf-input h-11 w-full min-w-0 sm:w-80 xl:w-72"
+            />
+          </div>
         </div>
       </header>
 
       <section className="p-1">
         {activeProjects.length ? (
           <>
-            <div className="pf-table-shell">
-              <table className="pf-table">
+            <div className="pf-table-shell rounded-[28px]">
+              <table className="pf-table min-w-[1100px] xl:min-w-full table-fixed">
                 <thead>
                   <tr>
                     <th className="px-4 py-3 font-medium">客戶名稱</th>
@@ -99,7 +101,7 @@ export function QuoteCostListClient({ mode = "active", initialProjects }: { mode
                     <th className="px-4 py-3 font-medium">操作</th>
                   </tr>
                 </thead>
-                <tbody>
+                <tbody className="bg-transparent">
                   {pagedProjects.map(({ project }) => (
                     <tr key={project.id} className="align-middle">
                       <td className="align-middle text-slate-300">{project.clientName}</td>
