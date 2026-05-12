@@ -1,5 +1,6 @@
 "use client";
 
+import Image from 'next/image';
 import Link from 'next/link';
 import { ReactNode } from 'react';
 
@@ -42,7 +43,10 @@ export function AuthShellClient({
     <main className="min-h-screen bg-slate-950 text-slate-100">
       <div className="mx-auto flex min-h-screen w-full max-w-[1600px] items-stretch gap-5 bg-slate-950 px-4 py-6 lg:px-6 xl:px-8">
         <aside className="hidden w-56 shrink-0 self-stretch rounded-3xl border border-white/10 bg-[linear-gradient(180deg,rgba(8,16,30,0.92),rgba(8,16,30,0.92))] p-6 text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] lg:flex lg:min-h-[calc(100vh-3rem)] lg:flex-col xl:w-60">
-          <div className="mb-6 flex min-h-10 items-center justify-center text-center">
+          <div className="mb-6 flex min-h-10 items-center justify-center gap-3 text-center">
+            <div className="relative h-12 w-5 shrink-0 overflow-hidden rounded-sm">
+              <Image src="/company-logo.jpg" alt="公司 Logo" fill sizes="20px" className="object-contain" priority />
+            </div>
             <h1 className="text-2xl font-semibold tracking-wide text-white/96">任務版</h1>
           </div>
 
