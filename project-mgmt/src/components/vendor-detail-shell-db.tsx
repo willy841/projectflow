@@ -176,7 +176,7 @@ export function VendorDetailShellDb({ vendor, initialOpenRecords, tradeOptions =
     const requestStartedAt = performance.now();
     setDetailLoadingIds((current) => [...current, record.id]);
     try {
-      const response = await fetch(`/api/vendors/${vendor.id}/records?recordId=${encodeURIComponent(record.id)}&includeDetails=true`);
+      const response = await fetch(`/api/vendors/${vendor.id}/records?recordId=${encodeURIComponent(record.projectId)}&includeDetails=true`);
       const result = await response.json();
       if (!response.ok || !result?.ok || !Array.isArray(result?.records) || !result.records[0]) {
         throw new Error(result?.error ?? '載入明細失敗');

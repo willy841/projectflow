@@ -374,7 +374,7 @@ export async function listDbVendorProjectRecordsByVendorId(
     const paymentStatus = isFullyPaidSemanticState ? '已付款' : '未付款';
 
     return {
-      id: pkg?.id ?? `vendor-record-${financialRecord.projectId}-${vendorId}`,
+      id: financialRecord.projectId,
       vendorId,
       vendorName: vendor.name,
       projectId: financialRecord.projectId,
@@ -402,7 +402,7 @@ export async function listDbVendorProjectRecordsByVendorId(
     } satisfies VendorProjectRecord;
   });
   const filtered = mapped.filter((record) => {
-    if (options?.recordId && record.id !== options.recordId) return false;
+    if (options?.recordId && record.projectId !== options.recordId && record.id !== options.recordId) return false;
 
     const isFullyPaidSemanticState = (record.unpaidAmount ?? record.adjustedCost) <= 0;
     const isFullyReconciledSemanticState = !record.hasUnreconciledGroups && record.reconciliationStatus === '已全部對帳';
