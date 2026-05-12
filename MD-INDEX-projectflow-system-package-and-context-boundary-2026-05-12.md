@@ -34,7 +34,11 @@ Purpose: 作為 `projectflow` 專屬內容的打包入口與最小載入邊界
 
 ---
 
-## 3. 核心治理入口
+## 3. 封裝總入口
+
+- `MD-PACKAGE-projectflow-system-bundle-entrypoint-2026-05-12.md`
+
+## 4. 核心治理入口
 
 ### A. 系統治理與分層規則
 - `MD-GOVERNANCE-projectflow-staging-production-and-context-isolation-2026-05-12.md`
@@ -48,7 +52,7 @@ Purpose: 作為 `projectflow` 專屬內容的打包入口與最小載入邊界
 
 ---
 
-## 4. 部署 / runtime / DB / 正式站相关入口
+## 5. 部署 / runtime / DB / 正式站相关入口
 
 ### 正式 runtime 與 clean-start
 - `project-mgmt/docs/projectflow-production-runtime-verification-and-clean-start-playbook-2026-05-12.md`
@@ -67,7 +71,7 @@ Purpose: 作為 `projectflow` 專屬內容的打包入口與最小載入邊界
 
 ---
 
-## 5. handoff 集合
+## 6. handoff 集合
 
 與 `projectflow` 直接相關的 handoff 至少包括：
 - `MD-HANDOFF-projectflow-production-deploy-from-github-main-clean-start-2026-05-12.md`
@@ -76,7 +80,7 @@ Purpose: 作為 `projectflow` 專屬內容的打包入口與最小載入邊界
 
 ---
 
-## 6. 封裝邊界規則
+## 7. 封裝邊界規則
 
 ### 可以做的事
 - 在 `projectflow` 任務裡主動載入這套內容
@@ -90,6 +94,6 @@ Purpose: 作為 `projectflow` 專屬內容的打包入口與最小載入邊界
 
 ---
 
-## 7. 一句話總結
+## 8. 一句話總結
 
 > **這份索引是 `projectflow` 系統封裝的專屬入口；只有在討論 `projectflow` 時，才應打開這整包治理、部署、DB、handoff 與系統脈絡。**
