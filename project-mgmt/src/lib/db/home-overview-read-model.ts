@@ -40,115 +40,17 @@ function formatCurrency(amount: number) {
   }).format(amount);
 }
 
-export async function getHomeOverviewReadModel(): Promise<HomeOverviewReadModel> {
-  const db = createPhase1DbClient();
-  const hasQuotationImportTotalAmountColumn = await hasFinancialQuotationImportTotalAmountColumn().catch(() => false);
+const EMPTY_METRICS: OverviewMetricRow = {
+  totalProjects: 0,
+  inProgressProjects: 0,
+  pendingDesignCount: 0,
+  pendingProcurementCount: 0,
+  pendingVendorCount: 0,
+  activeCollectedTotal: 0,
+  activeOutstandingTotal: 0,
+};
 
-  const metricRows = await db.query<OverviewMetricRow>(`
-    with project_base as (
-      select
-        p.id,
-        case when coalesce(p.status, '') in ('已結案', '結案') then '已結案' else '執行中' end as normalized_status
-      from projects p
-      where coalesce(p.status, '') not in ('已結案', '結案')
-    ),
-    design_pending as (
-      select count(*)::int as count
-      from design_tasks dt
-      where not exists (
-        select 1
-        from task_confirmations tc
-        where tc.flow_type = 'design'
-          and tc.task_id = dt.id
-          and tc.status = 'confirmed'
-      )
-    ),
-    procurement_pending as (
-      select count(*)::int as count
-      from procurement_tasks pt
-      where not exists (
-        select 1
-        from task_confirmations tc
-        where tc.flow_type = 'procurement'
-          and tc.task_id = pt.id
-          and tc.status = 'confirmed'
-      )
-    ),
-    vendor_pending as (
-      select count(*)::int as count
-      from vendor_tasks vt
-      where not exists (
-        select 1
-        from task_confirmations tc
-        where tc.flow_type = 'vendor'
-          and tc.task_id = vt.id
-          and tc.status = 'confirmed'
-      )
-    ),
-    active_projects as (
-      select id
-      from project_base
-      where normalized_status = '執行中'
-    ),
-    quotation_totals as (
-      select
-        fqi.project_id,
-        coalesce(${hasQuotationImportTotalAmountColumn ? 'fqi.total_amount' : 'sum(fqli.quantity * fqli.unit_price)'}, 0)::float8 as total
-      from financial_quotation_imports fqi
-      ${hasQuotationImportTotalAmountColumn ? '' : 'inner join financial_quotation_line_items fqli on fqli.quotation_import_id = fqi.id'}
-      where fqi.is_active = true
-      ${hasQuotationImportTotalAmountColumn ? '' : 'group by fqi.project_id'}
-    ),
-    collection_totals as (
-      select
-        project_id,
-        coalesce(sum(amount), 0)::float8 as total
-      from project_collection_records
-      group by project_id
-    )
-    select
-      (select count(*)::int from project_base) as "totalProjects",
-      (select count(*)::int from project_base where normalized_status = '執行中') as "inProgressProjects",
-      (select count from design_pending) as "pendingDesignCount",
-      (select count from procurement_pending) as "pendingProcurementCount",
-      (select count from vendor_pending) as "pendingVendorCount",
-      coalesce((
-        select sum(coalesce(ct.total, 0))::float8
-        from active_projects ap
-        left join collection_totals ct on ct.project_id = ap.id
-      ), 0)::float8 as "activeCollectedTotal",
-      coalesce((
-        select sum(greatest(coalesce(qt.total, 0) - coalesce(ct.total, 0), 0))::float8
-        from active_projects ap
-        left join quotation_totals qt on qt.project_id = ap.id
-        left join collection_totals ct on ct.project_id = ap.id
-      ), 0)::float8 as "activeOutstandingTotal"
-  `);
-
-  const metrics = metricRows.rows[0] ?? {
-    totalProjects: 0,
-    inProgressProjects: 0,
-    pendingDesignCount: 0,
-    pendingProcurementCount: 0,
-    pendingVendorCount: 0,
-    activeCollectedTotal: 0,
-    activeOutstandingTotal: 0,
-  };
-
-  const recentRows = await db.query<HomeOverviewRecentProject>(`
-    select
-      p.id,
-      p.name,
-      coalesce(p.client_name, '未填寫') as client,
-      coalesce(to_char(p.event_date, 'YYYY-MM-DD'), '-') as "eventDate",
-      '執行中' as status,
-      coalesce(p.owner, '-') as owner
-    from projects p
-    where coalesce(p.status, '') not in ('已結案', '結案')
-    order by p.event_date desc nulls last, p.created_at desc
-    limit 8
-  `);
-
+function buildHomeOverviewReadModel(metrics: OverviewMetricRow, recentProjects: HomeOverviewRecentProject[]): HomeOverviewReadModel {
   return {
     headlineBadges: [
       `${metrics.inProgressProjects} 個進行中專案`,
@@ -163,6 +65,106 @@ export async function getHomeOverviewReadModel(): Promise<HomeOverviewReadModel>
       { label: '已收款', value: formatCurrency(metrics.activeCollectedTotal), change: '' },
       { label: '未收款', value: formatCurrency(metrics.activeOutstandingTotal), change: '' },
     ],
-    recentProjects: recentRows.rows,
+    recentProjects,
   };
+}
+
+export async function getHomeOverviewReadModel(): Promise<HomeOverviewReadModel> {
+  const db = createPhase1DbClient();
+
+  try {
+    const hasQuotationImportTotalAmountColumn = await hasFinancialQuotationImportTotalAmountColumn().catch(() => false);
+
+    const metricRows = await db.query<OverviewMetricRow>(`
+      with latest_confirmed_tasks as (
+        select distinct tc.flow_type, tc.task_id
+        from task_confirmations tc
+        where tc.status = 'confirmed'
+      ),
+      project_base as (
+        select
+          p.id,
+          case when coalesce(p.status, '') in ('已結案', '結案') then '已結案' else '執行中' end as normalized_status
+        from projects p
+        where coalesce(p.status, '') not in ('已結案', '結案')
+      ),
+      design_pending as (
+        select count(*)::int as count
+        from design_tasks dt
+        left join latest_confirmed_tasks lct on lct.flow_type = 'design' and lct.task_id = dt.id
+        where lct.task_id is null
+      ),
+      procurement_pending as (
+        select count(*)::int as count
+        from procurement_tasks pt
+        left join latest_confirmed_tasks lct on lct.flow_type = 'procurement' and lct.task_id = pt.id
+        where lct.task_id is null
+      ),
+      vendor_pending as (
+        select count(*)::int as count
+        from vendor_tasks vt
+        left join latest_confirmed_tasks lct on lct.flow_type = 'vendor' and lct.task_id = vt.id
+        where lct.task_id is null
+      ),
+      active_projects as (
+        select id
+        from project_base
+        where normalized_status = '執行中'
+      ),
+      quotation_totals as (
+        select
+          fqi.project_id,
+          coalesce(${hasQuotationImportTotalAmountColumn ? 'fqi.total_amount' : 'sum(fqli.quantity * fqli.unit_price)'}, 0)::float8 as total
+        from financial_quotation_imports fqi
+        ${hasQuotationImportTotalAmountColumn ? '' : 'inner join financial_quotation_line_items fqli on fqli.quotation_import_id = fqi.id'}
+        where fqi.is_active = true
+        ${hasQuotationImportTotalAmountColumn ? '' : 'group by fqi.project_id'}
+      ),
+      collection_totals as (
+        select
+          project_id,
+          coalesce(sum(amount), 0)::float8 as total
+        from project_collection_records
+        group by project_id
+      )
+      select
+        (select count(*)::int from project_base) as "totalProjects",
+        (select count(*)::int from project_base where normalized_status = '執行中') as "inProgressProjects",
+        (select count from design_pending) as "pendingDesignCount",
+        (select count from procurement_pending) as "pendingProcurementCount",
+        (select count from vendor_pending) as "pendingVendorCount",
+        coalesce((
+          select sum(coalesce(ct.total, 0))::float8
+          from active_projects ap
+          left join collection_totals ct on ct.project_id = ap.id
+        ), 0)::float8 as "activeCollectedTotal",
+        coalesce((
+          select sum(greatest(coalesce(qt.total, 0) - coalesce(ct.total, 0), 0))::float8
+          from active_projects ap
+          left join quotation_totals qt on qt.project_id = ap.id
+          left join collection_totals ct on ct.project_id = ap.id
+        ), 0)::float8 as "activeOutstandingTotal"
+    `);
+
+    const metrics = metricRows.rows[0] ?? EMPTY_METRICS;
+
+    const recentRows = await db.query<HomeOverviewRecentProject>(`
+      select
+        p.id,
+        p.name,
+        coalesce(p.client_name, '未填寫') as client,
+        coalesce(to_char(p.event_date, 'YYYY-MM-DD'), '-') as "eventDate",
+        '執行中' as status,
+        coalesce(p.owner, '-') as owner
+      from projects p
+      where coalesce(p.status, '') not in ('已結案', '結案')
+      order by p.event_date desc nulls last, p.created_at desc
+      limit 8
+    `);
+
+    return buildHomeOverviewReadModel(metrics, recentRows.rows);
+  } catch (error) {
+    console.error('[home-overview-read-model] failed, falling back to empty overview', error);
+    return buildHomeOverviewReadModel(EMPTY_METRICS, []);
+  }
 }
