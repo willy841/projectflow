@@ -17,7 +17,7 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  const shouldTrace = pathname.startsWith('/vendors');
+  const shouldTrace = pathname === '/' || pathname.startsWith('/vendors');
 
   if (PUBLIC_PATHS.some((path) => pathname.startsWith(path))) {
     return NextResponse.next();
@@ -28,13 +28,20 @@ export function middleware(request: NextRequest) {
     const loginUrl = new URL('/login', request.url);
     loginUrl.searchParams.set('next', pathname);
     if (shouldTrace) {
-      console.log('[middleware-vendor-detail]', JSON.stringify({ pathname, hasSession: false, action: 'redirect-login', totalMs: Date.now() - startedAt }));
+      console.log('[middleware-root-trace]', JSON.stringify({ pathname, hasSession: false, action: 'redirect-login', host: request.headers.get('host'), forwardedHost: request.headers.get('x-forwarded-host'), forwardedProto: request.headers.get('x-forwarded-proto'), totalMs: Date.now() - startedAt }));
     }
     return NextResponse.redirect(loginUrl);
   }
 
+  if (pathname === '/') {
+    if (shouldTrace) {
+      console.log('[middleware-root-trace]', JSON.stringify({ pathname, hasSession: true, action: 'rewrite-root-to-projects', host: request.headers.get('host'), forwardedHost: request.headers.get('x-forwarded-host'), forwardedProto: request.headers.get('x-forwarded-proto'), totalMs: Date.now() - startedAt }));
+    }
+    return NextResponse.rewrite(new URL('/projects', request.url));
+  }
+
   if (shouldTrace) {
-    console.log('[middleware-vendor-detail]', JSON.stringify({ pathname, hasSession: true, action: 'next', totalMs: Date.now() - startedAt }));
+    console.log('[middleware-root-trace]', JSON.stringify({ pathname, hasSession: true, action: 'next', host: request.headers.get('host'), forwardedHost: request.headers.get('x-forwarded-host'), forwardedProto: request.headers.get('x-forwarded-proto'), totalMs: Date.now() - startedAt }));
   }
   return NextResponse.next();
 }
