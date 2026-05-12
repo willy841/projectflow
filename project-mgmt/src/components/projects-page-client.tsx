@@ -145,8 +145,8 @@ export function ProjectsPageClient({ initialProjects }: { initialProjects: Proje
                   <th className="w-[16%] px-4 py-3 font-medium">地點</th>
                   <th className="w-[10%] px-4 py-3 font-medium">預算</th>
                   <th className="w-[10%] px-4 py-3 font-medium">成本</th>
-                  <th className="w-[5%] px-4 py-3 font-medium">負責人</th>
-                  <th className="w-[15%] px-4 py-3 font-medium text-center">操作</th>
+                  <th className="w-[4%] px-4 py-3 font-medium">負責人</th>
+                  <th className="w-[16%] px-4 py-3 font-medium text-center">操作</th>
                 </tr>
               </thead>
               <tbody className="bg-transparent">
