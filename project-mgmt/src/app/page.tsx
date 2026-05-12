@@ -4,13 +4,15 @@ import { getProjectRouteId } from "@/components/project-data";
 import { WorkspaceEmptyState } from "@/components/workspace-ui";
 import { getHomeOverviewReadModel } from "@/lib/db/home-overview-read-model";
 
+export const dynamic = "force-dynamic";
+
 export default async function Home() {
   const overview = await getHomeOverviewReadModel();
   const primaryMetrics = overview.metrics.slice(0, 4);
   const financeMetrics = overview.metrics.slice(4);
 
   return (
-    <AppShellAuth activePath="/">
+    <AppShellAuth>
       <header className="px-1 py-2 text-white">
         <div className="flex flex-col gap-6 2xl:flex-row 2xl:items-center 2xl:justify-between">
           <div className="max-w-4xl">
