@@ -9,15 +9,12 @@ import { isUuidLike } from "@/lib/db/project-flow-toggle";
 
 const parseEventDate = (value: string) => new Date(value).getTime();
 const PROJECTS_PER_PAGE = 10;
-const PROJECT_STATUS_FILTERS = ["全部", "執行中", "待發包", "採購中"] as const;
-type ProjectStatusFilter = (typeof PROJECT_STATUS_FILTERS)[number];
 
 export function ProjectsPageClient({ initialProjects }: { initialProjects: Project[] }) {
   const router = useRouter();
   const [projects, setProjects] = useState<Project[]>(initialProjects);
   const [dateSortOrder, setDateSortOrder] = useState<"asc" | "desc">("desc");
   const [searchKeyword, setSearchKeyword] = useState("");
-  const [statusFilter, setStatusFilter] = useState<ProjectStatusFilter>("全部");
   const [page, setPage] = useState(1);
   const [deletingProjectId, setDeletingProjectId] = useState<string | null>(null);
   const [pendingDeleteProject, setPendingDeleteProject] = useState<Project | null>(null);
@@ -36,15 +33,14 @@ export function ProjectsPageClient({ initialProjects }: { initialProjects: Proje
         !keyword || [project.name, project.client, project.location, project.code, project.owner]
           .map((value) => String(value ?? '').toLowerCase())
           .some((value) => value.includes(keyword));
-      const matchesStatus = statusFilter === "全部" || project.status === statusFilter;
-      return matchesKeyword && matchesStatus;
+      return matchesKeyword;
     });
 
     return [...filteredProjects].sort((a, b) => {
       const dateDiff = parseEventDate(a.eventDate) - parseEventDate(b.eventDate);
       return dateSortOrder === "asc" ? dateDiff : -dateDiff;
     });
-  }, [dateSortOrder, projects, searchKeyword, statusFilter]);
+  }, [dateSortOrder, projects, searchKeyword]);
 
   const totalPages = Math.max(1, Math.ceil(visibleProjects.length / PROJECTS_PER_PAGE));
   const currentPage = Math.min(page, totalPages);
@@ -123,27 +119,6 @@ export function ProjectsPageClient({ initialProjects }: { initialProjects: Proje
 
       <section className="p-1">
 
-        <div className="mb-5 flex flex-wrap gap-2">
-          {PROJECT_STATUS_FILTERS.map((filter) => {
-            const isActive = statusFilter === filter;
-            return (
-              <button
-                key={filter}
-                type="button"
-                onClick={() => {
-                  setStatusFilter(filter);
-                  setPage(1);
-                }}
-                className={`pf-pill rounded-2xl px-4 py-2 text-sm font-semibold ${
-                  isActive ? "pf-pill-active" : "bg-white/8 text-slate-300 ring-white/10 hover:bg-white/12"
-                }`}
-              >
-                {filter}
-              </button>
-            );
-          })}
-        </div>
-
         {visibleProjects.length ? (
           <div className="pf-table-shell rounded-[28px]">
             <table className="pf-table min-w-[1100px] xl:min-w-full table-fixed">
@@ -218,20 +193,19 @@ export function ProjectsPageClient({ initialProjects }: { initialProjects: Proje
           </div>
         ) : (
           <WorkspaceEmptyState
-            title={searchKeyword.trim() || statusFilter !== "全部" ? "找不到符合條件的專案" : "目前尚無執行中專案"}
-            description={searchKeyword.trim() || statusFilter !== "全部" ? "請調整搜尋或狀態條件後再查看。" : "建立新專案後，這裡會顯示可進入的執行中專案。"}
+            title={searchKeyword.trim() ? "找不到符合條件的專案" : "目前尚無專案"}
+            description={searchKeyword.trim() ? "請調整搜尋條件後再查看。" : "建立新專案後，這裡會顯示可進入的專案。"}
             actions={
-              searchKeyword.trim() || statusFilter !== "全部" ? (
+              searchKeyword.trim() ? (
                 <button
                   type="button"
                   onClick={() => {
                     setSearchKeyword("");
-                    setStatusFilter("全部");
                     setPage(1);
                   }}
                   className={workspacePrimaryButtonClass}
                 >
-                  清除篩選
+                  清除搜尋
                 </button>
               ) : (
                 <Link href="/projects/new" className={workspacePrimaryButtonClass}>
