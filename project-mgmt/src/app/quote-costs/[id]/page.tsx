@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { performance } from "node:perf_hooks";
+import { AppShellAuth } from "@/components/app-shell-auth";
 import { QuoteCostDetailClient } from "@/components/quote-cost-detail-client";
 import { getQuoteCostDetailReadModel } from "@/lib/db/financial-flow-adapter";
 import { listDbVendorPackagesByProject } from "@/lib/db/vendor-package-adapter";
@@ -32,5 +33,9 @@ export default async function QuoteCostDetailPage({ params }: { params: Promise<
     totalMs: Number((performance.now() - pageStart).toFixed(1)),
   }));
 
-  return <QuoteCostDetailClient project={project} initialProject={initialPayload} preloadedDbPackages={preloadedDbPackages} preloadedFormalRows={preloadedFormalRows} mode="active" />;
+  return (
+    <AppShellAuth activePath="/quote-costs">
+      <QuoteCostDetailClient project={project} initialProject={initialPayload} preloadedDbPackages={preloadedDbPackages} preloadedFormalRows={preloadedFormalRows} mode="active" />
+    </AppShellAuth>
+  );
 }

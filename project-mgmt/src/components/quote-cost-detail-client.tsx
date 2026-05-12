@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { AppShell } from "@/components/app-shell";
 import {
   formatCurrency,
   getAdditionalManualCostTotal,
@@ -468,7 +467,6 @@ export function QuoteCostDetailClient({ project, mode = "active", presenter = ge
 
   return (
     <>
-      <AppShell activePath={presenter.activePath} variant="dark-glass">
       <QuoteCostHeader
         presenter={presenter}
         projectName={state.projectName}
@@ -724,7 +722,6 @@ export function QuoteCostDetailClient({ project, mode = "active", presenter = ge
           </div>
         </div>
       ) : null}
-      </AppShell>
     </>
   );
 }
