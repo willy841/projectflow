@@ -11,12 +11,15 @@ export const quoteCostListClientBoundary = {
   formalRouteStatus: "db-first-route-consumer",
 } as const;
 
+const PROJECTS_PER_PAGE = 10;
+
 function resolveQuoteCostSourceProjects(initialProjects?: QuoteCostProject[]) {
   return initialProjects ?? [];
 }
 
 export function QuoteCostListClient({ mode = "active", initialProjects }: { mode?: "active" | "closed"; initialProjects?: QuoteCostProject[] }) {
   const [searchKeyword, setSearchKeyword] = useState("");
+  const [page, setPage] = useState(1);
   const sourceProjects = resolveQuoteCostSourceProjects(initialProjects);
 
   const activeProjects = useMemo(() => {
@@ -44,6 +47,10 @@ export function QuoteCostListClient({ mode = "active", initialProjects }: { mode
       });
   }, [searchKeyword, sourceProjects]);
 
+  const totalPages = Math.max(1, Math.ceil(activeProjects.length / PROJECTS_PER_PAGE));
+  const currentPage = Math.min(page, totalPages);
+  const pagedProjects = activeProjects.slice((currentPage - 1) * PROJECTS_PER_PAGE, currentPage * PROJECTS_PER_PAGE);
+
   if (mode === "closed") {
     return null;
   }
@@ -53,14 +60,25 @@ export function QuoteCostListClient({ mode = "active", initialProjects }: { mode
   return (
     <>
       <header className="p-1 xl:p-1">
-        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-          <div className="flex items-center gap-3">
-            <h2 className="text-3xl font-semibold tracking-tight text-slate-50">• 報價成本</h2>
+        <div className="flex flex-col gap-5 2xl:flex-row 2xl:items-center 2xl:justify-between">
+          <div className="min-w-0">
+            <div className="flex min-h-11 flex-wrap items-center gap-3">
+              <h2 className="text-3xl font-semibold tracking-tight text-slate-50">報價成本</h2>
+              <p className="text-sm leading-none text-slate-400">
+                目前顯示 <span className="font-semibold text-slate-100">{activeProjects.length}</span> / {sourceProjects.filter((project) => project.projectStatus === "執行中").length} 個專案
+              </p>
+              <p className="text-sm leading-none text-slate-400">
+                第 <span className="font-semibold text-slate-100">{currentPage}</span> / {totalPages} 頁
+              </p>
+            </div>
           </div>
 
           <input
             value={searchKeyword}
-            onChange={(event) => setSearchKeyword(event.target.value)}
+            onChange={(event) => {
+              setSearchKeyword(event.target.value);
+              setPage(1);
+            }}
             placeholder="搜尋專案名稱 / 客戶"
             className="pf-input h-11 lg:max-w-sm"
           />
@@ -69,38 +87,62 @@ export function QuoteCostListClient({ mode = "active", initialProjects }: { mode
 
       <section className="p-1">
         {activeProjects.length ? (
-          <div className="pf-table-shell">
-            <table className="pf-table">
-              <thead>
-                <tr>
-                  <th className="px-4 py-3 font-medium">客戶名稱</th>
-                  <th className="px-4 py-3 font-medium">專案名稱</th>
-                  <th className="px-4 py-3 font-medium">活動日期</th>
-                  <th className="px-4 py-3 font-medium">報價資料狀態</th>
-                  <th className="px-4 py-3 font-medium">操作</th>
-                </tr>
-              </thead>
-              <tbody>
-                {activeProjects.map(({ project }) => (
-                  <tr key={project.id} className="align-middle">
-                    <td className="align-middle text-slate-300">{project.clientName}</td>
-                    <td className="align-middle font-medium text-slate-100"><Link href={`/quote-costs/${project.id}`} className="underline-offset-4 hover:underline">{project.projectName}</Link></td>
-                    <td className="align-middle text-slate-300">{project.eventDate}</td>
-                    <td className="align-middle">
-                      <span className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ring-1 ${project.quotationImported ? "bg-emerald-400/14 text-emerald-200 ring-emerald-300/20" : "bg-amber-400/14 text-amber-200 ring-amber-300/20"}`}>
-                        {project.quotationImported ? "已上傳" : "未上傳"}
-                      </span>
-                    </td>
-                    <td className="align-middle">
-                      <Link href={`/quote-costs/${project.id}`} className="pf-btn-secondary px-3 py-2 text-sm">
-                        查看
-                      </Link>
-                    </td>
+          <>
+            <div className="pf-table-shell">
+              <table className="pf-table">
+                <thead>
+                  <tr>
+                    <th className="px-4 py-3 font-medium">客戶名稱</th>
+                    <th className="px-4 py-3 font-medium">專案名稱</th>
+                    <th className="px-4 py-3 font-medium">活動日期</th>
+                    <th className="px-4 py-3 font-medium">報價資料狀態</th>
+                    <th className="px-4 py-3 font-medium">操作</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {pagedProjects.map(({ project }) => (
+                    <tr key={project.id} className="align-middle">
+                      <td className="align-middle text-slate-300">{project.clientName}</td>
+                      <td className="align-middle font-medium text-slate-100"><Link href={`/quote-costs/${project.id}`} className="underline-offset-4 hover:underline">{project.projectName}</Link></td>
+                      <td className="align-middle text-slate-300">{project.eventDate}</td>
+                      <td className="align-middle">
+                        <span className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ring-1 ${project.quotationImported ? "bg-emerald-400/14 text-emerald-200 ring-emerald-300/20" : "bg-amber-400/14 text-amber-200 ring-amber-300/20"}`}>
+                          {project.quotationImported ? "已上傳" : "未上傳"}
+                        </span>
+                      </td>
+                      <td className="align-middle">
+                        <Link href={`/quote-costs/${project.id}`} className="pf-btn-secondary px-3 py-2 text-sm">
+                          查看
+                        </Link>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            <div className="mt-6 flex items-center justify-between gap-3">
+              <p className="text-sm text-slate-400">第 {currentPage} / {totalPages} 頁</p>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => setPage((current) => Math.max(1, current - 1))}
+                  disabled={currentPage === 1}
+                  className="pf-btn-secondary px-4 py-2 disabled:opacity-50"
+                >
+                  上一頁
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPage((current) => Math.min(totalPages, current + 1))}
+                  disabled={currentPage === totalPages}
+                  className="pf-btn-secondary px-4 py-2 disabled:opacity-50"
+                >
+                  下一頁
+                </button>
+              </div>
+            </div>
+          </>
         ) : (
           <WorkspaceEmptyState
             title={hasKeyword ? "找不到符合條件的專案" : "目前尚無可進入的報價成本專案"}
@@ -111,7 +153,7 @@ export function QuoteCostListClient({ mode = "active", initialProjects }: { mode
             }
             actions={
               hasKeyword ? (
-                <button type="button" onClick={() => setSearchKeyword("")} className={workspacePrimaryButtonClass}>
+                <button type="button" onClick={() => { setSearchKeyword(""); setPage(1); }} className={workspacePrimaryButtonClass}>
                   清除搜尋
                 </button>
               ) : (
