@@ -2,7 +2,7 @@ import { notFound } from 'next/navigation';
 import { performance } from 'node:perf_hooks';
 import { AppShellAuth } from '@/components/app-shell-auth';
 import { VendorDetailShellDb } from '@/components/vendor-detail-shell-db';
-import { getDbVendorById, listDbVendorPaymentRecordsByVendorId, listDbVendorProjectRecordsByVendorId } from '@/lib/db/vendor-directory-adapter';
+import { getDbVendorById, listDbVendorPaymentRecordsByVendorId, listDbVendorProjectRecordsByVendorId, listDbVendorTrades } from '@/lib/db/vendor-directory-adapter';
 
 export default async function VendorDetailPage({
   params,
@@ -21,7 +21,10 @@ export default async function VendorDetailPage({
   }
 
   const paymentStartedAt = performance.now();
-  const paymentRecords = await listDbVendorPaymentRecordsByVendorId(id);
+  const [paymentRecords, tradeOptions] = await Promise.all([
+    listDbVendorPaymentRecordsByVendorId(id),
+    listDbVendorTrades(),
+  ]);
   const paymentAndTradeMs = performance.now() - paymentStartedAt;
 
   const recordsStartedAt = performance.now();
@@ -37,7 +40,7 @@ export default async function VendorDetailPage({
     vendor,
     initialOpenRecords,
     paymentRecords,
-    tradeOptions: [],
+    tradeOptions,
   }), 'utf8');
 
   console.log('[vendor-detail-page]', JSON.stringify({
@@ -48,14 +51,14 @@ export default async function VendorDetailPage({
     dataMs: Number(dataMs.toFixed(1)),
     recordCount: initialOpenRecords.length,
     paymentCount: paymentRecords.length,
-    tradeOptionCount: 0,
+    tradeOptionCount: tradeOptions.length,
     payloadBytes,
     totalMs: Number((performance.now() - pageStart).toFixed(1)),
   }));
 
   return (
     <AppShellAuth activePath="/vendors">
-      <VendorDetailShellDb vendor={vendor} initialOpenRecords={initialOpenRecords} tradeOptions={[]} />
+      <VendorDetailShellDb vendor={vendor} initialOpenRecords={initialOpenRecords} tradeOptions={tradeOptions} />
     </AppShellAuth>
   );
 }
