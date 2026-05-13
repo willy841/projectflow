@@ -366,19 +366,36 @@ export function VendorListPageDb({ vendors, tradeOptions: initialTradeOptions }:
                 />
               </label>
 
-              <label className="block">
+              <div className="block">
                 <span className="mb-1.5 block text-sm font-semibold text-slate-300">工種（可選）</span>
-                <select
-                  value={newVendorTrade}
-                  onChange={(event) => setNewVendorTrade(event.target.value)}
-                  className="pf-select h-11 w-full"
-                >
-                  <option value="">不指定</option>
-                  {tradeOptions.map((trade) => (
-                    <option key={trade} value={trade}>{trade}</option>
-                  ))}
-                </select>
-              </label>
+                <div className="rounded-2xl border border-white/10 bg-white/[0.04] px-3 py-3">
+                  <div className="flex flex-wrap gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setNewVendorTrade('')}
+                      className={`pf-pill ${newVendorTrade === '' ? 'pf-pill-active' : 'pf-pill-muted'}`}
+                    >
+                      不指定
+                    </button>
+                    {tradeOptions.map((trade) => {
+                      const active = newVendorTrade === trade;
+                      return (
+                        <button
+                          key={trade}
+                          type="button"
+                          onClick={() => setNewVendorTrade(trade)}
+                          className={`pf-pill ${active ? 'bg-sky-600 text-white ring-1 ring-sky-500/70' : 'pf-pill-muted'}`}
+                        >
+                          {trade}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  {tradeOptions.length === 0 ? (
+                    <p className="mt-2 text-xs text-slate-400">目前還沒有可選工種，請先用上方「管理工種」建立。</p>
+                  ) : null}
+                </div>
+              </div>
 
               {createVendorError ? (
                 <div className="rounded-2xl border border-rose-400/20 bg-rose-950/20 px-4 py-3 text-sm text-rose-200">
